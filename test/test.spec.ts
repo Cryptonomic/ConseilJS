@@ -1,10 +1,10 @@
 import {expect} from 'chai';
 import 'mocha';
-import hello from "../src/index";
+import getBalance from "../src/index";
 
-describe('Hello function', () => {
+describe('getBalance()', () => {
     it('should return hello world', () => {
-        const result = hello();
+        const result = getBalance('tz1iCuaTQnEu28cPBGikhgYrTGFieLfRaL3G');
         expect(result).to.equal('Hello World!');
     });
 });

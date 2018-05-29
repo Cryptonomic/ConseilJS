@@ -1,5 +1,5 @@
 {
-  "name": "conseil.js",
+  "name": "conseiljs",
   "version": "0.1.0",
   "description": "Client-side library for dApp development.",
   "main": "index.tsx",

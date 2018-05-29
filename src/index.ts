@@ -1,5 +1,7 @@
-export function hello() {
-    return 'Hello World!';
-}
+import * as Conseil from './conseil_bridge';
 
-export default hello;
+export function getBalance(id: string) {
+    return Conseil.getAccount('zeronet', id);
+};
+
+export default getBalance;
