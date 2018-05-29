@@ -1,0 +1,29 @@
+{
+  "name": "conseil.js",
+  "version": "0.1.0",
+  "description": "Client-side library for dApp development.",
+  "main": "index.tsx",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cryptonomic/ConseilJS.git"
+  },
+  "keywords": [
+    "tezos",
+    "conseil"
+  ],
+  "author": "Cryptonomic Inc",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Cryptonomic/ConseilJS/issues"
+  },
+  "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
+  "dependencies": {
+    "querystring": "^0.2.0"
+  },
+  "devDependencies": {
+    "typescript": "^2.8.3"
+  }
+}
