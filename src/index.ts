@@ -2,6 +2,7 @@ import {Wallet} from "./types/Wallet";
 import {KeyPair} from "./types/KeyPair";
 import {TezosAccount} from "./types/TezosAccount";
 import {TezosTransaction} from "./types/TezosTransaction";
+import {TezosOperationResult} from "./types/TezosAppliedOperation";
 
 export function createWallet(filename: string, password: string): Wallet {
     const keys: KeyPair = {
@@ -75,7 +76,7 @@ export function getBalance(id: string, network: string): Promise<number> {
     return new Promise<number>((resolve, reject) => {
         resolve(50)
     })
-};
+}
 
 export function getTransactionsForAddress(id: string, network: string): Promise<TezosTransaction[]> {
     return new Promise<TezosTransaction[]>((resolve, reject) => {
@@ -99,12 +100,24 @@ export function getTransactionsForAddress(id: string, network: string): Promise<
 
 export function sendTransaction(network: string, from: string, to: string, amount: number, fee: number): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        resolve('op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo')
+        resolve(
+            'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
+        )
     })
-    }
+}
+
+export function createAccount(network: string, from: string, to: string, amount: number, fee: number): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+        resolve(
+            'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
+        )
+    })
+}
 
 export function delegateAccount(network: string, id: string, delegate: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-        resolve('op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo')
+        resolve(
+            'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
+        )
     })
 }
