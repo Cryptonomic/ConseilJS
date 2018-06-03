@@ -1,4 +1,5 @@
 import * as querystring from 'querystring';
+import fetch from 'node-fetch';
 
 export interface ConseilFilter {
     limit: number;
@@ -13,15 +14,14 @@ export interface ConseilFilter {
     account_delegate: string[];
 }
 
-function queryNautilus(network: string, command: string, payload: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-        let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${command}`;
-        const xmlHttp = new XMLHttpRequest();
-        xmlHttp.open('GET', url, true);
-        xmlHttp.setRequestHeader('apiKey', 'hooman');
-        xmlHttp.onload = () => resolve(xmlHttp.responseText);
-        xmlHttp.onerror = () => reject(xmlHttp.statusText);
-        xmlHttp.send(payload);
+function queryNautilus(network: string, command: string, payload: string): Promise<Response> {
+    let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${command}`;
+    return fetch(url, {
+        method: 'post',
+        headers: {
+            "apiKey": "hooman"
+        },
+        body: payload
     });
 }
 
