@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import 'mocha';
-import { getBalance, signOperationGroup} from "../src";
+import signOperationGroup from "../src/tezos/TezosOperations";
 
 "../src/index";
 
