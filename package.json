@@ -21,9 +21,9 @@
   },
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
   "dependencies": {
+    "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
-    "libsodium": "^0.7.3",
-    "libsodium-wrappers": "^0.7.3",
+    "libsodium-wrappers": "^0.5.4",
     "node-fetch": "^2.1.2",
     "querystring": "^0.2.0",
     "xmlhttprequest": "^1.8.0"

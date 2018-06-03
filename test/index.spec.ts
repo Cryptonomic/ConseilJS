@@ -1,7 +1,13 @@
 import {expect} from 'chai';
 import 'mocha';
-import signOperationGroup from "../src/tezos/TezosOperations";
-import {createWallet, loadWallet, saveWallet} from "../src";
+import {
+    createWallet,
+    generateMnemonic,
+    loadWallet,
+    saveWallet,
+    unlockFundraiserIdentity,
+    unlockIdentityWithMnemonic
+} from "../src";
 import {KeyPair} from "../src/types/KeyPair";
 import {Wallet} from "../src/types/Wallet";
 
@@ -38,16 +44,38 @@ describe('loadWallet()', () => {
     });
 })
 
+describe('unlockFundraiserIdentity()', () => {
+    it('should produce the correct fundraiser key pair', () => {
+        const result = unlockFundraiserIdentity(
+            'just manual depend knock secret kingdom cup ribbon age learn measure more merit bubble next',
+            'imbfyoqx.sqxphenx@tezos.example.org',
+            'OEU8K0K1n5'
+        );
+        expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
+    });
+});
+
+describe('generateMnemonic()', () => {
+    it('should produce a fifteen work bip39 mnemonic', () => {
+        const result = generateMnemonic()
+        console.log(result)
+        expect(result.split(' ').length).to.equal(15);
+    });
+});
+
+describe('unlockIdentityWithMnemonic()', () => {
+    it('should produce the correct mnemonic-based key pair', () => {
+        const result = unlockIdentityWithMnemonic(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
+            'password'
+        );
+        expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
+    });
+});
+
 /*describe('getBalance()', () => {
     it('should return hello world', () => {
         const result = getBalance('tz1iCuaTQnEu28cPBGikhgYrTGFieLfRaL3G');
         //expect(result).to.equal('Hello World!');
-    });
-});*/
-
-/*describe('signOperationGroup()', () => {
-    it('should return a correct signature for a forged operation', () => {
-        const result = signOperationGroup()
-        expect(result).to.equal('edsigtu4NbVsyomvHbAtstQAMpXFSKkDxH1YoshhQQmJhVe2pyWRUYvQr7dDLetLvyL7Yi78Pe846mG6hBGLx2WJXkuqSCU6Ff2');
     });
 });*/
