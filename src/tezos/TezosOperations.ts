@@ -14,7 +14,7 @@ export function signOperationGroup() {
     const opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes)
     const opSignatureInHex = sodium.to_hex(opSignature)
     console.log("****" + hashedWatermarkedOpBytesInHex)
-    return opSignature
+    return opSignatureInHex
 }
 
 export default signOperationGroup;

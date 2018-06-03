@@ -2,42 +2,38 @@ import {Wallet} from "./types/Wallet";
 import {KeyPair} from "./types/KeyPair";
 import {TezosAccount} from "./types/TezosAccount";
 import {TezosTransaction} from "./types/TezosTransaction";
-import {TezosOperationResult} from "./types/TezosAppliedOperation";
+import * as fs from 'fs';
 
-export function createWallet(filename: string, password: string): Wallet {
-    const keys: KeyPair = {
-        publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
-        privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-        publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-    }
-    return {
-        identities: [keys],
-        password: 'bestpasswordever'
-    }
+export function createWallet(filename: string, password: string): Promise<Wallet> {
+    return new Promise<Wallet>((resolve, reject) => {
+        if(fs.existsSync(filename)) reject("A wallet already exists at this path!")
+        const wallet: Wallet = {
+            identities: []
+        }
+        fs.writeFile(filename, JSON.stringify(wallet), (err) => {
+            if (err) reject(err);
+            resolve(wallet)
+        });
+    })
 }
 
-export function loadWallet(filename: string, password: string): Wallet {
-    const keys: KeyPair = {
-        publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
-        privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-        publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-    }
-    return {
-        identities: [keys],
-        password: 'bestpasswordever'
-    }
+export function saveWallet(filename: string, wallet: Wallet): Promise<Wallet> {
+    return new Promise<Wallet>((resolve, reject) => {
+        fs.writeFile(filename, JSON.stringify(wallet), (err) => {
+            if (err) reject(err);
+            resolve(wallet)
+        });
+    })
 }
 
-export function saveWallet(wallet: Wallet, filename: string): Wallet {
-    const keys: KeyPair = {
-        publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
-        privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-        publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-    }
-    return {
-        identities: [keys],
-        password: 'bestpasswordever'
-    }
+export function loadWallet(filename: string, password: string): Promise<Wallet> {
+    return new Promise<Wallet>((resolve, reject) => {
+        fs.readFile(filename,(err, data) => {
+            if (err) reject(err);
+            const wallet = <Wallet> JSON.parse(data.toString())
+            resolve(wallet)
+        });
+    })
 }
 
 export function unlockFundraiserIdentity(passphrase: string, username: string, password: string): KeyPair {
