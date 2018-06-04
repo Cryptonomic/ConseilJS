@@ -1,5 +1,6 @@
 import * as querystring from 'querystring';
 import fetch from 'node-fetch';
+import {TezosAccount} from "../tezos/TezosTypes";
 
 export interface ConseilFilter {
     limit: number;
@@ -14,7 +15,7 @@ export interface ConseilFilter {
     account_delegate: string[];
 }
 
-function queryNautilus(network: string, command: string, payload: string): Promise<Response> {
+function queryNautilus(network: string, command: string, payload: string): Promise<object> {
     let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${command}`;
     return fetch(url, {
         method: 'post',
@@ -22,7 +23,8 @@ function queryNautilus(network: string, command: string, payload: string): Promi
             "apiKey": "hooman"
         },
         body: payload
-    });
+    })
+        .then(response => response.json());
 }
 
 function sanitizeFilter(filter: ConseilFilter): ConseilFilter {
@@ -66,10 +68,12 @@ export function getOperations(network: string, filter: ConseilFilter) {
     return queryNautilusWithFilter(network, 'operations', filter);
 }
 
-export function getAccount(network: string, hash: String) {
-    return queryNautilus(network, `accounts/${hash}`, '');
+export function getAccount(network: string, hash: String): Promise<TezosAccount> {
+    return queryNautilus(network, `accounts/${hash}`, '')
+        .then( json => {return <TezosAccount> json})
 }
 
-export function getAccounts(network: string, filter: ConseilFilter) {
-    return queryNautilusWithFilter(network, 'accounts', filter);
+export function getAccounts(network: string, filter: ConseilFilter): Promise<TezosAccount[]> {
+    return queryNautilusWithFilter(network, 'accounts', filter)
+        .then( json => {return <TezosAccount[]> json})
 }

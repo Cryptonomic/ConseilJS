@@ -1,19 +1,12 @@
 import {expect} from 'chai';
 import 'mocha';
-import {
-    createWallet,
-    generateMnemonic,
-    loadWallet,
-    saveWallet,
-    unlockFundraiserIdentity,
-    unlockIdentityWithMnemonic
-} from "../src";
+import * as conseilJS from "../src";
 import {KeyPair} from "../src/types/KeyPair";
 import {Wallet} from "../src/types/Wallet";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
-        const result = await createWallet("//tmp//test.tezwallet", "password");
+        const result = await conseilJS.tezos.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
 })
@@ -26,7 +19,7 @@ describe('saveWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         }
         const wallet: Wallet = {identities: [keys]}
-        const result = await saveWallet("//tmp//test.tezwallet", wallet);
+        const result = await conseilJS.tezos.saveWallet("//tmp//test.tezwallet", wallet);
         expect(result).to.deep.equal({identities: [keys]});
     });
 })
@@ -39,14 +32,14 @@ describe('loadWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         }
         const wallet: Wallet = {identities: [keys]}
-        const result = await loadWallet("//tmp//test.tezwallet", "password");
+        const result = await conseilJS.tezos.loadWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal(wallet);
     });
 })
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result = unlockFundraiserIdentity(
+        const result = conseilJS.tezos.unlockFundraiserIdentity(
             'just manual depend knock secret kingdom cup ribbon age learn measure more merit bubble next',
             'imbfyoqx.sqxphenx@tezos.example.org',
             'OEU8K0K1n5'
@@ -57,7 +50,7 @@ describe('unlockFundraiserIdentity()', () => {
 
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
-        const result = generateMnemonic()
+        const result = conseilJS.tezos.generateMnemonic()
         console.log(result)
         expect(result.split(' ').length).to.equal(15);
     });
@@ -65,7 +58,7 @@ describe('generateMnemonic()', () => {
 
 describe('unlockIdentityWithMnemonic()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result = unlockIdentityWithMnemonic(
+        const result = conseilJS.tezos.unlockIdentityWithMnemonic(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );
