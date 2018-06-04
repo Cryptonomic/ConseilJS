@@ -3,7 +3,7 @@ import {KeyPair} from "./types/KeyPair";
 import {TezosAccount} from "./tezos/TezosTypes";
 import {TezosTransaction} from "./types/TezosTransaction";
 import * as CryptoUtils from "./utils/CryptoUtils"
-import * as Conseil from "./utils/ConseilQuery"
+import * as Conseil from "./tezos/TezosQuery"
 import * as fs from 'fs';
 
 export namespace tezos
@@ -54,7 +54,7 @@ export namespace tezos
     }
 
     export function getAccountsForIdentity(id: string, network: string): Promise<TezosAccount[]> {
-        const filter: Conseil.ConseilFilter = {
+        const filter: Conseil.TezosFilter = {
             limit: 100,
             block_id: [],
             block_level: [],

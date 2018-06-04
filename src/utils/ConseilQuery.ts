@@ -1,21 +1,7 @@
-import * as querystring from 'querystring';
-import fetch from 'node-fetch';
-import {TezosAccount} from "../tezos/TezosTypes";
+import * as querystring from "querystring";
+import {TezosFilter} from "../tezos/TezosQuery";
 
-export interface ConseilFilter {
-    limit: number;
-    block_id: string[];
-    block_level: number[];
-    block_netid: string[];
-    block_protocol: string[];
-    operation_id: string[];
-    operation_source: string[];
-    account_id: string[];
-    account_manager: string[];
-    account_delegate: string[];
-}
-
-function queryNautilus(network: string, command: string, payload: string): Promise<object> {
+export function queryNautilus(network: string, command: string, payload: string): Promise<object> {
     let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${command}`;
     return fetch(url, {
         method: 'post',
@@ -27,7 +13,7 @@ function queryNautilus(network: string, command: string, payload: string): Promi
         .then(response => response.json());
 }
 
-function sanitizeFilter(filter: ConseilFilter): ConseilFilter {
+export function sanitizeFilter(filter: TezosFilter): TezosFilter {
     return {
         limit: filter.limit,
         block_id: filter.block_id.filter(Boolean),
@@ -42,38 +28,8 @@ function sanitizeFilter(filter: ConseilFilter): ConseilFilter {
     };
 }
 
-function queryNautilusWithFilter(network: string, command: string, filter: ConseilFilter) {
+export function queryNautilusWithFilter(network: string, command: string, filter: TezosFilter) {
     let params = querystring.stringify(sanitizeFilter(filter));
     let cmdWithParams = `${command}?${params}`;
     return queryNautilus(network, cmdWithParams, '');
-}
-
-export function getBlockHead(network: string) {
-    return queryNautilus(network, 'blocks/head', '');
-}
-
-export function getBlock(network: string, hash: String) {
-    return queryNautilus(network, `blocks/${hash}`, '');
-}
-
-export function getBlocks(network: string, filter: ConseilFilter) {
-    return queryNautilusWithFilter(network, 'blocks', filter);
-}
-
-export function getOperation(network: string, hash: String) {
-    return queryNautilus(network, `operations/${hash}`, '');
-}
-
-export function getOperations(network: string, filter: ConseilFilter) {
-    return queryNautilusWithFilter(network, 'operations', filter);
-}
-
-export function getAccount(network: string, hash: String): Promise<TezosAccount> {
-    return queryNautilus(network, `accounts/${hash}`, '')
-        .then( json => {return <TezosAccount> json})
-}
-
-export function getAccounts(network: string, filter: ConseilFilter): Promise<TezosAccount[]> {
-    return queryNautilusWithFilter(network, 'accounts', filter)
-        .then( json => {return <TezosAccount[]> json})
 }
