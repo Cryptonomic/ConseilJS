@@ -23,9 +23,11 @@
   "dependencies": {
     "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
+    "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "node-fetch": "^2.1.2",
     "querystring": "^0.2.0",
+    "ssl-root-cas": "^1.2.5",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {

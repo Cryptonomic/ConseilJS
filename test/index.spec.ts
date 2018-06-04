@@ -3,9 +3,11 @@ import 'mocha';
 import * as conseilJS from "../src";
 import {KeyPair} from "../src/types/KeyPair";
 import {Wallet} from "../src/types/Wallet";
+import * as fs from 'fs'
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
+        fs.unlinkSync("//tmp//test.tezwallet")
         const result = await conseilJS.tezos.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
