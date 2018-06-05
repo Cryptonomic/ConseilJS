@@ -100,26 +100,26 @@ export function sendOperation(
     operations: object[],
     keyStore: KeyStore,
     fee: number): Promise<OperationResult>   {
-    TezosNode.getBlockHead(network)
+    return TezosNode.getBlockHead(network)
         .then(blockHead =>
         {
-            TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash)
+            return TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash)
                 .then(account =>
                 {
-                    TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash)
+                    return TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash)
                         .then(accountManager => {
                             const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore)
-                            forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
+                            return forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
                                 .then(forgedOperationGroup => {
                                     const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore)
                                     const operationGroupHash = computeOperationHash(signedOpGroup)
-                                    applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup)
+                                    return applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup)
                                         .then(appliedOp => {
-                                            injectOperation(network, signedOpGroup)
+                                            return injectOperation(network, signedOpGroup)
                                                 .then(operation => {
                                                     return {
                                                         results: appliedOp,
-                                                        operationGroupID: operation
+                                                        operationGroupID: operation.injectedOperation
                                                     }
                                                 })
                                         })
