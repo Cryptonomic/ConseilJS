@@ -1,5 +1,5 @@
-import {KeyPair} from "./KeyPair";
+import {KeyStore} from "./KeyPair";
 
 export interface Wallet {
-    identities: KeyPair[]
+    identities: KeyStore[]
 }

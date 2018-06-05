@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as conseilJS from "../src";
-import {KeyPair} from "../src/types/KeyPair";
+import {KeyStore} from "../src/types/KeyPair";
 import {Wallet} from "../src/types/Wallet";
 import * as fs from 'fs'
 
@@ -15,7 +15,7 @@ describe('createWallet()', () => {
 
 describe('saveWallet()', () => {
     it('should save an existing wallet', async () => {
-        const keys: KeyPair = {
+        const keys: KeyStore = {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
@@ -28,7 +28,7 @@ describe('saveWallet()', () => {
 
 describe('loadWallet()', () => {
     it('should load a given wallet', async () => {
-        const keys: KeyPair = {
+        const keys: KeyStore = {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'

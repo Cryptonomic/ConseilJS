@@ -1,5 +1,5 @@
 import {Wallet} from "./types/Wallet";
-import {KeyPair} from "./types/KeyPair";
+import {KeyStore} from "./types/KeyPair";
 import {TezosAccount, TezosOperationGroup} from "./tezos/TezosTypes";
 import * as CryptoUtils from "./utils/CryptoUtils"
 import * as TezosQuery from "./tezos/TezosQuery"
@@ -39,7 +39,7 @@ export namespace tezos
         })
     }
 
-    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string): KeyPair {
+    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string): KeyStore {
         const passphrase = email + password
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
     }
@@ -48,7 +48,7 @@ export namespace tezos
         return CryptoUtils.generateMnemonic()
     }
 
-    export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyPair {
+    export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore {
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
     }
 
@@ -93,7 +93,7 @@ export namespace tezos
         return TezosQuery.getOperationGroups(network, filter)
     }
 
-    export function sendTransaction(network: string, keyPair: KeyPair, from: string, to: string, amount: number, fee: number): Promise<string> {
+    export function sendTransaction(network: string, keyPair: KeyStore, from: string, to: string, amount: number, fee: number): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             resolve(
                 'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
@@ -101,7 +101,7 @@ export namespace tezos
         })
     }
 
-    export function createAccount(network: string, keyPair: KeyPair): Promise<string> {
+    export function createAccount(network: string, keyPair: KeyStore): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             resolve(
                 'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
@@ -109,7 +109,7 @@ export namespace tezos
         })
     }
 
-    export function delegateAccount(network: string, keyPair: KeyPair, id: string, delegate: string): Promise<string> {
+    export function delegateAccount(network: string, keyPair: KeyStore, id: string, delegate: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
             resolve(
                 'op4prKdhMfcGraxqe45KYEs8W3Yyf7BXiDxn5LNssRs54XLdmBo'
