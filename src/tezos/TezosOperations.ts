@@ -9,6 +9,11 @@ export interface SignedOperationGroup {
     signature: string
 }
 
+export interface OperationResult {
+    results: TezosTypes.AppliedOperation,
+    operationGroupID: String
+}
+
 export function signOperationGroup(forgedOperation: string, keyStore: KeyStore): SignedOperationGroup {
     const watermark = '03'
     const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermark + forgedOperation)
@@ -66,12 +71,35 @@ export function forgeOperations(
         .then(forgedOperation => {return forgedOperation.operation})
 }
 
+export function applyOperation(
+    network: string,
+    blockHead: TezosTypes.BlockMetadata,
+    operationGroupHash: string,
+    forgedOperationGroup: string,
+    signedOpGroup: SignedOperationGroup): Promise<TezosTypes.AppliedOperation> {
+    const payload = {
+        pred_block: blockHead.predecessor,
+        operation_hash: operationGroupHash,
+        forged_operation: forgedOperationGroup,
+        signature: signedOpGroup.signature
+    }
+    return TezosNode.applyOperation(network, payload)
+}
+
+export function injectOperation(
+    network: string,
+    signedOpGroup: SignedOperationGroup): Promise<TezosTypes.InjectedOperation> {
+    const payload = {
+        signedOperationContents: sodium.to_hex(signedOpGroup.bytes)
+    }
+    return TezosNode.injectOperation(network, payload)
+}
+
 export function sendOperation(
     network: string,
     operations: object[],
     keyStore: KeyStore,
-    fee: number
-)   {
+    fee: number): Promise<OperationResult>   {
     TezosNode.getBlockHead(network)
         .then(blockHead =>
         {
@@ -81,7 +109,21 @@ export function sendOperation(
                     TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash)
                         .then(accountManager => {
                             const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore)
-                            return forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
+                            forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
+                                .then(forgedOperationGroup => {
+                                    const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore)
+                                    const operationGroupHash = computeOperationHash(signedOpGroup)
+                                    applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup)
+                                        .then(appliedOp => {
+                                            injectOperation(network, signedOpGroup)
+                                                .then(operation => {
+                                                    return {
+                                                        results: appliedOp,
+                                                        operationGroupID: operation
+                                                    }
+                                                })
+                                        })
+                                })
                         })
                 })
         })
@@ -139,6 +181,3 @@ export function sendOriginationOperation(
     const operations = [origination]
     return sendOperation(network, operations, keyStore, fee)
 }
-
-
-

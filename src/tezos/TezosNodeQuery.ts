@@ -28,3 +28,21 @@ export function forgeOperation(network: string, opGroup: object): Promise<TezosT
     )
         .then(json => {return <TezosTypes.ForgedOperation> json})
 }
+
+export function applyOperation(network: string, payload: object): Promise<TezosTypes.AppliedOperation> {
+    return Nautilus.runQuery(
+        network,
+        `/blocks/head/proto/helpers/apply_operation`,
+        JSON.stringify(payload)
+    )
+        .then(json => {return <TezosTypes.AppliedOperation> json})
+}
+
+export function injectOperation(network: string, payload: object): Promise<TezosTypes.InjectedOperation> {
+    return Nautilus.runQuery(
+        network,
+        `/inject_operation`,
+        JSON.stringify(payload)
+    )
+        .then(json => {return <TezosTypes.InjectedOperation> json})
+}
