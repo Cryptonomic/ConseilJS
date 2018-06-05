@@ -1,6 +1,6 @@
 import {Wallet} from "./types/Wallet";
-import {KeyStore} from "./types/KeyPair";
-import {TezosAccount, TezosOperationGroup} from "./tezos/TezosTypes";
+import {KeyStore} from "./types/KeyStore";
+import {TezosAccount, TezosOperationGroup} from "./utils/ConseilTypes";
 import * as CryptoUtils from "./utils/CryptoUtils"
 import * as TezosQuery from "./tezos/TezosQuery"
 import * as fs from 'fs';

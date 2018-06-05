@@ -4,7 +4,7 @@ import {
     TezosBlock,
     TezosOperationGroup,
     TezosOperationGroupWithOperations
-} from "./TezosTypes";
+} from "../utils/ConseilTypes";
 import {queryConseilServer, queryConseilServerWithFilter} from "../utils/ConseilQuery";
 
 export interface TezosFilter {

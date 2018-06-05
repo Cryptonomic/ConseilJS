@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as conseilJS from "../src";
-import {KeyStore} from "../src/types/KeyPair";
+import {KeyStore} from "../src/types/KeyStore";
 import {Wallet} from "../src/types/Wallet";
 import * as fs from 'fs'
 

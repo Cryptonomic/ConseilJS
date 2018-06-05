@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import * as to from '../src/tezos/TezosOperations'
-import {KeyStore} from "../src/types/KeyPair";
+import {KeyStore} from "../src/types/KeyStore";
 
 const keys: KeyStore = {
     publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
@@ -20,3 +20,4 @@ describe('signOperationGroup() and computeOperationHash()', () => {
         expect(result2).to.equal('opYgjs8KzFbyPaWpGmkHKSGJX5WeSPjhUs18fxfGqU3SEVjPRWx')
     });
 })
+
