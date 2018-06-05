@@ -24,7 +24,7 @@ export function forgeOperation(network: string, opGroup: object): Promise<TezosT
     return Nautilus.runQuery(
         network,
         `/blocks/head/proto/helpers/forge/operations`,
-        JSON.stringify(opGroup)
+        opGroup
     )
         .then(json => {return <TezosTypes.ForgedOperation> json})
 }
@@ -33,7 +33,7 @@ export function applyOperation(network: string, payload: object): Promise<TezosT
     return Nautilus.runQuery(
         network,
         `/blocks/head/proto/helpers/apply_operation`,
-        JSON.stringify(payload)
+        payload
     )
         .then(json => {return <TezosTypes.AppliedOperation> json})
 }
@@ -42,7 +42,7 @@ export function injectOperation(network: string, payload: object): Promise<Tezos
     return Nautilus.runQuery(
         network,
         `/inject_operation`,
-        JSON.stringify(payload)
+        payload
     )
         .then(json => {return <TezosTypes.InjectedOperation> json})
 }
