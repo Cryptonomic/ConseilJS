@@ -172,7 +172,7 @@ export function sendOriginationOperation(
 ) {
     const origination = {
         kind:   "origination",
-        balance: "amount",
+        balance: amount,
         managerPubkey: keyStore.publicKeyHash,
         spendable: spendable,
         delegatable: delegatable,
