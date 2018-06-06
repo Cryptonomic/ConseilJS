@@ -1,14 +1,14 @@
 import {expect} from 'chai';
 import 'mocha';
-import * as conseilJS from "../src";
 import {KeyStore} from "../src/types/KeyStore";
 import {Wallet} from "../src/types/Wallet";
 import * as fs from 'fs'
+import * as tw from "../src/tezos/TezosWallet";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
         fs.unlinkSync("//tmp//test.tezwallet")
-        const result = await conseilJS.tezos.createWallet("//tmp//test.tezwallet", "password");
+        const result = await tw.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
 })
@@ -21,7 +21,7 @@ describe('saveWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         }
         const wallet: Wallet = {identities: [keys]}
-        const result = await conseilJS.tezos.saveWallet("//tmp//test.tezwallet", wallet);
+        const result = await tw.saveWallet("//tmp//test.tezwallet", wallet);
         expect(result).to.deep.equal({identities: [keys]});
     });
 })
@@ -34,16 +34,16 @@ describe('loadWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         }
         const wallet: Wallet = {identities: [keys]}
-        const result = await conseilJS.tezos.loadWallet("//tmp//test.tezwallet", "password");
+        const result = await tw.loadWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal(wallet);
     });
 })
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result = conseilJS.tezos.unlockFundraiserIdentity(
+        const result = tw.unlockFundraiserIdentity(
             'just manual depend knock secret kingdom cup ribbon age learn measure more merit bubble next',
-            'imbfyoqx.sqxphenx@tezos.example.org',
+            'imbfyoqx.sqxphenx@tw.example.org',
             'OEU8K0K1n5'
         );
         expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
@@ -52,7 +52,7 @@ describe('unlockFundraiserIdentity()', () => {
 
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
-        const result = conseilJS.tezos.generateMnemonic()
+        const result = tw.generateMnemonic()
         console.log(result)
         expect(result.split(' ').length).to.equal(15);
     });
@@ -60,7 +60,7 @@ describe('generateMnemonic()', () => {
 
 describe('unlockIdentityWithMnemonic()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result = conseilJS.tezos.unlockIdentityWithMnemonic(
+        const result = tw.unlockIdentityWithMnemonic(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );
@@ -68,9 +68,3 @@ describe('unlockIdentityWithMnemonic()', () => {
     });
 });
 
-/*describe('getBalance()', () => {
-    it('should return hello world', () => {
-        const result = getBalance('tz1iCuaTQnEu28cPBGikhgYrTGFieLfRaL3G');
-        //expect(result).to.equal('Hello World!');
-    });
-});*/
