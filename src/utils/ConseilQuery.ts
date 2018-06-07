@@ -2,12 +2,25 @@ import * as querystring from "querystring";
 import fetch from 'node-fetch';
 import {TezosFilter} from "../tezos/TezosQuery";
 
-export function queryConseilServer(network: string, command: string, payload: string): Promise<object> {
+/**
+ * Utility functions for querying backend Conseil API
+ */
+
+/**
+ * Runs a query against Conseil backend API
+ * TODO: Remove hard coded URL
+ * TODO: Also make the blockchain a parameter
+ * @param {string} network  Network to go against
+ * @param {string} route API route to query
+ * @param {string} payload  Body of query
+ * @returns {Promise<object>}   JSON representation of response from Conseil
+ */
+export function queryConseilServer(network: string, route: string, payload: string): Promise<object> {
     const https = require("https");
     const agent = new https.Agent({
         rejectUnauthorized: false
-    })
-    let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${command}`;
+    });
+    let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${route}`;
     return fetch(url, {
         method: 'get',
         headers: {
@@ -18,7 +31,25 @@ export function queryConseilServer(network: string, command: string, payload: st
         .then(response => {return response.json()});
 }
 
-export function sanitizeFilter(filter: TezosFilter): TezosFilter {
+/**
+ * Runs a query against Conseil backend API with the given filter
+ * @param {string} network  Network to go against
+ * @param {string} route    API route to query
+ * @param {TezosFilter} filter  Conseil filter
+ * @returns {Promise<object>}   Data returned by Conseil as a JSON object
+ */
+export function queryConseilServerWithFilter(network: string, route: string, filter: TezosFilter): Promise<object> {
+    let params = querystring.stringify(sanitizeFilter(filter));
+    let cmdWithParams = `${route}?${params}`;
+    return queryConseilServer(network, cmdWithParams, '');
+}
+
+/**
+ * Removes extraneous data from Conseil fitler predicates.
+ * @param {TezosFilter} filter  Conseil filter
+ * @returns {TezosFilter}   Sanitized Conseil filter
+ */
+function sanitizeFilter(filter: TezosFilter): TezosFilter {
     return {
         limit: filter.limit,
         block_id: filter.block_id.filter(Boolean),
@@ -33,10 +64,4 @@ export function sanitizeFilter(filter: TezosFilter): TezosFilter {
         account_manager: filter.account_manager.filter(Boolean),
         account_delegate: filter.account_delegate.filter(Boolean)
     };
-}
-
-export function queryConseilServerWithFilter(network: string, command: string, filter: TezosFilter) {
-    let params = querystring.stringify(sanitizeFilter(filter));
-    let cmdWithParams = `${command}?${params}`;
-    return queryConseilServer(network, cmdWithParams, '');
 }

@@ -7,11 +7,11 @@ import * as tw from "../src/tezos/TezosWallet";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
-        fs.unlinkSync("//tmp//test.tezwallet")
+        fs.unlinkSync("//tmp//test.tezwallet");
         const result = await tw.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
-})
+});
 
 describe('saveWallet()', () => {
     it('should save an existing wallet', async () => {
@@ -19,12 +19,12 @@ describe('saveWallet()', () => {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-        }
-        const wallet: Wallet = {identities: [keys]}
+        };
+        const wallet: Wallet = {identities: [keys]};
         const result = await tw.saveWallet("//tmp//test.tezwallet", wallet);
         expect(result).to.deep.equal({identities: [keys]});
     });
-})
+});
 
 describe('loadWallet()', () => {
     it('should load a given wallet', async () => {
@@ -32,12 +32,12 @@ describe('loadWallet()', () => {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-        }
-        const wallet: Wallet = {identities: [keys]}
+        };
+        const wallet: Wallet = {identities: [keys]};
         const result = await tw.loadWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal(wallet);
     });
-})
+});
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
@@ -52,8 +52,8 @@ describe('unlockFundraiserIdentity()', () => {
 
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
-        const result = tw.generateMnemonic()
-        console.log(result)
+        const result = tw.generateMnemonic();
+        console.log(result);
         expect(result.split(' ').length).to.equal(15);
     });
 });

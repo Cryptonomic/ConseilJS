@@ -6,8 +6,8 @@ describe('getBlockHead()', () => {
     it('should fetch the block head', async () => {
         const result = await tq.getBlockHead('zeronet');
         expect(result).to.have.any.keys("hash");
-        const result2 = await tq.getBlock('zeronet', result.hash)
-        expect(result).to.have.any.keys("hash");
+        const result2 = await tq.getBlock('zeronet', result.hash);
+        expect(result2).to.have.any.keys("hash");
     });
-})
+});
 

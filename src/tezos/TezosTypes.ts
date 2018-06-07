@@ -1,3 +1,7 @@
+/**
+ * Types used to process data returned from Conseil server.
+ */
+
 export interface BlockMetadata {
     hash: string,
     chain_id: string,

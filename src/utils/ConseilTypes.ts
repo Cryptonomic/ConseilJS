@@ -1,3 +1,7 @@
+/**
+ * Types used for parsing data returned by Conseil backend API.
+ */
+
 export interface TezosBlock {
     chainId: string,
     protocol: string,

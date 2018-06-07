@@ -4,7 +4,7 @@
   "description": "Client-side library for dApp development.",
   "main": "index.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/TezosOperations.spec.ts"
+    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts"
   },
   "repository": {
     "type": "git",
