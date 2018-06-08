@@ -165,11 +165,11 @@ export async function sendOperation(
     const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const accountManager = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore);
-    const forgedOperationGroup = await forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
+    const forgedOperationGroup = await forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee);
     const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
     const operationGroupHash = computeOperationHash(signedOpGroup);
     const appliedOp = await applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup);
-    const operation = await injectOperation(network, signedOpGroup)
+    const operation = await injectOperation(network, signedOpGroup);
     return {
         results: appliedOp,
         operationGroupID: operation.injectedOperation
