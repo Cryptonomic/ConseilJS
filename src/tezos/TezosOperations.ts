@@ -51,7 +51,7 @@ export function signOperationGroup(forgedOperation: string, keyStore: KeyStore):
  */
 export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
     const hash: Buffer = sodium.crypto_generichash(32, signedOpGroup.bytes);
-    return CryptoUtils.base58CheckEncode(hash, "op").toString()
+    return CryptoUtils.base58CheckEncode(hash, "op")
 }
 
 /**

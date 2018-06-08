@@ -41,6 +41,9 @@ describe('sendTransactionOperation()', () => {
     });
 });
 
+/*
+This test is intentionally commented out to prevent failures with repeat delegation.
+After any changes to the operation logic, the developer should uncomment this test and run it.
 describe('sendDelegationOperation()', () => {
     const delegatedKeyStore = {
         publicKey: keys.publicKey,
@@ -57,7 +60,7 @@ describe('sendDelegationOperation()', () => {
         console.log(JSON.stringify(result));
         expect(countErrorsInOperationResult(result)).to.equal(0);
     });
-});
+});*/
 
 describe('sendOriginationOperation()', () => {
     it('originate an account', async () => {

@@ -12,7 +12,7 @@ import {KeyStore} from "../types/KeyStore";
  * @param {String} prefix   The type of data
  * @returns {Buffer}    Byte prefix
  */
-export function getBase58BytesForPrefix(prefix: String): Buffer {
+export function getBase58BytesForPrefix(prefix: string): Buffer {
     switch(prefix)
     {
         case "tz1":
@@ -36,7 +36,7 @@ export function getBase58BytesForPrefix(prefix: String): Buffer {
  * @param {String} prefix   Prefix
  * @returns {String}    Encoded string
  */
-export function base58CheckEncode(payload: Buffer, prefix: String): String {
+export function base58CheckEncode(payload: Buffer, prefix: string): string {
     const prefixBytes = getBase58BytesForPrefix(prefix);
     const prefixedPayload = Buffer.concat([prefixBytes, payload]);
     return base58Check.encode(prefixedPayload)
@@ -48,7 +48,7 @@ export function base58CheckEncode(payload: Buffer, prefix: String): String {
  * @param {String} prefix   Prefix
  * @returns {Buffer}    Decoded bytes
  */
-export function base58CheckDecode(s: String, prefix: String): Buffer {
+export function base58CheckDecode(s: string, prefix: string): Buffer {
     const prefixBytes = getBase58BytesForPrefix(prefix);
     const charsToSlice = prefixBytes.length;
     const decoded = base58Check.decode(s);
@@ -68,9 +68,9 @@ export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: s
     const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
     const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
     return {
-        publicKey: publicKey.toString(),
-        privateKey: privateKey.toString(),
-        publicKeyHash: publicKeyHash.toString()
+        publicKey: publicKey,
+        privateKey: privateKey,
+        publicKeyHash: publicKeyHash
     }
 }
 

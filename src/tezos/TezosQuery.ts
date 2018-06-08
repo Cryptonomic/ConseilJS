@@ -1,7 +1,7 @@
 import {
     TezosAccount,
     TezosAccountWithOperationGroups,
-    TezosBlock,
+    TezosBlock, TezosBlockWithOperationGroups,
     TezosOperationGroup,
     TezosOperationGroupWithOperations
 } from "../utils/ConseilTypes";
@@ -36,7 +36,7 @@ export interface TezosFilter {
  * @returns {Promise<TezosBlock>}   Latest block.
  */
 export function getBlockHead(network: string): Promise<TezosBlock> {
-    return queryConseilServer(network, 'blocks/head', '')
+    return queryConseilServer(network, 'blocks/head')
         .then(json => {
             return <TezosBlock> json
         })
@@ -48,10 +48,10 @@ export function getBlockHead(network: string): Promise<TezosBlock> {
  * @param {String} hash The block's hash
  * @returns {Promise<TezosBlock>}   The block
  */
-export function getBlock(network: string, hash: String): Promise<TezosBlock> {
-    return queryConseilServer(network, `blocks/${hash}`, '')
+export function getBlock(network: string, hash: String): Promise<TezosBlockWithOperationGroups> {
+    return queryConseilServer(network, `blocks/${hash}`)
         .then(json => {
-            return <TezosBlock> json
+            return <TezosBlockWithOperationGroups> json
         })
 }
 
@@ -75,7 +75,7 @@ export function getBlocks(network: string, filter: TezosFilter): Promise<TezosBl
  * @returns {Promise<TezosOperationGroupWithOperations>}    Operation group along with associated operations and accounts
  */
 export function getOperationGroup(network: string, hash: String): Promise<TezosOperationGroupWithOperations> {
-    return queryConseilServer(network, `operations/${hash}`, '')
+    return queryConseilServer(network, `operations/${hash}`)
         .then(json => {
             return <TezosOperationGroupWithOperations> json
         })
@@ -101,7 +101,7 @@ export function getOperationGroups(network: string, filter: TezosFilter): Promis
  * @returns {Promise<TezosAccountWithOperationGroups>}  The account with its associated operation groups
  */
 export function getAccount(network: string, hash: String): Promise<TezosAccountWithOperationGroups> {
-    return queryConseilServer(network, `accounts/${hash}`, '')
+    return queryConseilServer(network, `accounts/${hash}`)
         .then(json => {
             return <TezosAccountWithOperationGroups> json
         })

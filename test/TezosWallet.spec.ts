@@ -46,6 +46,7 @@ describe('unlockFundraiserIdentity()', () => {
             'imbfyoqx.sqxphenx@tw.example.org',
             'OEU8K0K1n5'
         );
+        console.log(result)
         expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
     });
 });

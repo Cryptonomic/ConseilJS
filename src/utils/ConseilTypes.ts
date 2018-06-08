@@ -67,6 +67,11 @@ export interface TezosOperation {
     script: string
 }
 
+export interface TezosBlockWithOperationGroups {
+    block: TezosBlock,
+    operations: TezosBlock[]
+}
+
 export interface TezosOperationGroupWithOperations {
     operation_group: TezosOperationGroup,
     operations: TezosOperation[]

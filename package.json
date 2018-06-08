@@ -26,7 +26,6 @@
     "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "node-fetch": "^2.1.1",
-    "querystring": "^0.2.0",
     "ssl-root-cas": "^1.2.5"
   },
   "devDependencies": {

@@ -15,18 +15,19 @@ import {TezosFilter} from "../tezos/TezosQuery";
  * @param {string} payload  Body of query
  * @returns {Promise<object>}   JSON representation of response from Conseil
  */
-export function queryConseilServer(network: string, route: string, payload: string): Promise<object> {
+export function queryConseilServer(network: string, route: string): Promise<object> {
     const https = require("https");
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
     let url = `https://conseil.cryptonomic.tech:1337/tezos/${network}/${route}`;
+    console.log(`Querying Conseil server at URL ${url}`)
     return fetch(url, {
         method: 'get',
         headers: {
             "apiKey": "hooman"
         },
-        agent: agent
+        agent
     })
         .then(response => {return response.json()});
 }
@@ -41,7 +42,7 @@ export function queryConseilServer(network: string, route: string, payload: stri
 export function queryConseilServerWithFilter(network: string, route: string, filter: TezosFilter): Promise<object> {
     let params = querystring.stringify(sanitizeFilter(filter));
     let cmdWithParams = `${route}?${params}`;
-    return queryConseilServer(network, cmdWithParams, '');
+    return queryConseilServer(network, cmdWithParams);
 }
 
 /**

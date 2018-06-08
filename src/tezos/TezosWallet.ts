@@ -20,10 +20,15 @@ export function createWallet(filename: string, password: string): Promise<Wallet
         const wallet: Wallet = {
             identities: []
         };
-        fs.writeFile(filename, JSON.stringify(wallet), (err) => {
-            if (err) reject(err);
-            resolve(wallet)
-        });
+        try {
+            fs.writeFile(filename, JSON.stringify(wallet), err => {
+                if (err) reject(err);
+                resolve(wallet)
+            })
+        } catch (err) {
+            reject(err);
+        }
+
     })
 }
 
