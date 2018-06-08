@@ -43,10 +43,10 @@ describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
         const result = tw.unlockFundraiserIdentity(
             'just manual depend knock secret kingdom cup ribbon age learn measure more merit bubble next',
-            'imbfyoqx.sqxphenx@tw.example.org',
+            'imbfyoqx.sqxphenx@tezos.example.org',
             'OEU8K0K1n5'
         );
-        console.log(result)
+        console.log(result);
         expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
     });
 });
