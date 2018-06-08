@@ -156,39 +156,24 @@ export function injectOperation(
  * @param {number} fee  The fee to use
  * @returns {Promise<OperationResult>}  The ID of the created operation group
  */
-export function sendOperation(
+export async function sendOperation(
     network: string,
     operations: object[],
     keyStore: KeyStore,
     fee: number): Promise<OperationResult>   {
-    return TezosNode.getBlockHead(network)
-        .then(blockHead =>
-        {
-            return TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash)
-                .then(account =>
-                {
-                    return TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash)
-                        .then(accountManager => {
-                            const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore);
-                            return forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
-                                .then(forgedOperationGroup => {
-                                    const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
-                                    const operationGroupHash = computeOperationHash(signedOpGroup);
-                                    return applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup)
-                                        .then(appliedOp => {
-                                            return injectOperation(network, signedOpGroup)
-                                                .then(operation => {
-                                                    return {
-                                                        results: appliedOp,
-                                                        operationGroupID: operation.injectedOperation
-                                                    }
-                                                })
-                                        })
-                                })
-                        })
-                })
-        })
-
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+    const accountManager = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+    const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore);
+    const forgedOperationGroup = await forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee)
+    const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
+    const operationGroupHash = computeOperationHash(signedOpGroup);
+    const appliedOp = await applyOperation(network, blockHead, operationGroupHash, forgedOperationGroup, signedOpGroup);
+    const operation = await injectOperation(network, signedOpGroup)
+    return {
+        results: appliedOp,
+        operationGroupID: operation.injectedOperation
+    }
 }
 
 /**
