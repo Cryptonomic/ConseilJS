@@ -21,7 +21,7 @@ describe('saveWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await tw.saveWallet("//tmp//test.tezwallet", wallet);
+        const result = await tw.saveWallet("//tmp//test.tezwallet", wallet, "password");
         expect(result).to.deep.equal({identities: [keys]});
     });
 });

@@ -83,11 +83,11 @@ export function generateMnemonic(): string {
     return bip39.generateMnemonic(160)
 }
 
-export function generateSalt() {
+export function generateSaltForPwHash() {
     return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES)
 }
 
-export function encryptWithNonce(message: string, passphrase: string, salt: Buffer) {
+export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
     const messageBytes = sodium.from_string(message);
     const keyBytes = sodium.crypto_pwhash(
         sodium.crypto_box_SEEDBYTES,
@@ -102,7 +102,7 @@ export function encryptWithNonce(message: string, passphrase: string, salt: Buff
     return Buffer.concat([nonce, cipherText]);
 }
 
-export function decryptWithNonce(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
+export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
     const keyBytes = sodium.crypto_pwhash(
         sodium.crypto_box_SEEDBYTES,
         passphrase,

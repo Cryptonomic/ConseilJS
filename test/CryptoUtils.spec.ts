@@ -21,13 +21,13 @@ describe('unlockIdentityWithMnemonic()', () => {
     });
 });
 
-describe('encryptWithNonce() and decryptWithNonce()', () => {
+describe('encryptMessage() and decryptMessage()', () => {
     it('should correctly encrypt and decrypt text', () => {
-        const salt = cryptoUtils.generateSalt();
+        const salt = cryptoUtils.generateSaltForPwHash();
         const message = "hello";
         const passphrase = "world";
-        const encrypted = cryptoUtils.encryptWithNonce(message, passphrase, salt);
-        const decrypted = cryptoUtils.decryptWithNonce(encrypted, passphrase, salt);
+        const encrypted = cryptoUtils.encryptMessage(message, passphrase, salt);
+        const decrypted = cryptoUtils.decryptMessage(encrypted, passphrase, salt);
         expect(decrypted).to.equal(message);
     });
 });
