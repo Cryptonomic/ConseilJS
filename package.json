@@ -5,7 +5,7 @@
   "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "./node_modules/mocha/bin/mocha --timeout 5000 -r ts-node/register test/CryptoUtils.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -25,7 +25,7 @@
     "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
     "https": "^1.0.0",
-    "libsodium-wrappers": "^0.5.4",
+    "libsodium-wrappers-sumo": "^0.5.4",
     "node-fetch": "^2.1.1"
   },
   "devDependencies": {
@@ -34,7 +34,6 @@
     "@types/node": "^10.3.0",
     "@types/node-fetch": "^2.1.1",
     "chai": "^4.1.2",
-    "jsdoc": "^3.5.5",
     "mocha": "^5.2.0",
     "ts-loader": "^4.3.1",
     "ts-node": "^6.0.5",
