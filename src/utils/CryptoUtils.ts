@@ -26,6 +26,8 @@ export function getBase58BytesForPrefix(prefix: string): Buffer {
             return new Buffer([9, 245, 205, 134, 18]);
         case "op":
             return new Buffer([5, 116]);
+        case "":
+            return new Buffer([]);
         default:
             throw new RangeError("Unknown prefix");
     }

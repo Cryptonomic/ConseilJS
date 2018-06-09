@@ -1,4 +1,4 @@
-import {Wallet} from "../types/Wallet";
+import {Wallet, EncryptedWalletVersionOne} from "../types/Wallet";
 import {KeyStore} from "../types/KeyStore";
 import * as CryptoUtils from "../utils/CryptoUtils";
 
@@ -12,23 +12,36 @@ const fsPromises = require('fs').promises;
  * Saves a wallet to a given file.
  * @param {string} filename Name of file
  * @param {Wallet} wallet   Wallet object
- * @param {string} password User-supplied passphrase
+ * @param {string} passphrase User-supplied passphrase
  * @returns {Promise<Wallet>} Wallet object loaded from disk
  */
-export async function saveWallet(filename: string, wallet: Wallet, password: string): Promise<Wallet> {
-    await fsPromises.writeFile(filename, JSON.stringify(wallet));
-    return loadWallet(filename, password)
+export async function saveWallet(filename: string, wallet: Wallet, passphrase: string): Promise<Wallet> {
+    const keys = JSON.stringify(wallet.identities);
+    const salt = CryptoUtils.generateSaltForPwHash();
+    const encryptedKeys = CryptoUtils.encryptMessage(keys, passphrase, salt);
+    const encryptedWallet: EncryptedWalletVersionOne = {
+        version: '1',
+        salt: CryptoUtils.base58CheckEncode(salt, ""),
+        ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
+        kdf: 'Argon2'
+    };
+    await fsPromises.writeFile(filename, JSON.stringify(encryptedWallet));
+    return loadWallet(filename, passphrase)
 }
 
 /**
  * Loads a wallet from a given file.
  * @param {string} filename Name of file
- * @param {string} password User-supplied passphrase
+ * @param {string} passphrase User-supplied passphrase
  * @returns {Promise<Wallet>}   Loaded wallet
  */
-export async function loadWallet(filename: string, password: string): Promise<Wallet> {
+export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
     const data = await fsPromises.readFile(filename);
-    return <Wallet> JSON.parse(data.toString())
+    const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
+    const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
+    const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
+    const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
+    return {identities: keys}
 }
 
 /**

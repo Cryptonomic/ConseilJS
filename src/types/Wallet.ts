@@ -6,3 +6,13 @@ import {KeyStore} from "./KeyStore";
 export interface Wallet {
     identities: KeyStore[]
 }
+
+/**
+ * Represents the first version of an encrypted wallet.
+ */
+export interface EncryptedWalletVersionOne {
+    version: string,
+    salt: string,
+    ciphertext: string,
+    kdf: string
+}
