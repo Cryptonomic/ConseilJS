@@ -9,6 +9,60 @@ import * as crypto from 'crypto'
  */
 
 /**
+ * Generates a salt for key derivation.
+ * @returns {Buffer}    Salt
+ */
+export function generateSaltForPwHash() {
+    return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES)
+}
+
+/**
+ * Encrypts a given message using a passphrase
+ * @param {string} message  Message to encrypt
+ * @param {string} passphrase   User-supplied passphrase
+ * @param {Buffer} salt Salt for key derivation
+ * @returns {Buffer}    Concatenated bytes of nonce and cipher text
+ */
+export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
+    const messageBytes = sodium.from_string(message);
+    const keyBytes = sodium.crypto_pwhash(
+        sodium.crypto_box_SEEDBYTES,
+        passphrase,
+        salt,
+        sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_ALG_DEFAULT
+    );
+    const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES));
+    const cipherText = Buffer.from(sodium.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
+    return Buffer.concat([nonce, cipherText]);
+}
+
+/**
+ * Decrypts a given message using a passphrase
+ * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
+ * @param {string} passphrase   User-supplied passphrase
+ * @param {Buffer} salt Salt for key derivation
+ * @returns {any}   Decrypted message
+ */
+export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
+    const keyBytes = sodium.crypto_pwhash(
+        sodium.crypto_box_SEEDBYTES,
+        passphrase,
+        salt,
+        sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+        sodium.crypto_pwhash_ALG_DEFAULT
+    );
+    if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
+        throw "Short message";
+    }
+    const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
+    const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
+    return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
+}
+
+/**
  * Get byte prefix for Base58Check encoding and decoding of a given type of data.
  * @param {String} prefix   The type of data
  * @returns {Buffer}    Byte prefix
@@ -83,40 +137,4 @@ export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: s
  */
 export function generateMnemonic(): string {
     return bip39.generateMnemonic(160)
-}
-
-export function generateSaltForPwHash() {
-    return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES)
-}
-
-export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
-    const messageBytes = sodium.from_string(message);
-    const keyBytes = sodium.crypto_pwhash(
-        sodium.crypto_box_SEEDBYTES,
-        passphrase,
-        salt,
-        sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
-        sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
-        sodium.crypto_pwhash_ALG_DEFAULT
-    );
-    const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES));
-    const cipherText = Buffer.from(sodium.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
-    return Buffer.concat([nonce, cipherText]);
-}
-
-export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
-    const keyBytes = sodium.crypto_pwhash(
-        sodium.crypto_box_SEEDBYTES,
-        passphrase,
-        salt,
-        sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
-        sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
-        sodium.crypto_pwhash_ALG_DEFAULT
-    );
-    if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
-        throw "Short message";
-    }
-    const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
-    const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
-    return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
 }
