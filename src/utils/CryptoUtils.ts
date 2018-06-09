@@ -55,7 +55,7 @@ export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string,
         sodium.crypto_pwhash_ALG_DEFAULT
     );
     if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
-        throw "Short message";
+        throw "The cipher text is of insufficient length";
     }
     const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
     const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
