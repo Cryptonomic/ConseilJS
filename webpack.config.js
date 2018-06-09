@@ -1,3 +1,5 @@
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+
 module.exports = {
     mode: "development",
     devtool: "inline-source-map",
@@ -18,5 +20,8 @@ module.exports = {
     node: {
         // handle "Can't resolve 'fs'" issue
         fs: 'empty'
-    }
+    },
+    plugins: [
+        new UglifyJsPlugin()
+    ]
 };
