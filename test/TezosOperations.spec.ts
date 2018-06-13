@@ -1,6 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import * as to from '../src/tezos/TezosOperations'
+import * as tw from '../src/tezos/TezosWallet'
 import {KeyStore} from "../src/types/KeyStore";
 
 const keys: KeyStore = {
@@ -16,7 +17,7 @@ function countErrorsInOperationResult(result: to.OperationResult) {
     }).length
 }
 
-describe('signOperationGroup() and computeOperationHash()', () => {
+/*describe('signOperationGroup() and computeOperationHash()', () => {
     it('correctly compute an operation hash for the given operation bytes', async () => {
         const result = to.signOperationGroup(
             '8f90f8f1f79bd69ae7d261252c51a1f5e8910f4fa2712a026f2acadb960416d900020000f10a450269188ebd9d29c6402d186bc381770fae000000000000c3500000001900000026010000000005f5e1000000bad6e61eb7b96f08783a476508e3d83b2bb15e19ff00000002030bb8010000000000000000',
@@ -26,20 +27,25 @@ describe('signOperationGroup() and computeOperationHash()', () => {
         const result2 = to.computeOperationHash(result);
         expect(result2).to.equal('opYgjs8KzFbyPaWpGmkHKSGJX5WeSPjhUs18fxfGqU3SEVjPRWx')
     });
-});
+});*/
 
-describe('sendTransactionOperation()', () => {
+/*describe('sendTransactionOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
+        const keys2: KeyStore = {
+            publicKey: 'edpkvHoQiRjLbDE7V9KqozzMr9xdvJSDmcbLfz78FNdkbd6rR6R3HB',
+            privateKey: 'edskRz5B24SdcgA7DAgF9UStho4zgva6CTg2re6ZWduHguqu6EMBMWiLdFDkoo5wW8sgtMcTD62QgXqVAPCcGc5PcXXsuCsTNW',
+            publicKeyHash: 'tz1fstxP1dJuodWoVD2sDecDDVQkV8gaygcR'
+        };
         const result = await to.sendTransactionOperation(
             'zeronet',
-            keys,
+            keys2,
             'tz1cfwpEiwEssf3W7vuJY2YqNzZFqidwZ1JR',
             100000000,
             50000
         );
         expect(countErrorsInOperationResult(result)).to.equal(0);
     });
-});
+});*/
 
 /*
 This test is intentionally commented out to prevent failures with repeat delegation.
@@ -62,7 +68,7 @@ describe('sendDelegationOperation()', () => {
     });
 });*/
 
-describe('sendOriginationOperation()', () => {
+/*describe('sendOriginationOperation()', () => {
     it('originate an account', async () => {
         const result = await to.sendOriginationOperation(
             'zeronet',
@@ -72,6 +78,23 @@ describe('sendOriginationOperation()', () => {
             true,
             true,
             1
+        );
+        console.log(JSON.stringify(result));
+        expect(countErrorsInOperationResult(result)).to.equal(0);
+    });
+});*/
+
+describe('sendIdentityActivationOperation()', () => {
+    it('activate an identity', async () => {
+        const newKeys = tw.unlockFundraiserIdentity(
+            'face hint flavor miracle power limit grocery about beef mistake improve tissue warm exclude stereo',
+            'fuaipswf.pseavqnq@tezos.example.org',
+            'ulsSqkLmk0'
+        )
+        const result = await to.sendIdentityActivationOperation(
+            'zeronet',
+            newKeys,
+            'bd6fe4b9540447447a1f2c167f53fec4020d71b2'
         );
         console.log(JSON.stringify(result));
         expect(countErrorsInOperationResult(result)).to.equal(0);

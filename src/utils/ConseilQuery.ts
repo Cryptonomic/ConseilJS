@@ -1,6 +1,6 @@
 import * as querystring from "querystring";
 import fetch from 'node-fetch';
-import {TezosFilter} from "../tezos/TezosQuery";
+import {TezosFilter} from "../tezos/TezosConseilQuery";
 
 /**
  * Utility functions for querying backend Conseil API

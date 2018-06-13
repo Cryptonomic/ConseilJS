@@ -2,10 +2,7 @@
  * Types used to process data returned from Conseil server.
  */
 
-export interface BlockMetadata {
-    hash: string,
-    chain_id: string,
-    protocol: string,
+export interface BlockHeader {
     level: number,
     proto: number,
     predecessor: string,
@@ -14,7 +11,16 @@ export interface BlockMetadata {
     operations_hash: string,
     fitness: string[],
     context: string,
-    protocol_data: string
+    priority: number,
+    proof_of_work_nonce: string,
+    signature: string
+}
+
+export interface BlockMetadata {
+    protocol: string,
+    chain_id: string,
+    hash: string,
+    metadata: BlockHeader
 }
 
 export interface AccountDelegate {
