@@ -1,11 +1,31 @@
-import * as tezosQuery from './tezos/TezosQuery';
-import * as tezosOperations from './tezos/TezosOperations'
-import * as tezosWallet from './tezos/TezosWallet'
+// export {
+//     getBlockHead,
+//     getBlock,
+//     getBlocks,
+//     getOperationGroup,
+//     getOperationGroups,
+//     getAccount,
+//     getAccounts
+// } from './tezos/TezosQuery';
 
-module.exports = Object.assign(
-    {},
-    tezosQuery,
-    tezosOperations,
-    tezosWallet,
-);
+export {
+    signOperationGroup,
+    computeOperationHash,
+    handleKeyRevealForOperations,
+    forgeOperations,
+    applyOperation,
+    injectOperation,
+    sendOperation,
+    sendTransactionOperation,
+    sendDelegationOperation,
+    sendOriginationOperation,
+} from './tezos/TezosOperations'
 
+export {
+    saveWallet,
+    loadWallet,
+    createWallet,
+    unlockFundraiserIdentity,
+    generateMnemonic,
+    unlockIdentityWithMnemonic,
+} from './tezos/TezosWallet'
