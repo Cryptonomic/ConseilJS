@@ -97,14 +97,14 @@ export async function applyOperation(network: string, payload: object): Promise<
  * @param {object} payload  Payload set according to protocol spec
  * @returns {Promise<InjectedOperation>} Injected operation
  */
-export async function injectOperation(network: string, payload: object): Promise<string> {
+export async function injectOperation(network: string, payload: string): Promise<string> {
     const response = await Nautilus.runPostQuery(
         network,
         `injection/operation?chain=main`,
         payload
     )
-    const injectedOperation = response.text()
+    const injectedOperation = await response.text()
     console.log('Injected operation')
-    console.log(injectedOperation)
+    console.log(">>", injectedOperation)
     return injectedOperation
 }

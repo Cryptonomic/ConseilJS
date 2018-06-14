@@ -38,7 +38,7 @@ function countErrorsInOperationResult(result: to.OperationResult) {
         };
         const result = await to.sendTransactionOperation(
             'zeronet',
-            keys2,
+            keys,
             'tz1cfwpEiwEssf3W7vuJY2YqNzZFqidwZ1JR',
             100000000,
             50000
@@ -84,7 +84,7 @@ describe('sendDelegationOperation()', () => {
     });
 });*/
 
-describe('sendIdentityActivationOperation()', () => {
+/*describe('sendIdentityActivationOperation()', () => {
     it('activate an identity', async () => {
         const newKeys = tw.unlockFundraiserIdentity(
             'face hint flavor miracle power limit grocery about beef mistake improve tissue warm exclude stereo',
@@ -99,5 +99,5 @@ describe('sendIdentityActivationOperation()', () => {
         console.log(JSON.stringify(result));
         expect(countErrorsInOperationResult(result)).to.equal(0);
     });
-});
+});*/
 

@@ -93,30 +93,11 @@ export function handleKeyRevealForOperations(
 export async function forgeOperations(
     network: string,
     blockHead: TezosTypes.BlockMetadata,
-    account: TezosTypes.Account,
-    operations: object[],
-    keyStore: KeyStore,
-    fee: number,
-    isManager: boolean): Promise<string> {
-    let payload = {}
-    if(isManager) {
-        payload = {
-            branch: blockHead.hash,
-            source: keyStore.publicKeyHash,
-            operations: operations,
-            counter: account.counter + 1,
-            fee: fee,
-            kind: 'manager',
-            gas_limit: '120',
-            storage_limit: 0
-        };
-    }
-    else {
-        payload = {
+    operations: object[]): Promise<string> {
+    const payload = {
             branch: blockHead.hash,
             contents: operations
         }
-    }
     return TezosNode.forgeOperation(network, payload)
 }
 
@@ -155,9 +136,7 @@ export function applyOperation(
 export function injectOperation(
     network: string,
     signedOpGroup: SignedOperationGroup): Promise<string> {
-    const payload = {
-        signedOperationContents: sodium.to_hex(signedOpGroup.bytes)
-    };
+    const payload = sodium.to_hex(signedOpGroup.bytes)
     return TezosNode.injectOperation(network, payload)
 }
 
@@ -177,10 +156,9 @@ export async function sendOperation(
     fee: number,
     isManager = true): Promise<OperationResult>   {
     const blockHead = await TezosNode.getBlockHead(network);
-    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const accountManager = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore, isManager);
-    const forgedOperationGroup = await forgeOperations(network, blockHead, account, operationsWithKeyReveal, keyStore, fee, isManager);
+    const forgedOperationGroup = await forgeOperations(network, blockHead, operationsWithKeyReveal);
     const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
     const operationGroupHash = computeOperationHash(signedOpGroup);
     const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
@@ -200,17 +178,24 @@ export async function sendOperation(
  * @param {number} fee  Fee to use
  * @returns {Promise<OperationResult>}  Result of the operation
  */
-export function sendTransactionOperation(
+export async function sendTransactionOperation(
     network: string,
     keyStore: KeyStore,
     to: String,
     amount: number,
     fee: number
 ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const transaction = {
-        kind:   "transaction",
-        amount: amount,
         destination: to,
+        amount: amount.toString(),
+        storage_limit: '0',
+        gas_limit: '120',
+        counter: account.counter,
+        fee: fee.toString(),
+        source: keyStore.publicKeyHash,
+        kind:   "transaction",
         parameters: {prim: "Unit", args: []}
     };
     const operations = [transaction];

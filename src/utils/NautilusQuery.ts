@@ -13,7 +13,7 @@ import fetch, {Response} from 'node-fetch';
  */
 export function runGetQuery(network: string, command: string): Promise<object> {
     //const url = `http://nautilus.cryptonomic.tech:8732/tezos/${network}/${command}`;
-    const url = `http://localhost:8732${command}`;
+    const url = `http://172.16.1.112:8732${command}`;
     console.log(`Querying Tezos node with URL ${url}`);
     return fetch(url, {
         method: 'get',
@@ -35,7 +35,7 @@ export function runGetQuery(network: string, command: string): Promise<object> {
  */
 export function runPostQuery(network: string, command: string, payload = {}): Promise<Response> {
     //const url = `http://nautilus.cryptonomic.tech:8732/tezos/${network}/${command}`;
-    const url = `http://localhost:8732/${command}`;
+    const url = `http://172.16.1.112:8732/${command}`;
     const payloadStr = JSON.stringify(payload);
     console.log(`Querying Tezos node with URL ${url} and payload: ${payloadStr}`);
     return fetch(url, {
