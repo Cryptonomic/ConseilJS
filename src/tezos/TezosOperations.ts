@@ -145,7 +145,6 @@ export function injectOperation(
  * @param {string} network  Which Tezos network to go against
  * @param {object[]} operations The operations to create and send
  * @param {KeyStore} keyStore   Key pair along with public key hash
- * @param {number} fee  The fee to use
  * @param {isManager}    Is this a manager operation?
  * @returns {Promise<OperationResult>}  The ID of the created operation group
  */
@@ -153,7 +152,6 @@ export async function sendOperation(
     network: string,
     operations: object[],
     keyStore: KeyStore,
-    fee: number,
     isManager = true): Promise<OperationResult>   {
     const blockHead = await TezosNode.getBlockHead(network);
     const accountManager = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -199,7 +197,7 @@ export async function sendTransactionOperation(
         parameters: {prim: "Unit", args: []}
     };
     const operations = [transaction];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore, true)
 }
 
 /**
@@ -228,7 +226,7 @@ export async function sendDelegationOperation(
         delegate: delegate,
     };
     const operations = [delegation];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore, true)
 }
 
 /**
@@ -267,7 +265,7 @@ export async function sendOriginationOperation(
         delegate: delegate
     };
     const operations = [origination];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore, true)
 }
 
 export function sendIdentityActivationOperation(
@@ -281,5 +279,5 @@ export function sendIdentityActivationOperation(
         secret: activationCode
     };
     const operations = [activation];
-    return sendOperation(network, operations, keyStore, 0, false)
+    return sendOperation(network, operations, keyStore, false)
 }
