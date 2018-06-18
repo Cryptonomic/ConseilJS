@@ -47,14 +47,14 @@ function countErrorsInOperationResult(result: to.OperationResult) {
     });
 });*/
 
-/*
-This test is intentionally commented out to prevent failures with repeat delegation.
-After any changes to the operation logic, the developer should uncomment this test and run it.
-describe('sendDelegationOperation()', () => {
+
+//This test is intentionally commented out to prevent failures with repeat delegation.
+//After any changes to the operation logic, the developer should uncomment this test and run it.
+/*describe('sendDelegationOperation()', () => {
     const delegatedKeyStore = {
         publicKey: keys.publicKey,
         privateKey: keys.privateKey,
-        publicKeyHash: 'TZ1sso2qb5CZXT17rorjPe2yieBPTjz15MUg'
+        publicKeyHash: 'TZ1a46yKWbK2GwwmvuoLCKWcNgwiGLVcg1qW'
     };
     it('correctly delegate to a given account', async () => {
         const result = await to.sendDelegationOperation(
@@ -87,14 +87,14 @@ describe('sendDelegationOperation()', () => {
 /*describe('sendIdentityActivationOperation()', () => {
     it('activate an identity', async () => {
         const newKeys = tw.unlockFundraiserIdentity(
-            'face hint flavor miracle power limit grocery about beef mistake improve tissue warm exclude stereo',
-            'fuaipswf.pseavqnq@tezos.example.org',
-            'ulsSqkLmk0'
+            'blue wolf erupt base space agent evil spoon modify wrap universe flower charge betray quarter',
+            'sffbfrsq.omniocfd@tezos.example.org',
+            'ur5HTFncP0'
         )
         const result = await to.sendIdentityActivationOperation(
             'zeronet',
             newKeys,
-            'bd6fe4b9540447447a1f2c167f53fec4020d71b2'
+            '3c706b349ad1439b0dcec29b14d258b92ee32437'
         );
         console.log(JSON.stringify(result));
         expect(countErrorsInOperationResult(result)).to.equal(0);

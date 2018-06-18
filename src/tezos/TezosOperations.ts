@@ -210,15 +210,22 @@ export async function sendTransactionOperation(
  * @param {number} fee  Operation fee
  * @returns {Promise<OperationResult>}  Result of the operation
  */
-export function sendDelegationOperation(
+export async function sendDelegationOperation(
     network: string,
     keyStore: KeyStore,
     delegate: String,
     fee: number
 ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const delegation = {
         kind:   "delegation",
-        delegate: delegate
+        source: keyStore.publicKeyHash,
+        fee: fee.toString(),
+        counter: account.counter,
+        gas_limit: '120',
+        storage_limit: '0',
+        delegate: delegate,
     };
     const operations = [delegation];
     return sendOperation(network, operations, keyStore, fee)
@@ -235,7 +242,7 @@ export function sendDelegationOperation(
  * @param {number} fee  Operation fee
  * @returns {Promise<OperationResult>}  Result of the operation
  */
-export function sendOriginationOperation(
+export async function sendOriginationOperation(
     network: string,
     keyStore: KeyStore,
     amount: number,
@@ -244,10 +251,17 @@ export function sendOriginationOperation(
     delegatable: boolean,
     fee: number
 ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const origination = {
         kind:   "origination",
-        balance: amount,
+        source: keyStore.publicKeyHash,
+        fee: fee.toString(),
+        counter: account.counter,
+        gas_limit: '120',
+        storage_limit: '0',
         managerPubkey: keyStore.publicKeyHash,
+        balance: amount.toString(),
         spendable: spendable,
         delegatable: delegatable,
         delegate: delegate
