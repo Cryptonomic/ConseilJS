@@ -6,7 +6,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts",
-    "packagr": "rm -rf ./dist && tsc"
+    "packagr": "rm -rf ./dist && tsc",
+    "build": "webpack && rm -rf ./build/dist"
   },
   "repository": {
     "type": "git",

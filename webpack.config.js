@@ -6,7 +6,7 @@ module.exports = {
     entry: "./src/index.ts",
     output: {
         // filename: "bundle.js"
-        path: path.join(__dirname, './dist'),
+        path: path.resolve(__dirname, './build'),
         filename: 'bundle.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
