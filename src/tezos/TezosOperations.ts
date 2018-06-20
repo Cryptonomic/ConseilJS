@@ -20,7 +20,7 @@ export interface SignedOperationGroup {
  * Result of a successfully sent operation
  */
 export interface OperationResult {
-    results: TezosTypes.AppliedOperation,
+    results: TezosTypes.AlphaOperationsWithMetadata,
     operationGroupID: String
 }
 
@@ -55,39 +55,10 @@ export function computeOperationHash(signedOpGroup: SignedOperationGroup): strin
 }
 
 /**
- * Appends a key reveal operation to an operation group if needed.
- * @param {object[]} operations The operations being forged as part of this operation group
- * @param {ManagerKey} managerKey   The sending account's manager information
- * @param {KeyStore} keyStore   Key pair along with public key hash
- * @param {isManager}    Is this a manager operation?
- * @returns {object[]}  Operation group enriched with a key reveal if necessary
- */
-export function handleKeyRevealForOperations(
-    operations: object[],
-    managerKey: TezosTypes.ManagerKey,
-    keyStore: KeyStore,
-    isManager: boolean): object[] {
-    if(isManager && managerKey.key === null) {
-        const revealOp: object = {
-            kind: "reveal",
-            public_key: keyStore.publicKey
-        };
-        return [revealOp].concat(operations)
-    }
-    else {
-        return operations
-    }
-}
-
-/**
  * Forge an operation group using the Tezos RPC client.
  * @param {string} network  Which Tezos network to go against
  * @param {BlockMetadata} blockHead The block head
- * @param {Account} account The sender's account
  * @param {object[]} operations The operations being forged as part of this operation group
- * @param {KeyStore} keyStore   Key pair along with public key hash
- * @param {number} fee  Fee to be paid
- * @param {isManager}    Is this a manager operation?
  * @returns {Promise<string>}   Forged operation bytes (as a hex string)
  */
 export async function forgeOperations(
@@ -97,7 +68,7 @@ export async function forgeOperations(
     const payload = {
             branch: blockHead.hash,
             contents: operations
-        }
+        };
     return TezosNode.forgeOperation(network, payload)
 }
 
@@ -117,7 +88,7 @@ export function applyOperation(
     operations: object[],
     operationGroupHash: string,
     forgedOperationGroup: string,
-    signedOpGroup: SignedOperationGroup): Promise<TezosTypes.AppliedOperation> {
+    signedOpGroup: SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
     const payload = [{
         protocol: blockHead.protocol,
         branch: blockHead.hash,
@@ -125,6 +96,21 @@ export function applyOperation(
         signature: signedOpGroup.signature
     }];
     return TezosNode.applyOperation(network, payload)
+}
+
+/**
+ * Ensures the results of operation application do not contain errors. Throws as needed if there are errors.
+ * @param appliedOp Results of operation application.
+ */
+function checkAppliedOperationResults(appliedOp): void {
+    const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
+    const firstAppliedOp = appliedOp[0];    //All our op groups are singletons so we deliberately check the zeroth result.
+    if(firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind))
+        throw(new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+    for (const op of firstAppliedOp.contents) {
+        if (!validAppliedKinds.has(op.kind)) throw(new Error(`Could not apply operation because: ${op.id}`))
+    }
+
 }
 
 /**
@@ -136,7 +122,7 @@ export function applyOperation(
 export function injectOperation(
     network: string,
     signedOpGroup: SignedOperationGroup): Promise<string> {
-    const payload = sodium.to_hex(signedOpGroup.bytes)
+    const payload = sodium.to_hex(signedOpGroup.bytes);
     return TezosNode.injectOperation(network, payload)
 }
 
@@ -145,26 +131,21 @@ export function injectOperation(
  * @param {string} network  Which Tezos network to go against
  * @param {object[]} operations The operations to create and send
  * @param {KeyStore} keyStore   Key pair along with public key hash
- * @param {number} fee  The fee to use
- * @param {isManager}    Is this a manager operation?
  * @returns {Promise<OperationResult>}  The ID of the created operation group
  */
 export async function sendOperation(
     network: string,
     operations: object[],
-    keyStore: KeyStore,
-    fee: number,
-    isManager = true): Promise<OperationResult>   {
+    keyStore: KeyStore): Promise<OperationResult>   {
     const blockHead = await TezosNode.getBlockHead(network);
-    const accountManager = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-    const operationsWithKeyReveal = handleKeyRevealForOperations(operations, accountManager, keyStore, isManager);
-    const forgedOperationGroup = await forgeOperations(network, blockHead, operationsWithKeyReveal);
+    const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
     const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
     const operationGroupHash = computeOperationHash(signedOpGroup);
     const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+    checkAppliedOperationResults(appliedOp);
     const injectedOperation = await injectOperation(network, signedOpGroup);
     return {
-        results: appliedOp,
+        results: appliedOp[0],
         operationGroupID: injectedOperation
     }
 }
@@ -192,14 +173,14 @@ export async function sendTransactionOperation(
         amount: amount.toString(),
         storage_limit: '0',
         gas_limit: '120',
-        counter: account.counter,
+        counter: (Number(account.counter) + 1).toString(),
         fee: fee.toString(),
         source: keyStore.publicKeyHash,
         kind:   "transaction",
         parameters: {prim: "Unit", args: []}
     };
     const operations = [transaction];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore)
 }
 
 /**
@@ -210,18 +191,25 @@ export async function sendTransactionOperation(
  * @param {number} fee  Operation fee
  * @returns {Promise<OperationResult>}  Result of the operation
  */
-export function sendDelegationOperation(
+export async function sendDelegationOperation(
     network: string,
     keyStore: KeyStore,
     delegate: String,
     fee: number
 ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const delegation = {
         kind:   "delegation",
+        source: keyStore.publicKeyHash,
+        fee: fee.toString(),
+        counter: (Number(account.counter) + 1).toString(),
+        storage_limit: '0',
+        gas_limit: '120',
         delegate: delegate
     };
     const operations = [delegation];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore)
 }
 
 /**
@@ -235,7 +223,7 @@ export function sendDelegationOperation(
  * @param {number} fee  Operation fee
  * @returns {Promise<OperationResult>}  Result of the operation
  */
-export function sendOriginationOperation(
+export async function sendOriginationOperation(
     network: string,
     keyStore: KeyStore,
     amount: number,
@@ -244,28 +232,79 @@ export function sendOriginationOperation(
     delegatable: boolean,
     fee: number
 ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
     const origination = {
         kind:   "origination",
-        balance: amount,
+        source: keyStore.publicKeyHash,
+        fee: fee.toString(),
+        counter: (Number(account.counter) + 1).toString(),
+        gas_limit: '120',
+        storage_limit: '0',
         managerPubkey: keyStore.publicKeyHash,
+        balance: amount.toString(),
         spendable: spendable,
         delegatable: delegatable,
         delegate: delegate
     };
     const operations = [origination];
-    return sendOperation(network, operations, keyStore, fee)
+    return sendOperation(network, operations, keyStore)
 }
 
+/**
+ * Indicates whether a reveal operation has already been done for a given account.
+ * @param {string} network  Which Tezos network to go against
+ * @param {KeyStore} keyStore   Key pair along with public key hash
+ * @returns {Promise<boolean>}  Result
+ */
+export async function isManagerKeyRevealedForAccount(network: string, keyStore: KeyStore): Promise<boolean> {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const managerKey = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+    return managerKey.key == null
+}
+
+/**
+ * Creates and sends a reveal operation.
+ * @param {string} network  Which Tezos network to go against
+ * @param {KeyStore} keyStore   Key pair along with public key hash
+ * @param {number} fee  Fee to pay
+ * @returns {Promise<OperationResult>}  Result of the operation
+ */
+export async function sendKeyRevealOperation(
+    network: string,
+    keyStore: KeyStore,
+    fee: number) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+    const revealOp: Object = {
+        kind: "reveal",
+        source: keyStore.publicKeyHash,
+        fee: fee.toString(),
+        counter: (Number(account.counter) + 1).toString(),
+        gas_limit: '120',
+        storage_limit: '0',
+        public_key: keyStore.publicKey
+    };
+    const operations = [revealOp];
+    return sendOperation(network, operations, keyStore)
+}
+
+/**
+ * Creates and sends an activation operation.
+ * @param {string} network  Which Tezos network to go against
+ * @param {KeyStore} keyStore   Key pair along with public key hash
+ * @param {string} activationCode   Activation code provided by fundraiser process
+ * @returns {Promise<OperationResult>}  Result of the operation
+ */
 export function sendIdentityActivationOperation(
     network: string,
     keyStore: KeyStore,
-    activationCode: string
-) {
+    activationCode: string) {
     const activation = {
         kind:   "activate_account",
         pkh:    keyStore.publicKeyHash,
         secret: activationCode
     };
     const operations = [activation];
-    return sendOperation(network, operations, keyStore, 0, false)
+    return sendOperation(network, operations, keyStore)
 }

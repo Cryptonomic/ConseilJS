@@ -54,17 +54,17 @@ export function getAccountManagerForBlock(network: string, blockHash: string, ac
  * Forge an operation group using the Tezos RPC client.
  * @param {string} network  Which Tezos network to go against
  * @param {object} opGroup  Operation group payload
- * @returns {Promise<ForgedOperation>}  Forged operation
+ * @returns {Promise<string>}  Forged operation
  */
 export async function forgeOperation(network: string, opGroup: object): Promise<string> {
     const response = await Nautilus.runPostQuery(
         network,
         "/chains/main/blocks/head/helpers/forge/operations",
         opGroup
-    )
-    const forgedOperation = await response.text()
-    console.log('Forged operation:')
-    console.log(forgedOperation)
+    );
+    const forgedOperation = await response.text();
+    console.log('Forged operation:');
+    console.log(forgedOperation);
     return forgedOperation
         .replace(/\n/g, '')
         //.replace('\"', '')
@@ -78,16 +78,16 @@ export async function forgeOperation(network: string, opGroup: object): Promise<
  * @param {object} payload  Payload set according to protocol spec
  * @returns {Promise<AppliedOperation>} Applied operation
  */
-export async function applyOperation(network: string, payload: object): Promise<TezosTypes.AppliedOperation> {
+export async function applyOperation(network: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
     const response  = await Nautilus.runPostQuery(
         network,
         `/chains/main/blocks/head/helpers/preapply/operations`,
         payload
-    )
-    const json = await response.json()
-    const appliedOperation =  <TezosTypes.AppliedOperation> json
-    console.log('Applied operation:')
-    console.log(appliedOperation)
+    );
+    const json = await response.json();
+    const appliedOperation =  <TezosTypes.AlphaOperationsWithMetadata[]> json;
+    console.log('Applied operation:');
+    console.log(JSON.stringify(appliedOperation));
     return appliedOperation
 }
 
@@ -102,9 +102,9 @@ export async function injectOperation(network: string, payload: string): Promise
         network,
         `injection/operation?chain=main`,
         payload
-    )
-    const injectedOperation = await response.text()
-    console.log('Injected operation')
-    console.log(">>", injectedOperation)
+    );
+    const injectedOperation = await response.text();
+    console.log('Injected operation');
+    console.log(">>", injectedOperation);
     return injectedOperation
 }

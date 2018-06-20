@@ -2,20 +2,12 @@ import 'mocha';
 import {expect} from 'chai';
 import * as to from '../src/tezos/TezosOperations'
 import * as tw from '../src/tezos/TezosWallet'
-import {KeyStore} from "../src/types/KeyStore";
 
-const keys: KeyStore = {
-    publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
-    privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-    publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
-};
-
-function countErrorsInOperationResult(result: to.OperationResult) {
-    return result.results.operation_results.filter(res => {
-        if(typeof res.errors === "undefined") return false;
-        else return res.errors.length > 0
-    }).length
-}
+const keys = tw.unlockFundraiserIdentity(
+    'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+    'byixpeyi.dofdqvwn@tezos.example.org',
+    'SU0j4HSgbd'
+);
 
 /*describe('signOperationGroup() and computeOperationHash()', () => {
     it('correctly compute an operation hash for the given operation bytes', async () => {
@@ -31,11 +23,6 @@ function countErrorsInOperationResult(result: to.OperationResult) {
 
 /*describe('sendTransactionOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
-        const keys2: KeyStore = {
-            publicKey: 'edpkvHoQiRjLbDE7V9KqozzMr9xdvJSDmcbLfz78FNdkbd6rR6R3HB',
-            privateKey: 'edskRz5B24SdcgA7DAgF9UStho4zgva6CTg2re6ZWduHguqu6EMBMWiLdFDkoo5wW8sgtMcTD62QgXqVAPCcGc5PcXXsuCsTNW',
-            publicKeyHash: 'tz1fstxP1dJuodWoVD2sDecDDVQkV8gaygcR'
-        };
         const result = await to.sendTransactionOperation(
             'zeronet',
             keys,
@@ -43,28 +30,28 @@ function countErrorsInOperationResult(result: to.OperationResult) {
             100000000,
             50000
         );
-        expect(countErrorsInOperationResult(result)).to.equal(0);
+        expect(result.operationGroupID).to.exist
     });
 });*/
 
-/*
-This test is intentionally commented out to prevent failures with repeat delegation.
-After any changes to the operation logic, the developer should uncomment this test and run it.
-describe('sendDelegationOperation()', () => {
+
+//This test is intentionally commented out to prevent failures with repeat delegation.
+//After any changes to the operation logic, the developer should uncomment this test and run it.
+/*describe('sendDelegationOperation()', () => {
     const delegatedKeyStore = {
         publicKey: keys.publicKey,
         privateKey: keys.privateKey,
-        publicKeyHash: 'TZ1sso2qb5CZXT17rorjPe2yieBPTjz15MUg'
+        publicKeyHash: 'TZ1Y9jCkazZEkyW22xfaSy3EZDqSAWFvF6RL'
     };
     it('correctly delegate to a given account', async () => {
         const result = await to.sendDelegationOperation(
             'zeronet',
             delegatedKeyStore,
-            'tz1cfwpEiwEssf3W7vuJY2YqNzZFqidwZ1JR',
+            'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew',
             1
         );
         console.log(JSON.stringify(result));
-        expect(countErrorsInOperationResult(result)).to.equal(0);
+        expect(result.operationGroupID).to.exist
     });
 });*/
 
@@ -80,24 +67,70 @@ describe('sendDelegationOperation()', () => {
             1
         );
         console.log(JSON.stringify(result));
-        expect(countErrorsInOperationResult(result)).to.equal(0);
+        expect(result.operationGroupID).to.exist
+    });
+});*/
+
+/*describe('sendKeyRevealOperation()', () => {
+    it('successfully send a Tezos transaction', async () => {
+        const result = await to.sendKeyRevealOperation(
+            'zeronet',
+            keys,
+            50000
+        );
+        console.log(result)
+        expect(result.operationGroupID).to.exist
     });
 });*/
 
 /*describe('sendIdentityActivationOperation()', () => {
     it('activate an identity', async () => {
         const newKeys = tw.unlockFundraiserIdentity(
-            'face hint flavor miracle power limit grocery about beef mistake improve tissue warm exclude stereo',
-            'fuaipswf.pseavqnq@tezos.example.org',
-            'ulsSqkLmk0'
+            'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+            'byixpeyi.dofdqvwn@tezos.example.org',
+            'SU0j4HSgbd'
         )
         const result = await to.sendIdentityActivationOperation(
             'zeronet',
             newKeys,
-            'bd6fe4b9540447447a1f2c167f53fec4020d71b2'
+            '83ba3ffc1552cee5dcc392e6cd3413d0c35181df'
         );
         console.log(JSON.stringify(result));
-        expect(countErrorsInOperationResult(result)).to.equal(0);
+        expect(result.operationGroupID).to.exist
     });
 });*/
 
+describe('Tezos operation functions', () => {
+    it('successfully perform operations on a new identity', async () => {
+        const mnemonic = tw.generateMnemonic();
+        const newKeys = tw.unlockIdentityWithMnemonic(
+            mnemonic,
+            ''
+        );
+        const result = await to.sendTransactionOperation(
+            'zeronet',
+            keys,
+            newKeys.publicKeyHash,
+            10000,
+            50000
+        );
+        expect(result.operationGroupID).to.exist;
+        const result2 = await to.sendOriginationOperation(
+            'zeronet',
+            newKeys,
+            100,
+            newKeys.publicKeyHash,
+            true,
+            true,
+            1
+        );
+        expect(result2.operationGroupID).to.exist;
+        const result3 = await to.sendDelegationOperation(
+            'zeronet',
+            newKeys,
+            keys.publicKeyHash,
+            1
+        );
+        expect(result3.operationGroupID).to.exist
+    });
+});
