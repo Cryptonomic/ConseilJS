@@ -1,11 +1,15 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const path = require('path');
 module.exports = {
     mode: "development",
     devtool: "inline-source-map",
     entry: "./src/index.ts",
     output: {
-        filename: "bundle.js"
+        // filename: "bundle.js"
+        path: path.join(__dirname, './dist'),
+        filename: 'index.js',
+        library: 'conseiljs',
+        libraryTarget: 'umd'
     },
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.

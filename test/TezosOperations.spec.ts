@@ -1,9 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
-import * as to from '../src/tezos/TezosOperations'
-import * as tw from '../src/tezos/TezosWallet'
+import {TezosOperations} from '../src/tezos/TezosOperations'
+import {TezosWallet} from '../src/tezos/TezosWallet'
 
-const keys = tw.unlockFundraiserIdentity(
+const keys = TezosWallet.unlockFundraiserIdentity(
     'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
     'byixpeyi.dofdqvwn@tezos.example.org',
     'SU0j4HSgbd'
@@ -102,12 +102,12 @@ const keys = tw.unlockFundraiserIdentity(
 
 describe('Tezos operation functions', () => {
     it('successfully perform operations on a new identity', async () => {
-        const mnemonic = tw.generateMnemonic();
-        const newKeys = tw.unlockIdentityWithMnemonic(
+        const mnemonic = TezosWallet.generateMnemonic();
+        const newKeys = TezosWallet.unlockIdentityWithMnemonic(
             mnemonic,
             ''
         );
-        const result = await to.sendTransactionOperation(
+        const result = await TezosOperations.sendTransactionOperation(
             'zeronet',
             keys,
             newKeys.publicKeyHash,
@@ -115,7 +115,7 @@ describe('Tezos operation functions', () => {
             50000
         );
         expect(result.operationGroupID).to.exist;
-        const result2 = await to.sendOriginationOperation(
+        const result2 = await TezosOperations.sendOriginationOperation(
             'zeronet',
             newKeys,
             100,
@@ -125,7 +125,7 @@ describe('Tezos operation functions', () => {
             1
         );
         expect(result2.operationGroupID).to.exist;
-        const result3 = await to.sendDelegationOperation(
+        const result3 = await TezosOperations.sendDelegationOperation(
             'zeronet',
             newKeys,
             keys.publicKeyHash,
