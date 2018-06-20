@@ -3,18 +3,18 @@
  */
 
 export interface TezosBlock {
-    chainId: string,
-    protocol: string,
     level: number,
     proto: number,
     predecessor: string,
-    validationPass: number,
-    operationsHash: string,
-    protocolData: string,
-    hash: string,
     timestamp: number,
+    validationPass: number,
     fitness: string,
     context: string
+    signature: string,
+    protocol: string,
+    chainId: string,
+    hash: string,
+    operationsHash: string
 }
 
 export interface TezosAccount {
@@ -30,41 +30,37 @@ export interface TezosAccount {
 }
 
 export interface TezosOperationGroup {
+    protocol: string,
+    chainId: string,
     hash: string,
     branch: string,
-    kind: string,
-    block: string,
-    level: number,
-    slots: number,
     signature: string,
-    proposals: string,
-    period: number,
-    source: string,
-    proposal: string,
-    ballot: string,
-    chain: string,
-    counter: number,
-    fee: number,
     blockId: string
 }
 
 export interface TezosOperation {
-    operationId: number,
-    operationGroupHash: string,
-    opKind: string,
+    kind: string,
+    block: string,
     level: number,
+    slots: string,
     nonce: string,
-    id: string,
-    publicKey: string,
+    pkh: string,
+    secret: string,
+    source: string,
+    counter: number,
+    public_key: string,
     amount: string,
     destination: string,
-    parameters: string,
-    managerpubkey: string,
+    manager_pub_key: string,
     balance: string,
     spendable: boolean,
     delegatable: boolean,
     delegate: string,
-    script: string
+    operationGroupHash: string,
+    operationId: number,
+    fee: string,
+    storageLimit: string,
+    gasLimit: string
 }
 
 export interface TezosBlockWithOperationGroups {
@@ -110,9 +106,4 @@ export interface AppliedOperation {
     operation_results: AppliedOperationResult[],
     id: string,
     contract: string
-}
-
-export interface TezosOperationResult {
-    results: AppliedOperation,
-    operationGroupID: string
 }
