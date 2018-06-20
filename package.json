@@ -5,7 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts"
+    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts",
+    "build": "rm -rf ./dist && tsc"
   },
   "repository": {
     "type": "git",

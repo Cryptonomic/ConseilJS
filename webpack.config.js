@@ -7,7 +7,7 @@ module.exports = {
     output: {
         // filename: "bundle.js"
         path: path.join(__dirname, './dist'),
-        filename: 'index.js',
+        filename: 'bundle.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
     },
