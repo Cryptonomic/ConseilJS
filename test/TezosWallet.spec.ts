@@ -42,12 +42,12 @@ describe('loadWallet()', () => {
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
         const result = tw.unlockFundraiserIdentity(
-            'just manual depend knock secret kingdom cup ribbon age learn measure more merit bubble next',
-            'imbfyoqx.sqxphenx@tezos.example.org',
-            'OEU8K0K1n5'
+            'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+            'byixpeyi.dofdqvwn@tezos.example.org',
+            'SU0j4HSgbd'
         );
         console.log(result);
-        expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
+        expect(result.publicKeyHash).to.equal('tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew');
     });
 });
 

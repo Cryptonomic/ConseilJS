@@ -2,10 +2,7 @@
  * Types used to process data returned from Conseil server.
  */
 
-export interface BlockMetadata {
-    hash: string,
-    chain_id: string,
-    protocol: string,
+export interface BlockHeader {
     level: number,
     proto: number,
     predecessor: string,
@@ -14,7 +11,16 @@ export interface BlockMetadata {
     operations_hash: string,
     fitness: string[],
     context: string,
-    protocol_data: string
+    priority: number,
+    proof_of_work_nonce: string,
+    signature: string
+}
+
+export interface BlockMetadata {
+    protocol: string,
+    chain_id: string,
+    hash: string,
+    metadata: BlockHeader
 }
 
 export interface AccountDelegate {
@@ -36,38 +42,23 @@ export interface ManagerKey {
     key: string
 }
 
-export interface ForgedOperation {
-    operation: string
-}
-
-export interface AppliedOperationBalanceUpdates {
-    kind: string,
-    contract: string,
-    debited: string,
-    credit: string
-}
-
-export interface AppliedOperationError {
-    kind: string,
-    id: string,
-    hash: string
-}
-
-export interface AppliedOperationResult {
-    operation: string,
+export interface AlphaOperationResult {
     status: string,
-    operation_kind: string,
-    balance_updates: AppliedOperationBalanceUpdates[],
-    originated_contracts: string[],
-    errors: AppliedOperationError[]
+    originated_contracts: string[]
+    errors: string[]
 }
 
-export interface AppliedOperation {
+export interface AlphaOperationContentsAndResult {
     kind: string,
-    balance_updates: AppliedOperationBalanceUpdates[],
-    operation_results: AppliedOperationResult[],
-    id: string,
-    contract: string
+    metadata: AlphaOperationResult
+}
+
+export interface AlphaOperationsWithMetadata {
+    contents: AlphaOperationContentsAndResult[],
+    signature: string,
+    kind: string, //only if error
+    id: string, //only if error
+    contract: string //only if error
 }
 
 export interface InjectedOperation {

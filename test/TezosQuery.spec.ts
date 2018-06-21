@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import * as tq from '../src/tezos/TezosQuery'
+import * as tq from '../src/tezos/TezosConseilQuery'
 
 describe('getBlockHead()', () => {
     it('should fetch the block head', async () => {

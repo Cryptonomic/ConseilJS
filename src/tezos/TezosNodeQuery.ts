@@ -13,7 +13,7 @@ import {BlockMetadata} from "./TezosTypes";
  * @returns {Promise<BlockMetadata>}    Block
  */
 export function getBlock(network: string, hash: string): Promise<BlockMetadata> {
-    return Nautilus.runQuery(network, `blocks/${hash}`)
+    return Nautilus.runGetQuery(network, `/chains/main/blocks/${hash}`)
         .then(json => {return <TezosTypes.BlockMetadata> json})
 }
 
@@ -34,7 +34,7 @@ export function getBlockHead(network: string): Promise<TezosTypes.BlockMetadata>
  * @returns {Promise<Account>}  The account
  */
 export function getAccountForBlock(network: string, blockHash: string, accountID: string): Promise<TezosTypes.Account> {
-    return Nautilus.runQuery(network, `blocks/${blockHash}/proto/context/contracts/${accountID}`)
+    return Nautilus.runGetQuery(network, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
         .then(json => {return <TezosTypes.Account> json})
 }
 
@@ -46,7 +46,7 @@ export function getAccountForBlock(network: string, blockHash: string, accountID
  * @returns {Promise<ManagerKey>}   The account
  */
 export function getAccountManagerForBlock(network: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
-    return Nautilus.runQuery(network, `blocks/${blockHash}/proto/context/contracts/${accountID}/manager_key`)
+    return Nautilus.runGetQuery(network, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
         .then(json => {return <TezosTypes.ManagerKey> json})
 }
 
@@ -54,15 +54,22 @@ export function getAccountManagerForBlock(network: string, blockHash: string, ac
  * Forge an operation group using the Tezos RPC client.
  * @param {string} network  Which Tezos network to go against
  * @param {object} opGroup  Operation group payload
- * @returns {Promise<ForgedOperation>}  Forged operation
+ * @returns {Promise<string>}  Forged operation
  */
-export function forgeOperation(network: string, opGroup: object): Promise<TezosTypes.ForgedOperation> {
-    return Nautilus.runQuery(
+export async function forgeOperation(network: string, opGroup: object): Promise<string> {
+    const response = await Nautilus.runPostQuery(
         network,
-        "/blocks/head/proto/helpers/forge/operations",
+        "/chains/main/blocks/head/helpers/forge/operations",
         opGroup
-    )
-        .then(json => {return <TezosTypes.ForgedOperation> json})
+    );
+    const forgedOperation = await response.text();
+    console.log('Forged operation:');
+    console.log(forgedOperation);
+    return forgedOperation
+        .replace(/\n/g, '')
+        //.replace('\"', '')
+        .replace(/['"]+/g, '')
+
 }
 
 /**
@@ -71,13 +78,17 @@ export function forgeOperation(network: string, opGroup: object): Promise<TezosT
  * @param {object} payload  Payload set according to protocol spec
  * @returns {Promise<AppliedOperation>} Applied operation
  */
-export function applyOperation(network: string, payload: object): Promise<TezosTypes.AppliedOperation> {
-    return Nautilus.runQuery(
+export async function applyOperation(network: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+    const response  = await Nautilus.runPostQuery(
         network,
-        `/blocks/head/proto/helpers/apply_operation`,
+        `/chains/main/blocks/head/helpers/preapply/operations`,
         payload
-    )
-        .then(json => {return <TezosTypes.AppliedOperation> json})
+    );
+    const json = await response.json();
+    const appliedOperation =  <TezosTypes.AlphaOperationsWithMetadata[]> json;
+    console.log('Applied operation:');
+    console.log(JSON.stringify(appliedOperation));
+    return appliedOperation
 }
 
 /**
@@ -86,11 +97,14 @@ export function applyOperation(network: string, payload: object): Promise<TezosT
  * @param {object} payload  Payload set according to protocol spec
  * @returns {Promise<InjectedOperation>} Injected operation
  */
-export function injectOperation(network: string, payload: object): Promise<TezosTypes.InjectedOperation> {
-    return Nautilus.runQuery(
+export async function injectOperation(network: string, payload: string): Promise<string> {
+    const response = await Nautilus.runPostQuery(
         network,
-        `/inject_operation`,
+        `injection/operation?chain=main`,
         payload
-    )
-        .then(json => {return <TezosTypes.InjectedOperation> json})
+    );
+    const injectedOperation = await response.text();
+    console.log('Injected operation');
+    console.log(">>", injectedOperation);
+    return injectedOperation
 }

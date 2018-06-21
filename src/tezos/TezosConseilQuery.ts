@@ -1,7 +1,7 @@
 import {
     TezosAccount,
     TezosAccountWithOperationGroups,
-    TezosBlock, TezosBlockWithOperationGroups,
+    TezosBlock, TezosBlockWithOperationGroups, TezosOperation,
     TezosOperationGroup,
     TezosOperationGroupWithOperations
 } from "../utils/ConseilTypes";
@@ -23,11 +23,32 @@ export interface TezosFilter {
     block_protocol: string[];
     operation_id: string[];
     operation_source: string[];
-    operation_group_kind: string[];
+    operation_destination: string[];
     operation_kind: string[];
     account_id: string[];
     account_manager: string[];
     account_delegate: string[];
+}
+
+/**
+ * Convenience function for creating an empty Tezos filter which can later be overriden as desired.
+ * @returns {TezosFilter}   Empty Tezos filter
+ */
+export function getEmptyTezosFilter(): TezosFilter {
+    return {
+        block_id: new Array(),
+        block_level: new Array(),
+        block_netid: new Array(),
+        block_protocol: new Array(),
+        operation_id: new Array(),
+        operation_source: new Array(),
+        operation_destination: new Array(),
+        operation_kind: new Array(),
+        account_id: new Array(),
+        account_manager: new Array(),
+        account_delegate: new Array(),
+        limit: 100
+    }
 }
 
 /**
@@ -75,7 +96,7 @@ export function getBlocks(network: string, filter: TezosFilter): Promise<TezosBl
  * @returns {Promise<TezosOperationGroupWithOperations>}    Operation group along with associated operations and accounts
  */
 export function getOperationGroup(network: string, hash: String): Promise<TezosOperationGroupWithOperations> {
-    return queryConseilServer(network, `operations/${hash}`)
+    return queryConseilServer(network, `operation_groups/${hash}`)
         .then(json => {
             return <TezosOperationGroupWithOperations> json
         })
@@ -88,9 +109,22 @@ export function getOperationGroup(network: string, hash: String): Promise<TezosO
  * @returns {Promise<TezosOperationGroup[]>}    List of operation groups
  */
 export function getOperationGroups(network: string, filter: TezosFilter): Promise<TezosOperationGroup[]> {
-    return queryConseilServerWithFilter(network, 'operations', filter)
+    return queryConseilServerWithFilter(network, 'operation_groups', filter)
         .then(json => {
             return <TezosOperationGroup[]> json
+        })
+}
+
+/**
+ * Fetches all operations.
+ * @param {string} network  Which Tezos network to go against
+ * @param {TezosFilter} filter  Filters to apply
+ * @returns {Promise<TezosOperationGroup[]>}    List of operations
+ */
+export function getOperations(network: string, filter: TezosFilter): Promise<TezosOperation[]> {
+    return queryConseilServerWithFilter(network, 'operations', filter)
+        .then(json => {
+            return <TezosOperation[]> json
         })
 }
 
