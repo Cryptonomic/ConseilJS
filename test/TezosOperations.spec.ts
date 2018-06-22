@@ -100,7 +100,7 @@ const keys = TezosWallet.unlockFundraiserIdentity(
     });
 });*/
 
-describe('Tezos operation functions', () => {
+/*describe('Tezos operation functions', () => {
     it('successfully perform operations on a new identity', async () => {
         const mnemonic = TezosWallet.generateMnemonic();
         const newKeys = TezosWallet.unlockIdentityWithMnemonic(
@@ -133,4 +133,4 @@ describe('Tezos operation functions', () => {
         );
         expect(result3.operationGroupID).to.exist
     });
-});
+})*/

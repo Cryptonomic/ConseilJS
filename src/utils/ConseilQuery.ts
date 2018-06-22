@@ -16,7 +16,7 @@ import {TezosFilter} from "../tezos/TezosConseilQuery";
  * @returns {Promise<object>}   JSON representation of response from Conseil
  */
 export function queryConseilServer(network: string, route: string): Promise<object> {
-    let url = `http://localhost:1337/tezos/${network}/${route}`;
+    let url = `http://206.189.230.137:1337/tezos/${network}/${route}`;
     console.log(`Querying Conseil server at URL ${url}`)
     return fetch(url, {
         method: 'get',
