@@ -2,6 +2,7 @@ import * as base58Check from 'bs58check'
 import * as bip39 from 'bip39';
 import * as sodium  from 'libsodium-wrappers-sumo';
 import {KeyStore} from "../types/KeyStore";
+import {Error} from "../types/Error";
 import * as crypto from 'crypto'
 
 /**
@@ -118,7 +119,9 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
  * @param {string} passphrase   User-supplied passphrase
  * @returns {KeyStore}  Generated keys
  */
-export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string): KeyStore {
+export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string): Error | KeyStore {
+    const lengthOfMnemonic = mnemonic.split(" ").length;
+    if (lengthOfMnemonic !== 15) return {error: "The mnemonic should be 15 words."};
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
     const key_pair = sodium.crypto_sign_seed_keypair(seed, "");
     const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
