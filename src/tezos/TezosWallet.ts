@@ -52,7 +52,12 @@ export namespace TezosWallet {
      * @param {string} password User-supplied passphrase used to secure wallet file
      * @returns {Promise<Wallet>}   Object corresponding to newly-created wallet
      */
-    export async function createWallet(filename: string, password: string): Promise<Wallet> {
+    export async function createWallet(filename: string, password: string): Promise<any> {
+        if (password.length < 8) {
+            return new Promise((resolve, reject) => {            
+                reject({error: "The password length should be more than 8"});
+            });
+        }
         const wallet: Wallet = {
             identities: []
         };
