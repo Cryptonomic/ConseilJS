@@ -11,6 +11,13 @@ describe('createWallet()', () => {
         const result = await TezosWallet.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
+
+    it('The lenght of password should be more than 8.', async () => {
+        return TezosWallet.createWallet("//tmp//test.tezwallet", "test")
+        .catch((result) => {
+            expect(result.error).to.equal("The password length should be more than 8"); 
+        });
+    });
 });
 
 describe('saveWallet()', () => {
