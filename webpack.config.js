@@ -1,4 +1,5 @@
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+const path = require('path')
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
 
 module.exports = {
@@ -6,7 +7,11 @@ module.exports = {
     devtool: "inline-source-map",
     entry: "./src/index.ts",
     output: {
-        filename: "bundle.js"
+        // filename: "bundle.js"
+        path: path.resolve(__dirname, './build'),
+        filename: 'bundle.js',
+        library: 'conseiljs',
+        libraryTarget: 'umd'
     },
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.

@@ -1,11 +1,13 @@
 {
   "name": "conseiljs",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Client-side library for dApp development.",
-  "main": "dist/bundle.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts"
+    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts",
+    "packagr": "rm -rf ./dist && tsc",
+    "build": "webpack && rm -rf ./build/dist"
   },
   "repository": {
     "type": "git",
@@ -28,7 +30,6 @@
     "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "libsodium-wrappers-sumo": "^0.5.4",
-    "node-fetch": "^2.1.1",
     "tsconfig-paths-webpack-plugin": "^3.2.0"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@types/node-fetch": "^2.1.1",
     "chai": "^4.1.2",
     "mocha": "^5.2.0",
+    "node-fetch": "^2.1.1",
     "ts-loader": "^4.3.1",
     "ts-node": "^6.0.5",
     "typedoc": "^0.11.1",
@@ -45,5 +47,8 @@
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.11.1",
     "webpack-cli": "^3.0.3"
+  },
+  "peerDependencies": {
+    "node-fetch": "^2.1.1"
   }
 }
