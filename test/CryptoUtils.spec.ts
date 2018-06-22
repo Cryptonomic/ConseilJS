@@ -11,13 +11,20 @@ describe('base58CheckDecode() and base58CheckEncode()', () => {
     });
 });
 
-describe('unlockIdentityWithMnemonic()', () => {
+describe('getKeysFromMnemonicAndPassphrase()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result = cryptoUtils.getKeysFromMnemonicAndPassphrase(
+        const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
+    });
+    it('should be 15 words', () => {
+        const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
+            'password'
+        );
+        expect(result.error).to.equal("The mnemonic should be 15 words.");   
     });
 });
 

@@ -41,12 +41,11 @@ describe('loadWallet()', () => {
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result = TezosWallet.unlockFundraiserIdentity(
+        const result: any = TezosWallet.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
             'SU0j4HSgbd'
         );
-        console.log(result);
         expect(result.publicKeyHash).to.equal('tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew');
     });
 });
@@ -61,7 +60,7 @@ describe('generateMnemonic()', () => {
 
 describe('unlockIdentityWithMnemonic()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result = TezosWallet.unlockIdentityWithMnemonic(
+        const result: any = TezosWallet.unlockIdentityWithMnemonic(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );

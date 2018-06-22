@@ -1,5 +1,6 @@
 import {Wallet, EncryptedWalletVersionOne} from "../types/Wallet";
 import {KeyStore} from "../types/KeyStore";
+import {Error} from "../types/Error";
 import * as CryptoUtils from "../utils/CryptoUtils";
 
 const fsPromises = require('fs').promises;
@@ -66,7 +67,7 @@ export namespace TezosWallet {
      * @param {string} password Password from fundraiser PDF.
      * @returns {KeyStore}  Wallet file
      */
-    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string): KeyStore {
+    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string): KeyStore | Error {
         const passphrase = email + password;
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
     }
@@ -85,7 +86,7 @@ export namespace TezosWallet {
      * @param {string} passphrase   User-supplied passphrase
      * @returns {KeyStore}  Unlocked key pair
      */
-    export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore {
+    export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore | Error{
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
     }
     
