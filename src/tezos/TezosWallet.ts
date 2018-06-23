@@ -2,8 +2,7 @@ import {Wallet, EncryptedWalletVersionOne} from "../types/Wallet";
 import {KeyStore} from "../types/KeyStore";
 import {Error} from "../types/Error";
 import * as CryptoUtils from "../utils/CryptoUtils";
-
-const fsPromises = require('fs').promises;
+import * as fs from "fs";
 
 export namespace TezosWallet {
     /**
@@ -27,8 +26,16 @@ export namespace TezosWallet {
             ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
             kdf: 'Argon2'
         };
-        await fsPromises.writeFile(filename, JSON.stringify(encryptedWallet));
-        return loadWallet(filename, passphrase)
+        return new Promise<Wallet>(((resolve, reject) => {
+            try {
+                fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
+                    if (err) reject(err);
+                    resolve(loadWallet(filename, passphrase))
+                })
+            } catch (err) {
+                reject(err);
+            }
+        }))
     }
 
     /**
@@ -38,12 +45,16 @@ export namespace TezosWallet {
      * @returns {Promise<Wallet>}   Loaded wallet
      */
     export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
-        const data = await fsPromises.readFile(filename);
-        const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
-        const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
-        const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
-        const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
-        return {identities: keys}
+        return new Promise<Wallet>((resolve, reject) => {
+            fs.readFile(filename, (err, data) => {
+                if (err) reject(err);
+                const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
+                const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
+                const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
+                const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
+                resolve({identities: keys})
+            });
+        })
     }
 
     /**
