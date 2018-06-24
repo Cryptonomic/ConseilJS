@@ -24,6 +24,7 @@ export interface TezosFilter {
     operation_id: string[];
     operation_source: string[];
     operation_destination: string[];
+    operation_participant: string[];
     operation_kind: string[];
     account_id: string[];
     account_manager: string[];
@@ -37,17 +38,18 @@ export namespace TezosConseilQuery {
      */
     export function getEmptyTezosFilter(): TezosFilter {
         return {
-            block_id: new Array(),
-            block_level: new Array(),
-            block_netid: new Array(),
-            block_protocol: new Array(),
-            operation_id: new Array(),
-            operation_source: new Array(),
-            operation_destination: new Array(),
-            operation_kind: new Array(),
-            account_id: new Array(),
-            account_manager: new Array(),
-            account_delegate: new Array(),
+            block_id: [],
+            block_level: [],
+            block_netid: [],
+            block_protocol: [],
+            operation_id: [],
+            operation_source: [],
+            operation_destination: [],
+            operation_participant: [],
+            operation_kind: [],
+            account_id: [],
+            account_manager: [],
+            account_delegate: [],
             limit: 100
         }
     }
