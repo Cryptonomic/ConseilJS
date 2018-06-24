@@ -40,27 +40,20 @@ export interface TezosOperationGroup {
 
 export interface TezosOperation {
     kind: string,
-    block: string,
-    level: number,
-    slots: string,
-    nonce: string,
-    pkh: string,
-    secret: string,
     source: string,
-    counter: number,
-    public_key: string,
     amount: string,
     destination: string,
     manager_pub_key: string,
     balance: string,
-    spendable: boolean,
-    delegatable: boolean,
     delegate: string,
     operationGroupHash: string,
     operationId: number,
     fee: string,
     storageLimit: string,
-    gasLimit: string
+    gasLimit: string,
+    blockHash: string,
+    timestamp: number,
+    blockLevel: number
 }
 
 export interface TezosBlockWithOperationGroups {
