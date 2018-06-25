@@ -3,6 +3,7 @@ import {KeyStore} from "../types/KeyStore";
 import {Error} from "../types/Error";
 import * as CryptoUtils from "../utils/CryptoUtils";
 import * as fs from "fs";
+import PasswordValidator from "password-validator";
 
 export namespace TezosWallet {
     /**
@@ -64,9 +65,18 @@ export namespace TezosWallet {
      * @returns {Promise<Wallet>}   Object corresponding to newly-created wallet
      */
     export async function createWallet(filename: string, password: string): Promise<any> {
-        if (password.length < 8) {
+        const schema = new PasswordValidator();
+        schema
+        .is().min(8)
+        .is().max(100)
+        .has().uppercase()
+        .has().lowercase()
+        .has().digits()
+        .has().symbols()
+        .has().not().spaces();  
+        if (!schema.validate(password)) {
             return new Promise((resolve, reject) => {            
-                reject({error: "The password length should be more than 8"});
+                reject({error: "The password wasn't validated."});
             });
         }
         const wallet: Wallet = {
