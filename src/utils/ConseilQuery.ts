@@ -68,6 +68,7 @@ function sanitizeFilter(filter: TezosFilter): TezosFilter {
         operation_id: filter.operation_id.filter(Boolean),
         operation_source: filter.operation_source.filter(Boolean),
         operation_destination: filter.operation_source.filter(Boolean),
+        operation_participant: filter.operation_participant.filter(Boolean),
         operation_kind: filter.operation_kind.filter(Boolean),
         account_id: filter.account_id.filter(Boolean),
         account_manager: filter.account_manager.filter(Boolean),
