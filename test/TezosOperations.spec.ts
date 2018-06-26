@@ -2,11 +2,12 @@ import 'mocha';
 import {expect} from 'chai';
 import {TezosOperations} from '../src/tezos/TezosOperations'
 import {TezosWallet} from '../src/tezos/TezosWallet'
+import {KeyStore} from "../src/types/KeyStore";
 
-const keys = TezosWallet.unlockFundraiserIdentity(
-    'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
-    'byixpeyi.dofdqvwn@tezos.example.org',
-    'SU0j4HSgbd'
+const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+    'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
+    'efcvoykz.kygxsosz@tezos.example.org',
+    'BFdu9bDJxC'
 );
 
 /*describe('signOperationGroup() and computeOperationHash()', () => {
@@ -23,10 +24,28 @@ const keys = TezosWallet.unlockFundraiserIdentity(
 
 /*describe('sendTransactionOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
-        const result = await to.sendTransactionOperation(
+        const result = await TezosOperations.sendTransactionOperation(
             'zeronet',
             keys,
-            'tz1cfwpEiwEssf3W7vuJY2YqNzZFqidwZ1JR',
+            'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45',
+            100000000,
+            50000
+        );
+        expect(result.operationGroupID).to.exist
+    });
+});*/
+
+/*describe('sendTransactionOperation()', () => {
+    const childKeyStore = {
+        publicKey: keys.publicKey,
+        privateKey: keys.privateKey,
+        publicKeyHash: 'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45'
+    };
+    it('successfully send a Tezos transaction from a child account', async () => {
+        const result = await TezosOperations.sendTransactionOperation(
+            'zeronet',
+            childKeyStore,
+            keys.publicKeyHash,
             100000000,
             50000
         );
@@ -57,7 +76,7 @@ const keys = TezosWallet.unlockFundraiserIdentity(
 
 /*describe('sendOriginationOperation()', () => {
     it('originate an account', async () => {
-        const result = await to.sendOriginationOperation(
+        const result = await TezosOperations.sendOriginationOperation(
             'zeronet',
             keys,
             100,
@@ -73,7 +92,7 @@ const keys = TezosWallet.unlockFundraiserIdentity(
 
 /*describe('sendKeyRevealOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
-        const result = await to.sendKeyRevealOperation(
+        const result = await TezosOperations.sendKeyRevealOperation(
             'zeronet',
             keys,
             50000
@@ -85,15 +104,15 @@ const keys = TezosWallet.unlockFundraiserIdentity(
 
 /*describe('sendIdentityActivationOperation()', () => {
     it('activate an identity', async () => {
-        const newKeys = tw.unlockFundraiserIdentity(
-            'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
-            'byixpeyi.dofdqvwn@tezos.example.org',
-            'SU0j4HSgbd'
-        )
-        const result = await to.sendIdentityActivationOperation(
+        //const newKeys = TezosWallet.unlockFundraiserIdentity(
+        //    'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+        //    'byixpeyi.dofdqvwn@tezos.example.org',
+        //    'SU0j4HSgbd'
+        //)
+        const result = await TezosOperations.sendIdentityActivationOperation(
             'zeronet',
-            newKeys,
-            '83ba3ffc1552cee5dcc392e6cd3413d0c35181df'
+             keys,
+            '7e47a409f9baf132ef8c03460aa9eb1fe1878248'
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -134,3 +153,19 @@ const keys = TezosWallet.unlockFundraiserIdentity(
         expect(result3.operationGroupID).to.exist
     });
 })*/
+
+describe('isManagerKeyRevealedForAccount()', () => {
+    it('should successfully correct report key reveals', async () => {
+        const ks = <KeyStore> {
+            publicKey: '',
+            privateKey: '',
+            publicKeyHash: 'tz1XxQPg1wtWHovbiJqAY1NwxYQJPxjJCzCp'
+        }
+        const result = await TezosOperations.isManagerKeyRevealedForAccount(
+            'zeronet',
+            ks
+        );
+        console.log(result)
+        expect(result).to.equal(true)
+    });
+});

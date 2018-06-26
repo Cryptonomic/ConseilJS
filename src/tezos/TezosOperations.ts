@@ -262,7 +262,7 @@ export namespace TezosOperations {
     export async function isManagerKeyRevealedForAccount(network: string, keyStore: KeyStore): Promise<boolean> {
         const blockHead = await TezosNode.getBlockHead(network);
         const managerKey = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        return managerKey.key == null
+        return managerKey.key != null
     }
 
     /**
