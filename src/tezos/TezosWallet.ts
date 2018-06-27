@@ -51,8 +51,13 @@ export namespace TezosWallet {
                 const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
                 const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
                 const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
-                const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
-                resolve({identities: keys})
+                try {
+                    const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
+                    resolve({identities: keys});
+                }
+                catch(e) {
+                    reject(e);
+                }    
             });
         })
     }
