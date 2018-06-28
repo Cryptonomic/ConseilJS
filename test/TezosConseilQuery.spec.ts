@@ -4,14 +4,14 @@ import {TezosConseilQuery} from '../src'
 
 // Point this unit test to a Conseil server to get it working!
 // Information about Conseil may be found at https://github.com/Cryptonomic/Conseil.
-const conseilURL = '{Insert Conseil Server URL here}';
-const conseilApiKey = '{Insert Conseil API key here}';
+const conseilURL = 'https://fake.com';
+const conseilApiKey = 'fakeApiKey';
 
 describe('Block fetchers', () => {
     it('should correctly fetch blocks', async () => {
         const head = await TezosConseilQuery.getBlockHead(conseilURL, conseilApiKey);
         expect(head.hash.startsWith('B')).to.equal(true);
-        const aBlock = await TezosConseilQuery.getBlock(conseilURL, conseilApiKey, head.hash);
+        const aBlock = await TezosConseilQuery.getBlock(conseilURL, head.hash, conseilApiKey);
         expect(aBlock.block.hash).to.equal(head.hash);
     });
 });
