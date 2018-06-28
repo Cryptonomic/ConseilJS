@@ -74,7 +74,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     });
 });*/
 
-/*describe('sendOriginationOperation()', () => {
+describe('sendOriginationOperation()', () => {
     it('originate an account', async () => {
         const result = await TezosOperations.sendOriginationOperation(
             'zeronet',
@@ -88,7 +88,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
     });
-});*/
+});
 
 /*describe('sendKeyRevealOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
@@ -154,7 +154,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     });
 })*/
 
-describe('isManagerKeyRevealedForAccount()', () => {
+/*describe('isManagerKeyRevealedForAccount()', () => {
     it('should successfully correct report key reveals', async () => {
         const ks = <KeyStore> {
             publicKey: '',
@@ -168,4 +168,4 @@ describe('isManagerKeyRevealedForAccount()', () => {
         console.log(result)
         expect(result).to.equal(true)
     });
-});
+});*/
