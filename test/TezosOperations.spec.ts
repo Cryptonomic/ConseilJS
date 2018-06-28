@@ -4,6 +4,9 @@ import {TezosOperations} from '../src/tezos/TezosOperations'
 import {TezosWallet} from '../src/tezos/TezosWallet'
 import {KeyStore} from "../src/types/KeyStore";
 
+// Point this unit test to a Tezos node to get it working!
+const tezosURL = 'http://fake.com:1337';
+
 const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
     'efcvoykz.kygxsosz@tezos.example.org',
@@ -25,7 +28,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 /*describe('sendTransactionOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
         const result = await TezosOperations.sendTransactionOperation(
-            'zeronet',
+            tezosURL,
             keys,
             'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45',
             100000000,
@@ -43,7 +46,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     };
     it('successfully send a Tezos transaction from a child account', async () => {
         const result = await TezosOperations.sendTransactionOperation(
-            'zeronet',
+            tezosURL,
             childKeyStore,
             keys.publicKeyHash,
             100000000,
@@ -64,7 +67,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     };
     it('correctly delegate to a given account', async () => {
         const result = await to.sendDelegationOperation(
-            'zeronet',
+            tezosURL,
             delegatedKeyStore,
             'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew',
             1
@@ -77,7 +80,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 /*describe('sendOriginationOperation()', () => {
     it('originate an account', async () => {
         const result = await TezosOperations.sendOriginationOperation(
-            'zeronet',
+            tezosURL,
             keys,
             100,
             keys.publicKeyHash,
@@ -93,7 +96,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 /*describe('sendKeyRevealOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
         const result = await TezosOperations.sendKeyRevealOperation(
-            'zeronet',
+            tezosURL,
             keys,
             50000
         );
@@ -110,7 +113,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
         //    'SU0j4HSgbd'
         //)
         const result = await TezosOperations.sendIdentityActivationOperation(
-            'zeronet',
+            tezosURL,
              keys,
             '7e47a409f9baf132ef8c03460aa9eb1fe1878248'
         );
@@ -127,7 +130,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
             ''
         );
         const result = await TezosOperations.sendTransactionOperation(
-            'zeronet',
+            tezosURL,
             keys,
             newKeys.publicKeyHash,
             10000,
@@ -135,7 +138,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
         );
         expect(result.operationGroupID).to.exist;
         const result2 = await TezosOperations.sendOriginationOperation(
-            'zeronet',
+            tezosURL,
             newKeys,
             100,
             newKeys.publicKeyHash,
@@ -145,7 +148,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
         );
         expect(result2.operationGroupID).to.exist;
         const result3 = await TezosOperations.sendDelegationOperation(
-            'zeronet',
+            tezosURL,
             newKeys,
             keys.publicKeyHash,
             1
@@ -154,7 +157,7 @@ const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
     });
 })*/
 
-describe('isManagerKeyRevealedForAccount()', () => {
+/*describe('isManagerKeyRevealedForAccount()', () => {
     it('should successfully correct report key reveals', async () => {
         const ks = <KeyStore> {
             publicKey: '',
@@ -162,10 +165,10 @@ describe('isManagerKeyRevealedForAccount()', () => {
             publicKeyHash: 'tz1XxQPg1wtWHovbiJqAY1NwxYQJPxjJCzCp'
         }
         const result = await TezosOperations.isManagerKeyRevealedForAccount(
-            'zeronet',
+            tezosURL,
             ks
         );
         console.log(result)
         expect(result).to.equal(true)
     });
-});
+});*/

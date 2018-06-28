@@ -5,38 +5,14 @@ import fetch, {Response} from 'node-fetch';
  */
 
 /**
- * All preset Tezos node networks.
- */
-export const tezosNodes: object = {
-    zeronet: 'http://159.89.186.115:8732/',
-    nautilus_tezos_zeronet: 'https://tezos-zeronet.cryptonomic-infra.tech/',
-    nautilus_tezos_betanet: 'https://tezos-betanet.cryptonomic-infra.tech/'
-};
-
-/**
- * Figures out Tezos node URL to go against
- * @param {string} network  Preset network to query against
- * @param {string} command  RPC route to invoke
- * @param {string} customNode  Custom node URL, overrides the 'network' argument
- * @returns {Promise<object>}   JSON-encoded response
- */
-export function getTezosNodeURL(network: string, command: string, customNode = ''): string {
-    if (customNode != '') return `${customNode}/${command}`;
-    const tezosNode = tezosNodes[network];
-    if (tezosNode == null) throw new Error(`The Tezos network with alias ${network} does not exist!`);
-    return `${tezosNode}/${command}`;
-}
-
-/**
  * Runs a query against a Tezos node.
  * TODO: Make blockchain agnostic
- * @param {string} network  Preset network to query against
+ * @param {string} server  Which Tezos node to go against
  * @param {string} command  RPC route to invoke
- * @param {string} customNode  Custom node URL, overrides the 'network' argument
  * @returns {Promise<object>}   JSON-encoded response
  */
-export function runGetQuery(network: string, command: string, customNode = ''): Promise<object> {
-    const url = getTezosNodeURL(network, command, customNode);
+export function runGetQuery(server: string, command: string): Promise<object> {
+    const url = `${server}/${command}`;
     console.log(`Querying Tezos node with URL ${url}`);
     return fetch(url, {
         method: 'get',
@@ -51,14 +27,13 @@ export function runGetQuery(network: string, command: string, customNode = ''): 
 /**
  * Runs a query against a Tezos node.
  * TODO: Make blockchain agnostic
- * @param {string} network  Preset network to query against
+ * @param {string} server  Which Tezos node to go against
  * @param {string} command  RPC route to invoke
  * @param {object} payload  Payload to submit
- * @param {string} customNode  Custom node URL, overrides the 'network' argument
  * @returns {Promise<object>}   JSON-encoded response
  */
-export function runPostQuery(network: string, command: string, payload = {}, customNode = ''): Promise<Response> {
-    const url = getTezosNodeURL(network, command, customNode);
+export function runPostQuery(server: string, command: string, payload = {}): Promise<Response> {
+    const url = `${server}/${command}`;
     const payloadStr = JSON.stringify(payload);
     console.log(`Querying Tezos node with URL ${url} and payload: ${payloadStr}`);
     return fetch(url, {

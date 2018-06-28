@@ -56,11 +56,12 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches the most recent block stored in the database.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock>}   Latest block.
      */
-    export function getBlockHead(network: string): Promise<TezosBlock> {
-        return queryConseilServer(network, 'blocks/head')
+    export function getBlockHead(server: string, apiKey: string): Promise<TezosBlock> {
+        return queryConseilServer(server, 'blocks/head', apiKey)
             .then(json => {
                 return <TezosBlock> json
             })
@@ -68,12 +69,13 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches a block by block hash from the db.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {String} hash The block's hash
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock>}   The block
      */
-    export function getBlock(network: string, hash: String): Promise<TezosBlockWithOperationGroups> {
-        return queryConseilServer(network, `blocks/${hash}`)
+    export function getBlock(server: string, hash: String, apiKey: string): Promise<TezosBlockWithOperationGroups> {
+        return queryConseilServer(server, `blocks/${hash}`, apiKey)
             .then(json => {
                 return <TezosBlockWithOperationGroups> json
             })
@@ -81,12 +83,13 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetch a given operation group
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {String} hash Operation group hash
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroupWithOperations>}    Operation group along with associated operations and accounts
      */
-    export function getOperationGroup(network: string, hash: String): Promise<TezosOperationGroupWithOperations> {
-        return queryConseilServer(network, `operation_groups/${hash}`)
+    export function getOperationGroup(server: string, hash: String, apiKey: string): Promise<TezosOperationGroupWithOperations> {
+        return queryConseilServer(server, `operation_groups/${hash}`, apiKey)
             .then(json => {
                 return <TezosOperationGroupWithOperations> json
             })
@@ -94,12 +97,13 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches all operation groups.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {TezosFilter} filter  Filters to apply
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroup[]>}    List of operation groups
      */
-    export function getOperationGroups(network: string, filter: TezosFilter): Promise<TezosOperationGroup[]> {
-        return queryConseilServerWithFilter(network, 'operation_groups', filter)
+    export function getOperationGroups(server: string, filter: TezosFilter, apiKey: string): Promise<TezosOperationGroup[]> {
+        return queryConseilServerWithFilter(server, 'operation_groups', filter, apiKey)
             .then(json => {
                 return <TezosOperationGroup[]> json
             })
@@ -107,12 +111,13 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches all operations.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {TezosFilter} filter  Filters to apply
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroup[]>}    List of operations
      */
-    export function getOperations(network: string, filter: TezosFilter): Promise<TezosOperation[]> {
-        return queryConseilServerWithFilter(network, 'operations', filter)
+    export function getOperations(server: string, filter: TezosFilter, apiKey: string): Promise<TezosOperation[]> {
+        return queryConseilServerWithFilter(server, 'operations', filter, apiKey)
             .then(json => {
                 return <TezosOperation[]> json
             })
@@ -120,24 +125,26 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches an account by account id from the db.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {String} hash The account's id number
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosAccountWithOperationGroups>}  The account with its associated operation groups
      */
-    export function getAccount(network: string, hash: String): Promise<TezosAccountWithOperationGroups> {
-        return queryConseilServer(network, `accounts/${hash}`)
+    export function getAccount(server: string, hash: String, apiKey: string): Promise<TezosAccountWithOperationGroups> {
+        return queryConseilServer(server, `accounts/${hash}`, apiKey)
             .then(json => {
                 return <TezosAccountWithOperationGroups> json
             })
     }
     /**
      * Fetches all blocks from the db.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {TezosFilter} filter  Filters to apply
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock[]>} List of blocks
      */
-    export function getBlocks(network: string, filter: TezosFilter): Promise<TezosBlock[]> {
-        return queryConseilServerWithFilter(network, 'blocks', filter)
+    export function getBlocks(server: string, filter: TezosFilter, apiKey: string): Promise<TezosBlock[]> {
+        return queryConseilServerWithFilter(server, 'blocks', filter, apiKey)
             .then(json => {
                 return <TezosBlock[]> json
             })
@@ -147,12 +154,13 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches a list of accounts from the db.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos network to go against
      * @param {TezosFilter} filter  Filters to apply
+     * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosAccount[]>}   List of accounts
      */
-    export function getAccounts(network: string, filter: TezosFilter): Promise<TezosAccount[]> {
-        return queryConseilServerWithFilter(network, 'accounts', filter)
+    export function getAccounts(server: string, filter: TezosFilter, apiKey: string): Promise<TezosAccount[]> {
+        return queryConseilServerWithFilter(server, 'accounts', filter, apiKey)
             .then(json => {
                 return <TezosAccount[]> json
             })

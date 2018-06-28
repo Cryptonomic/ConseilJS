@@ -7,33 +7,20 @@ import {TezosFilter} from "..";
  */
 
 /**
- * Get Conseil URL to query
- * TODO: Remove hard coded URL
- * @param {string} network  Network to go against
- * @param {string} route API route to query
- * @param {string} customUrl    Custom URL override
- * @returns {string}   The URL
- */
-export function getConseilURL(network: string, route: string, customUrl = '') {
-    if(customUrl != '') return `${customUrl}/${route}`;
-    else return `http://206.189.230.137:1337/tezos/${network}/${route}`;
-}
-
-/**
  * Runs a query against Conseil backend API
  * TODO: Also make the blockchain a parameter
- * @param {string} network  Network to go against
+ * @param {string} server  Conseil server to go against
  * @param {string} route API route to query
- * @param customUrl
+ * @param {string} apiKey    API key to use for Conseil server.
  * @returns {Promise<object>}   JSON representation of response from Conseil
  */
-export function queryConseilServer(network: string, route: string, customUrl = ''): Promise<object> {
-    const url = getConseilURL(network, route, customUrl);
+export function queryConseilServer(server: string, route: string, apiKey: string): Promise<object> {
+    const url = `${server}/${route}`;
     console.log(`Querying Conseil server at URL ${url}`);
     return fetch(url, {
         method: 'get',
         headers: {
-            "apiKey": "hooman"
+            "apiKey": apiKey
         }
     })
         .then(response => {return response.json()});
@@ -41,16 +28,16 @@ export function queryConseilServer(network: string, route: string, customUrl = '
 
 /**
  * Runs a query against Conseil backend API with the given filter
- * @param {string} network  Network to go against
+ * @param {string} server  Conseil server to go against
  * @param {string} route    API route to query
  * @param {TezosFilter} filter  Conseil filter
- * @param {string} customUrl Custom URL override
+ * @param {string} apiKey    API key to use for Conseil server.
  * @returns {Promise<object>}   Data returned by Conseil as a JSON object
  */
-export function queryConseilServerWithFilter(network: string, route: string, filter: TezosFilter, customUrl = ''): Promise<object> {
+export function queryConseilServerWithFilter(server: string, route: string, filter: TezosFilter, apiKey: string): Promise<object> {
     let params = querystring.stringify(sanitizeFilter(filter));
     let cmdWithParams = `${route}?${params}`;
-    return queryConseilServer(network, cmdWithParams, customUrl);
+    return queryConseilServer(server, cmdWithParams, apiKey);
 }
 
 /**

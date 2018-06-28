@@ -8,45 +8,45 @@ import {BlockMetadata} from "./TezosTypes";
 export namespace TezosNode {
     /**
      * Gets a given block.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {String} hash Hash of the given block
      * @returns {Promise<BlockMetadata>}    Block
      */
-    export function getBlock(network: string, hash: string): Promise<BlockMetadata> {
-        return Nautilus.runGetQuery(network, `/chains/main/blocks/${hash}`)
+    export function getBlock(server: string, hash: string): Promise<BlockMetadata> {
+        return Nautilus.runGetQuery(server, `/chains/main/blocks/${hash}`)
             .then(json => {return <TezosTypes.BlockMetadata> json})
     }
 
     /**
      * Gets the block head.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @returns {Promise<BlockMetadata>}    Block head
      */
-    export function getBlockHead(network: string): Promise<TezosTypes.BlockMetadata> {
-        return getBlock(network, "head")
+    export function getBlockHead(server: string): Promise<TezosTypes.BlockMetadata> {
+        return getBlock(server, "head")
     }
 
     /**
      * Fetches a specific account for a given block.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {string} blockHash    Hash of given block
      * @param {string} accountID    Account ID
      * @returns {Promise<Account>}  The account
      */
-    export function getAccountForBlock(network: string, blockHash: string, accountID: string): Promise<TezosTypes.Account> {
-        return Nautilus.runGetQuery(network, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
+    export function getAccountForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.Account> {
+        return Nautilus.runGetQuery(server, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
             .then(json => {return <TezosTypes.Account> json})
     }
 
     /**
      * Fetches the manager of a specific account for a given block.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {string} blockHash    Hash of given block
      * @param {string} accountID    Account ID
      * @returns {Promise<ManagerKey>}   The account
      */
-    export function getAccountManagerForBlock(network: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
-        return Nautilus.runGetQuery(network, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
+    export function getAccountManagerForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
+        return Nautilus.runGetQuery(server, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
             .then(json => {return <TezosTypes.ManagerKey> json})
     }
 
@@ -54,13 +54,13 @@ export namespace TezosNode {
 
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {object} opGroup  Operation group payload
      * @returns {Promise<string>}  Forged operation
      */
-    export async function forgeOperation(network: string, opGroup: object): Promise<string> {
+    export async function forgeOperation(server: string, opGroup: object): Promise<string> {
         const response = await Nautilus.runPostQuery(
-            network,
+            server,
             "/chains/main/blocks/head/helpers/forge/operations",
             opGroup
         );
@@ -75,13 +75,13 @@ export namespace TezosNode {
 
     /**
      * Applies an operation using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {object} payload  Payload set according to protocol spec
      * @returns {Promise<AppliedOperation>} Applied operation
      */
-    export async function applyOperation(network: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+    export async function applyOperation(server: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const response  = await Nautilus.runPostQuery(
-            network,
+            server,
             `/chains/main/blocks/head/helpers/preapply/operations`,
             payload
         );
@@ -94,13 +94,13 @@ export namespace TezosNode {
 
     /**
      *
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} server  Which Tezos node to go against
      * @param {object} payload  Payload set according to protocol spec
      * @returns {Promise<InjectedOperation>} Injected operation
      */
-    export async function injectOperation(network: string, payload: string): Promise<string> {
+    export async function injectOperation(server: string, payload: string): Promise<string> {
         const response = await Nautilus.runPostQuery(
-            network,
+            server,
             `injection/operation?chain=main`,
             payload
         );
