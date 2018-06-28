@@ -86,11 +86,12 @@ export namespace TezosWallet {
      * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
      * @param {string} email    Email address from fundraiser PDF.
      * @param {string} password Password from fundraiser PDF.
+     * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
      * @returns {KeyStore}  Wallet file
      */
-    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string): KeyStore | Error {
+    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string): KeyStore | Error {
         const passphrase = email + password;
-        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
+        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh, true)
     }
 
     /**
@@ -108,7 +109,7 @@ export namespace TezosWallet {
      * @returns {KeyStore}  Unlocked key pair
      */
     export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore | Error{
-        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase)
+        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, "",false)
     }
     
 }

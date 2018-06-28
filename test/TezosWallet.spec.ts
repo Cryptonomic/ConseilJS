@@ -3,7 +3,8 @@ import 'mocha';
 import {KeyStore} from "../src/types/KeyStore";
 import {Wallet} from "../src/types/Wallet";
 import * as fs from 'fs'
-import { TezosWallet } from "../src/tezos/TezosWallet";
+import { TezosWallet } from "../src";
+import {Error} from "../src/types/Error";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
@@ -48,12 +49,21 @@ describe('loadWallet()', () => {
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result: any = TezosWallet.unlockFundraiserIdentity(
+        const result = <KeyStore> TezosWallet.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
-            'SU0j4HSgbd'
+            'SU0j4HSgbd',
+            'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew'
         );
         expect(result.publicKeyHash).to.equal('tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew');
+
+        const result2 = <Error> TezosWallet.unlockFundraiserIdentity(
+            'vendorrr excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+            'byixpeyi.dofdqvwn@tezos.example.org',
+            'SU0j4HSgbd',
+            'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew'
+        );
+        expect(result2.error).to.equal('The given mnemonic and passphrase do not correspond to the applied public key hash');
     });
 });
 
