@@ -1,6 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as cryptoUtils from "../src/utils/CryptoUtils";
+import {KeyStore} from "../src/types/KeyStore";
 
 describe('base58CheckDecode() and base58CheckEncode()', () => {
     it('should correctly decode and encode a Tezos account ID', () => {
@@ -13,9 +14,11 @@ describe('base58CheckDecode() and base58CheckEncode()', () => {
 
 describe('getKeysFromMnemonicAndPassphrase()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
+        const result = <KeyStore> cryptoUtils.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
-            'password'
+            'password',
+            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
+            false
         );
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
