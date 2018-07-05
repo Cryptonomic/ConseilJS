@@ -48,7 +48,7 @@ describe('encryptMessage() and decryptMessage()', () => {
             const encrypted = cryptoUtils.encryptMessage(message, passphrase, salt);
             const decrypted = cryptoUtils.decryptMessage(encrypted, passphrase, salt);
         } catch (err) {
-            expect(err.messa).to.equal('The password strength should not be less than 3.');
+            expect(err.message).to.equal('The password strength should not be less than 3.');
         }
     });
 });

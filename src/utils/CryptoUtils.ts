@@ -26,8 +26,8 @@ export function generateSaltForPwHash() {
  * @returns {Buffer}    Concatenated bytes of nonce and cipher text
  */
 export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
-    const passwordLength = getPasswordStrength(passphrase);
-    if (passwordLength < 3) {
+    const passwordStrength = getPasswordStrength(passphrase);
+    if (passwordStrength < 3) {
         throw new Error('The password strength should not be less than 3.');
     }
     const messageBytes = sodium.from_string(message);
@@ -152,7 +152,7 @@ export function generateMnemonic(): string {
 
 /**
  * Checking the password strength using zxcvbn
- * @returns {number}    Fifteen word mnemonic
+ * @returns {number}    Password score
  */
 export function getPasswordStrength(password: string): number {
     const results = zxcvbn(password);
