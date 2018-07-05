@@ -17,16 +17,23 @@ export namespace TezosWallet {
      * @returns {Promise<Wallet>} Wallet object loaded from disk
      */
     export async function saveWallet(filename: string, wallet: Wallet, passphrase: string): Promise<Wallet> {
-        const keys = JSON.stringify(wallet.identities);
-        const salt = CryptoUtils.generateSaltForPwHash();
-        const encryptedKeys = CryptoUtils.encryptMessage(keys, passphrase, salt);
-        const encryptedWallet: EncryptedWalletVersionOne = {
-            version: '1',
-            salt: CryptoUtils.base58CheckEncode(salt, ""),
-            ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
-            kdf: 'Argon2'
-        };
         return new Promise<Wallet>(((resolve, reject) => {
+            const keys = JSON.stringify(wallet.identities);
+            const salt = CryptoUtils.generateSaltForPwHash();
+            let encryptedKeys;
+            try {
+                encryptedKeys = CryptoUtils.encryptMessage(keys, passphrase, salt);
+            } catch (err) {
+                reject(err);
+            }
+            
+            const encryptedWallet: EncryptedWalletVersionOne = {
+                version: '1',
+                salt: CryptoUtils.base58CheckEncode(salt, ""),
+                ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
+                kdf: 'Argon2'
+            };
+        
             try {
                 fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
                     if (err) reject(err);
@@ -69,11 +76,6 @@ export namespace TezosWallet {
      * @returns {Promise<Wallet>}   Object corresponding to newly-created wallet
      */
     export async function createWallet(filename: string, password: string): Promise<any> {
-        if (password.length < 8) {
-            return new Promise((resolve, reject) => {            
-                reject({error: "The password length should be more than 8"});
-            });
-        }
         const wallet: Wallet = {
             identities: []
         };

@@ -7,11 +7,11 @@ import {KeyStore} from "../src/types/KeyStore";
 // Point this unit test to a Tezos node to get it working!
 const tezosURL = 'http://fake.com:1337';
 
-const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
-    'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
-    'efcvoykz.kygxsosz@tezos.example.org',
-    'BFdu9bDJxC'
-);
+// const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+//     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
+//     'efcvoykz.kygxsosz@tezos.example.org',
+//     'BFdu9bDJxC'
+// );
 
 /*describe('signOperationGroup() and computeOperationHash()', () => {
     it('correctly compute an operation hash for the given operation bytes', async () => {

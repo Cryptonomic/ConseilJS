@@ -3,7 +3,8 @@ import * as bip39 from 'bip39';
 import * as sodium  from 'libsodium-wrappers-sumo';
 import {KeyStore} from "../types/KeyStore";
 import {Error} from "../types/Error";
-import * as crypto from 'crypto'
+import * as crypto from 'crypto';
+import zxcvbn from 'zxcvbn';
 
 /**
  * Cryptography helpers
@@ -25,6 +26,10 @@ export function generateSaltForPwHash() {
  * @returns {Buffer}    Concatenated bytes of nonce and cipher text
  */
 export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
+    const passwordStrength = getPasswordStrength(passphrase);
+    if (passwordStrength < 3) {
+        throw new Error('The password strength should not be less than 3.');
+    }
     const messageBytes = sodium.from_string(message);
     const keyBytes = sodium.crypto_pwhash(
         sodium.crypto_box_SEEDBYTES,
@@ -56,7 +61,7 @@ export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string,
         sodium.crypto_pwhash_ALG_DEFAULT
     );
     if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
-        throw "The cipher text is of insufficient length";
+        throw new Error("The cipher text is of insufficient length");
     }
     const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
     const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
@@ -143,4 +148,13 @@ export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: s
  */
 export function generateMnemonic(): string {
     return bip39.generateMnemonic(160)
+}
+
+/**
+ * Checking the password strength using zxcvbn
+ * @returns {number}    Password score
+ */
+export function getPasswordStrength(password: string): number {
+    const results = zxcvbn(password);
+    return results.score;
 }

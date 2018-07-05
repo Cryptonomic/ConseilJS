@@ -12,13 +12,6 @@ describe('createWallet()', () => {
         const result = await TezosWallet.createWallet("//tmp//test.tezwallet", "password");
         expect(result).to.deep.equal({identities: []});
     });
-
-    it('The lenght of password should be more than 8.', async () => {
-        return TezosWallet.createWallet("//tmp//test.tezwallet", "test")
-        .catch((result) => {
-            expect(result.error).to.equal("The password length should be more than 8"); 
-        });
-    });
 });
 
 describe('saveWallet()', () => {
@@ -29,7 +22,7 @@ describe('saveWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "password");
+        const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "Spring123345!!");
         expect(result).to.deep.equal({identities: [keys]});
     });
 });
