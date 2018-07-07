@@ -9,7 +9,7 @@ import {Error} from "../src/types/Error";
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
         fs.unlinkSync("//tmp//test.tezwallet");
-        const result = await TezosWallet.createWallet("//tmp//test.tezwallet", "password");
+        const result = await TezosWallet.createWallet("//tmp//test.tezwallet", "passwordwithentropy");
         expect(result).to.deep.equal({identities: []});
     });
 });
@@ -22,7 +22,7 @@ describe('saveWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "Spring123345!!");
+        const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "passwordwithentropy");
         expect(result).to.deep.equal({identities: [keys]});
     });
 });
@@ -35,7 +35,7 @@ describe('loadWallet()', () => {
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await TezosWallet.loadWallet("//tmp//test.tezwallet", "password");
+        const result = await TezosWallet.loadWallet("//tmp//test.tezwallet", "passwordwithentropy");
         expect(result).to.deep.equal(wallet);
     });
 });

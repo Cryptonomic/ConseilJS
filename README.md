@@ -28,3 +28,19 @@ In your `webpack.config.js` file, add:
 Example import:
 
 ```import { TezosOperations } from 'conseiljs';```
+
+### Run Tests
+
+Add a file called `test/servers.ts` with these contents:
+
+```javascript
+export const servers = {
+    conseilServer: '',
+    conseilApiKey: '',
+    tezosServer: ''
+}
+``` 
+
+The blank strings should be replaced with the details of actual test servers. 
+
+After this, run `npm run test` to run all unit tests.

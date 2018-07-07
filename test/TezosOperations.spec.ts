@@ -1,11 +1,17 @@
-import 'mocha';
+
+/*
+// All unit tests are commented out as they can only be run one by one with delays.
+// Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
 import {TezosOperations} from '../src/tezos/TezosOperations'
 import {TezosWallet} from '../src/tezos/TezosWallet'
 import {KeyStore} from "../src/types/KeyStore";
+import 'mocha';
+import {servers} from "./servers";
 
-// Point this unit test to a Tezos node to get it working!
-const tezosURL = 'http://fake.com:1337';
+const tezosURL = servers.tezosServer;
+
+*/
 
 // const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 //     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',

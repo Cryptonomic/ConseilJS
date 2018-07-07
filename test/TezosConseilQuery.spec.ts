@@ -1,11 +1,10 @@
 import 'mocha';
 import {expect} from 'chai';
 import {TezosConseilQuery} from '../src'
+import {servers} from "./servers";
 
-// Point this unit test to a Conseil server to get it working!
-// Information about Conseil may be found at https://github.com/Cryptonomic/Conseil.
-const conseilURL = 'https://fake.com';
-const conseilApiKey = 'fakeApiKey';
+const conseilURL = servers.conseilServer;
+const conseilApiKey = servers.conseilApiKey;
 
 describe('Block fetchers', () => {
     it('should correctly fetch blocks', async () => {
@@ -51,5 +50,14 @@ describe('Transaction fetchers', () => {
         const transFilter = {...emptyFilter, limit: 10, operation_participant: [account], operation_kind: ['transaction']};
         const transactions = await TezosConseilQuery.getOperations(conseilURL, transFilter, conseilApiKey);
         expect(transactions[0].source == account || transactions[0].destination == account).to.equal(true)
+    });
+});
+
+describe('getAverageFees()', () => {
+    it('should correctly fetch prevailing fees', async () => {
+        const emptyFilter = TezosConseilQuery.getEmptyTezosFilter();
+        const feeFilter = {...emptyFilter, limit: 10, operation_kind: ['transaction']};
+        const fees = await TezosConseilQuery.getAverageFees(conseilURL, feeFilter, conseilApiKey);
+        expect(fees.low > 0).to.equal(true);
     });
 });
