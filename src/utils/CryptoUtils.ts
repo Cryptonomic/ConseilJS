@@ -123,22 +123,26 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
  * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
  * @param {string} passphrase   User-supplied passphrase
  * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
- * @param {string} checkPKH Check whether presumed public key hash matches the actual public key hash
+ * @param {boolean} checkPKH Check whether presumed public key hash matches the actual public key hash
  * @returns {KeyStore}  Generated keys
  */
 export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, pkh = '', checkPKH = true): Error | KeyStore {
     const lengthOfMnemonic = mnemonic.split(" ").length;
     if (lengthOfMnemonic !== 15) return {error: "The mnemonic should be 15 words."};
+    if(!bip39.validateMnemonic(mnemonic)) return {error: "The given mnemonic could not be validated."};
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-    const key_pair = sodium.crypto_sign_seed_keypair(seed, "");
+    const nonce = "";
+    const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
     const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
     const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
     const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
     if(checkPKH && publicKeyHash != pkh) return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"};
     return {
-        publicKey: publicKey,
-        privateKey: privateKey,
-        publicKeyHash: publicKeyHash
+        publicKey,
+        privateKey,
+        publicKeyHash,
+        seed,
+        nonce
     }
 }
 

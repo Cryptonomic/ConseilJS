@@ -29,6 +29,13 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
         );
         expect(result.error).to.equal("The mnemonic should be 15 words.");   
     });
+    it('should detect invalid mnemonics', () => {
+        const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
+            'password'
+        );
+        expect(result.error).to.equal("The given mnemonic could not be validated.");
+    });
 });
 
 describe('encryptMessage() and decryptMessage()', () => {
@@ -46,7 +53,7 @@ describe('encryptMessage() and decryptMessage()', () => {
         const passphrase = "password";
         try {
             const encrypted = cryptoUtils.encryptMessage(message, passphrase, salt);
-            const decrypted = cryptoUtils.decryptMessage(encrypted, passphrase, salt);
+            cryptoUtils.decryptMessage(encrypted, passphrase, salt);
         } catch (err) {
             expect(err.message).to.equal('The password strength should not be less than 3.');
         }
