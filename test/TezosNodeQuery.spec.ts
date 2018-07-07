@@ -1,9 +1,9 @@
 import 'mocha';
 import {expect} from 'chai';
 import {TezosNode} from '../src'
+import {servers} from "./servers";
 
-// Point this unit test to a Tezos node to get it working!
-const tezosURL = 'http://fake.com:1337';
+const tezosURL = servers.tezosServer;
 
 describe('getBlockHead()', () => {
     it('should correctly fetch the Tezos block head', async () => {

@@ -1,4 +1,5 @@
 import {
+    OperationFees,
     TezosAccount,
     TezosAccountWithOperationGroups,
     TezosBlock, TezosBlockWithOperationGroups, TezosOperation,
@@ -56,7 +57,7 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches the most recent block stored in the database.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock>}   Latest block.
      */
@@ -69,7 +70,7 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches a block by block hash from the db.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {String} hash The block's hash
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock>}   The block
@@ -83,7 +84,7 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetch a given operation group
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {String} hash Operation group hash
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroupWithOperations>}    Operation group along with associated operations and accounts
@@ -97,7 +98,7 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches all operation groups.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {TezosFilter} filter  Filters to apply
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroup[]>}    List of operation groups
@@ -111,7 +112,7 @@ export namespace TezosConseilQuery {
 
     /**
      * Fetches all operations.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {TezosFilter} filter  Filters to apply
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosOperationGroup[]>}    List of operations
@@ -124,8 +125,22 @@ export namespace TezosConseilQuery {
     }
 
     /**
+     * Fetches prevailing fees.
+     * @param {string} server  Which Conseil server to go against
+     * @param {TezosFilter} filter  Filters to apply. 'operation_kind' and 'limit' should be explicitly set for maximum accuracy.
+     * @param apiKey    API key to use for Conseil server.
+     * @returns {Promise<TezosOperationGroup[]>}    Low, medium and high fee levels.
+     */
+    export function getAverageFees(server: string, filter: TezosFilter, apiKey: string): Promise<OperationFees> {
+        return queryConseilServerWithFilter(server, 'operations/avgFees', filter, apiKey)
+            .then(json => {
+                return <OperationFees> json
+            })
+    }
+
+    /**
      * Fetches an account by account id from the db.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {String} hash The account's id number
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosAccountWithOperationGroups>}  The account with its associated operation groups
@@ -138,7 +153,7 @@ export namespace TezosConseilQuery {
     }
     /**
      * Fetches all blocks from the db.
-     * @param {string} server  Which Tezos network to go against
+     * @param {string} server  Which Conseil server to go against
      * @param {TezosFilter} filter  Filters to apply
      * @param apiKey    API key to use for Conseil server.
      * @returns {Promise<TezosBlock[]>} List of blocks

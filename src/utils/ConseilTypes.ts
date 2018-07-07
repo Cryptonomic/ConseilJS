@@ -71,6 +71,12 @@ export interface TezosAccountWithOperationGroups {
     operation_groups: TezosOperationGroup[]
 }
 
+export interface OperationFees {
+    low: number,
+    medium: number,
+    high: number
+}
+
 export interface AppliedOperationBalanceUpdates {
     kind: string,
     contract: string,
