@@ -123,7 +123,7 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
  * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
  * @param {string} passphrase   User-supplied passphrase
  * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
- * @param {string} checkPKH Check whether presumed public key hash matches the actual public key hash
+ * @param {bool} checkPKH Check whether presumed public key hash matches the actual public key hash
  * @returns {KeyStore}  Generated keys
  */
 export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, pkh = '', checkPKH = true): Error | KeyStore {
