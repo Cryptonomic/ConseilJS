@@ -129,6 +129,7 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
 export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, pkh = '', checkPKH = true): Error | KeyStore {
     const lengthOfMnemonic = mnemonic.split(" ").length;
     if (lengthOfMnemonic !== 15) return {error: "The mnemonic should be 15 words."};
+    if(!bip39.validateMnemonic(mnemonic)) return {error: "The given mnemonic could not be validated."};
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
     const nonce = "";
     const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
