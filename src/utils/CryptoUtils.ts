@@ -130,15 +130,18 @@ export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: s
     const lengthOfMnemonic = mnemonic.split(" ").length;
     if (lengthOfMnemonic !== 15) return {error: "The mnemonic should be 15 words."};
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-    const key_pair = sodium.crypto_sign_seed_keypair(seed, "");
+    const nonce = "";
+    const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
     const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
     const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
     const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
     if(checkPKH && publicKeyHash != pkh) return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"};
     return {
-        publicKey: publicKey,
-        privateKey: privateKey,
-        publicKeyHash: publicKeyHash
+        publicKey,
+        privateKey,
+        publicKeyHash,
+        seed,
+        nonce
     }
 }
 
