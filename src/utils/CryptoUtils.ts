@@ -1,7 +1,7 @@
 import * as base58Check from 'bs58check'
 import * as bip39 from 'bip39';
 import * as sodium  from 'libsodium-wrappers-sumo';
-import {KeyStore} from "../types/KeyStore";
+import {KeyStore, StoreType} from "../types/KeyStore";
 import {Error} from "../types/Error";
 import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
@@ -124,9 +124,15 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
  * @param {string} passphrase   User-supplied passphrase
  * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
  * @param {boolean} checkPKH Check whether presumed public key hash matches the actual public key hash
+ * @param {StoreType} storeType   Type of the generated key store
  * @returns {KeyStore}  Generated keys
  */
-export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, pkh = '', checkPKH = true): Error | KeyStore {
+export function getKeysFromMnemonicAndPassphrase(
+    mnemonic: string,
+    passphrase: string,
+    pkh = '',
+    checkPKH = true,
+    storeType: StoreType): Error | KeyStore {
     const lengthOfMnemonic = mnemonic.split(" ").length;
     if (lengthOfMnemonic !== 15) return {error: "The mnemonic should be 15 words."};
     if(!bip39.validateMnemonic(mnemonic)) return {error: "The given mnemonic could not be validated."};
@@ -142,7 +148,7 @@ export function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: s
         privateKey,
         publicKeyHash,
         seed,
-        nonce
+        storeType
     }
 }
 

@@ -1,6 +1,6 @@
 import {expect} from 'chai';
 import 'mocha';
-import {KeyStore} from "../src/types/KeyStore";
+import {KeyStore, StoreType} from "../src/types/KeyStore";
 import {Wallet} from "../src/types/Wallet";
 import * as fs from 'fs'
 import { TezosWallet } from "../src";
@@ -19,7 +19,9 @@ describe('saveWallet()', () => {
         const keys: KeyStore = {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-            publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
+            publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95',
+            seed: '',
+            storeType: StoreType.Mnemonic
         };
         const wallet: Wallet = {identities: [keys]};
         const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "passwordwithentropy");
@@ -32,7 +34,9 @@ describe('loadWallet()', () => {
         const keys: KeyStore = {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
-            publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95'
+            publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95',
+            seed: '',
+            storeType: StoreType.Mnemonic
         };
         const wallet: Wallet = {identities: [keys]};
         const result = await TezosWallet.loadWallet("//tmp//test.tezwallet", "passwordwithentropy");
@@ -51,10 +55,10 @@ describe('unlockFundraiserIdentity()', () => {
         expect(result.publicKeyHash).to.equal('tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew');
 
         const result2 = <Error> TezosWallet.unlockFundraiserIdentity(
-            'vendorrr excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
+            'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
             'SU0j4HSgbd',
-            'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew'
+            'tz2aj32NRPg49jtvSDhkpruQAFevjaewaLew'
         );
         expect(result2.error).to.equal('The given mnemonic and passphrase do not correspond to the applied public key hash');
     });
@@ -63,7 +67,6 @@ describe('unlockFundraiserIdentity()', () => {
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
         const result = TezosWallet.generateMnemonic();
-        console.log(result);
         expect(result.split(' ').length).to.equal(15);
     });
 });
