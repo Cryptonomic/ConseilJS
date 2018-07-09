@@ -1,5 +1,5 @@
 import {Wallet, EncryptedWalletVersionOne} from "../types/Wallet";
-import {KeyStore} from "../types/KeyStore";
+import {KeyStore, StoreType} from "../types/KeyStore";
 import {Error} from "../types/Error";
 import * as CryptoUtils from "../utils/CryptoUtils";
 import * as fs from "fs";
@@ -91,9 +91,19 @@ export namespace TezosWallet {
      * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
      * @returns {KeyStore}  Wallet file
      */
-    export function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string): KeyStore | Error {
+    export function unlockFundraiserIdentity(
+        mnemonic: string,
+        email: string,
+        password: string,
+        pkh: string): KeyStore | Error {
         const passphrase = email + password;
-        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh, true)
+        return CryptoUtils.getKeysFromMnemonicAndPassphrase(
+            mnemonic,
+            passphrase,
+            pkh,
+            true,
+            StoreType.Fundraiser
+        )
     }
 
     /**
@@ -111,7 +121,13 @@ export namespace TezosWallet {
      * @returns {KeyStore}  Unlocked key pair
      */
     export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore | Error{
-        return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, "",false)
+        return CryptoUtils.getKeysFromMnemonicAndPassphrase(
+            mnemonic,
+            passphrase,
+            "",
+            false,
+            StoreType.Mnemonic
+        )
     }
     
 }

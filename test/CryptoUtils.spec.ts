@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as cryptoUtils from "../src/utils/CryptoUtils";
-import {KeyStore} from "../src/types/KeyStore";
+import {KeyStore, StoreType} from "../src/types/KeyStore";
 
 describe('base58CheckDecode() and base58CheckEncode()', () => {
     it('should correctly decode and encode a Tezos account ID', () => {
@@ -18,21 +18,28 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password',
             'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
-            false
+            true,
+            StoreType.Mnemonic
         );
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
     it('should be 15 words', () => {
         const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
-            'password'
+            'password',
+            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
+            true,
+            StoreType.Mnemonic
         );
         expect(result.error).to.equal("The mnemonic should be 15 words.");   
     });
     it('should detect invalid mnemonics', () => {
         const result: any = cryptoUtils.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
-            'password'
+            'password',
+            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
+            true,
+            StoreType.Mnemonic
         );
         expect(result.error).to.equal("The given mnemonic could not be validated.");
     });
