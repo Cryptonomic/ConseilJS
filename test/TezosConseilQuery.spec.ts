@@ -58,6 +58,6 @@ describe('getAverageFees()', () => {
         const emptyFilter = TezosConseilQuery.getEmptyTezosFilter();
         const feeFilter = {...emptyFilter, limit: 10, operation_kind: ['transaction']};
         const fees = await TezosConseilQuery.getAverageFees(conseilURL, feeFilter, conseilApiKey);
-        expect(fees.low >= 0).to.equal(true);
+        expect(fees.low > 0).to.equal(true);
     });
 });
