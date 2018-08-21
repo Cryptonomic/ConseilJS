@@ -243,7 +243,7 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '120',
             storage_limit: '0',
-            managerPubkey: keyStore.publicKeyHash,
+            manager_pubkey: keyStore.publicKeyHash,
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
