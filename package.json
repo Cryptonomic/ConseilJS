@@ -25,9 +25,13 @@
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
   "dependencies": {
     "awesome-typescript-loader": "^5.0.0",
+    "babel-runtime": "6.26.0", //added to make @ledgerhq/hw-app-xtz and ledger code work properly
     "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
     "https": "^1.0.0",
+    "@ledgerhq/hw-app-xtz": "../ledgerjs/packages/hw-app-xtz/",
+    "@ledgerhq/hw-transport-node-hid": "^4.22.0",
+    "@ledgerhq/hw-transport": "4.21.0",
     "libsodium-wrappers": "^0.5.4",
     "libsodium-wrappers-sumo": "^0.5.4",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
