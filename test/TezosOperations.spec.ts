@@ -1,17 +1,22 @@
-
-/*
 // All unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
 import {TezosOperations} from '../src/tezos/TezosOperations'
-import {TezosWallet} from '../src/tezos/TezosWallet'
-import {KeyStore} from "../src/types/KeyStore";
+import {HardwareDeviceType} from '../src/types/HardwareDeviceType'
 import 'mocha';
 import {servers} from "./servers";
 
 const tezosURL = servers.tezosServer;
 
-*/
+describe('unlockHardwareIdentity()', () => {
+    it('correctly fetch public key from ledger, given derivation path and index', async () => {
+        const hardwareDeviceType: HardwareDeviceType = HardwareDeviceType.Ledger;
+        const derivationPath: string = "44'/1729'/0'/0'";
+        const index: string = '0';
+        const address = TezosOperations.unlockHardwareIdentity(hardwareDeviceType, derivationPath, index);
+        expect(address).to.equal("0223bc018871687e6303978388dbd798cc8eee7d89d6c4e50d71285ca3feb3eb15")
+    });
+});
 
 // const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 //     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',

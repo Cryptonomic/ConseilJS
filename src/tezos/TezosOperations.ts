@@ -1,8 +1,11 @@
 import sodium = require('libsodium-wrappers');
 import * as CryptoUtils from '../utils/CryptoUtils';
 import {KeyStore} from "../types/KeyStore";
-import { TezosNode } from "./TezosNodeQuery"
-import * as TezosTypes from "./TezosTypes"
+import {HardwareDeviceType} from "../types/HardwareDeviceType"
+import { TezosNode } from "./TezosNodeQuery";
+import * as TezosTypes from "./TezosTypes";
+let Transport = require("@ledgerhq/hw-transport-node-hid").default;
+let App = require("@ledgerhq/hw-transport-node-hid").default;
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -25,6 +28,21 @@ export interface OperationResult {
 }
 
 export namespace TezosOperations {
+
+    export async function unlockHardwareIdentity(hardwareDeviceType: HardwareDeviceType, derivationPath: string, index: string): Promise<string | Error> {
+        let Transport = require("@ledgerhq/hw-transport-node-hid").default;
+        let App = require("@ledgerhq/hw-app-xtz").default;
+        if (hardwareDeviceType === HardwareDeviceType.Ledger) {
+            const transport = await Transport.create();
+            const xtz = new App(transport);
+            const path = derivationPath + '/' + index + "'"
+            const result = await xtz.getAddress("44'/1729'/0'/0'/0'", true);
+            return result.publicKey;
+        }
+        else {
+            return Error("Device not supported")
+        }
+    }
 
     /**
      * Signs a forged operation
