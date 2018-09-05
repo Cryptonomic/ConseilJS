@@ -21,6 +21,8 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
             true,
             StoreType.Mnemonic
         );
+        console.log(result.publicKey)
+        console.log(result.publicKeyHash)
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
     it('should be 15 words', () => {

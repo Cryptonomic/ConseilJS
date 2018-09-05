@@ -1,14 +1,14 @@
 // All unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
-import {TezosOperations} from '../src/tezos/TezosOperations'
-import {HardwareDeviceType} from '../src/types/HardwareDeviceType'
+import {TezosOperations} from '../../src/tezos/TezosOperations'
+import {HardwareDeviceType} from '../../src/types/HardwareDeviceType'
 import 'mocha';
-import {servers} from "./servers";
+import {servers} from "../servers";
 
 const tezosURL = servers.tezosServer;
 
-describe('unlockHardwareIdentity()', () => {
+describe('unlockIdentity()', () => {
     it('correctly fetch public key from ledger, given derivation path and index', async () => {
         const hardwareDeviceType: HardwareDeviceType = HardwareDeviceType.Ledger;
         const derivationPath: string = "44'/1729'/0'/0'";
