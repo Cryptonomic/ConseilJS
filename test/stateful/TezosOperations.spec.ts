@@ -8,7 +8,7 @@ import {servers} from "../servers";
 
 const tezosURL = servers.tezosServer;
 
-describe('unlockIdentity()', () => {
+describe('unlockAddress()', () => {
     it('correctly fetch public key from ledger, given derivation path and index', async () => {
         const hardwareDeviceType: HardwareDeviceType = HardwareDeviceType.Ledger;
         const derivationPath: string = "44'/1729'/0'/0'";

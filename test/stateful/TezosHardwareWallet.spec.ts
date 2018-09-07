@@ -5,9 +5,10 @@ import {HardwareDeviceType} from "../../src/types/HardwareDeviceType";
 
 describe('getPublicKey()', () => {
     it('should correctly fetch the root key', async () => {
-        const result = await tezHardwareWallet.TezosHardwareWallet.unlockIdentity(
+        const derivationPath = "44'/1729'/0'/0'"
+        const result = await tezHardwareWallet.TezosHardwareWallet.unlockAddress(
             HardwareDeviceType.Ledger,
-            "44'/1729'/0'/0'",
+            derivationPath,
             0)
         console.log(result)
     });
