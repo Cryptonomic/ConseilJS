@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
   "dependencies": {
+    "await-sleep": "^0.0.1",
     "awesome-typescript-loader": "^5.0.0",
     "babel-runtime": "6.26.0",
     "bip39": "^2.5.0",

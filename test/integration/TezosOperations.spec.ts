@@ -1,22 +1,13 @@
-// All unit tests are commented out as they can only be run one by one with delays.
+// Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
 import {TezosOperations} from '../../src/tezos/TezosOperations'
-import {HardwareDeviceType} from '../../src/types/HardwareDeviceType'
 import 'mocha';
 import {servers} from "../servers";
+import {TezosWallet} from "../../src";
+import {KeyStore} from "../../src/types/KeyStore";
 
 const tezosURL = servers.tezosServer;
-
-describe('unlockAddress()', () => {
-    it('correctly fetch public key from ledger, given derivation path and index', async () => {
-        const hardwareDeviceType: HardwareDeviceType = HardwareDeviceType.Ledger;
-        const derivationPath: string = "44'/1729'/0'/0'";
-        const index: string = '0';
-        const address = TezosOperations.unlockHardwareIdentity(hardwareDeviceType, derivationPath, index);
-        expect(address).to.equal("0223bc018871687e6303978388dbd798cc8eee7d89d6c4e50d71285ca3feb3eb15")
-    });
-});
 
 // const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 //     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
@@ -183,3 +174,71 @@ describe('unlockAddress()', () => {
         expect(result).to.equal(true)
     });
 });*/
+
+function sleep(seconds)
+{
+    var e = new Date().getTime() + (seconds * 1000);
+    while (new Date().getTime() <= e) {}
+}
+
+describe('Tezos operation functions', () => {
+
+    it('successfully perform operations on a new identity', async (done) => {
+
+        setTimeout(done, 15000)
+
+        const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+        'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
+        'yizqurzn.jyrwcidl@tezos.example.org',
+        'P2rwZYgJBL',
+            'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
+        );
+
+        const mnemonic = TezosWallet.generateMnemonic();
+        const newKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(
+            mnemonic,
+            ''
+        );
+
+        const receiveResult = await TezosOperations.sendTransactionOperation(
+            tezosURL,
+            keys,
+            newKeys.publicKeyHash,
+            10000,
+            50000
+        );
+        expect(receiveResult.operationGroupID).to.exist;
+
+        sleep(33)
+
+        const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
+            tezosURL,
+            newKeys,
+            100
+        )
+        expect(keyRevealResult.operationGroupID).to.exist;
+
+        sleep(33)
+
+        const originationResult = await TezosOperations.sendOriginationOperation(
+            tezosURL,
+            newKeys,
+            100,
+            newKeys.publicKeyHash,
+            true,
+            true,
+            1
+        );
+        expect(originationResult.operationGroupID).to.exist;
+
+        sleep(33)
+
+        const delegationResult = await TezosOperations.sendDelegationOperation(
+            tezosURL,
+            newKeys,
+            keys.publicKeyHash,
+            1
+        );
+        expect(delegationResult.operationGroupID).to.exist
+    });
+})

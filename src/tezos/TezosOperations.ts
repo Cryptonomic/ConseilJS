@@ -1,11 +1,9 @@
 import sodium = require('libsodium-wrappers');
 import * as CryptoUtils from '../utils/CryptoUtils';
-import {KeyStore} from "../types/KeyStore";
-import {HardwareDeviceType} from "../types/HardwareDeviceType"
-import { TezosNode } from "./TezosNodeQuery";
+import * as LedgerUtils from '../utils/LedgerUtils';
+import {KeyStore, StoreType} from "../types/KeyStore";
+import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
-let Transport = require("@ledgerhq/hw-transport-node-hid").default;
-let App = require("@ledgerhq/hw-transport-node-hid").default;
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -29,33 +27,25 @@ export interface OperationResult {
 
 export namespace TezosOperations {
 
-    export async function unlockHardwareIdentity(hardwareDeviceType: HardwareDeviceType, derivationPath: string, index: string): Promise<string | Error> {
-        let Transport = require("@ledgerhq/hw-transport-node-hid").default;
-        let App = require("@ledgerhq/hw-app-xtz").default;
-        if (hardwareDeviceType === HardwareDeviceType.Ledger) {
-            const transport = await Transport.create();
-            const xtz = new App(transport);
-            const path = derivationPath + '/' + index + "'"
-            const result = await xtz.getAddress("44'/1729'/0'/0'/0'", true);
-            return result.publicKey;
-        }
-        else {
-            return Error("Device not supported")
-        }
-    }
-
     /**
      * Signs a forged operation
      * @param {string} forgedOperation  Forged operation group returned by the Tezos client (as a hex string)
      * @param {KeyStore} keyStore   Key pair along with public key hash
      * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
      */
-    export function signOperationGroup(forgedOperation: string, keyStore: KeyStore): SignedOperationGroup {
+    export async function signOperationGroup(
+        forgedOperation: string,
+        keyStore: KeyStore,
+        derivationPath = ''): Promise<SignedOperationGroup> {
         const watermark = '03';
         const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermark + forgedOperation);
         const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
         const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
-        const opSignature: Buffer = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
+        let opSignature: Buffer = new Buffer(0);
+        if(keyStore.storeType === StoreType.Hardware)
+            opSignature = await LedgerUtils.signTezosOperation(derivationPath, hashedWatermarkedOpBytes)
+        else
+            opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
         const signedOpBytes: Buffer = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
         return {
@@ -156,10 +146,11 @@ export namespace TezosOperations {
     export async function sendOperation(
         network: string,
         operations: object[],
-        keyStore: KeyStore): Promise<OperationResult>   {
+        keyStore: KeyStore,
+        derivationPath = ''): Promise<OperationResult>   {
         const blockHead = await TezosNode.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
-        const signedOpGroup = signOperationGroup(forgedOperationGroup, keyStore);
+        const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore);
         const operationGroupHash = computeOperationHash(signedOpGroup);
         const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
@@ -261,7 +252,7 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '120',
             storage_limit: '0',
-            managerPubkey: keyStore.publicKeyHash,
+            manager_pubkey: keyStore.publicKeyHash,
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
