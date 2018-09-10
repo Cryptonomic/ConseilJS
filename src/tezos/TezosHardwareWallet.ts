@@ -2,11 +2,21 @@ import * as ledgerUtils from "../utils/LedgerUtils";
 import {HardwareDeviceType} from "../types/HardwareDeviceType";
 import {base58CheckEncode} from "../utils/CryptoUtils";
 import * as sodium  from 'libsodium-wrappers-sumo';
+import {KeyStore, StoreType} from "../types/KeyStore";
 
 export namespace TezosHardwareWallet {
 
-    export async function unlockAddress(deviceType: HardwareDeviceType, derivationPath: string, index: number) {
-        const publicKeyBytes = await ledgerUtils.getTezosPublicKey(derivationPath);
-        return base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
+    export async function unlockAddress(deviceType: HardwareDeviceType, derivationPath: string): Promise<KeyStore> {
+        const hexEncodedPublicKey = await ledgerUtils.getTezosPublicKey(derivationPath);
+        const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
+        const publicKey = base58CheckEncode(publicKeyBytes, "edpk");
+        const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
+        return {
+            publicKey: publicKey,
+            privateKey: '',
+            publicKeyHash: publicKeyHash,
+            seed: '',
+            storeType: StoreType.Hardware
+        }
     }
 }

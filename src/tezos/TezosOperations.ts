@@ -39,13 +39,18 @@ export namespace TezosOperations {
         derivationPath = ''): Promise<SignedOperationGroup> {
         const watermark = '03';
         const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermark + forgedOperation);
-        const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
         const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
+
         let opSignature: Buffer = new Buffer(0);
-        if(keyStore.storeType === StoreType.Hardware)
-            opSignature = await LedgerUtils.signTezosOperation(derivationPath, hashedWatermarkedOpBytes)
-        else
-            opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
+        switch(keyStore.storeType) {
+            case StoreType.Hardware:
+                opSignature = await LedgerUtils.signTezosOperation(derivationPath, hashedWatermarkedOpBytes);
+                break;
+            default:
+                const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
+                opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
+        }
+
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
         const signedOpBytes: Buffer = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
         return {

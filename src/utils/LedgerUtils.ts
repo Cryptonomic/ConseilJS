@@ -9,15 +9,16 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
     const xtz = new App(transport);
     const result = await xtz.getAddress(derivationPath, true);
     const hexEncodedPublicKey = result.publicKey;
-    const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
-    const encodedPublicKey = base58CheckEncode(publicKeyBytes, "edpk");
-    return encodedPublicKey;
+    return hexEncodedPublicKey;
 }
 
 export async function signTezosOperation(derivationPath: string, opBytes: Buffer): Promise<Buffer> {
+    console.log('Singing using Ledger..')
     const transport = await Transport.create();
     const xtz = new App(transport);
-    const opBytesInHex = sodium.to_string(opBytes);
+    const opBytesInHex = sodium.to_hex(opBytes);
+    //const opBytesInHex = opBytes.toString('hex');
+    console.log(opBytesInHex)
     const result = await xtz.signOperation(derivationPath, opBytesInHex);
     const hexEncodedSignature = result.signature;
     const signatureBytes = sodium.from_hex(hexEncodedSignature).slice(1);
