@@ -8,8 +8,7 @@ describe('getTezosPublicKey()', () => {
         const derivationPath = "44'/1729'/0'/0'"
         const result = await tezHardwareWallet.TezosHardwareWallet.unlockAddress(
             HardwareDeviceType.Ledger,
-            derivationPath,
-            0)
+            derivationPath)
         console.log(result)
     });
 });

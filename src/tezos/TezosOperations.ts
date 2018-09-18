@@ -44,7 +44,7 @@ export namespace TezosOperations {
         let opSignature: Buffer = new Buffer(0);
         switch(keyStore.storeType) {
             case StoreType.Hardware:
-                opSignature = await LedgerUtils.signTezosOperation(derivationPath, hashedWatermarkedOpBytes);
+                opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytes);
                 break;
             default:
                 const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
