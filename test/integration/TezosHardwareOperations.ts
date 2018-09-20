@@ -29,7 +29,7 @@ describe('Tezos operation functions', () => {
 
         const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, `44'/1729'/0'/0'/0'`)
 
-        /*const receiveResult = await TezosOperations.sendTransactionOperation(
+        const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
@@ -38,7 +38,7 @@ describe('Tezos operation functions', () => {
         );
         expect(receiveResult.operationGroupID).to.exist;
 
-        sleep(33)*/
+        sleep(33)
 
         const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
             tezosURL,

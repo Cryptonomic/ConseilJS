@@ -25,17 +25,15 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
     return hexEncodedPublicKey;
 }
 
-export async function signTezosOperation(derivationPath: string, opBytes: Buffer): Promise<Buffer> {
-    const dict = await LedgerStuff.getInstance();
+export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
     console.log('Signing using Ledger..')
-    const transport = dict///await Transport.create();
+    const transport = await LedgerStuff.getInstance();
+    //const transport = await Transport.create();
     const xtz = new App(transport);
-    //const opBytesInHex = sodium.to_hex(opBytes);
-    //const opBytesInHex = opBytes.toString('hex');
-    //console.log(opBytesInHex)
-    const result = await xtz.signOperation(derivationPath, opBytes);//opBytesInHex);
-    console.log("swap")
+    const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);//opBytesInHex);
+    console.log(result);
     const hexEncodedSignature = result.signature;
-    const signatureBytes = sodium.from_hex(hexEncodedSignature).slice(1);
+    const signatureBytes = sodium.from_hex(hexEncodedSignature)//.slice(1);
+    console.log("length:" + signatureBytes.length);
     return signatureBytes;
 }
