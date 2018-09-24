@@ -1,6 +1,6 @@
 import * as querystring from "querystring";
-import fetch from 'node-fetch';
-import {TezosFilter} from "..";
+import fetch from "node-fetch";
+import { TezosFilter } from "../tezos/TezosTypes";
 
 /**
  * Utility functions for querying backend Conseil API
@@ -14,16 +14,21 @@ import {TezosFilter} from "..";
  * @param {string} apiKey    API key to use for Conseil server.
  * @returns {Promise<object>}   JSON representation of response from Conseil
  */
-export function queryConseilServer(server: string, route: string, apiKey: string): Promise<object> {
-    const url = `${server}/${route}`;
-    console.log(`Querying Conseil server at URL ${url}`);
-    return fetch(url, {
-        method: 'get',
-        headers: {
-            "apiKey": apiKey
-        }
-    })
-        .then(response => {return response.json()});
+export function queryConseilServer(
+  server: string,
+  route: string,
+  apiKey: string
+): Promise<object> {
+  const url = `${server}/${route}`;
+  console.log(`Querying Conseil server at URL ${url}`);
+  return fetch(url, {
+    method: "get",
+    headers: {
+      apiKey: apiKey
+    }
+  }).then(response => {
+    return response.json();
+  });
 }
 
 /**
@@ -34,10 +39,15 @@ export function queryConseilServer(server: string, route: string, apiKey: string
  * @param {string} apiKey    API key to use for Conseil server.
  * @returns {Promise<object>}   Data returned by Conseil as a JSON object
  */
-export function queryConseilServerWithFilter(server: string, route: string, filter: TezosFilter, apiKey: string): Promise<object> {
-    let params = querystring.stringify(sanitizeFilter(filter));
-    let cmdWithParams = `${route}?${params}`;
-    return queryConseilServer(server, cmdWithParams, apiKey);
+export function queryConseilServerWithFilter(
+  server: string,
+  route: string,
+  filter: TezosFilter,
+  apiKey: string
+): Promise<object> {
+  const params = querystring.stringify(sanitizeFilter(filter));
+  const cmdWithParams = `${route}?${params}`;
+  return queryConseilServer(server, cmdWithParams, apiKey);
 }
 
 /**
@@ -45,20 +55,8 @@ export function queryConseilServerWithFilter(server: string, route: string, filt
  * @param {TezosFilter} filter  Conseil filter
  * @returns {TezosFilter}   Sanitized Conseil filter
  */
-function sanitizeFilter(filter: TezosFilter): TezosFilter {
-    return {
-        limit: filter.limit,
-        block_id: filter.block_id.filter(Boolean),
-        block_level: filter.block_level.filter(Boolean),
-        block_netid: filter.block_netid.filter(Boolean),
-        block_protocol: filter.block_protocol.filter(Boolean),
-        operation_id: filter.operation_id.filter(Boolean),
-        operation_source: filter.operation_source.filter(Boolean),
-        operation_destination: filter.operation_source.filter(Boolean),
-        operation_participant: filter.operation_participant.filter(Boolean),
-        operation_kind: filter.operation_kind.filter(Boolean),
-        account_id: filter.account_id.filter(Boolean),
-        account_manager: filter.account_manager.filter(Boolean),
-        account_delegate: filter.account_delegate.filter(Boolean)
-    };
+function sanitizeFilter(filter: TezosFilter): object {
+  return Object.keys(filter)
+    .filter((key: string) => filter[key].filter(Boolean))
+    .map((key: string) => filter[key]);
 }

@@ -64,3 +64,43 @@ export interface AlphaOperationsWithMetadata {
 export interface InjectedOperation {
     injectedOperation: string
 }
+
+export enum OperationKindFilter {
+    SeedNonceRevelation = "seed_nonce_revelation",
+    Delegation = "delegation",
+    Transaction = "transaction",
+    ActivateAccount = "activate_account",
+    Origination = "origination",
+    Reveal = "reveal",
+    Endorsement = "endorsement",
+}
+
+export interface TezosBlockFilter {
+  limit: number;
+  block_id: string[];
+  block_level: number[];
+  block_netid: string[];
+  block_protocol: string[];
+}
+
+export interface TezosAccountFilter {
+  limit: number;
+  account_id: string[];
+  account_manager: string[];
+  account_delegate: string[];
+}
+
+export interface TezosOperationFilter {
+  limit: number;
+  operation_id: string[];
+  operation_source: string[];
+  operation_destination: string[];
+  operation_participant: string[];
+  operation_kind: OperationKindFilter[];
+}
+
+/**
+ * Filter with predicates for querying Conseil server
+ * Se Conseil REST API documentation for usage.
+ */
+export type TezosFilter = TezosBlockFilter | TezosAccountFilter | TezosAccountFilter;
