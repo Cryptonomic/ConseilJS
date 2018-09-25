@@ -15,10 +15,7 @@ class LedgerStuff {
 }
 
 export async function getTezosPublicKey(derivationPath: string): Promise<string> {
-    const dict = await LedgerStuff.getInstance();
-    console.log("some string, ");
-    console.log(dict);
-    const transport = dict//await Transport.create();
+    const transport = await LedgerStuff.getInstance();
     const xtz = new App(transport);
     const result = await xtz.getAddress(derivationPath, true);
     const hexEncodedPublicKey = result.publicKey;
@@ -28,12 +25,9 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
 export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
     console.log('Signing using Ledger..')
     const transport = await LedgerStuff.getInstance();
-    //const transport = await Transport.create();
     const xtz = new App(transport);
     const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);//opBytesInHex);
-    console.log(result);
     const hexEncodedSignature = result.signature;
-    const signatureBytes = sodium.from_hex(hexEncodedSignature)//.slice(1);
-    console.log("length:" + signatureBytes.length);
+    const signatureBytes = sodium.from_hex(hexEncodedSignature);
     return signatureBytes;
 }

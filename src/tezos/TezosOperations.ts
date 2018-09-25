@@ -45,14 +45,11 @@ export namespace TezosOperations {
         let opSignature: Buffer = new Buffer(0);
         switch(keyStore.storeType) {
             case StoreType.Hardware:
-                console.log("derivation path: " + derivationPath )
-                console.log("watermarked hex op: " + watermarkedForgedOperationBytesHex)
                 opSignature = await LedgerUtils.signTezosOperation(`44'/1729'/0'/0'/0'`, watermarkedForgedOperationBytesHex);
                 break;
             default:
                 const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
                 opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
-                console.log("length: " + opSignature.length)
         }
 
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
