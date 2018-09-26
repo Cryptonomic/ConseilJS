@@ -1,6 +1,6 @@
-import {TezosOperations} from "../../src/tezos/TezosOperations";
+import {TezosOperations} from "../../src";
 import {expect} from "chai";
-import {KeyStore, StoreType} from "../../src/types/KeyStore";
+import {KeyStore} from "../../src/types/KeyStore";
 import {TezosWallet} from "../../src";
 import {servers} from "../servers";
 import {TezosHardwareWallet} from "../../src/tezos/TezosHardwareWallet";
@@ -10,7 +10,7 @@ const tezosURL = servers.tezosServer;
 
 function sleep(seconds)
 {
-    var e = new Date().getTime() + (seconds * 1000);
+    const e = new Date().getTime() + (seconds * 1000);
     while (new Date().getTime() <= e) {}
 }
 
@@ -18,7 +18,7 @@ describe('Tezos operation functions', () => {
 
     it('successfully perform operations on a new identity', async (done) => {
 
-        setTimeout(done, 15000)
+        setTimeout(done, 15000);
 
         const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
             'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
@@ -27,18 +27,19 @@ describe('Tezos operation functions', () => {
             'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
         );
 
-        const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, `44'/1729'/0'/0'/0'`)
+        const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, `44'/1729'/0'/0'/0'`);
 
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
             10000,
-            50000
+            50000,
+            `44'/1729'/0'/0'/0'`
         );
         expect(receiveResult.operationGroupID).to.exist;
 
-        sleep(33)
+        sleep(33);
 
         /* Can't reveal twice, commented out for testing purposes
         const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
@@ -57,18 +58,20 @@ describe('Tezos operation functions', () => {
             newKeys.publicKeyHash,
             true,
             true,
-            1
+            1,
+            `44'/1729'/0'/0'/0'`
         );
         expect(originationResult.operationGroupID).to.exist;
 
-        sleep(33)
+        sleep(33);
 
         const delegationResult = await TezosOperations.sendDelegationOperation(
             tezosURL,
             newKeys,
             keys.publicKeyHash,
-            1
+            1,
+            `44'/1729'/0'/0'/0'`
         );
         expect(delegationResult.operationGroupID).to.exist
     });
-})
+});
