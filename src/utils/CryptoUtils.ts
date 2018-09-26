@@ -142,7 +142,6 @@ export function getKeysFromMnemonicAndPassphrase(
     const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
     const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
     const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
-    console.log(key_pair.publicKey)
     if(checkPKH && publicKeyHash != pkh) return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"};
     return {
         publicKey,
