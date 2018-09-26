@@ -9,6 +9,9 @@ import {KeyStore} from "../src/types/KeyStore";
 
 const tezosURL = servers.tezosServer;
 
+//Software tezos operations do not require a valid derivation path
+const invalidDerivationPath = "ighiehgieh";
+
 // const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 //     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
 //     'efcvoykz.kygxsosz@tezos.example.org',
@@ -35,7 +38,7 @@ const tezosURL = servers.tezosServer;
             'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45',
             100000000,
             50000,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist
     });
@@ -54,7 +57,7 @@ const tezosURL = servers.tezosServer;
             keys.publicKeyHash,
             100000000,
             50000,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist
     });
@@ -75,7 +78,7 @@ const tezosURL = servers.tezosServer;
             delegatedKeyStore,
             'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew',
             1,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -92,7 +95,7 @@ const tezosURL = servers.tezosServer;
             true,
             true,
             1,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -105,7 +108,7 @@ const tezosURL = servers.tezosServer;
             tezosURL,
             keys,
             50000,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         console.log(result)
         expect(result.operationGroupID).to.exist
@@ -123,7 +126,7 @@ const tezosURL = servers.tezosServer;
             tezosURL,
              keys,
             '7e47a409f9baf132ef8c03460aa9eb1fe1878248',
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -143,7 +146,7 @@ const tezosURL = servers.tezosServer;
             newKeys.publicKeyHash,
             10000,
             50000,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist;
         const result2 = await TezosOperations.sendOriginationOperation(
@@ -154,7 +157,7 @@ const tezosURL = servers.tezosServer;
             true,
             true,
             1,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(result2.operationGroupID).to.exist;
         const result3 = await TezosOperations.sendDelegationOperation(
@@ -214,7 +217,7 @@ describe('Tezos operation functions', () => {
             newKeys.publicKeyHash,
             10000,
             50000,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(receiveResult.operationGroupID).to.exist;
 
@@ -224,7 +227,7 @@ describe('Tezos operation functions', () => {
             tezosURL,
             newKeys,
             100,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(keyRevealResult.operationGroupID).to.exist;
 
@@ -238,7 +241,7 @@ describe('Tezos operation functions', () => {
             true,
             true,
             1,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(originationResult.operationGroupID).to.exist;
 
@@ -249,7 +252,7 @@ describe('Tezos operation functions', () => {
             newKeys,
             keys.publicKeyHash,
             1,
-            `44'/1729'/0'/0'/0'`
+            invalidDerivationPath
         );
         expect(delegationResult.operationGroupID).to.exist
     });
