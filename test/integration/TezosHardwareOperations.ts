@@ -40,6 +40,7 @@ describe('Tezos operation functions', () => {
 
         sleep(33)
 
+        /* Can't reveal twice, commented out for testing purposes
         const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
             tezosURL,
             newKeys,
@@ -48,7 +49,7 @@ describe('Tezos operation functions', () => {
         expect(keyRevealResult.operationGroupID).to.exist;
 
         sleep(33)
-
+        */
         const originationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
