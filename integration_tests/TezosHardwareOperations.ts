@@ -1,10 +1,10 @@
-import {TezosOperations} from "../../src";
+import {TezosOperations} from "../src";
 import {expect} from "chai";
-import {KeyStore} from "../../src/types/KeyStore";
-import {TezosWallet} from "../../src";
-import {servers} from "../servers";
-import {TezosHardwareWallet} from "../../src/tezos/TezosHardwareWallet";
-import {HardwareDeviceType} from "../../src/types/HardwareDeviceType";
+import {KeyStore} from "../src/types/KeyStore";
+import {TezosWallet} from "../src";
+import {servers} from "../test/servers";
+import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
+import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
 const tezosURL = servers.tezosServer;
 

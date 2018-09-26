@@ -1,4 +1,3 @@
-import {base58CheckEncode} from "./CryptoUtils";
 import * as sodium from 'libsodium-wrappers-sumo';
 
 /**
@@ -41,10 +40,10 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
  * @param watermarkedOpInHex Operation
  */
 export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
-    console.log('Signing using Ledger..')
+    console.log('Signing using Ledger..');
     const transport = await TransportInstance.getInstance();
     const xtz = new App(transport);
-    const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);//opBytesInHex);
+    const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);
     const hexEncodedSignature = result.signature;
     const signatureBytes = sodium.from_hex(hexEncodedSignature);
     return signatureBytes;

@@ -1,11 +1,11 @@
 // Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
-import {TezosOperations} from '../../src'
+import {TezosOperations} from '../src'
 import 'mocha';
-import {servers} from "../servers";
-import {TezosWallet} from "../../src";
-import {KeyStore} from "../../src/types/KeyStore";
+import {servers} from "../test/servers";
+import {TezosWallet} from "../src";
+import {KeyStore} from "../src/types/KeyStore";
 
 const tezosURL = servers.tezosServer;
 
