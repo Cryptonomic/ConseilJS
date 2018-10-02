@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.1.25",
+  "version": "0.1.28-z",
   "description": "Client-side library for dApp development.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -29,7 +29,7 @@
     "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
     "https": "^1.0.0",
-    "@ledgerhq/hw-app-xtz": "../ledger/ledgerjs/packages/hw-app-xtz/",
+    "basil-tezos-ledger": "^0.0.1",
     "@ledgerhq/hw-transport-node-hid": "^4.22.0",
     "@ledgerhq/hw-transport": "4.21.0",
     "libsodium-wrappers": "^0.5.4",

@@ -5,7 +5,7 @@ import * as sodium from 'libsodium-wrappers-sumo';
  * layer code
  */
 let Transport = require("@ledgerhq/hw-transport-node-hid").default;
-let App = require("@ledgerhq/hw-app-xtz").default;
+let App = require("basil-tezos-ledger").default;
 
 /**
  * Current solution to keep global instance of Ledgerjs transport object,
