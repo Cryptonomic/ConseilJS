@@ -7,8 +7,9 @@ import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
 import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
 const tezosURL = servers.tezosServer;
-const derivationPathIndex = Math.floor(Math.random()).toString();
+const derivationPathIndex = Math.floor(Math.random()*10).toString();
 const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;
+console.log("DPATH: " + derivationPath)
 
 function sleep(seconds)
 {
@@ -29,7 +30,8 @@ describe('Tezos operation functions', () => {
             'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
         );
 
-        const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, `44'/1729'/0'/0'/0'`);
+        const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, derivationPath);
+        console.log("newKeys: " + newKeys.toString)
 
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
