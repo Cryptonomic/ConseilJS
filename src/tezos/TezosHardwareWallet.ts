@@ -8,6 +8,7 @@ export namespace TezosHardwareWallet {
 
     export async function unlockAddress(deviceType: HardwareDeviceType, derivationPath: string): Promise<KeyStore> {
         const hexEncodedPublicKey = await ledgerUtils.getTezosPublicKey(derivationPath);
+        //We slice off a byte to make sure we have a 64 bits coming in from the ledger package
         const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
         const publicKey = base58CheckEncode(publicKeyBytes, "edpk");
         const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");

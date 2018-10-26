@@ -189,28 +189,45 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const revealOp: Object = {
-            kind: "reveal",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
-            storage_limit: '0',
-            public_key: keyStore.publicKey
-        };
-        const transaction = {
-            destination: to,
-            amount: amount.toString(),
-            storage_limit: '0',
-            gas_limit: '120',
-            counter: (Number(account.counter) + 1).toString(),
-            fee: fee.toString(),
-            source: keyStore.publicKeyHash,
-            kind:   "transaction",
-            parameters: {prim: "Unit", args: []}
-        };
-        const operations = 
-        (isManagerKeyRevealedForAccount(network, keyStore)) ? [transaction] : [revealOp, transaction];
+        const isManagerKeyRevealed = isManagerKeyRevealedForAccount(network, keyStore)
+        var operations;
+        if (isManagerKeyRevealed) {
+            const transaction = {
+                destination: to,
+                amount: amount.toString(),
+                storage_limit: '0',
+                gas_limit: '120',
+                counter: (Number(account.counter) + 1).toString(),
+                fee: fee.toString(),
+                source: keyStore.publicKeyHash,
+                kind:   "transaction",
+                parameters: {prim: "Unit", args: []}
+            };
+            operations = [transaction]
+        }
+        else {
+            const revealOp: Object = {
+                kind: "reveal",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                public_key: keyStore.publicKey
+            };
+            const transaction = {
+                destination: to,
+                amount: amount.toString(),
+                storage_limit: '0',
+                gas_limit: '120',
+                counter: (Number(account.counter) + 2).toString(),
+                fee: fee.toString(),
+                source: keyStore.publicKeyHash,
+                kind:   "transaction",
+                parameters: {prim: "Unit", args: []}
+            };
+            operations = [revealOp, transaction]
+        }
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -232,26 +249,41 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const revealOp: Object = {
-            kind: "reveal",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
-            storage_limit: '0',
-            public_key: keyStore.publicKey
-        };
-        const delegation = {
-            kind:   "delegation",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            storage_limit: '0',
-            gas_limit: '120',
-            delegate: delegate
-        };
-        const operations = 
-        (isManagerKeyRevealedForAccount(network, keyStore)) ? [delegation] : [revealOp, delegation];
+        const isManagerKeyRevealed = isManagerKeyRevealedForAccount(network, keyStore)
+        var operations;
+        if (isManagerKeyRevealed) {
+            const delegation = {
+                kind:   "delegation",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                storage_limit: '0',
+                gas_limit: '120',
+                delegate: delegate
+            };
+            operations = [delegation ]
+        }
+        else {
+            const revealOp: Object = {
+                kind: "reveal",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                public_key: keyStore.publicKey
+            };
+            const delegation = {
+                kind:   "delegation",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 2).toString(),
+                storage_limit: '0',
+                gas_limit: '120',
+                delegate: delegate
+            };
+            operations = [revealOp, delegation]
+        }
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -279,30 +311,49 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const revealOp: Object = {
-            kind: "reveal",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
-            storage_limit: '0',
-            public_key: keyStore.publicKey
-        };
-        const origination = {
-            kind:   "origination",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
-            storage_limit: '0',
-            manager_pubkey: keyStore.publicKeyHash,
-            balance: amount.toString(),
-            spendable: spendable,
-            delegatable: delegatable,
-            delegate: delegate
-        };
-        const operations = 
-        (isManagerKeyRevealedForAccount(network, keyStore)) ? [origination] : [revealOp, origination];
+        const isManagerKeyRevealed = isManagerKeyRevealedForAccount(network, keyStore)
+        var operations;
+        if (isManagerKeyRevealed) {
+            const origination = {
+                kind:   "origination",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                manager_pubkey: keyStore.publicKeyHash,
+                balance: amount.toString(),
+                spendable: spendable,
+                delegatable: delegatable,
+                delegate: delegate
+            };
+            operations = [origination]
+        }
+        else {
+            const revealOp: Object = {
+                kind: "reveal",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                public_key: keyStore.publicKey
+            };
+            const origination = {
+                kind:   "origination",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 2).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                manager_pubkey: keyStore.publicKeyHash,
+                balance: amount.toString(),
+                spendable: spendable,
+                delegatable: delegatable,
+                delegate: delegate
+            };
+            operations = [revealOp, origination]
+        }
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
