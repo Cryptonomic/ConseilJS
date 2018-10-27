@@ -200,8 +200,7 @@ export namespace TezosOperations {
                 counter: (Number(account.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind:   "transaction",
-                parameters: {prim: "Unit", args: []}
+                kind:   "transaction"
             };
             operations = [transaction]
         }
@@ -223,8 +222,7 @@ export namespace TezosOperations {
                 counter: (Number(account.counter) + 2).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind:   "transaction",
-                parameters: {prim: "Unit", args: []}
+                kind:   "transaction"
             };
             operations = [revealOp, transaction]
         }

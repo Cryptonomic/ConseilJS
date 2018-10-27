@@ -56,5 +56,28 @@ describe('Tezos operation functions', () => {
             derivationPath
         );
         expect(originationResult.operationGroupID).to.exist;
+
+        sleep(33);
+
+        const delegationResult = await TezosOperations.sendDelegationOperation(
+            tezosURL,
+            newKeys,
+            "tz1aWXP237BLwNHJcCD4b3DutCevhqq2T1Z9",
+            0,
+            derivationPath,
+        );
+        expect(delegationResult.operationGroupID).to.exist;
+
+        sleep(33);
+
+        const sendResult = await TezosOperations.sendTransactionOperation(
+            tezosURL,
+            newKeys,
+            keys.publicKeyHash,
+            100,
+            0,
+            derivationPath
+        );
+        expect(sendResult.operationGroupID).to.exist;
     });
 });
