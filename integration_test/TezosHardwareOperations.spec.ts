@@ -9,7 +9,7 @@ import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 const tezosURL = servers.tezosServer;
 const derivationPathIndex = Math.floor(Math.random()*10).toString();
 const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;
-console.log("DPATH: " + derivationPath)
+console.log("Derivation path: ", derivationPath)
 
 function sleep(seconds)
 {
@@ -31,14 +31,14 @@ describe('Tezos operation functions', () => {
         );
 
         const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, derivationPath);
-        console.log("newKeys: " + newKeys.toString)
+        console.log("newKeys: ", newKeys)
 
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
-            10000,
-            50000,
+            1000000,
+            0,
             derivationPath
         );
         expect(receiveResult.operationGroupID).to.exist;
@@ -48,24 +48,13 @@ describe('Tezos operation functions', () => {
         const originationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
-            100,
-            newKeys.publicKeyHash,
+            100000,
+            "tz1aWXP237BLwNHJcCD4b3DutCevhqq2T1Z9",
             true,
             true,
-            1,
+            0,
             derivationPath
         );
         expect(originationResult.operationGroupID).to.exist;
-
-        sleep(33);
-
-        const delegationResult = await TezosOperations.sendDelegationOperation(
-            tezosURL,
-            newKeys,
-            "tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu",//keys.publicKeyHash,
-            1,
-            derivationPath
-        );
-        expect(delegationResult.operationGroupID).to.exist;
     });
 });
