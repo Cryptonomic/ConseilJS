@@ -15,5 +15,6 @@ export interface KeyStore {
  */
 export enum StoreType {
     Mnemonic,
-    Fundraiser
+    Fundraiser,
+    Hardware
 }

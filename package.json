@@ -1,11 +1,11 @@
 {
   "name": "conseiljs",
-  "version": "0.1.25",
+  "version": "0.1.32",
   "description": "Client-side library for dApp development.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/**/*.spec.ts",
+    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
     "packagr": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist"
   },
@@ -24,7 +24,13 @@
   },
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
   "dependencies": {
+    "@ledgerhq/hw-transport": "4.21.0",
+    "@ledgerhq/hw-transport-node-hid": "^4.22.0",
     "awesome-typescript-loader": "^5.0.0",
+    "aws-sdk": "^2.326.0",
+    "babel-runtime": "6.26.0",
+    "basil-tezos-ledger": "0.0.1",
+    "bip32": "^1.0.0",
     "bip39": "^2.5.0",
     "bs58check": "^2.1.1",
     "https": "^1.0.0",

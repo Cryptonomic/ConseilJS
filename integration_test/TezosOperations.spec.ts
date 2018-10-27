@@ -1,17 +1,16 @@
-
-/*
-// All unit tests are commented out as they can only be run one by one with delays.
+// Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import {expect} from 'chai';
-import {TezosOperations} from '../src/tezos/TezosOperations'
-import {TezosWallet} from '../src/tezos/TezosWallet'
-import {KeyStore} from "../src/types/KeyStore";
+import {TezosOperations} from '../src'
 import 'mocha';
-import {servers} from "./servers";
+import {servers} from "../test/servers";
+import {TezosWallet} from "../src";
+import {KeyStore} from "../src/types/KeyStore";
 
 const tezosURL = servers.tezosServer;
 
-*/
+//Software tezos operations do not require a valid derivation path
+const invalidDerivationPath = "ighiehgieh";
 
 // const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
 //     'bomb sing vacant repair illegal category unveil color olive chest wink expand fringe pioneer reward',
@@ -38,7 +37,8 @@ const tezosURL = servers.tezosServer;
             keys,
             'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45',
             100000000,
-            50000
+            50000,
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist
     });
@@ -56,7 +56,8 @@ const tezosURL = servers.tezosServer;
             childKeyStore,
             keys.publicKeyHash,
             100000000,
-            50000
+            50000,
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist
     });
@@ -76,7 +77,8 @@ const tezosURL = servers.tezosServer;
             tezosURL,
             delegatedKeyStore,
             'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew',
-            1
+            1,
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -92,7 +94,8 @@ const tezosURL = servers.tezosServer;
             keys.publicKeyHash,
             true,
             true,
-            1
+            1,
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -104,7 +107,8 @@ const tezosURL = servers.tezosServer;
         const result = await TezosOperations.sendKeyRevealOperation(
             tezosURL,
             keys,
-            50000
+            50000,
+            invalidDerivationPath
         );
         console.log(result)
         expect(result.operationGroupID).to.exist
@@ -121,7 +125,8 @@ const tezosURL = servers.tezosServer;
         const result = await TezosOperations.sendIdentityActivationOperation(
             tezosURL,
              keys,
-            '7e47a409f9baf132ef8c03460aa9eb1fe1878248'
+            '7e47a409f9baf132ef8c03460aa9eb1fe1878248',
+            invalidDerivationPath
         );
         console.log(JSON.stringify(result));
         expect(result.operationGroupID).to.exist
@@ -140,7 +145,8 @@ const tezosURL = servers.tezosServer;
             keys,
             newKeys.publicKeyHash,
             10000,
-            50000
+            50000,
+            invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist;
         const result2 = await TezosOperations.sendOriginationOperation(
@@ -150,7 +156,8 @@ const tezosURL = servers.tezosServer;
             newKeys.publicKeyHash,
             true,
             true,
-            1
+            1,
+            invalidDerivationPath
         );
         expect(result2.operationGroupID).to.exist;
         const result3 = await TezosOperations.sendDelegationOperation(
@@ -178,3 +185,75 @@ const tezosURL = servers.tezosServer;
         expect(result).to.equal(true)
     });
 });*/
+
+function sleep(seconds)
+{
+    const e = new Date().getTime() + (seconds * 1000);
+    while (new Date().getTime() <= e) {}
+}
+
+describe('Tezos operation functions', () => {
+
+    it('successfully perform operations on a new identity', async (done) => {
+
+        setTimeout(done, 15000);
+
+        const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+        'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
+        'yizqurzn.jyrwcidl@tezos.example.org',
+        'P2rwZYgJBL',
+            'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
+        );
+
+        const mnemonic = TezosWallet.generateMnemonic();
+        const newKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(
+            mnemonic,
+            ''
+        );
+
+        const receiveResult = await TezosOperations.sendTransactionOperation(
+            tezosURL,
+            keys,
+            newKeys.publicKeyHash,
+            10000,
+            50000,
+            invalidDerivationPath
+        );
+        expect(receiveResult.operationGroupID).to.exist;
+
+        sleep(33);
+
+        const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
+            tezosURL,
+            newKeys,
+            100,
+            invalidDerivationPath
+        );
+        expect(keyRevealResult.operationGroupID).to.exist;
+
+        sleep(33);
+
+        const originationResult = await TezosOperations.sendOriginationOperation(
+            tezosURL,
+            newKeys,
+            100,
+            newKeys.publicKeyHash,
+            true,
+            true,
+            1,
+            invalidDerivationPath
+        );
+        expect(originationResult.operationGroupID).to.exist;
+
+        sleep(33);
+
+        const delegationResult = await TezosOperations.sendDelegationOperation(
+            tezosURL,
+            newKeys,
+            keys.publicKeyHash,
+            1,
+            invalidDerivationPath
+        );
+        expect(delegationResult.operationGroupID).to.exist
+    });
+});
