@@ -20,4 +20,8 @@ export namespace TezosHardwareWallet {
             storeType: StoreType.Hardware
         }
     }
+
+    export function initTransport() {
+        ledgerUtils.initTransport();
+    }
 }
