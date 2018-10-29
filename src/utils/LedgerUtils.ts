@@ -26,7 +26,7 @@ class TransportInstance {
     initialize of transport
 */
 
-export function initTransport () {
+export function initLedgerTransport () {
     TransportInstance.transport = null;
 }
 

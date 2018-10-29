@@ -21,7 +21,7 @@ export namespace TezosHardwareWallet {
         }
     }
 
-    export function initTransport() {
-        ledgerUtils.initTransport();
+    export function initLedgerTransport() {
+        ledgerUtils.initLedgerTransport();
     }
 }
