@@ -4,7 +4,7 @@ import * as LedgerUtils from '../utils/LedgerUtils';
 import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
-import { Operation } from 'types/Operation';
+import {Operation} from "./TezosTypes";
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -170,6 +170,17 @@ export namespace TezosOperations {
         }
     }
 
+    /**
+     * Helper function for sending Delegations, Transactions, and Originations.
+     * Checks if manager's public key has been revealed for operation. If yes,
+     * do nothing, else, bundle a reveal operation before the input operation.
+     * @param network Which Tezos network to go against
+     * @param keyStore  Key pair along with public key hash
+     * @param fee Fee to use
+     * @param account Which account to use
+     * @param operations Delegation, Transaction, or Origination to possibly bundle
+     *                   with a reveal
+     */
     export async function appendRevealOperation(
         network: string,
         keyStore: KeyStore,
