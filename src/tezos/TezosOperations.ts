@@ -185,11 +185,11 @@ export namespace TezosOperations {
         to: String,
         amount: number,
         fee: number,
-        derivationPath: string
+        derivationPath: string  
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const isManagerKeyRevealed = isManagerKeyRevealedForAccount(network, keyStore)
+        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         var operations;
         if (isManagerKeyRevealed) {
             const transaction = {
@@ -247,7 +247,7 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const isManagerKeyRevealed = isManagerKeyRevealedForAccount(network, keyStore)
+        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         var operations;
         if (isManagerKeyRevealed) {
             const delegation = {
