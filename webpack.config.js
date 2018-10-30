@@ -30,7 +30,7 @@ module.exports = {
     },
     node: {
         // handle "Can't resolve 'fs'" issue
-        fs: 'empty'
+        fs: 'empty', child_process: 'empty'
     },
     plugins: [
         new UglifyJsPlugin()
