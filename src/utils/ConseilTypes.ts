@@ -43,7 +43,7 @@ export interface TezosOperation {
     source: string,
     amount: string,
     destination: string,
-    managerPubKey: string,
+    managerPubkey: string, //managerPubKey initially
     balance: string,
     delegate: string,
     operationGroupHash: string,

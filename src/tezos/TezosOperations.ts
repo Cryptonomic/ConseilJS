@@ -157,11 +157,21 @@ export namespace TezosOperations {
         operations: object[],
         keyStore: KeyStore,
         derivationPath): Promise<OperationResult>   {
+        console.log("Network: ", network)
+        console.log("Operation 1 (reveal) :", operations[0])
+        console.log("Operation 2 (transaction):", operations[1])
+        console.log("KeyStore: ", keyStore)
+        console.log("Derivation Path: ", derivationPath)
         const blockHead = await TezosNode.getBlockHead(network);
+        console.log("Block Head: ", blockHead);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
+        console.log("Forged Operation Group: ", forgedOperationGroup);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+        console.log("Signed Operation Group: ", signedOpGroup);
         const operationGroupHash = computeOperationHash(signedOpGroup);
+        console.log("Operation Group Hash: ", operationGroupHash);
         const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+        console.log("Applied Operation ", appliedOp);
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
         return {
@@ -225,6 +235,7 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string  
     ) {
+        console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const transaction: Operation = {
@@ -303,7 +314,7 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '120',
             storage_limit: '0',
-            manager_pubkey: keyStore.publicKeyHash,
+            managerPubkey: keyStore.publicKeyHash, // initially manager_pubkey
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
