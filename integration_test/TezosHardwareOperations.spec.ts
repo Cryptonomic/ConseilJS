@@ -23,19 +23,34 @@ describe('Tezos operation functions', () => {
 
         setTimeout(done, 15000);
 
+        //zeronet
         const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
             'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
             'yizqurzn.jyrwcidl@tezos.example.org',
             'P2rwZYgJBL',
             'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
         );
+        const alphanetKeys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+            'addict prevent buyer exist forum left area lizard pair join arrest main lucky cable lunar',
+            'nuckwdqr.armjikzp@tezos.example.org',
+            'RFvXUWNdJQ',
+            'tz1LNEdR5FHvLXtSRyXH8UKzLPCBwJZqqB67'
+        )
+        //get fields from tezos alphanet faucet
+        //activate account using function from Tezos Operations (delete after)
+
+        /*
+        const activateAccount = await TezosOperations.sendIdentityActivationOperation(tezosURL, alphanetKeys, '24b215e6afde600560bba37ce8502e55c5e40624', derivationPath)
+        expect(activateAccount.operationGroupID).to.exist;
+        console.log("activated account: ", activateAccount)*/
+
 
         const newKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, derivationPath);
         console.log("newKeys: ", newKeys)
 
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
-            keys,
+            alphanetKeys, 
             newKeys.publicKeyHash,
             1000000,
             0,
@@ -45,6 +60,7 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
+        console.log("Beginning origination: ")
         const originationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
@@ -59,6 +75,7 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
+        console.log("Beginning delegation: ")
         const delegationResult = await TezosOperations.sendDelegationOperation(
             tezosURL,
             newKeys,
@@ -73,7 +90,7 @@ describe('Tezos operation functions', () => {
         const sendResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             newKeys,
-            keys.publicKeyHash,
+            alphanetKeys.publicKeyHash,
             100,
             0,
             derivationPath
