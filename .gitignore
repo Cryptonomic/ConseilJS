@@ -64,7 +64,6 @@ typings/
 .idea/
 
 # TSC
-dist
 build
 
 # Server confs
