@@ -135,11 +135,21 @@ var TezosOperations;
      */
     function sendOperation(network, operations, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("Network: ", network);
+            console.log("Operation 1 (reveal) :", operations[0]);
+            console.log("Operation 2 (transaction):", operations[1]);
+            console.log("KeyStore: ", keyStore);
+            console.log("Derivation Path: ", derivationPath);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            console.log("Block Head: ", blockHead);
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
+            console.log("Forged Operation Group: ", forgedOperationGroup);
             const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+            console.log("Signed Operation Group: ", signedOpGroup);
             const operationGroupHash = computeOperationHash(signedOpGroup);
+            console.log("Operation Group Hash: ", operationGroupHash);
             const appliedOp = yield applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+            console.log("Applied Operation ", appliedOp);
             checkAppliedOperationResults(appliedOp);
             const injectedOperation = yield injectOperation(network, signedOpGroup);
             return {
@@ -194,6 +204,7 @@ var TezosOperations;
      */
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const transaction = {
@@ -261,7 +272,7 @@ var TezosOperations;
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '120',
                 storage_limit: '0',
-                manager_pubkey: keyStore.publicKeyHash,
+                managerPubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,
