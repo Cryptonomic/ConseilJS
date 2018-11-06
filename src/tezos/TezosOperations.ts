@@ -4,6 +4,7 @@ import * as LedgerUtils from '../utils/LedgerUtils';
 import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
+import {Operation} from "./TezosTypes";
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -156,17 +157,64 @@ export namespace TezosOperations {
         operations: object[],
         keyStore: KeyStore,
         derivationPath): Promise<OperationResult>   {
+        console.log("Network: ", network)
+        console.log("Operation 1 (reveal) :", operations[0])
+        console.log("Operation 2 (transaction):", operations[1])
+        console.log("KeyStore: ", keyStore)
+        console.log("Derivation Path: ", derivationPath)
         const blockHead = await TezosNode.getBlockHead(network);
+        console.log("Block Head: ", blockHead);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
+        console.log("Forged Operation Group: ", forgedOperationGroup);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+        console.log("Signed Operation Group: ", signedOpGroup);
         const operationGroupHash = computeOperationHash(signedOpGroup);
+        console.log("Operation Group Hash: ", operationGroupHash);
         const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+        console.log("Applied Operation ", appliedOp);
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
         return {
             results: appliedOp[0],
             operationGroupID: injectedOperation
         }
+    }
+
+    /**
+     * Helper function for sending Delegations, Transactions, and Originations.
+     * Checks if manager's public key has been revealed for operation. If yes,
+     * do nothing, else, bundle a reveal operation before the input operation.
+     * @param network Which Tezos network to go against
+     * @param keyStore  Key pair along with public key hash
+     * @param fee Fee to use
+     * @param account Which account to use
+     * @param operations Delegation, Transaction, or Origination to possibly bundle
+     *                   with a reveal
+     */
+    export async function appendRevealOperation(
+        network: string,
+        keyStore: KeyStore,
+        fee: number,
+        account: TezosTypes.Account,
+        operations: Operation[]
+    ) {
+        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
+        var returnedOperations: Operation[] = operations;
+        if (!isManagerKeyRevealed) {
+            const revealOp: Operation = {
+                kind: "reveal",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '120',
+                storage_limit: '0',
+                public_key: keyStore.publicKey
+            };
+            var operation = operations[0]
+            operation.counter = (Number(account.counter) + 2).toString()
+            returnedOperations = [revealOp, operation]
+        }
+        return returnedOperations
     }
 
     /**
@@ -187,45 +235,20 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string  
     ) {
+        console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
-        var operations;
-        if (isManagerKeyRevealed) {
-            const transaction = {
-                destination: to,
-                amount: amount.toString(),
-                storage_limit: '0',
-                gas_limit: '120',
-                counter: (Number(account.counter) + 1).toString(),
-                fee: fee.toString(),
-                source: keyStore.publicKeyHash,
-                kind:   "transaction"
-            };
-            operations = [transaction]
-        }
-        else {
-            const revealOp: Object = {
-                kind: "reveal",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                public_key: keyStore.publicKey
-            };
-            const transaction = {
-                destination: to,
-                amount: amount.toString(),
-                storage_limit: '0',
-                gas_limit: '120',
-                counter: (Number(account.counter) + 2).toString(),
-                fee: fee.toString(),
-                source: keyStore.publicKeyHash,
-                kind:   "transaction"
-            };
-            operations = [revealOp, transaction]
-        }
+        const transaction: Operation = {
+            destination: to,
+            amount: amount.toString(),
+            storage_limit: '0',
+            gas_limit: '120',
+            counter: (Number(account.counter) + 1).toString(),
+            fee: fee.toString(),
+            source: keyStore.publicKeyHash,
+            kind:   "transaction"
+        };
+        const operations = await appendRevealOperation(network, keyStore, fee, account, [transaction])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -247,41 +270,16 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
-        var operations;
-        if (isManagerKeyRevealed) {
-            const delegation = {
-                kind:   "delegation",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 1).toString(),
-                storage_limit: '0',
-                gas_limit: '120',
-                delegate: delegate
-            };
-            operations = [delegation ]
+        const delegation: Operation = {
+            kind:   "delegation",
+            source: keyStore.publicKeyHash,
+            fee: fee.toString(),
+            counter: (Number(account.counter) + 1).toString(),
+            storage_limit: '0',
+            gas_limit: '120',
+            delegate: delegate
         }
-        else {
-            const revealOp: Object = {
-                kind: "reveal",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                public_key: keyStore.publicKey
-            };
-            const delegation = {
-                kind:   "delegation",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 2).toString(),
-                storage_limit: '0',
-                gas_limit: '120',
-                delegate: delegate
-            };
-            operations = [revealOp, delegation]
-        }
+        const operations = await appendRevealOperation(network, keyStore, fee, account, [delegation])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -309,49 +307,20 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
-        var operations;
-        if (isManagerKeyRevealed) {
-            const origination = {
-                kind:   "origination",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                manager_pubkey: keyStore.publicKeyHash,
-                balance: amount.toString(),
-                spendable: spendable,
-                delegatable: delegatable,
-                delegate: delegate
-            };
-            operations = [origination]
-        }
-        else {
-            const revealOp: Object = {
-                kind: "reveal",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                public_key: keyStore.publicKey
-            };
-            const origination = {
-                kind:   "origination",
-                source: keyStore.publicKeyHash,
-                fee: fee.toString(),
-                counter: (Number(account.counter) + 2).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                manager_pubkey: keyStore.publicKeyHash,
-                balance: amount.toString(),
-                spendable: spendable,
-                delegatable: delegatable,
-                delegate: delegate
-            };
-            operations = [revealOp, origination]
-        }
+        const origination: Operation = {
+            kind:   "origination",
+            source: keyStore.publicKeyHash,
+            fee: fee.toString(),
+            counter: (Number(account.counter) + 1).toString(),
+            gas_limit: '120',
+            storage_limit: '0',
+            managerPubkey: keyStore.publicKeyHash, // initially manager_pubkey
+            balance: amount.toString(),
+            spendable: spendable,
+            delegatable: delegatable,
+            delegate: delegate
+        };
+        const operations = await appendRevealOperation(network, keyStore, fee, account, [origination])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
