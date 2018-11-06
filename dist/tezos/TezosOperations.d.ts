@@ -80,7 +80,7 @@ export declare namespace TezosOperations {
  * @param operations Delegation, Transaction, or Origination to possibly bundle
  *                   with a reveal
  */
-    function appendRevealOperation(network: string, keyStore: KeyStore, fee: number, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
+    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
     /**
      * Creates and sends a transaction operation.
      * @param {string} network  Which Tezos network to go against

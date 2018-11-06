@@ -160,7 +160,7 @@ var TezosOperations;
  * @param operations Delegation, Transaction, or Origination to possibly bundle
  *                   with a reveal
  */
-    function appendRevealOperation(network, keyStore, fee, account, operations) {
+    function appendRevealOperation(network, keyStore, account, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
             var returnedOperations = operations;
@@ -168,7 +168,7 @@ var TezosOperations;
                 const revealOp = {
                     kind: "reveal",
                     source: keyStore.publicKeyHash,
-                    fee: fee.toString(),
+                    fee: '0',
                     counter: (Number(account.counter) + 1).toString(),
                     gas_limit: '120',
                     storage_limit: '0',
@@ -207,7 +207,7 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 kind: "transaction"
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [transaction]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [transaction]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -234,7 +234,7 @@ var TezosOperations;
                 gas_limit: '120',
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [delegation]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [delegation]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -268,7 +268,7 @@ var TezosOperations;
                 delegatable: delegatable,
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [origination]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [origination]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -302,7 +302,7 @@ var TezosOperations;
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: fee.toString(),
+                fee: '0',
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '120',
                 storage_limit: '0',
