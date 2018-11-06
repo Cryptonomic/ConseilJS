@@ -184,7 +184,6 @@ export namespace TezosOperations {
     export async function appendRevealOperation(
         network: string,
         keyStore: KeyStore,
-        fee: number,
         account: TezosTypes.Account,
         operations: Operation[]
     ) {
@@ -194,7 +193,7 @@ export namespace TezosOperations {
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: fee.toString(),
+                fee: '0',
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '120',
                 storage_limit: '0',
@@ -238,7 +237,7 @@ export namespace TezosOperations {
             source: keyStore.publicKeyHash,
             kind:   "transaction"
         };
-        const operations = await appendRevealOperation(network, keyStore, fee, account, [transaction])
+        const operations = await appendRevealOperation(network, keyStore, account, [transaction])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -269,7 +268,7 @@ export namespace TezosOperations {
             gas_limit: '120',
             delegate: delegate
         }
-        const operations = await appendRevealOperation(network, keyStore, fee, account, [delegation])
+        const operations = await appendRevealOperation(network, keyStore, account, [delegation])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -310,7 +309,7 @@ export namespace TezosOperations {
             delegatable: delegatable,
             delegate: delegate
         };
-        const operations = await appendRevealOperation(network, keyStore, fee, account, [origination])
+        const operations = await appendRevealOperation(network, keyStore, account, [origination])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
  
@@ -344,7 +343,7 @@ export namespace TezosOperations {
         const revealOp: Object = {
             kind: "reveal",
             source: keyStore.publicKeyHash,
-            fee: fee.toString(),
+            fee: '0',
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '120',
             storage_limit: '0',
