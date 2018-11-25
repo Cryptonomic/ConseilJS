@@ -42,5 +42,9 @@ var TezosHardwareWallet;
         ledgerUtils.initLedgerTransport();
     }
     TezosHardwareWallet.initLedgerTransport = initLedgerTransport;
+    function getTezosPublicKey(derivationPath) {
+        return ledgerUtils.getTezosPublicKeyOnHidden(derivationPath);
+    }
+    TezosHardwareWallet.getTezosPublicKey = getTezosPublicKey;
 })(TezosHardwareWallet = exports.TezosHardwareWallet || (exports.TezosHardwareWallet = {}));
 //# sourceMappingURL=TezosHardwareWallet.js.map

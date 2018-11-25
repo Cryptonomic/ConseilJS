@@ -59,6 +59,20 @@ function getTezosPublicKey(derivationPath) {
 }
 exports.getTezosPublicKey = getTezosPublicKey;
 /**
+ * Given a BIP44 derivation path for Tezos, get the Tezos Public Key
+ * @param derivationPath BIP44 Derivation Path
+ */
+function getTezosPublicKeyOnHidden(derivationPath) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const transport = yield TransportInstance.getInstance();
+        const xtz = new App(transport);
+        const result = yield xtz.getAddress(derivationPath, false);
+        const hexEncodedPublicKey = result.publicKey;
+        return hexEncodedPublicKey;
+    });
+}
+exports.getTezosPublicKeyOnHidden = getTezosPublicKeyOnHidden;
+/**
  * Given a BIP44 derivation path for Tezos, and the hex encoded, watermarked
  * Tezos Operation, sign using the ledger
  * @param derivationPath BIP44 Derivation Path
