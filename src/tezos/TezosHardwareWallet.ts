@@ -24,4 +24,9 @@ export namespace TezosHardwareWallet {
     export function initLedgerTransport() {
         ledgerUtils.initLedgerTransport();
     }
+
+    export function getTezosPublicKey(derivationPath) {
+        const pubkey = await ledgerUtils.getTezosPublicKeyOnHidden(derivationPath);
+        return pubkey;
+    }
 }

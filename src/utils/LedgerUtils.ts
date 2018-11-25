@@ -43,6 +43,18 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
 }
 
 /**
+ * Given a BIP44 derivation path for Tezos, get the Tezos Public Key
+ * @param derivationPath BIP44 Derivation Path
+ */
+export async function getTezosPublicKeyOnHidden(derivationPath: string): Promise<string> {
+    const transport = await TransportInstance.getInstance();
+    const xtz = new App(transport);
+    const result = await xtz.getAddress(derivationPath, false);
+    const hexEncodedPublicKey = result.publicKey;
+    return hexEncodedPublicKey;
+}
+
+/**
  * Given a BIP44 derivation path for Tezos, and the hex encoded, watermarked
  * Tezos Operation, sign using the ledger
  * @param derivationPath BIP44 Derivation Path
