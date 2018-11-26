@@ -202,7 +202,7 @@ describe('Tezos operation functions', () => {
         'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
         'yizqurzn.jyrwcidl@tezos.example.org',
         'P2rwZYgJBL',
-            'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
+        'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
         );
 
         const mnemonic = TezosWallet.generateMnemonic();
@@ -211,28 +211,31 @@ describe('Tezos operation functions', () => {
             ''
         );
 
+        console.log("Sending tz to an inactive account");
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
             10000,
-            50000,
+            1387, // Protocol 003 minimum for inactive accounts
             invalidDerivationPath
         );
         expect(receiveResult.operationGroupID).to.exist;
 
         sleep(33);
 
+        console.log("Revealing the key");
         const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
             tezosURL,
             newKeys,
-            100,
+            1100, // Protocol 003 minimum for inactive accounts
             invalidDerivationPath
         );
         expect(keyRevealResult.operationGroupID).to.exist;
 
         sleep(33);
 
+        console.log("Sending sucessful origination");
         const originationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
@@ -240,20 +243,51 @@ describe('Tezos operation functions', () => {
             newKeys.publicKeyHash,
             true,
             true,
-            1,
+            1377, // Protocol 003 minimum is 1377 for originations
             invalidDerivationPath
         );
         expect(originationResult.operationGroupID).to.exist;
 
         sleep(33);
 
+        console.log("Sending failed origination");
+        const failedOriginationResult = await TezosOperations.sendOriginationOperation(
+            tezosURL,
+            newKeys,
+            100,
+            newKeys.publicKeyHash,
+            true,
+            true,
+            100, // Protocol 003 minimum is 1377 for originations
+            invalidDerivationPath
+        );
+        expect(failedOriginationResult.operationGroupID).to.notExist;
+
+        sleep(33);
+
+        console.log("Sending delegation");
         const delegationResult = await TezosOperations.sendDelegationOperation(
             tezosURL,
             newKeys,
             keys.publicKeyHash,
-            1,
+            1100, // Protocol 003 minimum is 1100 for delegations
             invalidDerivationPath
         );
         expect(delegationResult.operationGroupID).to.exist
+
+        sleep(33);
+
+        console.log("Sending failed delegation");
+        const failedDelegationResult = await TezosOperations.sendDelegationOperation(
+            tezosURL,
+            newKeys,
+            keys.publicKeyHash,
+            100, // Protocol 003 minimum is 1100 for delegations
+            invalidDerivationPath
+        );
+        expect(failedDelegationResult.operationGroupID).to.notExist
+
+        sleep(33);
+
     });
 });
