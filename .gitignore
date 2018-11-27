@@ -68,3 +68,5 @@ build
 
 # Server confs
 test/servers.ts
+
+.DS_Store
