@@ -192,7 +192,7 @@ export namespace TezosOperations {
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: '1100',
+                fee: "11000",
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -234,8 +234,8 @@ export namespace TezosOperations {
         const transaction: Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: ((!isImplicitTarget || !isEmptyTarget) ? "0" : "277"),
-            gas_limit: ((!isImplicitTarget || !isEmptyTarget) ? "10000" : "10100"),
+            storage_limit: ((!isImplicitTarget || !isEmptyTarget) ? "100000" : "10000"), //0, 277
+            gas_limit: ((!isImplicitTarget || !isEmptyTarget) ? "100000" : "101000"),
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
@@ -308,7 +308,8 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '277',
-            managerPubkey: keyStore.publicKeyHash, // initially manager_pubkey
+            //managerPubkey: keyStore.publicKeyHash,
+            manager_pubkey: keyStore.publicKeyHash,
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
