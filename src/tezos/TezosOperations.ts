@@ -192,7 +192,7 @@ export namespace TezosOperations {
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: "11000",
+                fee: "1000000", // Protocol 003 minimum for reveal operation is 1110
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -221,21 +221,27 @@ export namespace TezosOperations {
         to: String,
         amount: number,
         fee: number,
-        derivationPath: string  
+        derivationPath: string
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
 
         const isImplicitTarget = to.toLowerCase().startsWith("tz");
-        const isActiveTarget = isImplicitTarget && targetAccount != null;
-        const isEmptyTarget = isActiveTarget && targetAccount.balance > 0;
+        /*  targetAccount, although inactive, does not return a null. For now, we'll assume
+        /   that an empty implicit account is an inactive account
+        /
+        /  const isActiveTarget = isImplicitTarget && targetAccount != null;
+        /  const isEmptyTarget = isActiveTarget && targetAccount.balance > 0;
+        /
+        */
+        const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
 
         const transaction: Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: ((!isImplicitTarget || !isEmptyTarget) ? "100000" : "10000"), //0, 277
-            gas_limit: ((!isImplicitTarget || !isEmptyTarget) ? "100000" : "101000"),
+            storage_limit: ((!isImplicitTarget || !isEmptyImplicitTarget) ? "0" : "277"),
+            gas_limit: "10100",
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
