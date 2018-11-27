@@ -180,7 +180,7 @@ export namespace TezosOperations {
      * @param account Which account to use
      * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    export async function appendRevealOperation(
+    export async function appendRevealOperation (
         network: string,
         keyStore: KeyStore,
         account: TezosTypes.Account,
@@ -189,10 +189,15 @@ export namespace TezosOperations {
         const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         var returnedOperations: Operation[] = operations;
         if (!isManagerKeyRevealed) {
+            let avgfee = 0.0;
+            operations.forEach(o => avgfee += Number(o.fee));
+            avgfee = avgfee/operations.length;
+            const fee = avgfee < 1100 ? 1100 : avgfee;
+
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: "2200", // Protocol 003 minimum for reveal operation is 1110
+                fee: fee.toString(), // Protocol 003 minimum for reveal operation is 1100
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -228,10 +233,6 @@ export namespace TezosOperations {
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
 
         const isImplicitTarget = to.toLowerCase().startsWith("tz");
-        /*  targetAccount, although inactive, does not return a null. For now, we'll assume that an empty implicit account is an inactive account
-         *  const isActiveTarget = isImplicitTarget && targetAccount != null;
-         *  const isEmptyTarget = isActiveTarget && targetAccount.balance > 0;
-        **/
         const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
 
         const transaction: Operation = {
@@ -311,8 +312,8 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '277',
-            managerPubkey: keyStore.publicKeyHash, // mainnet
-            //manager_pubkey: keyStore.publicKeyHash,  // zeronet, alphanet
+            managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+            //manager_pubkey: keyStore.publicKeyHash,  // zeronet
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
