@@ -75,8 +75,8 @@ export interface Operation {
     gas_limit: string,
     delegate?: String,
     public_key?: string,
-    //managerPubkey?: string, // mainnet
-    manager_pubkey?: string, // zeronet, alphanet
+    managerPubkey?: string, // mainnet
+    //manager_pubkey?: string, // zeronet, alphanet
     balance?: string,
     spendable?: boolean,
     delegatable?: boolean,

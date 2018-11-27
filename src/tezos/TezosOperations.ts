@@ -192,7 +192,7 @@ export namespace TezosOperations {
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: "1000000", // Protocol 003 minimum for reveal operation is 1110
+                fee: "2200", // Protocol 003 minimum for reveal operation is 1110
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -228,13 +228,10 @@ export namespace TezosOperations {
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
 
         const isImplicitTarget = to.toLowerCase().startsWith("tz");
-        /*  targetAccount, although inactive, does not return a null. For now, we'll assume
-        /   that an empty implicit account is an inactive account
-        /
-        /  const isActiveTarget = isImplicitTarget && targetAccount != null;
-        /  const isEmptyTarget = isActiveTarget && targetAccount.balance > 0;
-        /
-        */
+        /*  targetAccount, although inactive, does not return a null. For now, we'll assume that an empty implicit account is an inactive account
+         *  const isActiveTarget = isImplicitTarget && targetAccount != null;
+         *  const isEmptyTarget = isActiveTarget && targetAccount.balance > 0;
+        **/
         const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
 
         const transaction: Operation = {
@@ -314,8 +311,8 @@ export namespace TezosOperations {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '277',
-            //managerPubkey: keyStore.publicKeyHash, // mainnet
-            manager_pubkey: keyStore.publicKeyHash,  // zeronet, alphanet
+            managerPubkey: keyStore.publicKeyHash, // mainnet
+            //manager_pubkey: keyStore.publicKeyHash,  // zeronet, alphanet
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
