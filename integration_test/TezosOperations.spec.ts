@@ -199,11 +199,20 @@ describe('Tezos operation functions', () => {
         setTimeout(done, 15000);
 
         const keys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
-        'rare comic flag oppose poem palace myth round trade day room iron gap hint enjoy',
-        'yizqurzn.jyrwcidl@tezos.example.org',
-        'P2rwZYgJBL',
-        'tz1aDfd8nDvobpBS3bzruqPbQcv7uq2ZyPxu'
+            "beauty common venture quiz artefact rotate silly range tip interest thumb rigid wild blood accuse",
+            "zvfyqpwq.usqyvhva@tezos.example.org",
+            "I2mNZ5BX5L",
+            "tz1WbxRYhohewsHPCjwY92p8UyUhGaBH9CFn"
         );
+
+        /*console.log("+++++Activating account");
+        const result = await TezosOperations.sendIdentityActivationOperation(
+            tezosURL,
+            keys,
+            '579eed4e4055ca7cef52e5737062744833a6d903',
+            invalidDerivationPath
+        );
+        expect(result.operationGroupID).to.exist*/
 
         const mnemonic = TezosWallet.generateMnemonic();
         const newKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(
@@ -211,31 +220,31 @@ describe('Tezos operation functions', () => {
             ''
         );
 
-        console.log("Sending tz to an inactive account");
+        console.log("+++++Sending tz to an inactive account");
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
             10000,
-            1387, // Protocol 003 minimum for inactive accounts
+            10000, // Protocol 003 minimum for inactive accounts is 1387
             invalidDerivationPath
         );
         expect(receiveResult.operationGroupID).to.exist;
 
         sleep(33);
 
-        console.log("Revealing the key");
+        /*console.log("+++++Revealing the key");
         const keyRevealResult = await TezosOperations.sendKeyRevealOperation(
             tezosURL,
             newKeys,
             1100, // Protocol 003 minimum for inactive accounts
             invalidDerivationPath
         );
-        expect(keyRevealResult.operationGroupID).to.exist;
+        expect(keyRevealResult.operationGroupID).to.exist;*/
 
         sleep(33);
 
-        console.log("Sending sucessful origination");
+        console.log("+++++Sending sucessful origination");
         const originationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
@@ -250,7 +259,7 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("Sending failed origination");
+        console.log("+++++Sending failed origination");
         const failedOriginationResult = await TezosOperations.sendOriginationOperation(
             tezosURL,
             newKeys,
@@ -261,11 +270,11 @@ describe('Tezos operation functions', () => {
             100, // Protocol 003 minimum is 1377 for originations
             invalidDerivationPath
         );
-        expect(failedOriginationResult.operationGroupID).to.notExist;
+        expect(failedOriginationResult.operationGroupID).to.not.exist;
 
         sleep(33);
 
-        console.log("Sending delegation");
+        console.log("+++++Sending delegation");
         const delegationResult = await TezosOperations.sendDelegationOperation(
             tezosURL,
             newKeys,
@@ -277,7 +286,7 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("Sending failed delegation");
+        console.log("+++++Sending failed delegation");
         const failedDelegationResult = await TezosOperations.sendDelegationOperation(
             tezosURL,
             newKeys,
@@ -285,7 +294,7 @@ describe('Tezos operation functions', () => {
             100, // Protocol 003 minimum is 1100 for delegations
             invalidDerivationPath
         );
-        expect(failedDelegationResult.operationGroupID).to.notExist
+        expect(failedDelegationResult.operationGroupID).to.not.exist
 
         sleep(33);
 
