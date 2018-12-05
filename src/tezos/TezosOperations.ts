@@ -156,7 +156,7 @@ export namespace TezosOperations {
         network: string,
         operations: object[],
         keyStore: KeyStore,
-        derivationPath): Promise<OperationResult>   {
+        derivationPath): Promise<OperationResult> {
         const blockHead = await TezosNode.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
@@ -207,6 +207,41 @@ export namespace TezosOperations {
     }
 
     /**
+     * Helper function for sending Delegations, Transactions, and Originations.
+     * Checks if manager's public key has been revealed for operation. If yes,
+     * do nothing, else, bundle a reveal operation before the input operation.
+     * @param network Which Tezos network to go against
+     * @param keyStore  Key pair along with public key hash
+     * @param fee Fee to use
+     * @param account Which account to use
+     * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
+     */
+    export async function appendRevealOperation (
+        network: string,
+        keyStore: KeyStore,
+        account: TezosTypes.Account,
+        operations: Operation[]
+    ) {
+        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
+        var returnedOperations: Operation[] = operations;
+        if (!isManagerKeyRevealed) {
+            const revealOp: Operation = {
+                kind: "reveal",
+                source: keyStore.publicKeyHash,
+                fee: '0', // Reveal Fee will be covered by the appended operation
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit: '10000',
+                storage_limit: '0',
+                public_key: keyStore.publicKey
+            };
+            var operation = operations[0]
+            operation.counter = (Number(account.counter) + 2).toString()
+            returnedOperations = [revealOp, operation]
+        }
+        return returnedOperations
+    }
+
+    /**
      * Creates and sends a transaction operation.
      * @param {string} network  Which Tezos network to go against
      * @param {KeyStore} keyStore   Key pair along with public key hash
@@ -222,22 +257,28 @@ export namespace TezosOperations {
         to: String,
         amount: number,
         fee: number,
-        derivationPath: string  
+        derivationPath: string
     ) {
         console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
+
+        const isImplicitTarget = to.toLowerCase().startsWith("tz");
+        const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
+
         const transaction: Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: '0',
-            gas_limit: '120',
-            counter: (Number(account.counter) + 1).toString(),
+            storage_limit: "300",
+            gas_limit: "10300",
+            counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
-            kind:   "transaction"
+            kind: "transaction"
         };
-        const operations = await appendRevealOperation(network, keyStore, account, [transaction])
+
+        const operations = await appendRevealOperation(network, keyStore, sourceAccount, [transaction])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -260,12 +301,12 @@ export namespace TezosOperations {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const delegation: Operation = {
-            kind:   "delegation",
+            kind: "delegation",
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
             storage_limit: '0',
-            gas_limit: '120',
+            gas_limit: '10000',
             delegate: delegate
         }
         const operations = await appendRevealOperation(network, keyStore, account, [delegation])
@@ -297,13 +338,14 @@ export namespace TezosOperations {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const origination: Operation = {
-            kind:   "origination",
+            kind: "origination",
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
-            storage_limit: '0',
-            manager_pubkey: keyStore.publicKeyHash,
+            gas_limit: '10000',
+            storage_limit: '277',
+            //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+            manager_pubkey: keyStore.publicKeyHash,  // zeronet
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
@@ -312,7 +354,7 @@ export namespace TezosOperations {
         const operations = await appendRevealOperation(network, keyStore, account, [origination])
         return sendOperation(network, operations, keyStore, derivationPath)
     }
- 
+
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against
@@ -343,9 +385,9 @@ export namespace TezosOperations {
         const revealOp: Object = {
             kind: "reveal",
             source: keyStore.publicKeyHash,
-            fee: '0',
+            fee: '1300', //sendKeyRevealOperation is no longer used by Galleon. Set the correct minimum fee just for in case.
             counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '120',
+            gas_limit: '10000',
             storage_limit: '0',
             public_key: keyStore.publicKey
         };
