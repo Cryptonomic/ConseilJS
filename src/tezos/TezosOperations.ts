@@ -189,15 +189,10 @@ export namespace TezosOperations {
         const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         var returnedOperations: Operation[] = operations;
         if (!isManagerKeyRevealed) {
-            let avgfee = 0.0;
-            operations.forEach(o => avgfee += Number(o.fee));
-            avgfee = avgfee/operations.length;
-            const fee = avgfee < 1100 ? 1100 : avgfee;
-
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: fee.toString(), // Protocol 003 minimum for reveal operation is 1100
+                fee: '0', // Reveal Fee will be covered by the appended operation
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -238,8 +233,8 @@ export namespace TezosOperations {
         const transaction: Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: ((!isImplicitTarget || !isEmptyImplicitTarget) ? "0" : "277"),
-            gas_limit: "10100",
+            storage_limit: "300",
+            gas_limit: "10300",
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
@@ -353,7 +348,7 @@ export namespace TezosOperations {
         const revealOp: Object = {
             kind: "reveal",
             source: keyStore.publicKeyHash,
-            fee: '1100',
+            fee: '1300', //sendKeyRevealOperation is no longer used by Galleon. Set the correct minimum fee just for in case.
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '0',
