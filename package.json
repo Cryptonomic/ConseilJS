@@ -1,6 +1,6 @@
 {
-  "name": "conseiljs-staging",
-  "version": "0.1.0",
+  "name": "conseiljs",
+  "version": "0.1.37",
   "description": "Client-side library for dApp development.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

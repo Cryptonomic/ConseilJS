@@ -70,16 +70,15 @@ export declare namespace TezosOperations {
      */
     function sendOperation(network: string, operations: object[], keyStore: KeyStore, derivationPath: any): Promise<OperationResult>;
     /**
- * Helper function for sending Delegations, Transactions, and Originations.
- * Checks if manager's public key has been revealed for operation. If yes,
- * do nothing, else, bundle a reveal operation before the input operation.
- * @param network Which Tezos network to go against
- * @param keyStore  Key pair along with public key hash
- * @param fee Fee to use
- * @param account Which account to use
- * @param operations Delegation, Transaction, or Origination to possibly bundle
- *                   with a reveal
- */
+     * Helper function for sending Delegations, Transactions, and Originations.
+     * Checks if manager's public key has been revealed for operation. If yes,
+     * do nothing, else, bundle a reveal operation before the input operation.
+     * @param network Which Tezos network to go against
+     * @param keyStore  Key pair along with public key hash
+     * @param fee Fee to use
+     * @param account Which account to use
+     * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
+     */
     function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
     /**
      * Creates and sends a transaction operation.
