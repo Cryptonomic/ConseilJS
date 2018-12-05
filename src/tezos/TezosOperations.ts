@@ -170,42 +170,6 @@ export namespace TezosOperations {
         }
     }
 
-        /**
-     * Helper function for sending Delegations, Transactions, and Originations.
-     * Checks if manager's public key has been revealed for operation. If yes,
-     * do nothing, else, bundle a reveal operation before the input operation.
-     * @param network Which Tezos network to go against
-     * @param keyStore  Key pair along with public key hash
-     * @param fee Fee to use
-     * @param account Which account to use
-     * @param operations Delegation, Transaction, or Origination to possibly bundle
-     *                   with a reveal
-     */
-    export async function appendRevealOperation(
-        network: string,
-        keyStore: KeyStore,
-        account: TezosTypes.Account,
-        operations: Operation[]
-    ) {
-        const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
-        var returnedOperations: Operation[] = operations;
-        if (!isManagerKeyRevealed) {
-            const revealOp: Operation = {
-                kind: "reveal",
-                source: keyStore.publicKeyHash,
-                fee: '0',
-                counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                public_key: keyStore.publicKey
-            };
-            var operation = operations[0]
-            operation.counter = (Number(account.counter) + 2).toString()
-            returnedOperations = [revealOp, operation]
-        }
-        return returnedOperations
-    }
-
     /**
      * Helper function for sending Delegations, Transactions, and Originations.
      * Checks if manager's public key has been revealed for operation. If yes,
