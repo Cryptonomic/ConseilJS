@@ -164,14 +164,10 @@ var TezosOperations;
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
             var returnedOperations = operations;
             if (!isManagerKeyRevealed) {
-                let avgfee = 0.0;
-                operations.forEach(o => avgfee += Number(o.fee));
-                avgfee = avgfee / operations.length;
-                const fee = avgfee < 1100 ? 1100 : avgfee;
                 const revealOp = {
                     kind: "reveal",
                     source: keyStore.publicKeyHash,
-                    fee: fee.toString(),
+                    fee: '0',
                     counter: (Number(account.counter) + 1).toString(),
                     gas_limit: '10000',
                     storage_limit: '0',
@@ -205,8 +201,8 @@ var TezosOperations;
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
-                storage_limit: ((!isImplicitTarget || !isEmptyImplicitTarget) ? "0" : "277"),
-                gas_limit: "10100",
+                storage_limit: "300",
+                gas_limit: "10300",
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
@@ -308,7 +304,7 @@ var TezosOperations;
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: '1100',
+                fee: '1300',
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
