@@ -262,7 +262,7 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '10000',
+                gas_limit: '10160',
                 storage_limit: '277',
                 //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
                 manager_pubkey: keyStore.publicKeyHash,
