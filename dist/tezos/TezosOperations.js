@@ -264,8 +264,8 @@ var TezosOperations;
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10160',
                 storage_limit: '277',
-                managerPubkey: keyStore.publicKeyHash,
-                //manager_pubkey: keyStore.publicKeyHash,  // zeronet
+                //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+                manager_pubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,
