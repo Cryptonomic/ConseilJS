@@ -197,8 +197,6 @@ var TezosOperations;
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
-            const isImplicitTarget = to.toLowerCase().startsWith("tz");
-            const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
@@ -276,6 +274,22 @@ var TezosOperations;
         });
     }
     TezosOperations.sendOriginationOperation = sendOriginationOperation;
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    function isImplicitAndEmpty(network, accountHash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+            const isImplicit = accountHash.toLowerCase().startsWith("tz");
+            const isEmpty = account.balance == 0;
+            return (isImplicit && isEmpty);
+        });
+    }
+    TezosOperations.isImplicitAndEmpty = isImplicitAndEmpty;
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against
