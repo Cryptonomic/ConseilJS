@@ -115,6 +115,13 @@ export declare namespace TezosOperations {
      */
     function sendOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<OperationResult>;
     /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    function isImplicitAndEmpty(network: string, keyStore: KeyStore): Promise<boolean>;
+    /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against
      * @param {KeyStore} keyStore   Key pair along with public key hash
