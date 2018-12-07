@@ -280,11 +280,10 @@ var TezosOperations;
      * @param {KeyStore} keyStore   Key pair along with public key hash
      * @returns {Promise<boolean>}  Result
      */
-    function isImplicitAndEmpty(network, keyStore) {
+    function isImplicitAndEmpty(network, accountHash) {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-            const accountHash = keyStore.publicKeyHash;
+            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
             const isImplicit = accountHash.toLowerCase().startsWith("tz");
             const isEmpty = account.balance == 0;
             return (isImplicit && isEmpty);

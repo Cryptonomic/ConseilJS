@@ -120,7 +120,7 @@ export declare namespace TezosOperations {
      * @param {KeyStore} keyStore   Key pair along with public key hash
      * @returns {Promise<boolean>}  Result
      */
-    function isImplicitAndEmpty(network: string, keyStore: KeyStore): Promise<boolean>;
+    function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean>;
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against

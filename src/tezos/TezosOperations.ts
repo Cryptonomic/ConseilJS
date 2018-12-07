@@ -322,10 +322,9 @@ export namespace TezosOperations {
      * @param {KeyStore} keyStore   Key pair along with public key hash
      * @returns {Promise<boolean>}  Result
      */
-    export async function isImplicitAndEmpty(network: string, keyStore: KeyStore): Promise<boolean> {
+    export async function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean> {
         const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const accountHash = keyStore.publicKeyHash;
+        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith("tz");
         const isEmpty = account.balance == 0;
