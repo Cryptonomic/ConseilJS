@@ -189,15 +189,10 @@ export namespace TezosOperations {
         const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         var returnedOperations: Operation[] = operations;
         if (!isManagerKeyRevealed) {
-            let avgfee = 0.0;
-            operations.forEach(o => avgfee += Number(o.fee));
-            avgfee = avgfee/operations.length;
-            const fee = avgfee < 1100 ? 1100 : avgfee;
-
             const revealOp: Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: fee.toString(), // Protocol 003 minimum for reveal operation is 1100
+                fee: '0', // Reveal Fee will be covered by the appended operation
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
@@ -232,14 +227,11 @@ export namespace TezosOperations {
         const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
 
-        const isImplicitTarget = to.toLowerCase().startsWith("tz");
-        const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
-
         const transaction: Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: ((!isImplicitTarget || !isEmptyImplicitTarget) ? "0" : "277"),
-            gas_limit: "10100",
+            storage_limit: "300",
+            gas_limit: "10300",
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
@@ -310,7 +302,7 @@ export namespace TezosOperations {
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '10000',
+            gas_limit: '10160',
             storage_limit: '277',
             managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
             //manager_pubkey: keyStore.publicKeyHash,  // zeronet
@@ -321,6 +313,22 @@ export namespace TezosOperations {
         };
         const operations = await appendRevealOperation(network, keyStore, account, [origination])
         return sendOperation(network, operations, keyStore, derivationPath)
+    }
+
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    export async function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean> {
+        const blockHead = await TezosNode.getBlockHead(network);
+        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+
+        const isImplicit = accountHash.toLowerCase().startsWith("tz");
+        const isEmpty = account.balance == 0;
+
+        return (isImplicit && isEmpty)
     }
 
     /**
@@ -353,7 +361,7 @@ export namespace TezosOperations {
         const revealOp: Object = {
             kind: "reveal",
             source: keyStore.publicKeyHash,
-            fee: '1100',
+            fee: '1300', //sendKeyRevealOperation is no longer used by Galleon. Set the correct minimum fee just for in case.
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '0',

@@ -164,14 +164,10 @@ var TezosOperations;
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
             var returnedOperations = operations;
             if (!isManagerKeyRevealed) {
-                let avgfee = 0.0;
-                operations.forEach(o => avgfee += Number(o.fee));
-                avgfee = avgfee / operations.length;
-                const fee = avgfee < 1100 ? 1100 : avgfee;
                 const revealOp = {
                     kind: "reveal",
                     source: keyStore.publicKeyHash,
-                    fee: fee.toString(),
+                    fee: '0',
                     counter: (Number(account.counter) + 1).toString(),
                     gas_limit: '10000',
                     storage_limit: '0',
@@ -197,16 +193,15 @@ var TezosOperations;
      */
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
-            const isImplicitTarget = to.toLowerCase().startsWith("tz");
-            const isEmptyImplicitTarget = isImplicitTarget && targetAccount.balance == 0;
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
-                storage_limit: ((!isImplicitTarget || !isEmptyImplicitTarget) ? "0" : "277"),
-                gas_limit: "10100",
+                storage_limit: "300",
+                gas_limit: "10300",
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
@@ -265,7 +260,7 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '10000',
+                gas_limit: '10160',
                 storage_limit: '277',
                 managerPubkey: keyStore.publicKeyHash,
                 //manager_pubkey: keyStore.publicKeyHash,  // zeronet
@@ -279,6 +274,22 @@ var TezosOperations;
         });
     }
     TezosOperations.sendOriginationOperation = sendOriginationOperation;
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    function isImplicitAndEmpty(network, accountHash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+            const isImplicit = accountHash.toLowerCase().startsWith("tz");
+            const isEmpty = account.balance == 0;
+            return (isImplicit && isEmpty);
+        });
+    }
+    TezosOperations.isImplicitAndEmpty = isImplicitAndEmpty;
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against
@@ -308,7 +319,7 @@ var TezosOperations;
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: '1100',
+                fee: '1300',
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
