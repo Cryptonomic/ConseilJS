@@ -223,7 +223,6 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string
     ) {
-        console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
         const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
