@@ -27,7 +27,6 @@
     "@ledgerhq/hw-transport": "4.21.0",
     "@ledgerhq/hw-transport-node-hid": "^4.22.0",
     "awesome-typescript-loader": "^5.0.0",
-    "aws-sdk": "^2.326.0",
     "babel-runtime": "6.26.0",
     "basil-tezos-ledger": "0.0.1",
     "bip32": "^1.0.0",
