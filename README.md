@@ -48,3 +48,8 @@ export const servers = {
 The blank strings should be replaced with the details of actual test servers. 
 
 After this, run `npm run test` to run all unit tests.
+
+
+### Dependency Issues 
+- As later versions of the npm package libsodium-sumo (a JS wrapper around libSodium) do not support all methods of libSodium, this version must remain at 0.5.4
+- AWS-SDK dependency must remain as the Ledger Connect feature depends on this package
