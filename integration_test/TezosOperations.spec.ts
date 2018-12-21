@@ -267,6 +267,7 @@ describe('Tezos operation functions', () => {
 
     sleep(33);
 
+    console.log('+++++Originating a contract from manager address');
     const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
       tezosURL,
       fundraiserKeys,
@@ -277,8 +278,13 @@ describe('Tezos operation functions', () => {
       2000000, // Protocol 003 minimum fee is 1377 for originations
       invalidDerivationPath
     );
-    expect(contractOriginationResult.results['operationGroupID']).to.exist;
-    console.log(contractOriginationResult.results.contents);
+    expect(contractOriginationResult['operationGroupID']).to.exist;
+
+    // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
+    // console.log(
+    //   contractOriginationResult.results.contents[0].metadata['operation_result']
+    //     .errors
+    // );
 
     //     console.log('+++++Originating an account with 1 tez');
     //     const originationResult = await TezosOperations.sendOriginationOperation(
