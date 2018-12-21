@@ -4,3 +4,4 @@ node_js:
   
 before_install:
   - sudo apt-get install -y libudev-dev
+  - sudo apt-get install libstdc++6
