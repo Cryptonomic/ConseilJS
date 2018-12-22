@@ -19,8 +19,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - libudev-dev
-            - libusb-1.0-0
+            - libusb-1.0-0-dev
             - g++-4.8
+            - g++-4.8-multilib
             - icnsutils
             - graphicsmagick
             - xz-utils
