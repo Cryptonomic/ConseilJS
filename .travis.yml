@@ -1,0 +1,44 @@
+# Config adapted from:
+# https://www.electron.build/multi-platform-build#sample-travisyml-to-build-electron-app-for-macos-linux-and-windows
+sudo: true
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode9.4
+      language: node_js
+      node_js:
+        - 8
+    - os: linux
+      services: docker
+      language: node_js
+      node_js:
+        - 8
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - libudev-dev
+            - libusb-1.0-0-dev
+            - g++-4.8
+            - g++-4.8-multilib
+            - icnsutils
+            - graphicsmagick
+            - xz-utils
+            - xorriso
+            - rpm
+
+cache:
+  yarn: true
+  directories:
+    - node_modules
+
+install:
+  - npm install
+
+script:
+  - node --version
+  - npm run packagr
+
+after_success:
+  - ./node_modules/.bin/mocha -R mocha-lcov-reporter --timeout 10000 -r ts-node/register test/*.spec.ts | ./node_modules/coveralls/bin/coveralls.js

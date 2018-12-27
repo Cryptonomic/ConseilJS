@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
+    "test": "mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
     "packagr": "rm -rf ./dist && tsc",
-    "build": "webpack && rm -rf ./build/dist"
+    "build": "webpack && rm -rf ./build/dist",
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
@@ -46,14 +47,16 @@
     "@types/node-fetch": "^2.1.1",
     "@types/zxcvbn": "^4.4.0",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.2",
     "mocha": "^5.2.0",
     "node-fetch": "^2.1.1",
+    "nyc": "^13.1.0",
     "ts-loader": "^4.3.1",
     "ts-node": "^6.0.5",
     "typedoc": "^0.11.1",
     "typescript": "^2.8.3",
     "uglifyjs-webpack-plugin": "^1.2.5",
-    "webpack": "^4.11.1",
+    "webpack": "^4.28.1",
     "webpack-cli": "^3.0.3"
   },
   "peerDependencies": {
