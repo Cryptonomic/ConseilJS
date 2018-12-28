@@ -451,6 +451,56 @@ export namespace TezosOperations {
   }
 
   /**
+   * Creates and sends a transaction operation.
+   * @param {string} network  Which Tezos network to go against
+   * @param {KeyStore} keyStore   Key pair along with public key hash
+   * @param {String} to   Destination public key hash
+   * @param {number} amount   Amount to send
+   * @param {number} fee  Fee to use
+   * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+   * @returns {Promise<OperationResult>}  Result of the operation
+   */
+  export async function sendContractInvocationOperation(
+    network: string,
+    keyStore: KeyStore,
+    to: String,
+    amount: number,
+    fee: number,
+    derivationPath: string
+  ) {
+    const blockHead = await TezosNode.getBlockHead(network);
+    const sourceAccount = await TezosNode.getAccountForBlock(
+      network,
+      blockHead.hash,
+      keyStore.publicKeyHash
+    );
+    const targetAccount = await TezosNode.getAccountForBlock(
+      network,
+      blockHead.hash,
+      to.toString()
+    );
+
+    const transaction: Operation = {
+      destination: to,
+      amount: amount.toString(),
+      storage_limit: '300',
+      gas_limit: '10300',
+      counter: (Number(sourceAccount.counter) + 4).toString(),
+      fee: fee.toString(),
+      source: keyStore.publicKeyHash,
+      kind: 'transaction'
+    };
+
+    const operations = await appendRevealOperation(
+      network,
+      keyStore,
+      sourceAccount,
+      [transaction]
+    );
+    return sendOperation(network, operations, keyStore, derivationPath);
+  }
+
+  /**
    * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
    * @param {string} network  Which Tezos network to go against
    * @param {KeyStore} keyStore   Key pair along with public key hash

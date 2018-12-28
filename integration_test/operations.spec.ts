@@ -191,9 +191,11 @@ function sleep(seconds) {
 }
 
 describe('Tezos operation functions', () => {
-  it('successfully perform operations on a new identity', async () => {
+  it('successfully perform operations on a new identity', async done => {
+    setTimeout(done, 10000);
+
     const fundraiserKeys = <KeyStore>(
-      await TezosWallet.unlockFundraiserIdentity(
+      TezosWallet.unlockFundraiserIdentity(
         'major cannon mistake disorder bachelor depart jazz pudding worry attract scrap element uncover tide jump',
         'vttufpvh.xgbzugwn@tezos.example.org',
         'Wz41fjtUHJ',
@@ -203,9 +205,9 @@ describe('Tezos operation functions', () => {
 
     const fundraiserKeySecret = '6da483843eba2526ea6d2c08aa39dd00efa99521';
 
-    const mnemonic = await TezosWallet.generateMnemonic();
+    const mnemonic = TezosWallet.generateMnemonic();
     const randomKeys = <KeyStore>(
-      await TezosWallet.unlockIdentityWithMnemonic(mnemonic, '')
+      TezosWallet.unlockIdentityWithMnemonic(mnemonic, '')
     );
     const inactiveImplicitAddress = randomKeys.publicKeyHash;
     const anActiveImplicitAddress = 'tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc';
@@ -267,8 +269,8 @@ describe('Tezos operation functions', () => {
 
     sleep(33);
 
-    console.log('+++++Originating a contract from manager address');
-    const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+    console.log('+++++Originating an account with 1 tez');
+    const originationResult = await TezosOperations.sendOriginationOperation(
       tezosURL,
       fundraiserKeys,
       20000000,
@@ -278,60 +280,44 @@ describe('Tezos operation functions', () => {
       2000000, // Protocol 003 minimum fee is 1377 for originations
       invalidDerivationPath
     );
-    expect(contractOriginationResult['operationGroupID']).to.exist;
+    expect(originationResult.operationGroupID).to.exist;
 
-    console.log('+++++Invoke a contract from manager address');
-    const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
+    sleep(33);
+
+    it('successfully originates a contract', async () => {
+      const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+        tezosURL,
+        fundraiserKeys,
+        20000000,
+        randomBakerAddress1,
+        true,
+        true,
+        2000000, // Protocol 003 minimum fee is 1377 for originations
+        invalidDerivationPath
+      );
+      console.log('ORIGINATION CONTRACT RESULT', contractOriginationResult);
+
+      sleep(33);
+    });
+
+    /*
+        // Comment out this section in the FIRST run
+        // Activate this section in the SECOND run.
+        // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
+*/
+    let delegatedKeyStore = randomKeys;
+    //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
+
+    console.log('+++++Sending delegation operation');
+    const delegationResult = await TezosOperations.sendDelegationOperation(
       tezosURL,
-      fundraiserKeys,
-      'KT1BieANqwnUB9UkGASSiYX7ie2KowuHL5sv',
-      100000000, // Gas limit
-      2000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+      delegatedKeyStore,
+      randomBakerAddress2,
+      2000000, // Protocol 003 minimum fee is 1100 for delegations
       invalidDerivationPath
     );
-    console.log(contractInvocationResult);
+    expect(delegationResult.operationGroupID).to.exist;
 
-    // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
-    // console.log(
-    //   contractOriginationResult.results.contents[0].metadata['operation_result']
-    //     .errors
-    // );
-
-    //     console.log('+++++Originating an account with 1 tez');
-    //     const originationResult = await TezosOperations.sendOriginationOperation(
-    //       tezosURL,
-    //       fundraiserKeys,
-    //       20000000,
-    //       randomBakerAddress1,
-    //       true,
-    //       true,
-    //       2000000, // Protocol 003 minimum fee is 1377 for originations
-    //       invalidDerivationPath
-    //     );
-    //     console.log('ORIGINATION RESULT', originationResult);
-    //     // expect(originationResult.operationGroupID).to.exist;
-
-    //     sleep(33);
-
-    //     /*
-    //         // Comment out this section in the FIRST run
-    //         // Activate this section in the SECOND run.
-    //         // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
-    // */
-    //     let delegatedKeyStore = randomKeys;
-    //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
-
-    //     console.log('+++++Sending delegation operation');
-    //     const delegationResult = await TezosOperations.sendDelegationOperation(
-    //       tezosURL,
-    //       delegatedKeyStore,
-    //       randomBakerAddress2,
-    //       2000000, // Protocol 003 minimum fee is 1100 for delegations
-    //       invalidDerivationPath
-    //     );
-    //     expect(delegationResult.operationGroupID).to.exist;
-    //     console.log('DELEGATION RESULT', delegationResult);
-
-    //     sleep(33);
+    sleep(33);
   });
 });
