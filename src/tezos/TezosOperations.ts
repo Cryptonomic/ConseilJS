@@ -466,7 +466,9 @@ export namespace TezosOperations {
     to: String,
     amount: number,
     fee: number,
-    derivationPath: string
+    derivationPath: string,
+    storage_limit: string,
+    gas_limit: string
   ) {
     const blockHead = await TezosNode.getBlockHead(network);
     const sourceAccount = await TezosNode.getAccountForBlock(
@@ -483,8 +485,8 @@ export namespace TezosOperations {
     const transaction: Operation = {
       destination: to,
       amount: amount.toString(),
-      storage_limit: '300',
-      gas_limit: '10300',
+      storage_limit,
+      gas_limit,
       counter: (Number(sourceAccount.counter) + 4).toString(),
       fee: fee.toString(),
       source: keyStore.publicKeyHash,
