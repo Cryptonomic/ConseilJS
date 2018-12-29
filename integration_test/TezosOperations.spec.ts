@@ -269,6 +269,8 @@ describe('Tezos operation functions', () => {
 
     console.log('+++++Originating a contract from manager address');
     const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+      [], // this is for the code
+      {}, // this is for storage
       tezosURL,
       fundraiserKeys,
       20000000,
@@ -276,7 +278,9 @@ describe('Tezos operation functions', () => {
       true,
       true,
       2000000, // Protocol 003 minimum fee is 1377 for originations
-      invalidDerivationPath
+      invalidDerivationPath,
+      '10160',
+      '277'
     );
     expect(contractOriginationResult['operationGroupID']).to.exist;
 
@@ -285,9 +289,12 @@ describe('Tezos operation functions', () => {
       tezosURL,
       fundraiserKeys,
       'KT1BieANqwnUB9UkGASSiYX7ie2KowuHL5sv',
-      100000000, // Gas limit
+      100000000, // Amount sent
       2000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
-      invalidDerivationPath
+      invalidDerivationPath,
+      '10000', // Storage Limit
+      '100000', // Gas Limit
+      '' // Parameters to send (args required for invocation of contract)
     );
     console.log(contractInvocationResult);
 

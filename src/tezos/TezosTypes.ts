@@ -102,3 +102,22 @@ export interface ContractOriginationOperation {
   destination?: String;
   amount?: string;
 }
+
+export interface ContractInvocationOperation {
+  kind: string;
+  source: string;
+  fee: string;
+  counter: string;
+  storage_limit: string;
+  gas_limit: string;
+  delegate?: String;
+  public_key?: string;
+  parameters?: string;
+  //   managerPubkey?: string; // mainnet, alphanet
+  manager_pubkey?: string; // zeronet
+  balance?: string;
+  spendable?: boolean;
+  delegatable?: boolean;
+  destination?: String;
+  amount?: string;
+}
