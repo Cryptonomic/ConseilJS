@@ -66,10 +66,7 @@ typings/
 # TSC
 build
 
-# Server confs
-test/servers.ts
-
 # OSX
 .DS_Store
 
-.nyc_output
+coverage
