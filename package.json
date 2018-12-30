@@ -8,7 +8,7 @@
     "test": "mocha",
     "packagr": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
-    "coverage": "nyc mocha || exit 0 && nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage"
+    "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
