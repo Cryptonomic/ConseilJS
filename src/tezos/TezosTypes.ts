@@ -112,7 +112,7 @@ export interface ContractInvocationOperation {
   gas_limit: string;
   delegate?: String;
   public_key?: string;
-  parameters?: string;
+  parameters: object;
   //   managerPubkey?: string; // mainnet, alphanet
   manager_pubkey?: string; // zeronet
   balance?: string;

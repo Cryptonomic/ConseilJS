@@ -415,7 +415,7 @@ export namespace TezosOperations {
    * @returns {Promise<OperationResult>}  Result of the operation
    */
   export async function sendContractOriginationOperation(
-    code: Array<string>, // may have to change this type depending on how parser (from JS to michelson) works
+    code: Array<object>, // may have to change this type depending on how parser (from JS to michelson) works
     storage: object, // may have to change this type depending on how parser (from JS to michelson) works
     network: string,
     keyStore: KeyStore,
@@ -469,6 +469,7 @@ export namespace TezosOperations {
    * @returns {Promise<OperationResult>}  Result of the operation
    */
   export async function sendContractInvocationOperation(
+    parameters: object,
     network: string,
     keyStore: KeyStore,
     to: String,
@@ -476,8 +477,7 @@ export namespace TezosOperations {
     fee: number,
     derivationPath: string,
     storage_limit: string,
-    gas_limit: string,
-    parameters: string
+    gas_limit: string
   ) {
     const blockHead = await TezosNode.getBlockHead(network);
     const sourceAccount = await TezosNode.getAccountForBlock(
@@ -492,15 +492,15 @@ export namespace TezosOperations {
     );
 
     const transaction: ContractInvocationOperation = {
+      parameters: parameters,
       destination: to,
       amount: amount.toString(),
       storage_limit,
       gas_limit,
-      counter: (Number(sourceAccount.counter) + 4).toString(),
+      counter: (Number(sourceAccount.counter) + 1).toString(),
       fee: fee.toString(),
       source: keyStore.publicKeyHash,
-      kind: 'transaction',
-      parameters: parameters ? parameters : ''
+      kind: 'transaction'
     };
 
     const operations = await appendRevealOperation(
