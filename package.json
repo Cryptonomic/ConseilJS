@@ -6,6 +6,7 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
+    "test-trezor": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register integration_test/TrezorUtils.spec.ts",
     "packagr": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist"
   },
@@ -36,7 +37,10 @@
     "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "libsodium-wrappers-sumo": "^0.5.4",
+    "protobufjs": "^6.8.8",
+    "trezor.js": "^6.19.2",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
+    "usb": "^1.5.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

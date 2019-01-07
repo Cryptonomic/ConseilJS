@@ -1,0 +1,7 @@
+syntax = "proto2";
+package trezor.tezos;
+import "messages-bootloader.proto";
+import "messages-common.proto";
+import "messages-debug.proto";
+import "messages-management.proto";
+import "messages-tezos.proto";
