@@ -333,7 +333,7 @@ describe('Tezos operation functions', () => {
 
     console.log('+++++Invoke a contract from manager address');
     const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
-      { string: 'world' },
+      { string: 'worldz' },
       tezosURL,
       fundraiserKeys,
       'KT1EiEdJEKw13fsyYeZ1NEq3VpwDNnvMYPxd',
