@@ -320,14 +320,10 @@ describe('Tezos operation functions', () => {
     //   randomBakerAddress1,
     //   true,
     //   true,
-    //   100000, // Protocol 003 minimum fee is 1377 for originations
+    //   200000, // Protocol 003 minimum fee is 1377 for originations
     //   invalidDerivationPath,
     //   '10160',
     //   '27777' // "consumed_gas":"11262"
-    // );
-    // console.log(
-    //   contractOriginationResult.results.contents[0].metadata['operation_result']
-    //     .errors
     // );
     // expect(contractOriginationResult['operationGroupID']).to.exist;
 
@@ -343,7 +339,7 @@ describe('Tezos operation functions', () => {
       '100000', // Storage Limit
       '100000' // Gas Limit
     );
-    console.log(contractInvocationResult);
+    expect(contractInvocationResult['operationGroupID']).to.exist;
 
     // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
     // console.log(
