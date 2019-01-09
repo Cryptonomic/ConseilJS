@@ -38,8 +38,8 @@
     "libsodium-wrappers-sumo": "^0.5.4",
     "nearley": "^2.16.0",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
-    "zxcvbn": "^4.4.2",
-    "yarn": "^1.10.1"
+    "yarn": "^1.10.1",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.3",
