@@ -18,8 +18,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = require("libsodium-wrappers");
 const CryptoUtils = __importStar(require("../utils/CryptoUtils"));
 const LedgerUtils = __importStar(require("../utils/LedgerUtils"));
+const trezorUtils = __importStar(require("../utils/TrezorUtils"));
 const KeyStore_1 = require("../types/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
+let deviceType = 0;
 var TezosOperations;
 (function (TezosOperations) {
     /**
@@ -29,14 +31,19 @@ var TezosOperations;
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
      */
-    function signOperationGroup(forgedOperation, keyStore, derivationPath) {
+    function signOperationGroup(forgedOperation, keyStore, derivationPath, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const watermark = '03';
             const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
             let opSignature = new Buffer(0);
             switch (keyStore.storeType) {
                 case KeyStore_1.StoreType.Hardware:
-                    opSignature = yield LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                    if (!deviceType) {
+                        opSignature = yield LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                    }
+                    else {
+                        opSignature = yield trezorUtils.signTezosOperation(derivationPath, forgedOperation, operations);
+                    }
                     break;
                 default:
                     const watermarkedForgedOperationBytes = sodium.from_hex(watermarkedForgedOperationBytesHex);
@@ -137,7 +144,7 @@ var TezosOperations;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
-            const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+            const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath, operations);
             const operationGroupHash = computeOperationHash(signedOpGroup);
             const appliedOp = yield applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
             checkAppliedOperationResults(appliedOp);
@@ -348,5 +355,9 @@ var TezosOperations;
         return sendOperation(network, operations, keyStore, derivationPath);
     }
     TezosOperations.sendIdentityActivationOperation = sendIdentityActivationOperation;
+    function setDeviceType(type) {
+        deviceType = type;
+    }
+    TezosOperations.setDeviceType = setDeviceType;
 })(TezosOperations = exports.TezosOperations || (exports.TezosOperations = {}));
 //# sourceMappingURL=TezosOperations.js.map

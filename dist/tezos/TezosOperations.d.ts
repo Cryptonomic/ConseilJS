@@ -2,6 +2,7 @@
 import { KeyStore } from "../types/KeyStore";
 import * as TezosTypes from "./TezosTypes";
 import { Operation } from "./TezosTypes";
+import { HardwareDeviceType } from "../types/HardwareDeviceType";
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -27,7 +28,7 @@ export declare namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
      */
-    function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<SignedOperationGroup>;
+    function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string, operations: object[]): Promise<SignedOperationGroup>;
     /**
      * Computes the ID of an operation group using Base58Check.
      * @param {SignedOperationGroup} signedOpGroup  Signed operation group
@@ -146,4 +147,5 @@ export declare namespace TezosOperations {
      * @returns {Promise<OperationResult>}  Result of the operation
      */
     function sendIdentityActivationOperation(network: string, keyStore: KeyStore, activationCode: string, derivationPath: string): Promise<OperationResult>;
+    function setDeviceType(type: HardwareDeviceType): void;
 }
