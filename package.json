@@ -7,6 +7,7 @@
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
     "test-trezor": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register integration_test/TrezorUtils.spec.ts",
+    "test-ledger": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register integration_test/LedgerUtils.spec.ts",
     "packagr": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist"
   },

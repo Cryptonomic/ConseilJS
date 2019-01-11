@@ -1,10 +1,14 @@
 import sodium = require('libsodium-wrappers');
 import * as CryptoUtils from '../utils/CryptoUtils';
 import * as LedgerUtils from '../utils/LedgerUtils';
+import * as trezorUtils from '../utils/TrezorUtils';
 import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import {Operation} from "./TezosTypes";
+import {HardwareDeviceType} from "../types/HardwareDeviceType";
+
+let deviceType: HardwareDeviceType = 0;
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -38,14 +42,19 @@ export namespace TezosOperations {
     export async function signOperationGroup(
         forgedOperation: string,
         keyStore: KeyStore,
-        derivationPath: string): Promise<SignedOperationGroup> {
+        derivationPath: string,
+        operations: object[]): Promise<SignedOperationGroup> {
         const watermark = '03';
         const watermarkedForgedOperationBytesHex: string = watermark + forgedOperation;
 
         let opSignature: Buffer = new Buffer(0);
         switch(keyStore.storeType) {
             case StoreType.Hardware:
-                opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                if (!deviceType) {
+                    opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                } else {
+                    opSignature = await trezorUtils.signTezosOperation(derivationPath, forgedOperation, operations);
+                }
                 break;
             default:
                 const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
@@ -159,7 +168,7 @@ export namespace TezosOperations {
         derivationPath): Promise<OperationResult> {
         const blockHead = await TezosNode.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
-        const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+        const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath, operations);
         const operationGroupHash = computeOperationHash(signedOpGroup);
         const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
@@ -392,5 +401,9 @@ export namespace TezosOperations {
         };
         const operations = [activation];
         return sendOperation(network, operations, keyStore, derivationPath)
+    }
+
+    export function setDeviceType(type: HardwareDeviceType) {
+        deviceType = type;
     }
 }

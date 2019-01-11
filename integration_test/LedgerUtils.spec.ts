@@ -2,9 +2,18 @@ import 'mocha';
 import {expect} from 'chai';
 import * as ledgerUtils from '../src/utils/LedgerUtils';
 
+const mochaAsync = (fn) => {
+    return done => {
+      fn.call().then(done, err => {
+        done(err);
+      });
+    };
+};
+
 describe('getTezosPublicKey()', () => {
     it('should correctly fetch the root key', async () => {
         const result = await ledgerUtils.getTezosPublicKey("44'/1729'/0'/0'/0'");
+        console.log('ledger public=   ', result);
         expect(result).to.be.a('string')
     });
 });

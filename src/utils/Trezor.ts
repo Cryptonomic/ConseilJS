@@ -248,7 +248,7 @@ export namespace TezFns {
 						branch : branch
 					};
 					if (revealOp ) tx.reveal = revealOp;
-					var type = operation.type;
+					const type = operation.type;
 					delete operation.type;
 					tx[type] = operation;
 					trezorQuery('tezosSignTx', tx).then((d: any) => {
