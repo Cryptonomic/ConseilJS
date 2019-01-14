@@ -33,7 +33,7 @@ type ->
   | "(" _ "map" _ comparableType _ type _ ")"
   | "big_map" _ comparableType _ type
   | "(" _ "big_map" _ comparableType _ type _ ")"
-subInstruction -> "{" _ (instruction ";" _):+ "}"
+subInstruction -> "{" _ (instruction _ ";" _):+ "}"
 instruction ->
   subInstruction
   | "DROP"
