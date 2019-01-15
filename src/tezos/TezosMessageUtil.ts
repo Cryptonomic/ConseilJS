@@ -63,7 +63,7 @@ export namespace TezosMessageUtils {
    * @param {string} hex  Address converted from binary to hex
    * @param {string} type  Binary returned by the Tezos node
    */
-  export function readAddress(hex: string, type = "tz1") {
+  export function readAddress(hex: string, type: string = "tz1") {
     // check for 40 chars
     return type === "tz1"
       ? base58check.encode(Buffer.from("06a19f" + hex, "hex"))

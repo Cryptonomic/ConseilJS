@@ -1,6 +1,6 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
 
-const operationTypes = [
+const operationTypes: Array<string> = [
   "endorsement",
   "seedNonceRevelation",
   "doubleEndorsementEvidence",
@@ -15,15 +15,33 @@ const operationTypes = [
 ];
 
 export namespace TezosMessageCodec {
-  export function getOperationType(hex) {
+  /**
+   * Determine the operation type from hex
+   * @param {string} hex  converted hex
+   */
+  export function getOperationType(hex: string) {
     return operationTypes[TezosMessageUtils.readInt(hex)];
   }
 
-  export function idFirstOperation(hex) {
+  /**
+   * Determine the first operation type from hex
+   * @param {string} hex  converted hex
+   */
+  export function idFirstOperation(hex: string) {
     return getOperationType(hex.substring(64, 66));
   }
 
-  export function parseOperation(hex, opType, isFirst = true) {
+  /**
+   * Parse an operation based on the opType
+   * @param {string} hex  converted hex
+   * @param {string} opType  operation type to parse
+   * @param {boolean} isFirst
+   */
+  export function parseOperation(
+    hex: string,
+    opType: string,
+    isFirst: boolean = true
+  ) {
     switch (opType) {
       case "endorsement":
         return null;
@@ -50,7 +68,15 @@ export namespace TezosMessageCodec {
     }
   }
 
-  export function parseTransaction(transactionMessage, isFirst = true) {
+  /**
+   * Parse a transaction based on the message
+   * @param {string} transactionMessage  converted hex
+   * @param {boolean} isTrue
+   */
+  export function parseTransaction(
+    transactionMessage: string,
+    isFirst: boolean = true
+  ) {
     let hexOperationType = isFirst
       ? transactionMessage.substring(64, 66)
       : transactionMessage.substring(0, 2);
@@ -130,6 +156,12 @@ export namespace TezosMessageCodec {
     };
   }
 
+  /**
+   * Parse a reveal operation
+   * @param {string} revealMessage  parse reveal operation message
+   * @param {string} opType  operation type to parse
+   * @param {boolean} isTrue
+   */
   export function parseReveal(revealMessage, isFirst = true) {
     let hexOperationType = isFirst
       ? revealMessage.substring(64, 66)
@@ -195,7 +227,11 @@ export namespace TezosMessageCodec {
     };
   }
 
-  export function parseOperationGroup(hex) {
+  /**
+   * Parse an operation group
+   * @param {string} hex  converted hex
+   */
+  export function parseOperationGroup(hex: string) {
     let operations = [];
     let op = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore
