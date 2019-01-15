@@ -77,10 +77,9 @@ export declare namespace TezosOperations {
      * @param keyStore  Key pair along with public key hash
      * @param fee Fee to use
      * @param account Which account to use
-     * @param operations Delegation, Transaction, or Origination to possibly bundle
-     *                   with a reveal
+     * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    function appendRevealOperation(network: string, keyStore: KeyStore, fee: number, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
+    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
     /**
      * Creates and sends a transaction operation.
      * @param {string} network  Which Tezos network to go against
@@ -115,6 +114,13 @@ export declare namespace TezosOperations {
      * @returns {Promise<OperationResult>}  Result of the operation
      */
     function sendOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<OperationResult>;
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean>;
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against

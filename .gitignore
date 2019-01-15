@@ -69,6 +69,7 @@ build
 # OSX
 .DS_Store
 
+# Server confs
 test/servers.ts
 
 coverage
