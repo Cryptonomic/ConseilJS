@@ -1,4 +1,5 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
+import { Operation } from "./TezosTypes";
 
 const operationTypes: Array<string> = [
   "endorsement",
@@ -37,30 +38,32 @@ export namespace TezosMessageCodec {
    * @param {string} opType Operation type to parse.
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
-  export function parseOperation(hex: string, opType: string, isFirst: boolean = true) {
+  export function parseOperation(hex: string, opType: string, isFirst: boolean = true): OperationEnvelope {
     switch (opType) {
       case "endorsement":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "seedNonceRevelation":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "doubleEndorsementEvidence":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "doubleBakingEvidence":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "accountActivate":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "proposal":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "ballot":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "reveal":
         return parseReveal(hex, isFirst);
       case "transaction":
         return parseTransaction(hex, isFirst);
       case "origination":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
       case "delegation":
-        return null;
+        throw new Error(`Unsupported operation type: ${opType}`);
+      default:
+        throw new Error(`Unsupported operation type: ${opType}`);
     }
   }
 
@@ -69,7 +72,7 @@ export namespace TezosMessageCodec {
    * @param {string} transactionMessage Encoded transaction-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
-  export function parseTransaction(transactionMessage: string, isFirst: boolean = true) {
+  export function parseTransaction(transactionMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? transactionMessage.substring(64, 66) : transactionMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== "transaction") {
       throw new Error("Provided operation is not a transaction.");
@@ -121,19 +124,25 @@ export namespace TezosMessageCodec {
       next = getOperationType(transactionMessage.substring(fieldoffset, fieldoffset + 2));
     }
 
-    return {
-      branch: branch,
-      type: "transaction",
+    const transaction: Operation = {
+      kind: "transaction",
       source: source,
-      target: target,
-      amount: amountInfo.value,
-      fee: feeInfo.value,
-      gas: gasInfo.value,
-      storage: storageInfo.value,
-      counter: counterInfo.value,
+      destination: target,
+      amount: amountInfo.value + "",
+      fee: feeInfo.value + "",
+      gas_limit: gasInfo.value + "",
+      storage_limit: storageInfo.value + "",
+      counter: counterInfo.value + ""
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: transaction,
+      branch: branch,
       next: next,
       nextoffset: next ? fieldoffset : -1
-    };
+    }
+
+    return envelope;
   }
 
   /**
@@ -141,7 +150,7 @@ export namespace TezosMessageCodec {
    * @param {string} revealMessage Encoded reveal-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
-  export function parseReveal(revealMessage, isFirst = true) {
+  export function parseReveal(revealMessage, isFirst = true): OperationEnvelope {
     let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== "reveal") {
       throw new Error("Provided operation is not a reveal.");
@@ -186,37 +195,48 @@ export namespace TezosMessageCodec {
       next = getOperationType(revealMessage.substring(fieldoffset, fieldoffset + 2));
     }
 
-    return {
-      branch: branch,
-      type: "reveal",
+    const reveal: Operation = {
+      kind: "reveal",
       source: source,
-      publickey: publickey,
-      fee: feeInfo.value,
-      gas: gasInfo.value,
-      storage: storageInfo.value,
-      counter: counterInfo.value,
+      public_key: publickey,
+      fee: feeInfo.value + "",
+      gas_limit: gasInfo.value + "",
+      storage_limit: storageInfo.value + "",
+      counter: counterInfo.value + ""
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: reveal,
+      branch: branch,
       next: next,
       nextoffset: next ? fieldoffset : -1
-    };
+    }
+
+    return envelope;
   }
 
   /**
    * Parse an operation group
    * @param {string} hex Encoded message stream.
    */
-  export function parseOperationGroup(hex: string) {
+  export function parseOperationGroup(hex: string): Array<Operation> {
     let operations = [];
-    let op = parseOperation(hex, idFirstOperation(hex));
+    let envelope = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore
-    operations.push(op);
-    //@ts-ignore
-    while (op["next"]) {
+    operations.push(envelope.operation);
+    while (envelope.next) {
+      envelope = parseOperation(hex.substring(envelope.nextoffset), envelope.next, false);
       //@ts-ignore
-      op = parseOperation(hex.substring(op["nextoffset"]), op["next"], false);
-      //@ts-ignore
-      operations.push(op);
+      operations.push(envelope.operation);
     }
 
     return operations;
+  }
+
+  interface OperationEnvelope {
+    operation: Operation,
+    branch: string,
+    next?: string,
+    nextoffset: number
   }
 }
