@@ -37,9 +37,9 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Takes a hex string and reads a number starting at provided offset. Returns the number itself and the number of characters that were used to decode it.
-   * @param {string} hex 
-   * @param {number} hex 
+   * Takes a hex string and reads a hex-encoded Zarith-formatted number starting at provided offset. Returns the number itself and the number of characters that were used to decode it.
+   * @param {string} hex Encoded message.
+   * @param {number} offset Offset within the message to start decoding from.
    */
   export function findInt(hex: string, offset: number) {
     let buffer = "";
@@ -60,20 +60,20 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Determine address type for both receiver and source
-   * @param {string} hex  Address converted from binary to hex
-   * @param {string} type  Binary returned by the Tezos node
+   * Takes a bounded hex string that is known to contain a Tezos address and decodes it.
+   * @param {string} hex Encoded message part.
+   * @param {string} type Tezos address type, one of 'tz1' or 'kt1'.
    */
   export function readAddress(hex: string, type: string = "tz1") {
-    // check for 40 chars
+    //TODO: check for 40 chars
     return type === "tz1"
       ? base58check.encode(Buffer.from("06a19f" + hex, "hex"))
       : null;
   }
 
   /**
-   * Convert address string to hex
-   * @param {string} address
+   * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1' or 'kt1'. Message format contains hints on address type.
+   * @param {string} address Base58 address to encode.
    */
   export function writeAddress(address: string) {
     return base58check
@@ -83,8 +83,8 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * [some description here]
-   * @param {string} hex
+   * Reads the branch hash from the provided, bounded hex string.
+   * @param {string} hex Encoded message part.
    */
   export function readBranch(hex: string) {
     // check for 64 chars
@@ -92,10 +92,10 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * [some description here]
-   * @param {string} hex
+   * Encodes the branch hash to hex.
+   * @param {string} branch Branch hash.
    */
-  export function writeBranch(address: string) {
-    return base58check.decode(address).toString("hex");
+  export function writeBranch(branch: string) {
+    return base58check.decode(branch).toString("hex");
   }
 }
