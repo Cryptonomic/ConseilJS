@@ -65,10 +65,9 @@ export namespace TezosMessageUtils {
    * @param {string} type Tezos address type, one of 'tz1' or 'kt1'.
    */
   export function readAddress(hex: string, type: string = "tz1") {
-    //TODO: check for 40 chars
-    return type === "tz1"
-      ? base58check.encode(Buffer.from("06a19f" + hex, "hex"))
-      : null;
+    if (hex.length !== 40) { throw new Error("Incorrect hex length to parse an address."); }
+
+    return type === "tz1" ? base58check.encode(Buffer.from("06a19f" + hex, "hex")) : base58check.encode(Buffer.from("025a79" + hex, "hex"));
   }
 
   /**
@@ -87,7 +86,7 @@ export namespace TezosMessageUtils {
    * @param {string} hex Encoded message part.
    */
   export function readBranch(hex: string) {
-    // check for 64 chars
+    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a branch hash."); }
     return base58check.encode(Buffer.from(hex, "hex"));
   }
 
@@ -97,5 +96,14 @@ export namespace TezosMessageUtils {
    */
   export function writeBranch(branch: string) {
     return base58check.decode(branch).toString("hex");
+  }
+
+  /**
+   * Reads the key hash from the provided, bounded hex string.
+   * @param {string} hex Encoded message part.
+   */
+  export function readKey(hex: string) {
+    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a key."); }
+    return base58check.encode(Buffer.from(hex, "hex"));
   }
 }

@@ -16,16 +16,16 @@ const operationTypes: Array<string> = [
 
 export namespace TezosMessageCodec {
   /**
-   * Determine the operation type from hex
-   * @param {string} hex  converted hex
+   * Parse operation type from a bounded hex string and translate to enum.
+   * @param {string} hex 
    */
   export function getOperationType(hex: string) {
     return operationTypes[TezosMessageUtils.readInt(hex)];
   }
 
   /**
-   * Determine the first operation type from hex
-   * @param {string} hex  converted hex
+   * Get OperationType of the first operation in the OperationGroup.
+   * @param {string} hex Forged message in hex format.
    */
   export function idFirstOperation(hex: string) {
     return getOperationType(hex.substring(64, 66));
@@ -33,15 +33,11 @@ export namespace TezosMessageCodec {
 
   /**
    * Parse an operation based on the opType
-   * @param {string} hex  converted hex
-   * @param {string} opType  operation type to parse
-   * @param {boolean} isFirst
+   * @param {string} hex converted hex
+   * @param {string} opType operation type to parse
+   * @param {boolean} isFirst 
    */
-  export function parseOperation(
-    hex: string,
-    opType: string,
-    isFirst: boolean = true
-  ) {
+  export function parseOperation(hex: string, opType: string, isFirst: boolean = true) {
     switch (opType) {
       case "endorsement":
         return null;
@@ -73,13 +69,8 @@ export namespace TezosMessageCodec {
    * @param {string} transactionMessage  converted hex
    * @param {boolean} isTrue
    */
-  export function parseTransaction(
-    transactionMessage: string,
-    isFirst: boolean = true
-  ) {
-    let hexOperationType = isFirst
-      ? transactionMessage.substring(64, 66)
-      : transactionMessage.substring(0, 2);
+  export function parseTransaction(transactionMessage: string, isFirst: boolean = true) {
+    let hexOperationType = isFirst ? transactionMessage.substring(64, 66) : transactionMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== "transaction") {
       throw new Error("Provided operation is not a transaction.");
     }
@@ -93,30 +84,24 @@ export namespace TezosMessageCodec {
     let source = "";
     if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
       fieldoffset += 4;
-      source = TezosMessageUtils.readAddress(
-        transactionMessage.substring(fieldoffset, fieldoffset + 40)
-      );
+      source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
     } else {
-      //KT1
+      fieldoffset += 2;
+      source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
+      fieldoffset += 2;
     }
 
     fieldoffset += 40;
     let feeInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
 
     fieldoffset += feeInfo.length;
-    let counterInfo = TezosMessageUtils.findInt(
-      transactionMessage,
-      fieldoffset
-    );
+    let counterInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
 
     fieldoffset += counterInfo.length;
     let gasInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
 
     fieldoffset += gasInfo.length;
-    let storageInfo = TezosMessageUtils.findInt(
-      transactionMessage,
-      fieldoffset
-    );
+    let storageInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
 
     fieldoffset += storageInfo.length;
     let amountInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
@@ -125,9 +110,7 @@ export namespace TezosMessageCodec {
     let target = "";
     if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
       fieldoffset += 4;
-      target = TezosMessageUtils.readAddress(
-        transactionMessage.substring(fieldoffset, fieldoffset + 40)
-      );
+      target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
       fieldoffset += 40 + 2;
     } else {
       //KT1
@@ -136,9 +119,7 @@ export namespace TezosMessageCodec {
 
     let next;
     if (transactionMessage.length > fieldoffset) {
-      next = getOperationType(
-        transactionMessage.substring(fieldoffset, fieldoffset + 2)
-      );
+      next = getOperationType(transactionMessage.substring(fieldoffset, fieldoffset + 2));
     }
 
     return {
@@ -163,9 +144,7 @@ export namespace TezosMessageCodec {
    * @param {boolean} isTrue
    */
   export function parseReveal(revealMessage, isFirst = true) {
-    let hexOperationType = isFirst
-      ? revealMessage.substring(64, 66)
-      : revealMessage.substring(0, 2);
+    let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== "reveal") {
       throw new Error("Provided operation is not a reveal.");
     }
@@ -180,11 +159,11 @@ export namespace TezosMessageCodec {
     let source = "";
     if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
       fieldoffset += 4;
-      source = TezosMessageUtils.readAddress(
-        revealMessage.substring(fieldoffset, fieldoffset + 40)
-      );
+      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40));
     } else {
-      //KT1
+      fieldoffset += 2;
+      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
+      fieldoffset += 2;
     }
 
     fieldoffset += 40;
@@ -201,16 +180,12 @@ export namespace TezosMessageCodec {
     fieldoffset += storageInfo.length;
 
     fieldoffset += 2; // ??
-    let publickey = TezosMessageUtils.readBranch(
-      revealMessage.substring(fieldoffset, fieldoffset + 64)
-    );
+    let publickey = TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64));
     fieldoffset += 64;
 
     let next;
     if (revealMessage.length > fieldoffset) {
-      next = getOperationType(
-        revealMessage.substring(fieldoffset, fieldoffset + 2)
-      );
+      next = getOperationType(revealMessage.substring(fieldoffset, fieldoffset + 2));
     }
 
     return {
