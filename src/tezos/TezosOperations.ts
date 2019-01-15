@@ -34,53 +34,25 @@ export namespace TezosOperations {
    * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
    * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
    */
-  export async function signOperationGroup(
-    forgedOperation: string,
-    keyStore: KeyStore,
-    derivationPath: string
-  ): Promise<SignedOperationGroup> {
+  export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<SignedOperationGroup> {
     const watermark = "03";
-    const watermarkedForgedOperationBytesHex: string =
-      watermark + forgedOperation;
+    const watermarkedForgedOperationBytesHex: string = watermark + forgedOperation;
 
     let opSignature: Buffer = new Buffer(0);
     switch (keyStore.storeType) {
       case StoreType.Hardware:
-        opSignature = await LedgerUtils.signTezosOperation(
-          derivationPath,
-          watermarkedForgedOperationBytesHex
-        );
+        opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
         break;
       default:
-        const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(
-          watermarkedForgedOperationBytesHex
-        );
-        const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(
-          32,
-          watermarkedForgedOperationBytes
-        );
-        const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(
-          keyStore.privateKey,
-          "edsk"
-        );
-        opSignature = sodium.crypto_sign_detached(
-          hashedWatermarkedOpBytes,
-          privateKeyBytes
-        );
+        const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
+        const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
+        const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
+        opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
     }
 
-    const hexSignature: string = CryptoUtils.base58CheckEncode(
-      opSignature,
-      "edsig"
-    ).toString();
-    const signedOpBytes: Buffer = Buffer.concat([
-      sodium.from_hex(forgedOperation),
-      opSignature
-    ]);
-    return {
-      bytes: signedOpBytes,
-      signature: hexSignature.toString()
-    };
+    const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
+    const signedOpBytes: Buffer = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+    return { bytes: signedOpBytes, signature: hexSignature.toString()};
   }
 
   /**
@@ -88,9 +60,7 @@ export namespace TezosOperations {
    * @param {SignedOperationGroup} signedOpGroup  Signed operation group
    * @returns {string}    Base58Check hash of signed operation
    */
-  export function computeOperationHash(
-    signedOpGroup: SignedOperationGroup
-  ): string {
+  export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
     const hash: Buffer = sodium.crypto_generichash(32, signedOpGroup.bytes);
     return CryptoUtils.base58CheckEncode(hash, "op");
   }
@@ -102,15 +72,8 @@ export namespace TezosOperations {
    * @param {object[]} operations The operations being forged as part of this operation group
    * @returns {Promise<string>}   Forged operation bytes (as a hex string)
    */
-  export async function forgeOperations(
-    network: string,
-    blockHead: TezosTypes.BlockMetadata,
-    operations: object[]
-  ): Promise<string> {
-    const payload = {
-      branch: blockHead.hash,
-      contents: operations
-    };
+  export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
+    const payload = { branch: blockHead.hash, contents: operations };
     const ops = await TezosNode.forgeOperation(network, payload);
 
     const decoded = TezosMessageCodec.parseOperationGroup(ops);
@@ -357,9 +320,7 @@ export namespace TezosOperations {
       gas_limit: "120",
       delegate: delegate
     };
-    const operations = await appendRevealOperation(network, keyStore, account, [
-      delegation
-    ]);
+    const operations = await appendRevealOperation(network, keyStore, account, [delegation]);
     return sendOperation(network, operations, keyStore, derivationPath);
   }
 
