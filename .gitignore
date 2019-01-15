@@ -66,16 +66,10 @@ typings/
 # TSC
 build
 
-<<<<<<< HEAD
 # OSX
 .DS_Store
 
-test/servers.ts
-
-coverage
-=======
 # Server confs
 test/servers.ts
 
-.DS_Store
->>>>>>> staging
+coverage
