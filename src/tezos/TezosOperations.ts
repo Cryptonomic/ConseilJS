@@ -4,7 +4,6 @@ import * as LedgerUtils from '../utils/LedgerUtils';
 import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
-import {Operation} from "./TezosTypes";
 import * as TezosMessageCodec from "./TezosMessageCodec";
 
 /**
@@ -321,7 +320,7 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const origination: Operation = {
+        const origination: TezosTypes.Operation = {
             kind:   "origination",
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
