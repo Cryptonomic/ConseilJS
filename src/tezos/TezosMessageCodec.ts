@@ -32,10 +32,10 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse an operation based on the opType
-   * @param {string} hex converted hex
-   * @param {string} opType operation type to parse
-   * @param {boolean} isFirst 
+   * Parse an operation of unknown length, possibly containing siblings.
+   * @param {string} hex Encoded message.
+   * @param {string} opType Operation type to parse.
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
   export function parseOperation(hex: string, opType: string, isFirst: boolean = true) {
     switch (opType) {
@@ -65,9 +65,9 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse a transaction based on the message
-   * @param {string} transactionMessage  converted hex
-   * @param {boolean} isTrue
+   * Parse a transaction message possibly containing siblings.
+   * @param {string} transactionMessage Encoded transaction-type message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
   export function parseTransaction(transactionMessage: string, isFirst: boolean = true) {
     let hexOperationType = isFirst ? transactionMessage.substring(64, 66) : transactionMessage.substring(0, 2);
@@ -76,9 +76,7 @@ export namespace TezosMessageCodec {
     }
 
     let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(
-      transactionMessage.substring(fieldoffset, fieldoffset + 64)
-    );
+    let branch = TezosMessageUtils.readBranch(transactionMessage.substring(fieldoffset, fieldoffset + 64));
 
     fieldoffset += 64 + 2; // branch + type
     let source = "";
@@ -112,8 +110,9 @@ export namespace TezosMessageCodec {
       fieldoffset += 4;
       target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
       fieldoffset += 40 + 2;
-    } else {
-      //KT1
+    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 2) === "01"){
+      fieldoffset += 2;
+      target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 4;
     }
 
