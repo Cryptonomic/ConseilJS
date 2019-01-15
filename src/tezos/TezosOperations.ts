@@ -5,6 +5,7 @@ import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import {Operation} from "./TezosTypes";
+import * as TezosMessageCodec from "./TezosMessageCodec";
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -87,7 +88,21 @@ export namespace TezosOperations {
                 branch: blockHead.hash,
                 contents: operations
             };
-        return TezosNode.forgeOperation(network, payload)
+        const ops = await TezosNode.forgeOperation(network, payload);
+
+        const decoded = TezosMessageCodec.parseOperationGroup(ops);
+
+        for (var i = 0; i < operations.length; i++) {
+            var clientop = operations[i];
+            if (clientop["kind"] !== "transaction") { continue; }
+
+            var serverop = decoded[i];
+            if (serverop["type"] !== clientop["kind"] || serverop["fee"] !== clientop["fee"] || serverop["amount"] !== clientop["amount"] || serverop["target"] !== clientop["destination"]) {
+                throw new Error("Forged transaction failed validation.");
+            }
+        }
+
+        return ops;
     }
 
     /**
@@ -195,12 +210,12 @@ export namespace TezosOperations {
         network: string,
         keyStore: KeyStore,
         account: TezosTypes.Account,
-        operations: Operation[]
+        operations: TezosTypes.Operation[]
     ) {
         const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
-        var returnedOperations: Operation[] = operations;
+        var returnedOperations: TezosTypes.Operation[] = operations;
         if (!isManagerKeyRevealed) {
-            const revealOp: Operation = {
+            const revealOp: TezosTypes.Operation = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
                 fee: '0',
@@ -237,7 +252,7 @@ export namespace TezosOperations {
         console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const transaction: Operation = {
+        const transaction: TezosTypes.Operation = {
             destination: to,
             amount: amount.toString(),
             storage_limit: '0',
@@ -269,7 +284,7 @@ export namespace TezosOperations {
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const delegation: Operation = {
+        const delegation: TezosTypes.Operation = {
             kind:   "delegation",
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
