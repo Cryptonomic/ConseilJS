@@ -66,5 +66,9 @@ typings/
 # TSC
 build
 
-# Server confs
+# OSX
+.DS_Store
+
 test/servers.ts
+
+coverage
