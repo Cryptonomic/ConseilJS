@@ -135,21 +135,11 @@ var TezosOperations;
      */
     function sendOperation(network, operations, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("Network: ", network);
-            console.log("Operation 1 (reveal) :", operations[0]);
-            console.log("Operation 2 (transaction):", operations[1]);
-            console.log("KeyStore: ", keyStore);
-            console.log("Derivation Path: ", derivationPath);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            console.log("Block Head: ", blockHead);
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
-            console.log("Forged Operation Group: ", forgedOperationGroup);
             const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
-            console.log("Signed Operation Group: ", signedOpGroup);
             const operationGroupHash = computeOperationHash(signedOpGroup);
-            console.log("Operation Group Hash: ", operationGroupHash);
             const appliedOp = yield applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
-            console.log("Applied Operation ", appliedOp);
             checkAppliedOperationResults(appliedOp);
             const injectedOperation = yield injectOperation(network, signedOpGroup);
             return {
@@ -167,10 +157,9 @@ var TezosOperations;
      * @param keyStore  Key pair along with public key hash
      * @param fee Fee to use
      * @param account Which account to use
-     * @param operations Delegation, Transaction, or Origination to possibly bundle
-     *                   with a reveal
+     * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    function appendRevealOperation(network, keyStore, fee, account, operations) {
+    function appendRevealOperation(network, keyStore, account, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
             var returnedOperations = operations;
@@ -178,9 +167,9 @@ var TezosOperations;
                 const revealOp = {
                     kind: "reveal",
                     source: keyStore.publicKeyHash,
-                    fee: fee.toString(),
+                    fee: '0',
                     counter: (Number(account.counter) + 1).toString(),
-                    gas_limit: '120',
+                    gas_limit: '10000',
                     storage_limit: '0',
                     public_key: keyStore.publicKey
                 };
@@ -206,18 +195,19 @@ var TezosOperations;
         return __awaiter(this, void 0, void 0, function* () {
             console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
-                storage_limit: '0',
-                gas_limit: '120',
-                counter: (Number(account.counter) + 1).toString(),
+                storage_limit: "300",
+                gas_limit: "10300",
+                counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
                 kind: "transaction"
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [transaction]);
+            const operations = yield appendRevealOperation(network, keyStore, sourceAccount, [transaction]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -241,10 +231,10 @@ var TezosOperations;
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
                 storage_limit: '0',
-                gas_limit: '120',
+                gas_limit: '10000',
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [delegation]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [delegation]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -270,19 +260,36 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
-                storage_limit: '0',
-                managerPubkey: keyStore.publicKeyHash,
+                gas_limit: '10160',
+                storage_limit: '277',
+                //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+                manager_pubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, fee, account, [origination]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [origination]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
     TezosOperations.sendOriginationOperation = sendOriginationOperation;
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @returns {Promise<boolean>}  Result
+     */
+    function isImplicitAndEmpty(network, accountHash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+            const isImplicit = accountHash.toLowerCase().startsWith("tz");
+            const isEmpty = account.balance == 0;
+            return (isImplicit && isEmpty);
+        });
+    }
+    TezosOperations.isImplicitAndEmpty = isImplicitAndEmpty;
     /**
      * Indicates whether a reveal operation has already been done for a given account.
      * @param {string} network  Which Tezos network to go against
@@ -312,9 +319,9 @@ var TezosOperations;
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: fee.toString(),
+                fee: '1300',
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '120',
+                gas_limit: '10000',
                 storage_limit: '0',
                 public_key: keyStore.publicKey
             };
