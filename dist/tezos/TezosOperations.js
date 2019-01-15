@@ -31,7 +31,7 @@ var TezosOperations;
      */
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const watermark = '03';
+            const watermark = "03";
             const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
             let opSignature = new Buffer(0);
             switch (keyStore.storeType) {
@@ -45,7 +45,10 @@ var TezosOperations;
                     opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
             const hexSignature = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
-            const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+            const signedOpBytes = Buffer.concat([
+                sodium.from_hex(forgedOperation),
+                opSignature
+            ]);
             return {
                 bytes: signedOpBytes,
                 signature: hexSignature.toString()
@@ -91,12 +94,14 @@ var TezosOperations;
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
     function applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup) {
-        const payload = [{
+        const payload = [
+            {
                 protocol: blockHead.protocol,
                 branch: blockHead.hash,
                 contents: operations,
                 signature: signedOpGroup.signature
-            }];
+            }
+        ];
         return TezosNodeQuery_1.TezosNode.applyOperation(network, payload);
     }
     TezosOperations.applyOperation = applyOperation;
@@ -105,13 +110,20 @@ var TezosOperations;
      * @param appliedOp Results of operation application.
      */
     function checkAppliedOperationResults(appliedOp) {
-        const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
+        const validAppliedKinds = new Set([
+            "activate_account",
+            "reveal",
+            "transaction",
+            "origination",
+            "delegation"
+        ]);
         const firstAppliedOp = appliedOp[0]; //All our op groups are singletons so we deliberately check the zeroth result.
-        if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind))
-            throw (new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+        if (firstAppliedOp.kind != null &&
+            !validAppliedKinds.has(firstAppliedOp.kind))
+            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
         for (const op of firstAppliedOp.contents) {
             if (!validAppliedKinds.has(op.kind))
-                throw (new Error(`Could not apply operation because: ${op.id}`));
+                throw new Error(`Could not apply operation because: ${op.id}`);
         }
     }
     /**
@@ -167,10 +179,10 @@ var TezosOperations;
                 const revealOp = {
                     kind: "reveal",
                     source: keyStore.publicKeyHash,
-                    fee: '0',
+                    fee: "0",
                     counter: (Number(account.counter) + 1).toString(),
-                    gas_limit: '10000',
-                    storage_limit: '0',
+                    gas_limit: "10000",
+                    storage_limit: "0",
                     public_key: keyStore.publicKey
                 };
                 var operation = operations[0];
@@ -193,7 +205,6 @@ var TezosOperations;
      */
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
@@ -230,11 +241,13 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
-                storage_limit: '0',
-                gas_limit: '10000',
+                storage_limit: "0",
+                gas_limit: "10000",
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, account, [delegation]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [
+                delegation
+            ]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
@@ -260,20 +273,96 @@ var TezosOperations;
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '10160',
-                storage_limit: '277',
+                gas_limit: "10160",
+                storage_limit: "277",
                 managerPubkey: keyStore.publicKeyHash,
-                //manager_pubkey: keyStore.publicKeyHash,  // zeronet
+                //   manager_pubkey: keyStore.publicKeyHash, // zeronet
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(network, keyStore, account, [origination]);
+            const operations = yield appendRevealOperation(network, keyStore, account, [
+                origination
+            ]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
     TezosOperations.sendOriginationOperation = sendOriginationOperation;
+    /**
+     * Creates and originates a smart contract.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @param {number} amount   Initial funding amount of new account
+     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {boolean} spendable   Is account spendable?
+     * @param {boolean} delegatable Is account delegatable?
+     * @param {number} fee  Operation fee
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @returns {Promise<OperationResult>}  Result of the operation
+     */
+    function sendContractOriginationOperation(code, // may have to change this type depending on how parser (from JS to michelson) works
+    storage, // may have to change this type depending on how parser (from JS to michelson) works
+    network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const origination = {
+                script: {
+                    code: code,
+                    storage: storage
+                },
+                kind: "origination",
+                source: keyStore.publicKeyHash,
+                fee: fee.toString(),
+                counter: (Number(account.counter) + 1).toString(),
+                gas_limit,
+                storage_limit,
+                managerPubkey: keyStore.publicKeyHash,
+                //   manager_pubkey: keyStore.publicKeyHash, // zeronet
+                balance: amount.toString(),
+                spendable: spendable,
+                delegatable: delegatable,
+                delegate: delegate
+            };
+            const operations = yield appendRevealOperation(network, keyStore, account, [
+                origination
+            ]);
+            return sendOperation(network, operations, keyStore, derivationPath);
+        });
+    }
+    TezosOperations.sendContractOriginationOperation = sendContractOriginationOperation;
+    /**
+     * Invokes a contract with desired parameters.
+     * @param {string} network  Which Tezos network to go against
+     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @param {String} to   Destination public key hash
+     * @param {number} amount   Amount to send
+     * @param {number} fee  Fee to use
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @returns {Promise<OperationResult>}  Result of the operation
+     */
+    function sendContractInvocationOperation(parameters, network, keyStore, to, amount, fee, derivationPath, storage_limit, gas_limit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
+            const transaction = {
+                parameters: parameters,
+                destination: to,
+                amount: amount.toString(),
+                storage_limit,
+                gas_limit,
+                counter: (Number(sourceAccount.counter) + 1).toString(),
+                fee: fee.toString(),
+                source: keyStore.publicKeyHash,
+                kind: "transaction"
+            };
+            const operations = yield appendRevealOperation(network, keyStore, sourceAccount, [transaction]);
+            return sendOperation(network, operations, keyStore, derivationPath);
+        });
+    }
+    TezosOperations.sendContractInvocationOperation = sendContractInvocationOperation;
     /**
      * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
      * @param {string} network  Which Tezos network to go against
@@ -286,7 +375,7 @@ var TezosOperations;
             const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
             const isImplicit = accountHash.toLowerCase().startsWith("tz");
             const isEmpty = account.balance == 0;
-            return (isImplicit && isEmpty);
+            return isImplicit && isEmpty;
         });
     }
     TezosOperations.isImplicitAndEmpty = isImplicitAndEmpty;
@@ -319,10 +408,10 @@ var TezosOperations;
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
-                fee: '1300',
+                fee: "1300",
                 counter: (Number(account.counter) + 1).toString(),
-                gas_limit: '10000',
-                storage_limit: '0',
+                gas_limit: "10000",
+                storage_limit: "0",
                 public_key: keyStore.publicKey
             };
             const operations = [revealOp];
