@@ -232,6 +232,7 @@ export namespace TezosMessageCodec {
    * @param {string} hex  converted hex
    */
   export function parseOperationGroup(hex: string) {
+    console.log(hex);
     let operations = [];
     let op = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore
