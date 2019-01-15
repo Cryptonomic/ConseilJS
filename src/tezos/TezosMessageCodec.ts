@@ -137,10 +137,9 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse a reveal operation
-   * @param {string} revealMessage  parse reveal operation message
-   * @param {string} opType  operation type to parse
-   * @param {boolean} isTrue
+   * Parse a reveal message possibly containing siblings.
+   * @param {string} revealMessage Encoded reveal-type message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
   export function parseReveal(revealMessage, isFirst = true) {
     let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
@@ -203,10 +202,9 @@ export namespace TezosMessageCodec {
 
   /**
    * Parse an operation group
-   * @param {string} hex  converted hex
+   * @param {string} hex Encoded message stream.
    */
   export function parseOperationGroup(hex: string) {
-    console.log(hex);
     let operations = [];
     let op = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore
