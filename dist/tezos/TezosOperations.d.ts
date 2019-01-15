@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import { KeyStore } from "../types/KeyStore";
 import * as TezosTypes from "./TezosTypes";
-import { Operation } from "./TezosTypes";
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -17,7 +16,7 @@ export interface SignedOperationGroup {
  */
 export interface OperationResult {
     results: TezosTypes.AlphaOperationsWithMetadata;
-    operationGroupID: String;
+    operationGroupID: string;
 }
 export declare namespace TezosOperations {
     /**
@@ -79,7 +78,7 @@ export declare namespace TezosOperations {
      * @param account Which account to use
      * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
+    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;
     /**
      * Creates and sends a transaction operation.
      * @param {string} network  Which Tezos network to go against
