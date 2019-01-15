@@ -122,7 +122,7 @@ export namespace TezosOperations {
       }
 
       var serverop = decoded[i];
-      if (serverop["type"] !== clientop["kind"] || parseInt(serverop["fee"]) !== parseInt(clientop["fee"]) || parseInt(serverop["amount"] + "") !== parseInt(clientop["amount"]) || serverop["target"] !== clientop["destination"]) {
+      if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
         throw new Error("Forged transaction failed validation.");
       }
     }
@@ -449,7 +449,7 @@ export namespace TezosOperations {
       blockHead.hash,
       keyStore.publicKeyHash
     );
-    const revealOp: Object = {
+    const revealOp: TezosTypes.Operation = {
       kind: "reveal",
       source: keyStore.publicKeyHash,
       fee: "0",
