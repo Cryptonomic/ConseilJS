@@ -7,12 +7,12 @@ const base128 = baseN.create({
 
 export namespace TezosMessageUtils {
   /**
-   * Encodes an integer into hex
-   * @param {int} decimal  [some description here]
+   * Encodes an integer into hex after converting it to Zarith format.
+   * @param {number} value Number to be obfuscated.
    */
-  export function writeInt(decimal: number) {
+  export function writeInt(value: number) {
     //@ts-ignore
-    return Buffer.from(base128.encode(parseInt(decimal)), "hex")
+    return Buffer.from(base128.encode(parseInt(value)), "hex")
       .map((v, i) => {
         return i == 0 ? v : v ^ 0x80;
       })
@@ -21,13 +21,13 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Decodes binary into hex
-   * @param {int} text  Binary returned by the Tezos node
+   * Takes a bounded hex string that is known to contain a number and decodes the int.
+   * @param {string} hex Encoded message part.
    */
-  export function readInt(text: string) {
+  export function readInt(hex: string) {
     return base128.decode(
       //@ts-ignore
-      Buffer.from(text, "hex")
+      Buffer.from(hex, "hex")
         .reverse()
         .map((v, i) => {
           return i == 0 ? v : v & 0x7f;
@@ -37,8 +37,9 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * [Some description heree]
-   * @param {int} text  Binary returned by the Tezos node
+   * Takes a hex string and reads a number starting at provided offset. Returns the number itself and the number of characters that were used to decode it.
+   * @param {string} hex 
+   * @param {number} hex 
    */
   export function findInt(hex: string, offset: number) {
     let buffer = "";
