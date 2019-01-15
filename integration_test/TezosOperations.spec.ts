@@ -193,30 +193,29 @@ function sleep(seconds) {
 }
 
 describe("Tezos operation functions", () => {
-  it("successfully perform operations on a new identity", async done => {
-    it("successfully perform operations on a new identity", async () => {
-      const fundraiserKeys = <KeyStore>(
-        await TezosWallet.unlockFundraiserIdentity(
-          "major cannon mistake disorder bachelor depart jazz pudding worry attract scrap element uncover tide jump",
-          "vttufpvh.xgbzugwn@tezos.example.org",
-          "Wz41fjtUHJ",
-          "tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG"
-        )
-      );
+  it("successfully perform operations on a new identity", async () => {
+    const fundraiserKeys = <KeyStore>(
+      await TezosWallet.unlockFundraiserIdentity(
+        "major cannon mistake disorder bachelor depart jazz pudding worry attract scrap element uncover tide jump",
+        "vttufpvh.xgbzugwn@tezos.example.org",
+        "Wz41fjtUHJ",
+        "tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG"
+      )
+    );
 
-      const fundraiserKeySecret = "6da483843eba2526ea6d2c08aa39dd00efa99521";
+    const fundraiserKeySecret = "6da483843eba2526ea6d2c08aa39dd00efa99521";
 
-      const mnemonic = await TezosWallet.generateMnemonic();
-      const randomKeys = <KeyStore>(
-        await TezosWallet.unlockIdentityWithMnemonic(mnemonic, "")
-      );
-      const inactiveImplicitAddress = randomKeys.publicKeyHash;
-      const anActiveImplicitAddress = "tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc";
-      const randomDelegatedAddress = "KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc";
-      const randomBakerAddress1 = "tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ";
-      const randomBakerAddress2 = "tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u";
+    const mnemonic = await TezosWallet.generateMnemonic();
+    const randomKeys = <KeyStore>(
+      await TezosWallet.unlockIdentityWithMnemonic(mnemonic, "")
+    );
+    const inactiveImplicitAddress = randomKeys.publicKeyHash;
+    const anActiveImplicitAddress = "tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc";
+    const randomDelegatedAddress = "KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc";
+    const randomBakerAddress1 = "tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ";
+    const randomBakerAddress2 = "tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u";
 
-      /*       
+    /*       
         //Activate this section in FIRST run to activate the fundraiser account
         //Comment this section out in SECOND round.
         console.log("+++++Activating account");
@@ -230,145 +229,148 @@ describe("Tezos operation functions", () => {
         sleep(33);
 //*/
 
-      // console.log('+++++Sending 1 tez to an inactive implicit account');
-      // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
-      //   tezosURL,
-      //   fundraiserKeys,
-      //   inactiveImplicitAddress,
-      //   100000000,
-      //   2000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
-      //   invalidDerivationPath
-      // );
-      // expect(inactiveImplicitResult.operationGroupID).to.exist;
+    // console.log("+++++Sending 1 tez to an inactive implicit account");
+    // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   inactiveImplicitAddress,
+    //   100000000,
+    //   2000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+    //   invalidDerivationPath
+    // );
+    // expect(inactiveImplicitResult.operationGroupID).to.exist;
 
-      // sleep(33);
+    // sleep(33);
 
-      // console.log('+++++Sending 1 tez to an active implicit address');
-      // const activeImplicitResult = await TezosOperations.sendTransactionOperation(
-      //   tezosURL,
-      //   fundraiserKeys,
-      //   'KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim',
-      //   //   anActiveImplicitAddress,
-      //   20000000,
-      //   2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
-      //   invalidDerivationPath
-      // );
-      // expect(activeImplicitResult.operationGroupID).to.exist;
+    console.log("+++++Sending 1 tez to an active implicit address");
+    const activeImplicitResult = await TezosOperations.sendTransactionOperation(
+      tezosURL,
+      fundraiserKeys,
+      "KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim",
+      //   anActiveImplicitAddress,
+      20000000,
+      2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
+      invalidDerivationPath
+    );
+    console.log(
+      "ACTIVE IMPLICIT RESULT: ",
+      activeImplicitResult.results.contents
+    );
+    expect(activeImplicitResult.operationGroupID).to.exist;
 
-      // sleep(33);
+    // sleep(33);
 
-      // console.log('+++++Sending 1 tez to a random delegated address');
-      // const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
-      //   tezosURL,
-      //   fundraiserKeys,
-      //   randomDelegatedAddress,
-      //   20000000,
-      //   2000000, // Protocol 003 minimum fee for active kt1 accounts is 1100
-      //   invalidDerivationPath
-      // );
-      // expect(delegatedAccountResult.operationGroupID).to.exist;
+    // console.log('+++++Sending 1 tez to a random delegated address');
+    // const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   randomDelegatedAddress,
+    //   20000000,
+    //   2000000, // Protocol 003 minimum fee for active kt1 accounts is 1100
+    //   invalidDerivationPath
+    // );
+    // expect(delegatedAccountResult.operationGroupID).to.exist;
 
-      // sleep(33);
+    // sleep(33);
 
-      // console.log('+++++Originating a contract from manager address');
-      // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
-      //   [
-      //     {
-      //       prim: 'parameter',
-      //       args: [
-      //         {
-      //           prim: 'string'
-      //         }
-      //       ]
-      //     },
-      //     {
-      //       prim: 'storage',
-      //       args: [
-      //         {
-      //           prim: 'string'
-      //         }
-      //       ]
-      //     },
-      //     {
-      //       prim: 'code',
-      //       args: [
-      //         [
-      //           {
-      //             prim: 'CAR'
-      //           },
-      //           {
-      //             prim: 'NIL',
-      //             args: [
-      //               {
-      //                 prim: 'operation'
-      //               }
-      //             ]
-      //           },
-      //           {
-      //             prim: 'PAIR'
-      //           }
-      //         ]
-      //       ]
-      //     }
-      //   ],
-      //   {
-      //     string: 'hello'
-      //   },
-      //   tezosURL,
-      //   fundraiserKeys,
-      //   2000000,
-      //   randomBakerAddress1,
-      //   true,
-      //   true,
-      //   200000, // Protocol 003 minimum fee is 1377 for originations
-      //   invalidDerivationPath,
-      //   '10160',
-      //   '27777' // "consumed_gas":"11262"
-      // );
-      // expect(contractOriginationResult['operationGroupID']).to.exist;
+    // console.log('+++++Originating a contract from manager address');
+    // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+    //   [
+    //     {
+    //       prim: 'parameter',
+    //       args: [
+    //         {
+    //           prim: 'string'
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       prim: 'storage',
+    //       args: [
+    //         {
+    //           prim: 'string'
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       prim: 'code',
+    //       args: [
+    //         [
+    //           {
+    //             prim: 'CAR'
+    //           },
+    //           {
+    //             prim: 'NIL',
+    //             args: [
+    //               {
+    //                 prim: 'operation'
+    //               }
+    //             ]
+    //           },
+    //           {
+    //             prim: 'PAIR'
+    //           }
+    //         ]
+    //       ]
+    //     }
+    //   ],
+    //   {
+    //     string: 'hello'
+    //   },
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   2000000,
+    //   randomBakerAddress1,
+    //   true,
+    //   true,
+    //   200000, // Protocol 003 minimum fee is 1377 for originations
+    //   invalidDerivationPath,
+    //   '10160',
+    //   '27777' // "consumed_gas":"11262"
+    // );
+    // expect(contractOriginationResult['operationGroupID']).to.exist;
 
-      // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
-      // console.log(
-      //   contractOriginationResult.results.contents[0].metadata['operation_result']
-      //     .errors
-      // );
+    // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
+    // console.log(
+    //   contractOriginationResult.results.contents[0].metadata['operation_result']
+    //     .errors
+    // );
 
-      //     console.log('+++++Originating an account with 1 tez');
-      //     const originationResult = await TezosOperations.sendOriginationOperation(
-      //       tezosURL,
-      //       fundraiserKeys,
-      //       20000000,
-      //       randomBakerAddress1,
-      //       true,
-      //       true,
-      //       2000000, // Protocol 003 minimum fee is 1377 for originations
-      //       invalidDerivationPath
-      //     );
-      //     console.log('ORIGINATION RESULT', originationResult);
-      //     // expect(originationResult.operationGroupID).to.exist;
+    //     console.log('+++++Originating an account with 1 tez');
+    //     const originationResult = await TezosOperations.sendOriginationOperation(
+    //       tezosURL,
+    //       fundraiserKeys,
+    //       20000000,
+    //       randomBakerAddress1,
+    //       true,
+    //       true,
+    //       2000000, // Protocol 003 minimum fee is 1377 for originations
+    //       invalidDerivationPath
+    //     );
+    //     console.log('ORIGINATION RESULT', originationResult);
+    //     // expect(originationResult.operationGroupID).to.exist;
 
-      //     sleep(33);
+    //     sleep(33);
 
-      //     /*
-      //         // Comment out this section in the FIRST run
-      //         // Activate this section in the SECOND run.
-      //         // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
-      // */
-      //     let delegatedKeyStore = randomKeys;
-      //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
+    //     /*
+    //         // Comment out this section in the FIRST run
+    //         // Activate this section in the SECOND run.
+    //         // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
+    // */
+    //     let delegatedKeyStore = randomKeys;
+    //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
 
-      //     console.log('+++++Sending delegation operation');
-      //     const delegationResult = await TezosOperations.sendDelegationOperation(
-      //       tezosURL,
-      //       delegatedKeyStore,
-      //       randomBakerAddress2,
-      //       2000000, // Protocol 003 minimum fee is 1100 for delegations
-      //       invalidDerivationPath
-      //     );
-      //     expect(delegationResult.operationGroupID).to.exist;
-      //     console.log('DELEGATION RESULT', delegationResult);
+    //     console.log('+++++Sending delegation operation');
+    //     const delegationResult = await TezosOperations.sendDelegationOperation(
+    //       tezosURL,
+    //       delegatedKeyStore,
+    //       randomBakerAddress2,
+    //       2000000, // Protocol 003 minimum fee is 1100 for delegations
+    //       invalidDerivationPath
+    //     );
+    //     expect(delegationResult.operationGroupID).to.exist;
+    //     console.log('DELEGATION RESULT', delegationResult);
 
-      //     sleep(33);
-    });
+    //     sleep(33);
   });
 });
