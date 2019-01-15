@@ -2,8 +2,7 @@
 // Uncomment specific unit tests to test specific operation logic.
 import { expect } from "chai";
 import { TezosOperations } from "../src";
-import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
-import { TezosMessageUtils } from "../src/tezos/TezosMessageUtil";
+import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "../test/servers";
 import { TezosWallet } from "../src";
@@ -251,10 +250,6 @@ describe("Tezos operation functions", () => {
       20000000,
       2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
       invalidDerivationPath
-    );
-    console.log(
-      "ACTIVE IMPLICIT RESULT: ",
-      activeImplicitResult.results.contents
     );
     expect(activeImplicitResult.operationGroupID).to.exist;
 
