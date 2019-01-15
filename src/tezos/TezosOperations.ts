@@ -122,12 +122,7 @@ export namespace TezosOperations {
       }
 
       var serverop = decoded[i];
-      if (
-        serverop["type"] !== clientop["kind"] ||
-        serverop["fee"] !== clientop["fee"] ||
-        serverop["amount"] !== clientop["amount"] ||
-        serverop["target"] !== clientop["destination"]
-      ) {
+      if (serverop["type"] !== clientop["kind"] || parseInt(serverop["fee"]) !== parseInt(clientop["fee"]) || parseInt(serverop["amount"] + "") !== parseInt(clientop["amount"]) || serverop["target"] !== clientop["destination"]) {
         throw new Error("Forged transaction failed validation.");
       }
     }
@@ -177,16 +172,13 @@ export namespace TezosOperations {
       "delegation"
     ]);
     const firstAppliedOp = appliedOp[0]; //All our op groups are singletons so we deliberately check the zeroth result.
-    if (
-      firstAppliedOp.kind != null &&
-      !validAppliedKinds.has(firstAppliedOp.kind)
-    )
-      throw new Error(
-        `Could not apply operation because: ${firstAppliedOp.id}`
-      );
+    if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
+      throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
+    }
     for (const op of firstAppliedOp.contents) {
-      if (!validAppliedKinds.has(op.kind))
+      if (!validAppliedKinds.has(op.kind)) {
         throw new Error(`Could not apply operation because: ${op.id}`);
+      }
     }
   }
 
@@ -221,7 +213,6 @@ export namespace TezosOperations {
     console.log("Network: ", network);
     console.log("Operation 1 (reveal) :", operations[0]);
     console.log("Operation 2 (transaction):", operations[1]);
-    console.log("KeyStore: ", keyStore);
     console.log("Derivation Path: ", derivationPath);
     const blockHead = await TezosNode.getBlockHead(network);
     console.log("Block Head: ", blockHead);
@@ -313,7 +304,6 @@ export namespace TezosOperations {
     fee: number,
     derivationPath: string
   ) {
-    console.log("transaction keyStore: ", keyStore);
     const blockHead = await TezosNode.getBlockHead(network);
     const account = await TezosNode.getAccountForBlock(
       network,
