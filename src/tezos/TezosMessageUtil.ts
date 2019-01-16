@@ -12,7 +12,7 @@ export namespace TezosMessageUtils {
    * @param {boolean} value 
    */
   export function writeBoolean(value: boolean): string {
-    return value ? writeInt(255) : writeInt(0);
+    return value ? "ff" : "00";
   }
 
   /**
@@ -20,7 +20,7 @@ export namespace TezosMessageUtils {
    * @param {string} hex Encoded message part.
    */
   export function readBoolean(hex: string): boolean {
-    return readInt(hex) > 0 ? true : false;
+    return parseInt(hex, 16) > 0 ? true : false;
   }
 
   /**

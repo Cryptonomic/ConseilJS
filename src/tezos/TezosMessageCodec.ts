@@ -59,9 +59,9 @@ export namespace TezosMessageCodec {
       case "transaction":
         return parseTransaction(hex, isFirst);
       case "origination":
-      throw new Error(`Unsupported operation type: ${opType}`);
+        return parseOrigination(hex, isFirst);
       case "delegation":
-      throw new Error(`Unsupported operation type: ${opType}`);
+        throw new Error(`Unsupported operation type: ${opType}`);
       default:
         throw new Error(`Unsupported operation type: ${opType}`);
     }
@@ -207,6 +207,106 @@ export namespace TezosMessageCodec {
 
     const envelope: OperationEnvelope = {
       operation: transaction,
+      branch: branch,
+      next: next,
+      nextoffset: next ? fieldoffset : -1
+    }
+
+    return envelope;
+  }
+
+  /**
+   * Parse an origination message possibly containing siblings.
+   * @param {string} originationMessage Encoded origination-type message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
+   */
+  export function parseOrigination(originationMessage: string, isFirst: boolean = true): OperationEnvelope {
+    let hexOperationType = isFirst ? originationMessage.substring(64, 66) : originationMessage.substring(0, 2);
+    if (getOperationType(hexOperationType) !== "origination") {
+      throw new Error("Provided operation is not an origination.");
+    }
+
+    let fieldoffset = 0;
+    let branch = TezosMessageUtils.readBranch(
+      originationMessage.substring(fieldoffset, fieldoffset + 64)
+    );
+
+    fieldoffset += 64 + 2; // branch + type
+
+    let source = "";
+    if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
+      fieldoffset += 4;
+      source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
+    } else {
+      fieldoffset += 2;
+      source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
+      fieldoffset += 2;
+    }
+
+    fieldoffset += 40;
+    let feeInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
+
+    fieldoffset += feeInfo.length;
+    let counterInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
+
+    fieldoffset += counterInfo.length;
+    let gasInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
+
+    fieldoffset += gasInfo.length;
+    let storageInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
+    fieldoffset += storageInfo.length;
+
+    fieldoffset += 2;
+    let publickeyhash = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
+
+    fieldoffset += 40;
+    let balanceInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
+
+    fieldoffset += balanceInfo.length;
+    let spendable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+
+    fieldoffset += 2;
+    let delegatable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+
+    fieldoffset += 2;
+    let hasDelegate = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+
+    fieldoffset += 2;
+    let delegate = '';
+    if (hasDelegate) {
+      fieldoffset += 2;
+      delegate = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
+      fieldoffset += 40;
+    }
+
+    let hasScript = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+
+    fieldoffset += 2;
+    if (hasScript) {
+      // TODO
+    }
+
+    let next; // TODO
+    //if (originationMessage.length > fieldoffset) {
+    //  next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
+    //}
+
+    const origination: Operation = {
+      kind: "origination",
+      source: source,
+      managerPubkey: publickeyhash,
+      balance: balanceInfo.value + "",
+      spendable: spendable,
+      delegatable: delegatable,
+      delegate: hasDelegate ? delegate : undefined,
+      fee: feeInfo.value + "",
+      gas_limit: gasInfo.value + "",
+      storage_limit: storageInfo.value + "",
+      counter: counterInfo.value + ""
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: origination,
       branch: branch,
       next: next,
       nextoffset: next ? fieldoffset : -1
