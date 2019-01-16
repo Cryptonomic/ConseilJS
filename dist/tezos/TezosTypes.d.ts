@@ -71,5 +71,4 @@ export interface Operation {
     destination?: string;
     amount?: string;
     script?: string;
-    storage?: string;
 }
