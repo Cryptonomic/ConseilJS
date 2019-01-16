@@ -8,6 +8,22 @@ const base128 = baseN.create({
 
 export namespace TezosMessageUtils {
   /**
+   * Encodes a boolean as 0 or 255 by calling writeInt.
+   * @param {boolean} value 
+   */
+  export function writeBoolean(value: boolean): string {
+    return value ? writeInt(255) : writeInt(0);
+  }
+
+  /**
+   * Takes a bounded hex string that is known to contain a boolean and decodes it as int.
+   * @param {string} hex Encoded message part.
+   */
+  export function readBoolean(hex: string): boolean {
+    return readInt(hex) > 0 ? true : false;
+  }
+
+  /**
    * Encodes an integer into hex after converting it to Zarith format.
    * @param {number} value Number to be obfuscated.
    */
@@ -96,15 +112,5 @@ export namespace TezosMessageUtils {
    */
   export function writeBranch(branch: string): string {
     return base58check.decode(branch).toString("hex");
-  }
-
-  /**
-   * Reads the key hash from the provided, bounded hex string.
-   * @param {string} hex Encoded message part.
-   * @returns {string} Key.
-   */
-  export function readKey(hex: string): string {
-    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a key."); }
-    return base58check.encode(Buffer.from(hex, "hex"));
   }
 }
