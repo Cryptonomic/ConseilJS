@@ -127,8 +127,6 @@ var TezosMessageUtils;
         if (hex.length !== 64) {
             throw new Error("Incorrect hex length to parse a key.");
         }
-        console.log("public key");
-        console.log(hex);
         return bs58check_1.default.encode(Buffer.from(hex, "hex"));
     }
     TezosMessageUtils.readKey = readKey;

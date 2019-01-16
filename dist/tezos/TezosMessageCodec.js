@@ -78,8 +78,14 @@ var TezosMessageCodec;
             throw new Error("Provided operation is not a reveal.");
         }
         let fieldoffset = 0;
-        let branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(revealMessage.substring(fieldoffset, fieldoffset + 64));
-        fieldoffset += 64 + 2; // branch + type
+        let branch = "";
+        if (isFirst) {
+            branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(revealMessage.substring(fieldoffset, fieldoffset + 64));
+            fieldoffset += 64 + 2; // branch + type
+        }
+        else {
+            fieldoffset += 2; // type
+        }
         let source = "";
         if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
@@ -100,7 +106,7 @@ var TezosMessageCodec;
         let storageInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
         fieldoffset += storageInfo.length;
         fieldoffset += 2;
-        let publickey = TezosMessageUtil_1.TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64));
+        let publickey = TezosMessageUtil_1.TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64)); // TODO
         fieldoffset += 64;
         let next;
         if (revealMessage.length > fieldoffset) {
@@ -135,8 +141,14 @@ var TezosMessageCodec;
             throw new Error("Provided operation is not a transaction.");
         }
         let fieldoffset = 0;
-        let branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(transactionMessage.substring(fieldoffset, fieldoffset + 64));
-        fieldoffset += 64 + 2; // branch + type
+        let branch = "";
+        if (isFirst) {
+            branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(transactionMessage.substring(fieldoffset, fieldoffset + 64));
+            fieldoffset += 64 + 2; // branch + type
+        }
+        else {
+            fieldoffset += 2; // type
+        }
         let source = "";
         if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
@@ -203,8 +215,14 @@ var TezosMessageCodec;
             throw new Error("Provided operation is not an origination.");
         }
         let fieldoffset = 0;
-        let branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(originationMessage.substring(fieldoffset, fieldoffset + 64));
-        fieldoffset += 64 + 2; // branch + type
+        let branch = "";
+        if (isFirst) {
+            branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(originationMessage.substring(fieldoffset, fieldoffset + 64));
+            fieldoffset += 64 + 2; // branch + type
+        }
+        else {
+            fieldoffset += 2; // type
+        }
         let source = "";
         if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
@@ -283,8 +301,14 @@ var TezosMessageCodec;
             throw new Error("Provided operation is not a delegation.");
         }
         let fieldoffset = 0;
-        let branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(delegationMessage.substring(fieldoffset, fieldoffset + 64));
-        fieldoffset += 64 + 2; // branch + type
+        let branch = "";
+        if (isFirst) {
+            branch = TezosMessageUtil_1.TezosMessageUtils.readBranch(delegationMessage.substring(fieldoffset, fieldoffset + 64));
+            fieldoffset += 64 + 2; // branch + type
+        }
+        else {
+            fieldoffset += 2; // type
+        }
         let source = "";
         if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
@@ -308,18 +332,14 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let delegate = '';
         if (hasDelegate) {
-            console.log("hash type" + delegationMessage.substring(fieldoffset, fieldoffset + 2));
             fieldoffset += 2;
             delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
             fieldoffset += 40;
         }
         let next;
-        //if (delegationMessage.length > fieldoffset) {
-        //  next = getOperationType(delegationMessage.substring(fieldoffset, fieldoffset + 2));
-        //}
-        console.log("offset");
-        console.log(fieldoffset);
-        console.log(delegationMessage.substring(fieldoffset, delegationMessage.length - 1));
+        if (delegationMessage.length > fieldoffset) {
+            next = getOperationType(delegationMessage.substring(fieldoffset, fieldoffset + 2));
+        }
         const delegation = {
             kind: "delegation",
             source: source,
