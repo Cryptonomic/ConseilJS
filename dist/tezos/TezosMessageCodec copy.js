@@ -356,4 +356,4 @@ var TezosMessageCodec;
     }
     TezosMessageCodec.parseOperationGroup = parseOperationGroup;
 })(TezosMessageCodec = exports.TezosMessageCodec || (exports.TezosMessageCodec = {}));
-//# sourceMappingURL=TezosMessageCodec.js.map
+//# sourceMappingURL=TezosMessageCodec copy.js.map

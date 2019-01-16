@@ -1,5 +1,15 @@
 export declare namespace TezosMessageUtils {
     /**
+     * Encodes a boolean as 0 or 255 by calling writeInt.
+     * @param {boolean} value
+     */
+    function writeBoolean(value: boolean): string;
+    /**
+     * Takes a bounded hex string that is known to contain a boolean and decodes it as int.
+     * @param {string} hex Encoded message part.
+     */
+    function readBoolean(hex: string): boolean;
+    /**
      * Encodes an integer into hex after converting it to Zarith format.
      * @param {number} value Number to be obfuscated.
      */

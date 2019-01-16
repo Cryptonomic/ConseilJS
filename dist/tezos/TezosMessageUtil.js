@@ -12,6 +12,22 @@ const base128 = base_n_1.default.create({
 var TezosMessageUtils;
 (function (TezosMessageUtils) {
     /**
+     * Encodes a boolean as 0 or 255 by calling writeInt.
+     * @param {boolean} value
+     */
+    function writeBoolean(value) {
+        return value ? "ff" : "00";
+    }
+    TezosMessageUtils.writeBoolean = writeBoolean;
+    /**
+     * Takes a bounded hex string that is known to contain a boolean and decodes it as int.
+     * @param {string} hex Encoded message part.
+     */
+    function readBoolean(hex) {
+        return parseInt(hex, 16) > 0 ? true : false;
+    }
+    TezosMessageUtils.readBoolean = readBoolean;
+    /**
      * Encodes an integer into hex after converting it to Zarith format.
      * @param {number} value Number to be obfuscated.
      */
@@ -111,6 +127,8 @@ var TezosMessageUtils;
         if (hex.length !== 64) {
             throw new Error("Incorrect hex length to parse a key.");
         }
+        console.log("public key");
+        console.log(hex);
         return bs58check_1.default.encode(Buffer.from(hex, "hex"));
     }
     TezosMessageUtils.readKey = readKey;
