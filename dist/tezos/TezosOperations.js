@@ -66,10 +66,10 @@ var TezosOperations;
     TezosOperations.computeOperationHash = computeOperationHash;
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * @returns {Promise<string>}   Forged operation bytes (as a hex string)
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     function forgeOperations(network, blockHead, operations) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -78,12 +78,21 @@ var TezosOperations;
             const decoded = TezosMessageCodec_1.TezosMessageCodec.parseOperationGroup(ops);
             for (let i = 0; i < operations.length; i++) {
                 const clientop = operations[i];
-                if (clientop["kind"] !== "transaction") {
-                    continue;
-                }
                 const serverop = decoded[i];
-                if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
-                    throw new Error("Forged transaction failed validation.");
+                if (clientop["kind"] === "transaction") {
+                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
+                        throw new Error("Forged transaction failed validation.");
+                    }
+                }
+                else if (clientop["kind"] === "delegation") {
+                    if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
+                        throw new Error("Forged delegation failed validation.");
+                    }
+                }
+                else if (clientop["kind"] === "origination") {
+                    if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
+                        throw new Error("Forged origination failed validation.");
+                    }
                 }
             }
             return ops;
@@ -204,7 +213,6 @@ var TezosOperations;
      */
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());

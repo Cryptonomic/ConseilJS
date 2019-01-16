@@ -35,10 +35,10 @@ export declare namespace TezosOperations {
     function computeOperationHash(signedOpGroup: SignedOperationGroup): string;
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * @returns {Promise<string>}   Forged operation bytes (as a hex string)
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string>;
     /**

@@ -94,11 +94,11 @@ export namespace TezosOperations {
                 }
             } else if (clientop["kind"] === "delegation") {
                 if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
-                    throw new Error("Forged transaction failed validation.");
+                    throw new Error("Forged delegation failed validation.");
                 }
             } else if (clientop["kind"] === "origination") {
                 if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
-                    throw new Error("Forged transaction failed validation.");
+                    throw new Error("Forged origination failed validation.");
                 }
             }
         }
@@ -241,7 +241,6 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string
     ) {
-        console.log("transaction keyStore: ", keyStore)
         const blockHead = await TezosNode.getBlockHead(network);
         const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const targetAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
