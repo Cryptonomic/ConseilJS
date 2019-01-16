@@ -231,7 +231,7 @@ export namespace TezosOperations {
     export async function sendTransactionOperation(
         network: string,
         keyStore: KeyStore,
-        to: String,
+        to: string,
         amount: number,
         fee: number,
         derivationPath: string
@@ -268,7 +268,7 @@ export namespace TezosOperations {
     export async function sendDelegationOperation(
         network: string,
         keyStore: KeyStore,
-        delegate: String,
+        delegate: string,
         fee: number,
         derivationPath: string
     ) {
