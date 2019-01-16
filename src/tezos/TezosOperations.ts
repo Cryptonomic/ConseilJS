@@ -74,15 +74,12 @@ export namespace TezosOperations {
 
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * @returns {Promise<string>}   Forged operation bytes (as a hex string)
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
-    export async function forgeOperations(
-        network: string,
-        blockHead: TezosTypes.BlockMetadata,
-        operations: object[]): Promise<string> {
+    export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
         const payload = { branch: blockHead.hash, contents: operations };
         const ops = await TezosNode.forgeOperation(network, payload);
 
@@ -90,11 +87,19 @@ export namespace TezosOperations {
 
         for (let i = 0; i < operations.length; i++) {
             const clientop = operations[i];
-            if (clientop["kind"] !== "transaction") { continue; }
-
             const serverop = decoded[i];
-            if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
-                throw new Error("Forged transaction failed validation.");
+            if (clientop["kind"] === "transaction") {
+                if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
+                    throw new Error("Forged transaction failed validation.");
+                }
+            } else if (clientop["kind"] === "delegation") {
+                if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
+                    throw new Error("Forged transaction failed validation.");
+                }
+            } else if (clientop["kind"] === "origination") {
+                if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
+                    throw new Error("Forged transaction failed validation.");
+                }
             }
         }
 
