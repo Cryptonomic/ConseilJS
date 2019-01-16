@@ -38,7 +38,7 @@ install:
 
 script:
   - node --version
-  - npm run packagr
+  - npm run package
 
 after_success:
   - npm run coverage
