@@ -59,12 +59,82 @@ export namespace TezosMessageCodec {
       case "transaction":
         return parseTransaction(hex, isFirst);
       case "origination":
-        throw new Error(`Unsupported operation type: ${opType}`);
+      throw new Error(`Unsupported operation type: ${opType}`);
       case "delegation":
-        throw new Error(`Unsupported operation type: ${opType}`);
+      throw new Error(`Unsupported operation type: ${opType}`);
       default:
         throw new Error(`Unsupported operation type: ${opType}`);
     }
+  }
+
+  /**
+   * Parse a reveal message possibly containing siblings.
+   * @param {string} revealMessage Encoded reveal-type message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
+   */
+  export function parseReveal(revealMessage: string, isFirst: boolean = true): OperationEnvelope {
+    let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
+    if (getOperationType(hexOperationType) !== "reveal") {
+      throw new Error("Provided operation is not a reveal.");
+    }
+
+    let fieldoffset = 0;
+    let branch = TezosMessageUtils.readBranch(
+      revealMessage.substring(fieldoffset, fieldoffset + 64)
+    );
+
+    fieldoffset += 64 + 2; // branch + type
+
+    let source = "";
+    if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
+      fieldoffset += 4;
+      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40));
+    } else {
+      fieldoffset += 2;
+      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
+      fieldoffset += 2;
+    }
+
+    fieldoffset += 40;
+    let feeInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
+
+    fieldoffset += feeInfo.length;
+    let counterInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
+
+    fieldoffset += counterInfo.length;
+    let gasInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
+
+    fieldoffset += gasInfo.length;
+    let storageInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
+    fieldoffset += storageInfo.length;
+
+    fieldoffset += 2;
+    let publickey = TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64));
+    fieldoffset += 64;
+
+    let next;
+    if (revealMessage.length > fieldoffset) {
+      next = getOperationType(revealMessage.substring(fieldoffset, fieldoffset + 2));
+    }
+
+    const reveal: Operation = {
+      kind: "reveal",
+      source: source,
+      public_key: publickey,
+      fee: feeInfo.value + "",
+      gas_limit: gasInfo.value + "",
+      storage_limit: storageInfo.value + "",
+      counter: counterInfo.value + ""
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: reveal,
+      branch: branch,
+      next: next,
+      nextoffset: next ? fieldoffset : -1
+    }
+
+    return envelope;
   }
 
   /**
@@ -137,76 +207,6 @@ export namespace TezosMessageCodec {
 
     const envelope: OperationEnvelope = {
       operation: transaction,
-      branch: branch,
-      next: next,
-      nextoffset: next ? fieldoffset : -1
-    }
-
-    return envelope;
-  }
-
-  /**
-   * Parse a reveal message possibly containing siblings.
-   * @param {string} revealMessage Encoded reveal-type message
-   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
-   */
-  export function parseReveal(revealMessage, isFirst = true): OperationEnvelope {
-    let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
-    if (getOperationType(hexOperationType) !== "reveal") {
-      throw new Error("Provided operation is not a reveal.");
-    }
-
-    let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(
-      revealMessage.substring(fieldoffset, fieldoffset + 64)
-    );
-
-    fieldoffset += 64 + 2; // branch + type
-
-    let source = "";
-    if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-      fieldoffset += 4;
-      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40));
-    } else {
-      fieldoffset += 2;
-      source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-      fieldoffset += 2;
-    }
-
-    fieldoffset += 40;
-    let feeInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
-
-    fieldoffset += feeInfo.length;
-    let counterInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
-
-    fieldoffset += counterInfo.length;
-    let gasInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
-
-    fieldoffset += gasInfo.length;
-    let storageInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
-    fieldoffset += storageInfo.length;
-
-    fieldoffset += 2; // ??
-    let publickey = TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64));
-    fieldoffset += 64;
-
-    let next;
-    if (revealMessage.length > fieldoffset) {
-      next = getOperationType(revealMessage.substring(fieldoffset, fieldoffset + 2));
-    }
-
-    const reveal: Operation = {
-      kind: "reveal",
-      source: source,
-      public_key: publickey,
-      fee: feeInfo.value + "",
-      gas_limit: gasInfo.value + "",
-      storage_limit: storageInfo.value + "",
-      counter: counterInfo.value + ""
-    };
-
-    const envelope: OperationEnvelope = {
-      operation: reveal,
       branch: branch,
       next: next,
       nextoffset: next ? fieldoffset : -1

@@ -113,4 +113,14 @@ export namespace TezosMessageUtils {
   export function writeBranch(branch: string): string {
     return base58check.decode(branch).toString("hex");
   }
+
+  /**
+   * Reads the key hash from the provided, bounded hex string.
+   * @param {string} hex Encoded message part.
+   * @returns {string} Key.
+   */
+  export function readKey(hex: string): string {
+    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a key."); }
+    return base58check.encode(Buffer.from(hex, "hex"));
+  }
 }
