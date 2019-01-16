@@ -61,7 +61,7 @@ export namespace TezosMessageCodec {
       case "origination":
         return parseOrigination(hex, isFirst);
       case "delegation":
-        throw new Error(`Unsupported operation type: ${opType}`);
+        return parseDelegation(hex, isFirst);
       default:
         throw new Error(`Unsupported operation type: ${opType}`);
     }
@@ -307,6 +307,82 @@ export namespace TezosMessageCodec {
 
     const envelope: OperationEnvelope = {
       operation: origination,
+      branch: branch,
+      next: next,
+      nextoffset: next ? fieldoffset : -1
+    }
+
+    return envelope;
+  }
+
+  /**
+   * Parse an delegation message possibly containing siblings.
+   * @param {string} delegationMessage Encoded delegation-type message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
+   */
+  export function parseDelegation(delegationMessage: string, isFirst: boolean = true): OperationEnvelope {
+    let hexOperationType = isFirst ? delegationMessage.substring(64, 66) : delegationMessage.substring(0, 2);
+    if (getOperationType(hexOperationType) !== "delegation") {
+      throw new Error("Provided operation is not a delegation.");
+    }
+
+    let fieldoffset = 0;
+    let branch = TezosMessageUtils.readBranch(
+      delegationMessage.substring(fieldoffset, fieldoffset + 64)
+    );
+
+    fieldoffset += 64 + 2; // branch + type
+
+    let source = "";
+    if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
+      fieldoffset += 4;
+      source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
+    } else {
+      fieldoffset += 2;
+      source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
+      fieldoffset += 2;
+    }
+
+    fieldoffset += 40;
+    let feeInfo = TezosMessageUtils.findInt(delegationMessage, fieldoffset);
+
+    fieldoffset += feeInfo.length;
+    let counterInfo = TezosMessageUtils.findInt(delegationMessage, fieldoffset);
+
+    fieldoffset += counterInfo.length;
+    let gasInfo = TezosMessageUtils.findInt(delegationMessage, fieldoffset);
+
+    fieldoffset += gasInfo.length;
+    let storageInfo = TezosMessageUtils.findInt(delegationMessage, fieldoffset);
+
+    fieldoffset += storageInfo.length;
+    let hasDelegate = TezosMessageUtils.readBoolean(delegationMessage.substring(fieldoffset, fieldoffset + 2));
+
+    fieldoffset += 2;
+    let delegate = '';
+    if (hasDelegate) {
+      fieldoffset += 2;
+      delegate = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
+      fieldoffset += 40;
+    }
+
+    let next;
+    if (delegationMessage.length > fieldoffset) {
+      next = getOperationType(delegationMessage.substring(fieldoffset, fieldoffset + 2));
+    }
+
+    const delegation: Operation = {
+      kind: "delegation",
+      source: source,
+      delegate: hasDelegate ? delegate : undefined,
+      fee: feeInfo.value + "",
+      gas_limit: gasInfo.value + "",
+      storage_limit: storageInfo.value + "",
+      counter: counterInfo.value + ""
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: delegation,
       branch: branch,
       next: next,
       nextoffset: next ? fieldoffset : -1

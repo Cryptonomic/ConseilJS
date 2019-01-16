@@ -69,4 +69,16 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.storage_limit).to.equal('10160'); // microtez
     expect(result.operation.counter).to.equal('649');
   });
+
+  it("correctly parse a delegation ", () => {
+    let forgedDelegtion = "a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c0a0180be2031715ea183848c08e2ff59d62e7d255ae500a0c21e03904e00ff00b15b7a2484464ed3228c0ae23d0391f8269de3da";
+    const result = TezosMessageCodec.parseDelegation(forgedDelegtion);
+    expect(result.operation.kind).to.equal("delegation");
+    expect(result.operation.source).to.equal("KT1LKVpVJGP2Rfg4GznEJLcDEoetibs93GvM");
+    expect(result.operation.delegate).to.equal("tz1boot1pK9h2BVGXdyvfQSv8kd1LQM6H889");
+    expect(result.operation.fee).to.equal('500000'); // microtez
+    expect(result.operation.gas_limit).to.equal('10000'); // microtez
+    expect(result.operation.storage_limit).to.equal('0'); // microtez
+    expect(result.operation.counter).to.equal('3');
+  });
 });
