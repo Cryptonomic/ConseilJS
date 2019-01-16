@@ -73,13 +73,14 @@ export interface Operation {
     counter: string,
     storage_limit: string,
     gas_limit: string,
-    delegate?: String,
+    delegate?: string,
     public_key?: string,
     managerPubkey?: string, // mainnet, alphanet
     //manager_pubkey?: string, // zeronet
     balance?: string,
     spendable?: boolean,
     delegatable?: boolean,
-    destination?: String,
-    amount?: string
+    destination?: string,
+    amount?: string,
+    script?: string
 }

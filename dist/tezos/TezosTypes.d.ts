@@ -62,12 +62,13 @@ export interface Operation {
     counter: string;
     storage_limit: string;
     gas_limit: string;
-    delegate?: String;
+    delegate?: string;
     public_key?: string;
     managerPubkey?: string;
     balance?: string;
     spendable?: boolean;
     delegatable?: boolean;
-    destination?: String;
+    destination?: string;
     amount?: string;
+    script?: string;
 }

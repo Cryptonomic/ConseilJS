@@ -20,6 +20,7 @@ const CryptoUtils = __importStar(require("../utils/CryptoUtils"));
 const LedgerUtils = __importStar(require("../utils/LedgerUtils"));
 const KeyStore_1 = require("../types/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
+const TezosMessageCodec_1 = require("./TezosMessageCodec");
 var TezosOperations;
 (function (TezosOperations) {
     /**
@@ -65,18 +66,36 @@ var TezosOperations;
     TezosOperations.computeOperationHash = computeOperationHash;
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * @returns {Promise<string>}   Forged operation bytes (as a hex string)
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     function forgeOperations(network, blockHead, operations) {
         return __awaiter(this, void 0, void 0, function* () {
-            const payload = {
-                branch: blockHead.hash,
-                contents: operations
-            };
-            return TezosNodeQuery_1.TezosNode.forgeOperation(network, payload);
+            const payload = { branch: blockHead.hash, contents: operations };
+            const ops = yield TezosNodeQuery_1.TezosNode.forgeOperation(network, payload);
+            const decoded = TezosMessageCodec_1.TezosMessageCodec.parseOperationGroup(ops);
+            for (let i = 0; i < operations.length; i++) {
+                const clientop = operations[i];
+                const serverop = decoded[i];
+                if (clientop["kind"] === "transaction") {
+                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
+                        throw new Error("Forged transaction failed validation.");
+                    }
+                }
+                else if (clientop["kind"] === "delegation") {
+                    if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
+                        throw new Error("Forged delegation failed validation.");
+                    }
+                }
+                else if (clientop["kind"] === "origination") {
+                    if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
+                        throw new Error("Forged origination failed validation.");
+                    }
+                }
+            }
+            return ops;
         });
     }
     TezosOperations.forgeOperations = forgeOperations;
@@ -106,9 +125,10 @@ var TezosOperations;
      */
     function checkAppliedOperationResults(appliedOp) {
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
-        const firstAppliedOp = appliedOp[0]; //All our op groups are singletons so we deliberately check the zeroth result.
-        if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind))
+        const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
+        if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
             throw (new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+        }
         for (const op of firstAppliedOp.contents) {
             if (!validAppliedKinds.has(op.kind))
                 throw (new Error(`Could not apply operation because: ${op.id}`));
@@ -162,7 +182,7 @@ var TezosOperations;
     function appendRevealOperation(network, keyStore, account, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
-            var returnedOperations = operations;
+            let returnedOperations = operations;
             if (!isManagerKeyRevealed) {
                 const revealOp = {
                     kind: "reveal",
@@ -173,7 +193,7 @@ var TezosOperations;
                     storage_limit: '0',
                     public_key: keyStore.publicKey
                 };
-                var operation = operations[0];
+                let operation = operations[0];
                 operation.counter = (Number(account.counter) + 2).toString();
                 returnedOperations = [revealOp, operation];
             }
@@ -193,7 +213,6 @@ var TezosOperations;
      */
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log("transaction keyStore: ", keyStore);
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const targetAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, to.toString());
