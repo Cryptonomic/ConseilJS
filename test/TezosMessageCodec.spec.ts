@@ -28,15 +28,22 @@ describe("Tezos P2P message decoder test suite", () => {
   it("correctly parse a reveal/transaction operation group", () => {
     let forgedGroup = "1135aca1d87caaef7c996554329f9f50971cb21e1c5f7c5fd7b961c3d6b837a80701b4dd7343459d2be37bd5b178aed42d10d2bcaaa6000001904e0000fc3e2803c22138160355e116671fae2d6129aea448852e45bbce1afcd95a7b480801b4dd7343459d2be37bd5b178aed42d10d2bcaaa600a0c21e02bc50ac02c096b10200004e1808fc58ea7383c7493400aaaa9a2b2592536d00";
     const result = TezosMessageCodec.parseOperationGroup(forgedGroup);
-    console.log(result[0]);
-    console.log(result[1]);
-    /*expect(result[0].kind).to.equal("transaction");
-    expect(result[0].source).to.equal("tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX");
-    expect(result[0].destination).to.equal("KT1VitQkugUTFgMBaHbcEbwV1CjHmt5J8nFp");
-    expect(result[0].amount).to.equal("2048000000"); // microtez
-    expect(result[0].fee).to.equal('256000000'); // microtez
-    expect(result[0].gas_limit).to.equal('10300'); // microtez
-    expect(result[0].storage_limit).to.equal('300'); // microtez*/
+
+    expect(result[0].kind).to.equal("reveal");
+    expect(result[0].source).to.equal("KT1R56UvkvU9NCnviU15bWUoyaq5nhEu7zEs");
+    expect(result[0].fee).to.equal('0'); // microtez
+    expect(result[0].gas_limit).to.equal('10000'); // microtez
+    expect(result[0].storage_limit).to.equal('0'); // microtez
+    expect(result[0].counter).to.equal('1');
+
+    expect(result[1].kind).to.equal("transaction");
+    expect(result[1].source).to.equal("KT1R56UvkvU9NCnviU15bWUoyaq5nhEu7zEs");
+    expect(result[1].destination).to.equal("tz1SkxC51pdLhugeBmix57xsPcfDqAMgaTF8");
+    expect(result[1].amount).to.equal("5000000"); // microtez
+    expect(result[1].fee).to.equal('500000'); // microtez
+    expect(result[1].gas_limit).to.equal('10300'); // microtez
+    expect(result[1].storage_limit).to.equal('300'); // microtez
+    expect(result[1].counter).to.equal('2');
   });
 
   it("correctly parse an origination", () => {
@@ -85,17 +92,22 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly parse a reveal/delegation OperationGroup", () => {
-    //let forgedGroup = "5210cf0c0fefff01ba9bd4d33472480f71684b9d4bc2338b6d28e021f5ed970e070180be2031715ea183848c08e2ff59d62e7d255ae5000001904e0000fc3e2803c22138160355e116671fae2d6129aea448852e45bbce1afcd95a7b480a0180be2031715ea183848c08e2ff59d62e7d255ae500a0c21e02904e00ff005f450441f41ee11eee78a31d1e1e55627c783bd6";
     let forgedGroup = "9ceeeb1b01045aa2231e2f025a8bf3dc8ea191c53efacdee3cd639450e47890a070127e038a44406b1d0a61a37e1cba18bc37a3f33a0000001904e0000fc3e2803c22138160355e116671fae2d6129aea448852e45bbce1afcd95a7b480a0127e038a44406b1d0a61a37e1cba18bc37a3f33a000a0c21e02904e00ff00c2cd1f0ce9de3c729b4d83156c69f67f5a907d28";
     const result = TezosMessageCodec.parseOperationGroup(forgedGroup);
-    console.log(result[0]);
-    console.log(result[1]);
-    /*expect(result[1].kind).to.equal("delegation");
-    expect(result[1].source).to.equal("KT1QkYkgH4bzpQaC97gZY8aDAyyJsATbVjzB");
-    expect(result[1].delegate).to.equal("tz1X9WcHWyp7Sw5NbkvVkDLKwrXYaF7Vs3kD");
-    expect(result[1].fee).to.equal('27'); // microtez
-    expect(result[1].gas_limit).to.equal('5401'); // microtez
-    expect(result[1].storage_limit).to.equal('7'); // microtez
-    expect(result[1].counter).to.equal('0');*/
+
+    expect(result[0].kind).to.equal("reveal");
+    expect(result[0].source).to.equal("KT1CDcXQtxjfvrsCbD4mTp97ve5TawS8f8wb");
+    expect(result[0].fee).to.equal('0'); // microtez
+    expect(result[0].gas_limit).to.equal('10000'); // microtez
+    expect(result[0].storage_limit).to.equal('0'); // microtez
+    expect(result[0].counter).to.equal('1');
+
+    expect(result[1].kind).to.equal("delegation");
+    expect(result[1].source).to.equal("KT1CDcXQtxjfvrsCbD4mTp97ve5TawS8f8wb");
+    expect(result[1].delegate).to.equal("tz1dQ3WQpKTu1Vi3ZF6DwaZRgdEVS28RNw2h");
+    expect(result[1].fee).to.equal('500000'); // microtez
+    expect(result[1].gas_limit).to.equal('10000'); // microtez
+    expect(result[1].storage_limit).to.equal('0'); // microtez
+    expect(result[1].counter).to.equal('2');
   });
 });
