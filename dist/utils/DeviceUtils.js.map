@@ -1,0 +1,1 @@
+{"version":3,"file":"DeviceUtils.js","sourceRoot":"","sources":["../../src/utils/DeviceUtils.ts"],"names":[],"mappings":";;AAAA;IAEI,MAAM,CAAC,cAAc,CAAC,MAAW;QAC7B,IAAI,CAAC,WAAW,GAAG,KAAK,CAAC;IAC7B,CAAC;IAED,MAAM,CAAC,cAAc;QACjB,OAAO,IAAI,CAAC,WAAW,CAAC;IAC5B,CAAC;;AAPM,uBAAW,GAAQ,IAAI,CAAC;AADnC,8BASC"}

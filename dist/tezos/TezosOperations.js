@@ -14,12 +14,16 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = require("libsodium-wrappers");
 const CryptoUtils = __importStar(require("../utils/CryptoUtils"));
-const LedgerUtils = __importStar(require("../utils/LedgerUtils"));
 const KeyStore_1 = require("../types/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
+const DeviceUtils_1 = __importDefault(require("../utils/DeviceUtils"));
+let LedgerUtils = DeviceUtils_1.default.getLedgerUtils();
 var TezosOperations;
 (function (TezosOperations) {
     /**

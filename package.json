@@ -2,6 +2,7 @@
   "name": "conseiljs",
   "version": "0.1.37",
   "description": "Client-side library for dApp development.",
+  "browser": "dist/index-browser.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -76,9 +77,11 @@
     "typescript": "^2.8.3",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.28.1",
-    "webpack-cli": "^3.0.3"
+    "webpack-cli": "^3.0.3",
+    "whatwg-fetch": "^3.0.0"
   },
   "peerDependencies": {
-    "node-fetch": "^2.1.1"
+    "node-fetch": "^2.1.1",
+    "whatwg-fetch": "^3.0.0"
   }
 }

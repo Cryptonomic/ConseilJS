@@ -1,4 +1,3 @@
-import { Response } from 'node-fetch';
 /**
  * Generic functions for running queries against blockchain nodes.
  */
@@ -18,4 +17,4 @@ export declare function runGetQuery(server: string, command: string): Promise<ob
  * @param {object} payload  Payload to submit
  * @returns {Promise<object>}   JSON-encoded response
  */
-export declare function runPostQuery(server: string, command: string, payload?: {}): Promise<Response>;
+export declare function runPostQuery(server: string, command: string, payload?: {}): Promise<any>;
