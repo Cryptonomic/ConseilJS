@@ -79,11 +79,13 @@ export namespace TezosMessageCodec {
     }
 
     let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(
-      revealMessage.substring(fieldoffset, fieldoffset + 64)
-    );
-
-    fieldoffset += 64 + 2; // branch + type
+    let branch = "";
+    if (isFirst) {
+      branch = TezosMessageUtils.readBranch(revealMessage.substring(fieldoffset, fieldoffset + 64));
+      fieldoffset += 64 + 2; // branch + type
+    } else {
+      fieldoffset += 2; // type
+    }
 
     let source = "";
     if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
@@ -109,7 +111,7 @@ export namespace TezosMessageCodec {
     fieldoffset += storageInfo.length;
 
     fieldoffset += 2;
-    let publickey = TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64));
+    let publickey = TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64)); // TODO
     fieldoffset += 64;
 
     let next;
@@ -149,9 +151,14 @@ export namespace TezosMessageCodec {
     }
 
     let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(transactionMessage.substring(fieldoffset, fieldoffset + 64));
+    let branch = "";
+    if (isFirst) {
+      branch = TezosMessageUtils.readBranch(transactionMessage.substring(fieldoffset, fieldoffset + 64));
+      fieldoffset += 64 + 2; // branch + type
+    } else {
+      fieldoffset += 2; // type
+    }
 
-    fieldoffset += 64 + 2; // branch + type
     let source = "";
     if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
       fieldoffset += 4;
@@ -227,11 +234,13 @@ export namespace TezosMessageCodec {
     }
 
     let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(
-      originationMessage.substring(fieldoffset, fieldoffset + 64)
-    );
-
-    fieldoffset += 64 + 2; // branch + type
+    let branch = "";
+    if (isFirst) {
+      branch = TezosMessageUtils.readBranch(originationMessage.substring(fieldoffset, fieldoffset + 64));
+      fieldoffset += 64 + 2; // branch + type
+    } else {
+      fieldoffset += 2; // type
+    }
 
     let source = "";
     if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
@@ -327,11 +336,13 @@ export namespace TezosMessageCodec {
     }
 
     let fieldoffset = 0;
-    let branch = TezosMessageUtils.readBranch(
-      delegationMessage.substring(fieldoffset, fieldoffset + 64)
-    );
-
-    fieldoffset += 64 + 2; // branch + type
+    let branch = "";
+    if (isFirst) {
+      branch = TezosMessageUtils.readBranch(delegationMessage.substring(fieldoffset, fieldoffset + 64));
+      fieldoffset += 64 + 2; // branch + type
+    } else {
+      fieldoffset += 2; // type
+    }
 
     let source = "";
     if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
