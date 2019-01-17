@@ -3,16 +3,30 @@ import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
-  it("correctly parse a transaction", () => {
-    let forgedTransaction = "9cd3aa823667cd8223073d2447c4c012373c99a00df5112b502ee82f5cf95ae408000069ef8fb5d47d8a4321c94576a2316a632be8ce898094ebdc039cfe19bc50ac0280a0c21e00004783ca75ac8736021036aa5ff2a69f116eca759800";
-    const result = TezosMessageCodec.parseTransaction(forgedTransaction);
-    expect(result.operation.kind).to.equal("transaction");
-    expect(result.operation.source).to.equal("tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX");
-    expect(result.operation.destination).to.equal("tz1SAAYjCwU5TGHZkigrG8iFSm3uhN2hHzfp");
-    expect(result.operation.amount).to.equal('64000000'); // microtez
-    expect(result.operation.fee).to.equal('1000000000'); // microtez
-    expect(result.operation.gas_limit).to.equal('10300'); // microtez
-    expect(result.operation.storage_limit).to.equal('300'); // microtez
+  it("correctly parse a transaction (send from tz1 to tz1)", () => {
+    const result = TezosMessageCodec.parseOperationGroup("86a093501b90e0762f58b15e63c2211827c513fa684554fb833ad8b5fac7d30a0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dcf78bc50ac0280897a00006e747386822673001b03dca0eff6cebf7c9cd6e400");
+
+    expect(result[0].kind).to.equal("transaction");
+    expect(result[0].source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result[0].destination).to.equal("tz1Vi4XPxnKqjN2aS13TY6aAjZvnqmvx8TgH");
+    expect(result[0].amount).to.equal('2000000'); // microtez
+    expect(result[0].fee).to.equal('1000000'); // microtez
+    expect(result[0].gas_limit).to.equal('10300'); // microtez
+    expect(result[0].storage_limit).to.equal('300'); // microtez*/
+    expect(result[0].counter).to.equal('15439');
+  });
+
+  it("correctly parse a transaction (send from kt1 to tz2)", () => {
+    const result = TezosMessageCodec.parseOperationGroup("e36fb667c53c97102a0c9ecd55f5222b347bc843bbaf419daf0d990426cd53650801e0820a36f5e26fcd952f1acc08b2b1c974c23b1e00c0843d03bc50ac0280897a000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+
+    expect(result[0].kind).to.equal("transaction");
+    expect(result[0].source).to.equal("KT1V3ri4nnNQTsG52ypMQhZsnZpJEDi6gB4J");
+    expect(result[0].destination).to.equal("tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m");
+    expect(result[0].amount).to.equal('2000000'); // microtez
+    expect(result[0].fee).to.equal('1000000'); // microtez
+    expect(result[0].gas_limit).to.equal('10300'); // microtez
+    expect(result[0].storage_limit).to.equal('300'); // microtez*/
+    expect(result[0].counter).to.equal('3');
   });
 
   it("correctly parse a reveal", () => {
@@ -26,40 +40,40 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly parse a reveal/transaction operation group", () => {
-    let forgedGroup = "1135aca1d87caaef7c996554329f9f50971cb21e1c5f7c5fd7b961c3d6b837a80701b4dd7343459d2be37bd5b178aed42d10d2bcaaa6000001904e0000fc3e2803c22138160355e116671fae2d6129aea448852e45bbce1afcd95a7b480801b4dd7343459d2be37bd5b178aed42d10d2bcaaa600a0c21e02bc50ac02c096b10200004e1808fc58ea7383c7493400aaaa9a2b2592536d00";
-    const result = TezosMessageCodec.parseOperationGroup(forgedGroup);
+    const result = TezosMessageCodec.parseOperationGroup("7571d2132243697e5bf1d869f4393ec7f45748fc2ba837ffe610c7687b393df10700009fcc83e722c9d9f7a150555e632e6e0f97bfc29b00cd78904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dce78bc50ac0280897a0106bca459c3521c6b2e25f1a2143035d28faade8d0000");
 
     expect(result[0].kind).to.equal("reveal");
-    expect(result[0].source).to.equal("KT1R56UvkvU9NCnviU15bWUoyaq5nhEu7zEs");
+    expect(result[0].source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result[0].public_key).to.equal("edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa");
     expect(result[0].fee).to.equal('0'); // microtez
     expect(result[0].gas_limit).to.equal('10000'); // microtez
     expect(result[0].storage_limit).to.equal('0'); // microtez
-    expect(result[0].counter).to.equal('1');
+    expect(result[0].counter).to.equal('15437');
 
     expect(result[1].kind).to.equal("transaction");
-    expect(result[1].source).to.equal("KT1R56UvkvU9NCnviU15bWUoyaq5nhEu7zEs");
-    expect(result[1].destination).to.equal("tz1SkxC51pdLhugeBmix57xsPcfDqAMgaTF8");
-    expect(result[1].amount).to.equal("5000000"); // microtez
-    expect(result[1].fee).to.equal('500000'); // microtez
+    expect(result[1].source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result[1].destination).to.equal("KT19CPbzVD6MnpatJSKDWR1uShEtsqrHhqvx");
+    expect(result[1].amount).to.equal("2000000"); // microtez
+    expect(result[1].fee).to.equal('1000000'); // microtez
     expect(result[1].gas_limit).to.equal('10300'); // microtez
     expect(result[1].storage_limit).to.equal('300'); // microtez
-    expect(result[1].counter).to.equal('2');
+    expect(result[1].counter).to.equal('15438');
   });
 
   it("correctly parse an origination", () => {
-    let forgedOrigination = "30d0f6eceb58ee25a7477b8f6baa6dec852c038fb550a8c4a0f9016f4543f6c7090000b2e1d673031ec0711eacb822cbca4ce95f1e3c0a80897a8a05b04f950200b2e1d673031ec0711eacb822cbca4ce95f1e3c0a80dac409ffffff00641d2f258a7fafe9cf1f18720a14dfadba9adb0e00bf7366f8a48e82b025c898ba8eb7c333f1c720ccab3df932409c283b42c272e0b9cce73a4c657e0b9901726c8436fc2c177ba06f712dfd35320f67ee4b4dcf04";
+    let forgedOrigination = "c98677a5ad30a181889ad0325b5ce4b32d288e2d0397eac9391e20de1ec816f20900009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dd078b04f9502009fcc83e722c9d9f7a150555e632e6e0f97bfc29b8080897affffff006e747386822673001b03dca0eff6cebf7c9cd6e400";
     const result = TezosMessageCodec.parseOrigination(forgedOrigination);
     expect(result.operation.kind).to.equal("origination");
-    expect(result.operation.source).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
-    expect(result.operation.managerPubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
-    expect(result.operation.balance).to.equal('20000000'); // microtez
+    expect(result.operation.source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result.operation.managerPubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result.operation.balance).to.equal('256000000'); // microtez
     expect(result.operation.spendable).to.equal(true);
     expect(result.operation.delegatable).to.equal(true);
-    expect(result.operation.delegate).to.equal("tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ");
-    expect(result.operation.fee).to.equal('2000000'); // microtez
+    expect(result.operation.delegate).to.equal("tz1Vi4XPxnKqjN2aS13TY6aAjZvnqmvx8TgH");
+    expect(result.operation.fee).to.equal('1000000'); // microtez
     expect(result.operation.gas_limit).to.equal('10160'); // microtez
     expect(result.operation.storage_limit).to.equal('277'); // microtez
-    expect(result.operation.counter).to.equal('650');
+    expect(result.operation.counter).to.equal('15440');
   });
 
   it("correctly parse an origination with contract", () => {
@@ -92,20 +106,20 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly parse a reveal/delegation OperationGroup", () => {
-    let forgedGroup = "9ceeeb1b01045aa2231e2f025a8bf3dc8ea191c53efacdee3cd639450e47890a070127e038a44406b1d0a61a37e1cba18bc37a3f33a0000001904e0000fc3e2803c22138160355e116671fae2d6129aea448852e45bbce1afcd95a7b480a0127e038a44406b1d0a61a37e1cba18bc37a3f33a000a0c21e02904e00ff00c2cd1f0ce9de3c729b4d83156c69f67f5a907d28";
-    const result = TezosMessageCodec.parseOperationGroup(forgedGroup);
+    const result = TezosMessageCodec.parseOperationGroup("1ee2414a88e8d64f087464c2706a4031b32f55ee5e52178b9cc39dce3c436d080701e0820a36f5e26fcd952f1acc08b2b1c974c23b1e000001904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0a01e0820a36f5e26fcd952f1acc08b2b1c974c23b1e00c0843d02904e00ff026fde46af0356a0476dae4e4600172dc9309b3aa4");
 
     expect(result[0].kind).to.equal("reveal");
-    expect(result[0].source).to.equal("KT1CDcXQtxjfvrsCbD4mTp97ve5TawS8f8wb");
+    expect(result[0].source).to.equal("KT1V3ri4nnNQTsG52ypMQhZsnZpJEDi6gB4J");
+    expect(result[0].public_key).to.equal("edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa");
     expect(result[0].fee).to.equal('0'); // microtez
     expect(result[0].gas_limit).to.equal('10000'); // microtez
     expect(result[0].storage_limit).to.equal('0'); // microtez
     expect(result[0].counter).to.equal('1');
 
     expect(result[1].kind).to.equal("delegation");
-    expect(result[1].source).to.equal("KT1CDcXQtxjfvrsCbD4mTp97ve5TawS8f8wb");
-    expect(result[1].delegate).to.equal("tz1dQ3WQpKTu1Vi3ZF6DwaZRgdEVS28RNw2h");
-    expect(result[1].fee).to.equal('500000'); // microtez
+    expect(result[1].source).to.equal("KT1V3ri4nnNQTsG52ypMQhZsnZpJEDi6gB4J");
+    expect(result[1].delegate).to.equal("tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5");
+    expect(result[1].fee).to.equal('1000000'); // microtez
     expect(result[1].gas_limit).to.equal('10000'); // microtez
     expect(result[1].storage_limit).to.equal('0'); // microtez
     expect(result[1].counter).to.equal('2');

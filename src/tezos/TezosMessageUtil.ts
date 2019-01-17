@@ -6,6 +6,9 @@ const base128 = baseN.create({
   characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
 });
 
+/**
+ * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
+ */
 export namespace TezosMessageUtils {
   /**
    * Encodes a boolean as 0 or 255 by calling writeInt.
@@ -77,19 +80,25 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Takes a bounded hex string that is known to contain a Tezos address and decodes it.
+   * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
    * @param {string} hex Encoded message part.
-   * @param {string} type Tezos address type, one of 'tz1' or 'kt1'.
    */
-  export function readAddress(hex: string, type: string = "tz1"): string {
-    if (hex.length !== 40) { throw new Error("Incorrect hex length to parse an address."); }
+  export function readAddress(hex: string): string {
+    if (hex.length !== 44 && hex.length !== 42) { throw new Error("Incorrect hex length to parse an address."); }
 
-    switch (type) {
-      case "tz1": return base58check.encode(Buffer.from("06a19f" + hex, "hex"));
-      case "tz2": return base58check.encode(Buffer.from("06a1a1" + hex, "hex"));
-      case "tz3": return base58check.encode(Buffer.from("06a1a4" + hex, "hex"));
-      case "kt1": return base58check.encode(Buffer.from("025a79" + hex, "hex"));
-      default: throw new Error("Unrecognized address type");
+    let implicitHint = hex.length === 44 ? hex.substring(0, 4) : "00" + hex.substring(0, 2);
+    let implicitPrefixLength = hex.length === 44 ? 4 : 2;
+
+    if (implicitHint === "0000") { // tz1
+      return base58check.encode(Buffer.from("06a19f" + hex.substring(implicitPrefixLength), "hex"));
+    } else if (implicitHint === "0001") { // tz2
+      return base58check.encode(Buffer.from("06a1a1" + hex.substring(implicitPrefixLength), "hex"));
+    } else if (implicitHint === "0002") { // tz3
+      return base58check.encode(Buffer.from("06a1a4" + hex.substring(implicitPrefixLength), "hex"));
+    } else if (hex.substring(0, 2) === "01" && hex.length === 44) { // kt1
+      return base58check.encode(Buffer.from("025a79" + hex.substring(2, 42), "hex"));
+    } else {
+      throw new Error("Unrecognized address type");
     }
   }
 
@@ -121,13 +130,42 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Reads the key hash from the provided, bounded hex string.
+   * Reads the key from the provided, bounded hex string.
    * @param {string} hex Encoded message part.
    * @returns {string} Key.
    */
-  export function readKey(hex: string, type: string = "ed"): string {
-    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a key."); }
+  export function readPublicKey(hex: string): string {
+    if (hex.length !== 66 && hex.length !== 68) { throw new Error("Incorrect hex length to parse a key."); }
 
-    return base58check.encode(Buffer.from(hex, "hex"));
+    let hint = hex.substring(0, 2);
+    if (hint === "00") { // ed25519
+      return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
+    } else if (hint === "01" && hex.length === 68) { // secp256k1
+      return base58check.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+    } else if (hint === "02" && hex.length === 68) { // p256
+      return base58check.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+    } else {
+      throw new Error("Unrecognized key type");
+    }
+  }
+
+  /**
+   * Reads the key hash from the provided, bounded hex string.
+   * @param {string} hex Encoded message part.
+   * @returns {string} Key hash.
+   */
+  export function readPublicKeyHash(hex: string): string {
+    if (hex.length !== 42) { throw new Error("Incorrect hex length to parse a key."); }
+
+    let hint = hex.substring(0, 2);
+    if (hint === "00") { // ed25519
+      return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
+    } else if (hint === "01") { // secp256k1
+      return base58check.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+    } else if (hint === "02") { // p256
+      return base58check.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+    } else {
+      throw new Error("Unrecognized hash type");
+    }
   }
 }
