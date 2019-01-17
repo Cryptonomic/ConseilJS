@@ -34,9 +34,11 @@ cache:
     - node_modules
 
 install:
-  - yarn
+  - npm install
 
 script:
   - node --version
-  #- yarn lint
-  - yarn packagr
+  - npm run package
+
+after_success:
+  - npm run coverage

@@ -1,13 +1,16 @@
 {
   "name": "conseiljs",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "description": "Client-side library for dApp development.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "./node_modules/mocha/bin/mocha --timeout 10000 -r ts-node/register test/*.spec.ts",
-    "packagr": "rm -rf ./dist && tsc",
-    "build": "webpack && rm -rf ./build/dist"
+    "test": "mocha",
+    "integration-test": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/*.spec.ts",
+    "format": "eslint --fix-dry-run src/*/*.ts",
+    "package": "rm -rf ./dist && tsc",
+    "build": "webpack && rm -rf ./build/dist",
+    "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage"
   },
   "repository": {
     "type": "git",
@@ -23,16 +26,35 @@
     "url": "https://github.com/Cryptonomic/ConseilJS/issues"
   },
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
+  "nyc": {
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.tsx"
+    ],
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-summary"
+    ],
+    "sourceMap": true,
+    "instrument": true
+  },
   "dependencies": {
     "@ledgerhq/hw-transport": "4.21.0",
     "@ledgerhq/hw-transport-node-hid": "^4.22.0",
     "awesome-typescript-loader": "^5.0.0",
     "aws-sdk": "^2.326.0",
     "babel-runtime": "6.26.0",
+    "base-n": "git://github.com/yourcodesucks/base-n.git",
     "basil-tezos-ledger": "0.0.1",
     "bip32": "^1.0.0",
     "bip39": "^2.5.0",
-    "bs58check": "^2.1.1",
+    "bs58check": "^2.1.2",
     "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "libsodium-wrappers-sumo": "^0.5.4",
@@ -47,17 +69,41 @@
     "@types/node-fetch": "^2.1.1",
     "@types/zxcvbn": "^4.4.0",
     "chai": "^4.1.2",
+    "coveralls": "^3.0.2",
+    "eslint": "^5.12.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-typescript": "^0.14.0",
     "mocha": "^5.2.0",
     "node-fetch": "^2.1.1",
+    "nyc": "^13.1.0",
+    "source-map-support": "^0.5.9",
     "ts-loader": "^4.3.1",
     "ts-node": "^6.0.5",
     "typedoc": "^0.11.1",
     "typescript": "^2.8.3",
+    "typescript-eslint-parser": "^21.0.2",
     "uglifyjs-webpack-plugin": "^1.2.5",
-    "webpack": "^4.11.1",
+    "webpack": "^4.28.1",
     "webpack-cli": "^3.0.3"
   },
   "peerDependencies": {
     "node-fetch": "^2.1.1"
+  },
+  "eslintConfig": {
+    "parser": "typescript-eslint-parser",
+    "env": {
+      "mocha": true,
+      "node": true
+    },
+    "extends": "airbnb-base",
+    "rules": {
+      "comma-dangle": [2, "never"],
+      "curly": [2, "all"],
+      "indent": [1, 4],
+      "max-len": [2, { "code": 200, "ignoreTrailingComments": true }],
+      "no-tabs": [2],
+      "quotes": [2, "double"]
+    }
   }
 }
