@@ -1,139 +1,221 @@
-main -> instruction | data | comparableType | type
+main -> instruction {% id %} | data {% id %} | comparableType {% id %} | type {% id %}
 comparableType -> 
-    "int" 
-  | "nat" 
-  | "string" 
-  | "bytes" 
-  | "mutez" 
-  | "bool" 
-  | "key_hash" 
-  | "timestamp"
+    "int" {% constant_rule %}  
+  | "nat" {% constant_rule %}
+  | "string" {% constant_rule %}
+  | "bytes" {% constant_rule %}
+  | "mutez" {% constant_rule %}
+  | "bool" {% constant_rule %}
+  | "key_hash" {% constant_rule %}
+  | "timestamp" {% constant_rule %}
 type -> 
-    comparableType 
-  | "key" 
-  | "unit" 
-  | "signature" 
-  | "option" _ type 
-  | "(" _  "option" _ type _ ")"
-  | "list" _ type 
-  | "(" _  "list" _ type _ ")"
-  | "set" _ comparableType
-  | "(" _  "set" _ comparableType _ ")"
-  | "operation"
-  | "address" 
-  | "contract" _ type
-  | "(" _  "contract" _ type _ ")"
-  | "pair" _ type _ type
-  | "(" _ "pair" _ type _ type _ ")"
-  | "or" _ type _ type
-  | "(" _ "or" _ type _ type _ ")"
-  | "lambda" _ type _ type
-  | "(" _ "lambda" _ type _ type _ ")"
-  | "map" _ comparableType _ type
-  | "(" _ "map" _ comparableType _ type _ ")"
-  | "big_map" _ comparableType _ type
-  | "(" _ "big_map" _ comparableType _ type _ ")"
-subInstruction -> "{" _ (instruction _ ";" _):+ "}"
+    comparableType {% id %} 
+  | "key" {% constant_rule %}
+  | "unit" {% constant_rule %}
+  | "signature" {% constant_rule %}
+  | "option" _ type {% string_rule %}
+  | "(" _  "option" _ type _ ")" {% p_string_rule_endp }" %}
+  | "list" _ type {% string_rule %}
+  | "(" _  "list" _ type _ ")" {% p_string_rule_endp %}
+  | "set" _ comparableType {% string_rule %}
+  | "(" _  "set" _ comparableType _ ")" {% p_string_rule_endp %}
+  | "operation" {% constant_rule %}
+  | "address" {% constant_rule %} 
+  | "contract" _ type {% string_rule %}
+  | "(" _  "contract" _ type _ ")" {% p_string_rule_endp %}
+  | "pair" _ type _ type {% string_rule_rule %}
+  | "(" _ "pair" _ type _ type _ ")" {% p_string_rule_rule_endp %}
+  | "or" _ type _ type {% string_rule_rule %}
+  | "(" _ "or" _ type _ type _ ")" {% p_string_rule_rule_endp %}
+  | "lambda" _ type _ type {% string_rule_rule %}
+  | "(" _ "lambda" _ type _ type _ ")" {% p_string_rule_rule_endp %}
+  | "map" _ comparableType _ type {% string_rule_rule %}
+  | "(" _ "map" _ comparableType _ type _ ")" {% p_string_rule_rule_endp %}
+  | "big_map" _ comparableType _ type {% string_rule_rule %}
+  | "(" _ "big_map" _ comparableType _ type _ ")" {% string_rule_rule %}
+subInstruction -> "{" _ (instruction _ ";" _):+ "}" {% code_rule %}
 instruction ->
-  subInstruction
-  | "DROP"
-  | "DUP"
-  | "SWAP"
-  | "PUSH" _ type _ data
-  | "SOME"
-  | "NONE" _ type
-  | "UNIT"
-  | "IF_NONE" _ subInstruction _ subInstruction
-  | "PAIR"
-  | "CAR"
-  | "CDR"
-  | "LEFT" _ type
-  | "RIGHT" _ type
-  | "IF_LEFT" _ subInstruction _ subInstruction
-  | "IF_RIGHT" _ subInstruction _ subInstruction
-  | "NIL" _ type
-  | "CONS"
-  | "IF_CONS" _ subInstruction _ subInstruction
-  | "SIZE"
-  | "EMPTY_SET" _ comparableType
-  | "EMPTY_MAP" _ comparableType _ type
-  | "MAP" _ subInstruction
-  | "ITER" _ subInstruction
-  | "MEM"
-  | "GET"
-  | "UPDATE"
-  | "IF" _ subInstruction _ subInstruction
-  | "LOOP" _ subInstruction
-  | "LOOP_LEFT" _ subInstruction
-  | "LAMBDA" _ type _ type _ subInstruction
-  | "EXEC"
-  | "DIP" _ subInstruction
-  | "FAILWITH" _ data
-  | "CAST"
-  | "RENAME"
-  | "CONCAT"
-  | "SLICE"
-  | "PACK"
-  | "UNPACK"
-  | "ADD"
-  | "SUB"
-  | "MUL"
-  | "EDIV"
-  | "ABS"
-  | "NEG"
-  | "LSL"
-  | "LSR"
-  | "OR"
-  | "AND"
-  | "XOR"
-  | "NOT"
-  | "COMPARE"
-  | "EQ"
-  | "NEQ"
-  | "LT"
-  | "GT"
-  | "LE"
-  | "GE"
-  | "SELF"
-  | "CONTRACT" _ type
-  | "TRANSFER_TOKENS"
-  | "SET_DELEGATE"
-  | "CREATE_ACCOUNT"
-  | "CREATE_CONTRACT"
+  subInstruction {% id %}
+  | "DROP" {% constant_rule %}
+  | "DUP" {% constant_rule %}
+  | "SWAP" constant_rule
+  | "PUSH" _ type _ data {% string_rule_rule %}
+  | "SOME" {% constant_rule %}
+  | "NONE" _ type {% string_rule %}
+  | "UNIT" {% constant_rule %}
+  | "IF_NONE" _ subInstruction _ subInstruction {% string_rule_rule %}
+  | "PAIR" {% constant_rule %}
+  | "CAR" {% constant_rule %}
+  | "CDR" {% constant_rule %}
+  | "LEFT" _ type {% string_rule %}
+  | "RIGHT" _ type {% string_rule %}
+  | "IF_LEFT" _ subInstruction _ subInstruction {% string_rule_rule %}
+  | "IF_RIGHT" _ subInstruction _ subInstruction {% string_rule_rule %}
+  | "NIL" _ type {% string_rule %}
+  | "CONS" {% constant_rule %}
+  | "IF_CONS" _ subInstruction _ subInstruction {% string_rule_rule %}
+  | "SIZE" {% constant_rule %}
+  | "EMPTY_SET" _ comparableType {% string_rule %}
+  | "EMPTY_MAP" _ comparableType _ type {% string_rule_rule %}
+  | "MAP" _ subInstruction {% string_rule %}
+  | "ITER" _ subInstruction {% string_rule %}
+  | "MEM" {% constant_rule %}
+  | "GET" {% constant_rule %}
+  | "UPDATE" {% constant_rule %}
+  | "IF" _ subInstruction _ subInstruction {% string_rule_rule %}
+  | "LOOP" _ subInstruction {% string_rule %}
+  | "LOOP_LEFT" _ subInstruction {% string_rule %}
+  | "LAMBDA" _ type _ type _ subInstruction {% string_rule_rule_rule %}
+  | "EXEC" {% constant_rule %}
+  | "DIP" _ subInstruction {% string_rule %}
+  | "FAILWITH" _ data {% string_rule %}
+  | "CAST" {% constant_rule %}
+  | "RENAME" {% constant_rule %}
+  | "CONCAT" {% constant_rule %}
+  | "SLICE" {% constant_rule %}
+  | "PACK" {% constant_rule %}
+  | "UNPACK" {% constant_rule %}
+  | "ADD" {% constant_rule %}
+  | "SUB" {% constant_rule %}
+  | "MUL" {% constant_rule %}
+  | "EDIV" {% constant_rule %}
+  | "ABS" {% constant_rule %}
+  | "NEG" {% constant_rule %}
+  | "LSL" {% constant_rule %}
+  | "LSR" {% constant_rule %}
+  | "OR" {% constant_rule %}
+  | "AND" {% constant_rule %}
+  | "XOR" {% constant_rule %}
+  | "NOT" {% constant_rule %}
+  | "COMPARE" {% constant_rule %}
+  | "EQ" {% constant_rule %}
+  | "NEQ" {% constant_rule %}
+  | "LT" {% constant_rule %}
+  | "GT" {% constant_rule %}
+  | "LE" {% constant_rule %}
+  | "GE" {% constant_rule %}
+  | "SELF" {% constant_rule %}
+  | "CONTRACT" _ type {% string_rule %}
+  | "TRANSFER_TOKENS" {% constant_rule %}
+  | "SET_DELEGATE" {% constant_rule %}
+  | "CREATE_ACCOUNT" {% constant_rule %}
+  | "CREATE_CONTRACT" {% constant_rule %}
   | "CREATE_CONTRACT" _ subInstruction
-  | "IMPLICIT_ACCOUNT"
-  | "NOW"
-  | "AMOUNT"
-  | "BALANCE"
-  | "CHECK_SIGNATURE"
-  | "BLAKE2B"
-  | "SHA256"
-  | "SHA512"
-  | "HASH_KEY"
-  | "STEPS_TO_QUOTA"
-  | "SOURCE"
-  | "SENDER"
-  | "ADDRESS"
+  | "IMPLICIT_ACCOUNT" {% constant_rule %}
+  | "NOW" {% constant_rule %}
+  | "AMOUNT" {% constant_rule %}
+  | "BALANCE" {% constant_rule %}
+  | "CHECK_SIGNATURE" {% constant_rule %}
+  | "BLAKE2B" {% constant_rule %}
+  | "SHA256" {% constant_rule %}
+  | "SHA512" {% constant_rule %}
+  | "HASH_KEY" {% constant_rule %}
+  | "STEPS_TO_QUOTA" {% constant_rule %}
+  | "SOURCE" {% constant_rule %}
+  | "SENDER" {% constant_rule %}
+  | "ADDRESS" {% constant_rule %}
 data ->
-  int
-  | nat
-  | string
-  | "Unit"
-  | "True"
-  | "False"
-  | "Pair" _ data _ data
-  | "Left" _ data
-  | "Right" _ data
-  | "Some" _ data
-  | "None"
-  | subData
-  | subElt
-  | "instruction"
-subData -> "{" _ (data ";" _):+ "}" | "(" _ (data ";" _):+ ")"
-subElt -> "{" _ (elt ";" _):+ "}" | "(" _ (elt ";" _):+ ")"
-elt -> "Elt" _ data _ data
-nat -> [0-9]:+
-int -> (null | "-") nat
-char -> [a-z]:+
-string -> [0-9|a-z]:+
+  int {% id %}
+  | nat {% id %}
+  #| string {% id %}
+  | "Unit" {% constant_rule %}
+  | "True" {% constant_rule %}
+  | "False" {% constant_rule %}
+  | "Pair" _ data _ data {% string_rule_rule %}
+  | "Left" _ data {% string_rule %}
+  | "Right" _ data {% string_rule %}
+  | "Some" _ data {% string_rule %}
+  | "None" {% constant_rule %}
+  | subData {% id %}
+  | subElt {% id %}
+  | "instruction" {% constant_rule %}
+subData -> 
+    "{" _ (data ";" _):+ "}" {% code_rule %}
+  | "(" _ (data ";" _):+ ")" {% code_rule %}
+subElt -> 
+    "{" _ (elt ";" _):+ "}" {% code_rule %}
+  | "(" _ (elt ";" _):+ ")" {% code_rule %}
+elt -> "Elt" _ data _ data {% string_rule_rule  %}
+nat -> [0-9]:+ {% id %}
+int -> (null | "-") nat 
+char -> [a-z]:+ {% id %}
+string -> [0-9|a-z]:+ {% id %}
 _ -> [\s]:*
+
+@{%
+
+  const constant_rule = d => 
+    {
+        const s = d[0]
+        return "{ prim: " + s + " }"
+    }
+
+  const p_constant_rule_endp = d =>  
+    {
+        const s = d[2]
+        return "{ prim: " + s + " }"
+    }
+
+  // Example
+  // Input: "option string"
+  // Grammar: option _ type
+  // Output: Michelson version of "option string"         
+  const string_rule = d => 
+    { 
+      const s = d[0]
+      const rule = d[2]
+      return "{ prim: " + s + ", args: [" + rule + "] }"
+    }
+
+  // Example
+  // Input: "(option string)"
+  // Grammar: ( _ option _ type _ )
+  // Output: Michelson version of "(option string)" 
+  const p_string_rule_endp = d =>
+    {
+      const s = d[2]
+      const rule = d[4]
+      return "{ prim: " + s + ", args: [" + rule + "] }"
+    }
+
+  const string_rule_rule = d => 
+    {
+      const s = d[0]
+      const rule_one = d[2]
+      const rule_two = d[4]
+      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+    }  
+
+  const p_string_rule_rule_endp = d =>  
+    {
+      const s = d[2]
+      const rule_one = d[4]
+      const rule_two = d[6]
+      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+    }
+
+  const string_rule_rule_rule = d => 
+    {
+      const s = d[0]
+      const rule_one = d[2]
+      const rule_two = d[4]
+      const rule_three = d[6]
+      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+    }  
+
+  const p_string_rule_rule_rule_endp = d =>  
+    {
+      const s = d[2]
+      const rule_one = d[4]
+      const rule_two = d[6]
+      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+    }  
+
+  const code_rule = d =>
+    {
+        const instructions = d[2]
+        const instructionsList = instructions.map(x => x[0])
+        return instructionsList
+    }
+
+%}
