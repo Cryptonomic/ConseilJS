@@ -41,18 +41,25 @@ var TezosMessageCodec;
     function parseOperation(hex, opType, isFirst = true) {
         switch (opType) {
             case "endorsement":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "seedNonceRevelation":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleEndorsementEvidence":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleBakingEvidence":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "accountActivate":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "proposal":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "ballot":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "reveal":
                 return parseReveal(hex, isFirst);
