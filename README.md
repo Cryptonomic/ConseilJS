@@ -1,4 +1,10 @@
 # ConseilJS
+
+[![npm version](https://img.shields.io/npm/v/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
+[![npm](https://img.shields.io/npm/dm/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
+[![Build Status](https://travis-ci.org/Cryptonomic/ConseilJS.svg?branch=master)](https://travis-ci.org/Cryptonomic/ConseilJS)
+[![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
+
 Client-side library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
 
 ConseilJS connects to [Conseil](https://github.com/Cryptonomic/Conseil) for cached blockchain data and [Nautilus](https://github.com/Cryptonomic/Nautilus) for live chain data and operations.
@@ -44,3 +50,8 @@ export const servers = {
 The blank strings should be replaced with the details of actual test servers. 
 
 After this, run `npm run test` to run all unit tests.
+
+
+### Dependency Issues 
+- As later versions of the npm package libsodium-sumo (a JS wrapper around libSodium) do not support all methods of libSodium, this version must remain at 0.5.4
+- AWS-SDK dependency must remain as the Ledger Connect feature depends on this package
