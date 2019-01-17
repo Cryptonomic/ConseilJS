@@ -211,6 +211,12 @@ var TezosMessageCodec;
             target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
             fieldoffset += 40;
         }
+        let hasParameters = TezosMessageUtil_1.TezosMessageUtils.readBoolean(transactionMessage.substring(fieldoffset, fieldoffset + 2));
+        fieldoffset += 2;
+        let parameters = '';
+        if (hasParameters) {
+            // TODO
+        }
         let next;
         if (transactionMessage.length > fieldoffset) {
             next = getOperationType(transactionMessage.substring(fieldoffset, fieldoffset + 2));
