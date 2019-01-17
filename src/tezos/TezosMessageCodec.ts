@@ -96,11 +96,11 @@ export namespace TezosMessageCodec {
       fieldoffset += 2;
       source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 2;
-    } else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+    } else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0001") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
       fieldoffset += 40;
-    } else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+    } else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
       fieldoffset += 40;
@@ -176,11 +176,11 @@ export namespace TezosMessageCodec {
       fieldoffset += 2;
       source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 2;
-    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0001") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
       fieldoffset += 40;
-    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
       fieldoffset += 40;
@@ -210,11 +210,11 @@ export namespace TezosMessageCodec {
       fieldoffset += 2;
       target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 2;
-    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0001") {
       fieldoffset += 4;
       target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
       fieldoffset += 40;
-    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+    } else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
       fieldoffset += 4;
       target = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
       fieldoffset += 40;
@@ -275,11 +275,11 @@ export namespace TezosMessageCodec {
       fieldoffset += 2;
       source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 2;
-    } else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+    } else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0001") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
       fieldoffset += 40;
-    } else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+    } else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
       fieldoffset += 40;
@@ -319,11 +319,11 @@ export namespace TezosMessageCodec {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
         fieldoffset += 40;
-      } else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
+      } else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
         fieldoffset += 40;
-      } else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "03") {
+      } else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
         fieldoffset += 40;
@@ -395,11 +395,11 @@ export namespace TezosMessageCodec {
       fieldoffset += 2;
       source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
       fieldoffset += 40 + 2;
-    } else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+    } else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0001") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
       fieldoffset += 40;
-    } else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+    } else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
       fieldoffset += 4;
       source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
       fieldoffset += 40;
@@ -426,11 +426,11 @@ export namespace TezosMessageCodec {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
         fieldoffset += 40;
-      } else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
+      } else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
         fieldoffset += 40;
-      } else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "03") {
+      } else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
         fieldoffset += 2;
         delegate = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
         fieldoffset += 40;
