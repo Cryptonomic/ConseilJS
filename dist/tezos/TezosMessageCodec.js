@@ -6,7 +6,7 @@ const operationTypes = [
     "seedNonceRevelation",
     "doubleEndorsementEvidence",
     "doubleBakingEvidence",
-    "accountActivate",
+    "accountActivation",
     "proposal",
     "ballot",
     "reveal",
@@ -41,18 +41,25 @@ var TezosMessageCodec;
     function parseOperation(hex, opType, isFirst = true) {
         switch (opType) {
             case "endorsement":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "seedNonceRevelation":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleEndorsementEvidence":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleBakingEvidence":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "accountActivate":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "proposal":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "ballot":
+                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "reveal":
                 return parseReveal(hex, isFirst);
@@ -86,17 +93,8 @@ var TezosMessageCodec;
         else {
             fieldoffset += 2; // type
         }
-        let source = "";
-        if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-            fieldoffset += 4;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40));
-        }
-        else {
-            fieldoffset += 2;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
-        }
-        fieldoffset += 40;
+        let source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 44));
+        fieldoffset += 44;
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
@@ -105,9 +103,8 @@ var TezosMessageCodec;
         fieldoffset += gasInfo.length;
         let storageInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
         fieldoffset += storageInfo.length;
-        fieldoffset += 2;
-        let publickey = TezosMessageUtil_1.TezosMessageUtils.readKey(revealMessage.substring(fieldoffset, fieldoffset + 64)); // TODO
-        fieldoffset += 64;
+        let publickey = TezosMessageUtil_1.TezosMessageUtils.readPublicKey(revealMessage.substring(fieldoffset, fieldoffset + 66));
+        fieldoffset += 66;
         let next;
         if (revealMessage.length > fieldoffset) {
             next = getOperationType(revealMessage.substring(fieldoffset, fieldoffset + 2));
@@ -149,17 +146,8 @@ var TezosMessageCodec;
         else {
             fieldoffset += 2; // type
         }
-        let source = "";
-        if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-            fieldoffset += 4;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
-        }
-        else {
-            fieldoffset += 2;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
-        }
-        fieldoffset += 40;
+        let source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 44));
+        fieldoffset += 44;
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(transactionMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(transactionMessage, fieldoffset);
@@ -170,16 +158,13 @@ var TezosMessageCodec;
         fieldoffset += storageInfo.length;
         let amountInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(transactionMessage, fieldoffset);
         fieldoffset += amountInfo.length;
-        let target = "";
-        if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-            fieldoffset += 4;
-            target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
-            fieldoffset += 40 + 2;
-        }
-        else if (transactionMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
-            fieldoffset += 2;
-            target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 40 + 4;
+        let target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 44));
+        fieldoffset += 44;
+        let hasParameters = TezosMessageUtil_1.TezosMessageUtils.readBoolean(transactionMessage.substring(fieldoffset, fieldoffset + 2));
+        fieldoffset += 2;
+        let parameters = '';
+        if (hasParameters) {
+            // TODO
         }
         let next;
         if (transactionMessage.length > fieldoffset) {
@@ -223,17 +208,8 @@ var TezosMessageCodec;
         else {
             fieldoffset += 2; // type
         }
-        let source = "";
-        if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-            fieldoffset += 4;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
-        }
-        else {
-            fieldoffset += 2;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
-        }
-        fieldoffset += 40;
+        let source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 44));
+        fieldoffset += 44;
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
@@ -242,9 +218,8 @@ var TezosMessageCodec;
         fieldoffset += gasInfo.length;
         let storageInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
         fieldoffset += storageInfo.length;
-        fieldoffset += 2;
-        let publickeyhash = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
-        fieldoffset += 40;
+        let publickeyhash = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 42));
+        fieldoffset += 42;
         let balanceInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
         fieldoffset += balanceInfo.length;
         let spendable = TezosMessageUtil_1.TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
@@ -255,9 +230,8 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let delegate = '';
         if (hasDelegate) {
-            fieldoffset += 2;
-            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
-            fieldoffset += 40;
+            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
         }
         let hasScript = TezosMessageUtil_1.TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
         fieldoffset += 2;
@@ -279,7 +253,8 @@ var TezosMessageCodec;
             fee: feeInfo.value + "",
             gas_limit: gasInfo.value + "",
             storage_limit: storageInfo.value + "",
-            counter: counterInfo.value + ""
+            counter: counterInfo.value + "",
+            script: hasScript ? "script" : undefined,
         };
         const envelope = {
             operation: origination,
@@ -309,17 +284,8 @@ var TezosMessageCodec;
         else {
             fieldoffset += 2; // type
         }
-        let source = "";
-        if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
-            fieldoffset += 4;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
-        }
-        else {
-            fieldoffset += 2;
-            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
-        }
-        fieldoffset += 40;
+        let source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 44));
+        fieldoffset += 44;
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(delegationMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(delegationMessage, fieldoffset);
@@ -332,9 +298,8 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let delegate = '';
         if (hasDelegate) {
-            fieldoffset += 2;
-            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
-            fieldoffset += 40;
+            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
         }
         let next;
         if (delegationMessage.length > fieldoffset) {

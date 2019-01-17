@@ -83,22 +83,31 @@ export namespace TezosOperations {
         const payload = { branch: blockHead.hash, contents: operations };
         const ops = await TezosNode.forgeOperation(network, payload);
 
-        const decoded = TezosMessageCodec.parseOperationGroup(ops);
+        let optypes = Array.from(operations.map(o => o["kind"]));
+        let validate: boolean = false;
+        for (let t in optypes) {
+            validate = ["reveal", "transaction", "delegation", "origination"].includes(t);
+            if (validate) { break; }
+        }
 
-        for (let i = 0; i < operations.length; i++) {
-            const clientop = operations[i];
-            const serverop = decoded[i];
-            if (clientop["kind"] === "transaction") {
-                if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
-                    throw new Error("Forged transaction failed validation.");
-                }
-            } else if (clientop["kind"] === "delegation") {
-                if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
-                    throw new Error("Forged delegation failed validation.");
-                }
-            } else if (clientop["kind"] === "origination") {
-                if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
-                    throw new Error("Forged origination failed validation.");
+        if (validate) {
+            let decoded = TezosMessageCodec.parseOperationGroup(ops);
+
+            for (let i = 0; i < operations.length; i++) {
+                const clientop = operations[i];
+                const serverop = decoded[i];
+                if (clientop["kind"] === "transaction") {
+                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
+                        throw new Error("Forged transaction failed validation.");
+                    }
+                } else if (clientop["kind"] === "delegation") {
+                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.delegate !== clientop["delegate"]) {
+                        throw new Error("Forged delegation failed validation.");
+                    }
+                } else if (clientop["kind"] === "origination") {
+                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"] || serverop.script !== undefined) {
+                        throw new Error("Forged origination failed validation.");
+                    }
                 }
             }
         }

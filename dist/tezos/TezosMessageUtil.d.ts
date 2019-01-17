@@ -1,3 +1,6 @@
+/**
+ * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
+ */
 export declare namespace TezosMessageUtils {
     /**
      * Encodes a boolean as 0 or 255 by calling writeInt.
@@ -29,11 +32,10 @@ export declare namespace TezosMessageUtils {
         length: number;
     };
     /**
-     * Takes a bounded hex string that is known to contain a Tezos address and decodes it.
+     * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
      * @param {string} hex Encoded message part.
-     * @param {string} type Tezos address type, one of 'tz1' or 'kt1'.
      */
-    function readAddress(hex: string, type?: string): string;
+    function readAddress(hex: string): string;
     /**
      * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1' or 'kt1'. Message format contains hints on address type.
      * @param {string} address Base58 address to encode.
@@ -52,9 +54,15 @@ export declare namespace TezosMessageUtils {
      */
     function writeBranch(branch: string): string;
     /**
-     * Reads the key hash from the provided, bounded hex string.
+     * Reads the key from the provided, bounded hex string.
      * @param {string} hex Encoded message part.
      * @returns {string} Key.
      */
-    function readKey(hex: string): string;
+    function readPublicKey(hex: string): string;
+    /**
+     * Reads the key hash from the provided, bounded hex string.
+     * @param {string} hex Encoded message part.
+     * @returns {string} Key hash.
+     */
+    function readPublicKeyHash(hex: string): string;
 }
