@@ -86,7 +86,13 @@ var TezosMessageUtils;
         if (hex.length !== 40) {
             throw new Error("Incorrect hex length to parse an address.");
         }
-        return type === "tz1" ? bs58check_1.default.encode(Buffer.from("06a19f" + hex, "hex")) : bs58check_1.default.encode(Buffer.from("025a79" + hex, "hex"));
+        switch (type) {
+            case "tz1": return bs58check_1.default.encode(Buffer.from("06a19f" + hex, "hex"));
+            case "tz2": return bs58check_1.default.encode(Buffer.from("06a1a1" + hex, "hex"));
+            case "tz3": return bs58check_1.default.encode(Buffer.from("06a1a4" + hex, "hex"));
+            case "kt1": return bs58check_1.default.encode(Buffer.from("025a79" + hex, "hex"));
+            default: throw new Error("Unrecognized address type");
+        }
     }
     TezosMessageUtils.readAddress = readAddress;
     /**
@@ -123,7 +129,7 @@ var TezosMessageUtils;
      * @param {string} hex Encoded message part.
      * @returns {string} Key.
      */
-    function readKey(hex) {
+    function readKey(hex, type = "ed") {
         if (hex.length !== 64) {
             throw new Error("Incorrect hex length to parse a key.");
         }

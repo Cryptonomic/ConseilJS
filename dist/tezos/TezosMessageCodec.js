@@ -90,13 +90,23 @@ var TezosMessageCodec;
         if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40));
+            fieldoffset += 40;
         }
-        else {
+        else if (revealMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
             fieldoffset += 2;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
+            fieldoffset += 40 + 2;
         }
-        fieldoffset += 40;
+        else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+            fieldoffset += 40;
+        }
+        else if (revealMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+            fieldoffset += 40;
+        }
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(revealMessage, fieldoffset);
@@ -153,13 +163,23 @@ var TezosMessageCodec;
         if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40));
+            fieldoffset += 40;
         }
-        else {
+        else if (transactionMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
             fieldoffset += 2;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
+            fieldoffset += 40 + 2;
         }
-        fieldoffset += 40;
+        else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+            fieldoffset += 40;
+        }
+        else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+            fieldoffset += 40;
+        }
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(transactionMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(transactionMessage, fieldoffset);
@@ -179,7 +199,17 @@ var TezosMessageCodec;
         else if (transactionMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
             fieldoffset += 2;
             target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 40 + 4;
+            fieldoffset += 40 + 2;
+        }
+        else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+            fieldoffset += 4;
+            target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+            fieldoffset += 40;
+        }
+        else if (transactionMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+            fieldoffset += 4;
+            target = TezosMessageUtil_1.TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+            fieldoffset += 40;
         }
         let next;
         if (transactionMessage.length > fieldoffset) {
@@ -227,13 +257,23 @@ var TezosMessageCodec;
         if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
+            fieldoffset += 40;
         }
-        else {
+        else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
             fieldoffset += 2;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
+            fieldoffset += 40 + 2;
         }
-        fieldoffset += 40;
+        else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+            fieldoffset += 40;
+        }
+        else if (originationMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+            fieldoffset += 40;
+        }
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(originationMessage, fieldoffset);
@@ -255,9 +295,21 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let delegate = '';
         if (hasDelegate) {
-            fieldoffset += 2;
-            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
-            fieldoffset += 40;
+            if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "00") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40));
+                fieldoffset += 40;
+            }
+            else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+                fieldoffset += 40;
+            }
+            else if (originationMessage.substring(fieldoffset, fieldoffset + 2) === "03") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+                fieldoffset += 40;
+            }
         }
         let hasScript = TezosMessageUtil_1.TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
         fieldoffset += 2;
@@ -313,13 +365,23 @@ var TezosMessageCodec;
         if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0000") {
             fieldoffset += 4;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
+            fieldoffset += 40;
         }
-        else {
+        else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "01") {
             fieldoffset += 2;
             source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'kt1');
-            fieldoffset += 2;
+            fieldoffset += 40 + 2;
         }
-        fieldoffset += 40;
+        else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0002") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+            fieldoffset += 40;
+        }
+        else if (delegationMessage.substring(fieldoffset, fieldoffset + 4) === "0003") {
+            fieldoffset += 4;
+            source = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+            fieldoffset += 40;
+        }
         let feeInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(delegationMessage, fieldoffset);
         fieldoffset += feeInfo.length;
         let counterInfo = TezosMessageUtil_1.TezosMessageUtils.findInt(delegationMessage, fieldoffset);
@@ -332,9 +394,21 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let delegate = '';
         if (hasDelegate) {
-            fieldoffset += 2;
-            delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
-            fieldoffset += 40;
+            if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "00") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40));
+                fieldoffset += 40;
+            }
+            else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "02") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz2');
+                fieldoffset += 40;
+            }
+            else if (delegationMessage.substring(fieldoffset, fieldoffset + 2) === "03") {
+                fieldoffset += 2;
+                delegate = TezosMessageUtil_1.TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 40), 'tz3');
+                fieldoffset += 40;
+            }
         }
         let next;
         if (delegationMessage.length > fieldoffset) {
