@@ -93,11 +93,11 @@ export namespace TezosOperations {
                     throw new Error("Forged transaction failed validation.");
                 }
             } else if (clientop["kind"] === "delegation") {
-                if (serverop.kind !== clientop["kind"] || serverop.delegate !== clientop["delegate"]) {
+                if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.delegate !== clientop["delegate"]) {
                     throw new Error("Forged delegation failed validation.");
                 }
             } else if (clientop["kind"] === "origination") {
-                if (serverop.kind !== clientop["kind"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
+                if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"]) {
                     throw new Error("Forged origination failed validation.");
                 }
             }
