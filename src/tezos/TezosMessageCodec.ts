@@ -220,6 +220,13 @@ export namespace TezosMessageCodec {
       fieldoffset += 40;
     }
 
+    let hasParameters = TezosMessageUtils.readBoolean(transactionMessage.substring(fieldoffset, fieldoffset + 2));
+    fieldoffset += 2;
+    let parameters = '';
+    if (hasParameters) {
+      // TODO
+    }
+
     let next;
     if (transactionMessage.length > fieldoffset) {
       next = getOperationType(transactionMessage.substring(fieldoffset, fieldoffset + 2));
