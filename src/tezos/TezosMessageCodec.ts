@@ -290,7 +290,8 @@ export namespace TezosMessageCodec {
       fee: feeInfo.value + "",
       gas_limit: gasInfo.value + "",
       storage_limit: storageInfo.value + "",
-      counter: counterInfo.value + ""
+      counter: counterInfo.value + "",
+      script: hasScript ? "script" : undefined,
     };
 
     const envelope: OperationEnvelope = {
