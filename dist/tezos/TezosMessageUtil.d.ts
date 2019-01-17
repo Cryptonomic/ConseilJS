@@ -56,5 +56,5 @@ export declare namespace TezosMessageUtils {
      * @param {string} hex Encoded message part.
      * @returns {string} Key.
      */
-    function readKey(hex: string): string;
+    function readKey(hex: string, type?: string): string;
 }
