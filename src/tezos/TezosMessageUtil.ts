@@ -115,7 +115,7 @@ export namespace TezosMessageUtils {
       return "0001" + hex;
     } else if (address.startsWith("tz3")) {
       return "0002" + hex;
-    } else if (address.startsWith("kt1")) {
+    } else if (address.startsWith("KT1")) {
       return "01" + hex + "00";
     } else {
       throw new Error("Unrecognized address type.")

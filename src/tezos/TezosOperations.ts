@@ -142,16 +142,16 @@ export namespace TezosOperations {
      * Ensures the results of operation application do not contain errors. Throws as needed if there are errors.
      * @param appliedOp Results of operation application.
      */
-    function checkAppliedOperationResults(appliedOp): void {
+    function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void {
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
 
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw(new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
         }
 
         for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind)) throw(new Error(`Could not apply operation because: ${op.id}`))
+            if (!validAppliedKinds.has(op.kind)) { throw new Error(`Could not apply operation because: ${op.metadata}`); }
         }
     }
 
@@ -161,9 +161,7 @@ export namespace TezosOperations {
      * @param {SignedOperationGroup} signedOpGroup  Signed operation group
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
-    export function injectOperation(
-        network: string,
-        signedOpGroup: SignedOperationGroup): Promise<string> {
+    export function injectOperation(network: string, signedOpGroup: SignedOperationGroup): Promise<string> {
         const payload = sodium.to_hex(signedOpGroup.bytes);
         return TezosNode.injectOperation(network, payload);
     }
