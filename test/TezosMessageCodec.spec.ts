@@ -125,4 +125,14 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result[1].storage_limit).to.equal('0'); // microtez
     expect(result[1].counter).to.equal('2');
   });
+
+  it("fail unsupported operation types", () => {
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "endorsement", true)).to.throw("Unsupported operation type: endorsement");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleEndorsementEvidence", true)).to.throw("Unsupported operation type: doubleEndorsementEvidence");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleBakingEvidence", true)).to.throw("Unsupported operation type: doubleBakingEvidence");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "accountActivation", true)).to.throw("Unsupported operation type: accountActivation");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "proposal", true)).to.throw("Unsupported operation type: proposal");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "ballot", true)).to.throw("Unsupported operation type: ballot");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "invalid", true)).to.throw("Unsupported operation type: invalid");
+  });
 });
