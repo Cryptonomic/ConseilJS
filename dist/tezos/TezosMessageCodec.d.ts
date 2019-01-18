@@ -24,6 +24,11 @@ export declare namespace TezosMessageCodec {
      */
     function parseReveal(revealMessage: string, isFirst?: boolean): OperationEnvelope;
     /**
+     * Creates a hex string for the provided reveal operation.
+     * @param {string} reveal A reveal operation to be encoded.
+     */
+    function encodeReveal(reveal: Operation): string;
+    /**
      * Parse a transaction message possibly containing siblings.
      * @param {string} transactionMessage Encoded transaction-type message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
