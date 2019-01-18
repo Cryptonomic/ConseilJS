@@ -35,14 +35,11 @@ export namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
      */
-    export async function signOperationGroup(
-        forgedOperation: string,
-        keyStore: KeyStore,
-        derivationPath: string): Promise<SignedOperationGroup> {
+    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<SignedOperationGroup> {
         const watermark = '03';
-        const watermarkedForgedOperationBytesHex: string = watermark + forgedOperation;
+        const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
 
-        let opSignature: Buffer = new Buffer(0);
+        let opSignature = new Buffer(0);
         switch(keyStore.storeType) {
             case StoreType.Hardware:
                 opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
@@ -55,7 +52,7 @@ export namespace TezosOperations {
         }
 
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
-        const signedOpBytes: Buffer = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+        const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
         return {
             bytes: signedOpBytes,
             signature: hexSignature.toString()

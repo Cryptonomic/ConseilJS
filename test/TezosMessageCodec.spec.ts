@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
+import { Operation } from "../src/tezos/TezosTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -37,6 +38,21 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.fee).to.equal('0'); // microtez
     expect(result.operation.gas_limit).to.equal('10000'); // microtez
     expect(result.operation.storage_limit).to.equal('0'); // microtez
+  });
+
+  it("correctly encode a reveal operation", () => {
+    let reveal: Operation = {
+      kind: "reveal",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "0",
+      counter: "425748",
+      storage_limit: "0",
+      gas_limit: "10000",
+      public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
+    };
+
+    const result = TezosMessageCodec.encodeReveal(reveal);
+    expect(result).to.equal("07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6");
   });
 
   it("correctly parse a reveal/transaction operation group", () => {

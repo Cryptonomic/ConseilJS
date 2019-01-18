@@ -131,6 +131,25 @@ export namespace TezosMessageCodec {
   }
 
   /**
+   * Creates a hex string for the provided reveal operation.
+   * @param {string} reveal A reveal operation to be encoded.
+   */
+  export function encodeReveal(reveal: Operation): string {
+    if (reveal.kind !== "reveal") {throw new Error("Incorrect operation type."); }
+    if (reveal.public_key === undefined) {throw new Error("Missing public key."); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf("reveal"));
+    hex += TezosMessageUtils.writeAddress(reveal.source);
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.fee));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.counter));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.gas_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.storage_limit));
+    hex += TezosMessageUtils.writePublicKey(reveal.public_key);
+
+    return hex;
+  }
+
+  /**
    * Parse a transaction message possibly containing siblings.
    * @param {string} transactionMessage Encoded transaction-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
