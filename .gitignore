@@ -70,6 +70,6 @@ build
 .DS_Store
 
 # Server confs
-test/servers.ts
+*/servers.ts
 
 coverage
