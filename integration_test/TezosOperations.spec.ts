@@ -269,62 +269,62 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    console.log("+++++Originating a contract from manager address");
-    const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
-      [
-        {
-          prim: "parameter",
-          args: [
-            {
-              prim: "string"
-            }
-          ]
-        },
-        {
-          prim: "storage",
-          args: [
-            {
-              prim: "string"
-            }
-          ]
-        },
-        {
-          prim: "code",
-          args: [
-            [
-              {
-                prim: "CAR"
-              },
-              {
-                prim: "NIL",
-                args: [
-                  {
-                    prim: "operation"
-                  }
-                ]
-              },
-              {
-                prim: "PAIR"
-              }
-            ]
-          ]
-        }
-      ],
-      {
-        string: "hello"
-      },
-      tezosURL,
-      fundraiserKeys,
-      2000000,
-      randomBakerAddress1,
-      true,
-      true,
-      200000, // Protocol 003 minimum fee is 1377 for originations
-      invalidDerivationPath,
-      "10160",
-      "27777" // "consumed_gas":"11262"
-    );
-    expect(contractOriginationResult["operationGroupID"]).to.exist;
+    // console.log("+++++Originating a contract from manager address");
+    // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+    //   [
+    //     {
+    //       prim: "parameter",
+    //       args: [
+    //         {
+    //           prim: "string"
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       prim: "storage",
+    //       args: [
+    //         {
+    //           prim: "string"
+    //         }
+    //       ]
+    //     },
+    //     {
+    //       prim: "code",
+    //       args: [
+    //         [
+    //           {
+    //             prim: "CAR"
+    //           },
+    //           {
+    //             prim: "NIL",
+    //             args: [
+    //               {
+    //                 prim: "operation"
+    //               }
+    //             ]
+    //           },
+    //           {
+    //             prim: "PAIR"
+    //           }
+    //         ]
+    //       ]
+    //     }
+    //   ],
+    //   {
+    //     string: "hello"
+    //   },
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   2000000,
+    //   randomBakerAddress1,
+    //   true,
+    //   true,
+    //   200000, // Protocol 003 minimum fee is 1377 for originations
+    //   invalidDerivationPath,
+    //   "10160",
+    //   "27777" // "consumed_gas":"11262"
+    // );
+    // expect(contractOriginationResult["operationGroupID"]).to.exist;
 
     // console.log("+++++Invoke a contract from manager address");
     // const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
@@ -346,40 +346,38 @@ describe("Tezos operation functions", () => {
     //     .errors
     // );
 
-    //     console.log('+++++Originating an account with 1 tez');
-    //     const originationResult = await TezosOperations.sendOriginationOperation(
-    //       tezosURL,
-    //       fundraiserKeys,
-    //       20000000,
-    //       randomBakerAddress1,
-    //       true,
-    //       true,
-    //       2000000, // Protocol 003 minimum fee is 1377 for originations
-    //       invalidDerivationPath
-    //     );
-    //     console.log('ORIGINATION RESULT', originationResult);
-    //     // expect(originationResult.operationGroupID).to.exist;
-
-    //     sleep(33);
+    console.log("+++++Originating an account with 1 tez");
+    const originationResult = await TezosOperations.sendOriginationOperation(
+      tezosURL,
+      fundraiserKeys,
+      200000000,
+      randomBakerAddress1,
+      true,
+      true,
+      2000000, // Protocol 003 minimum fee is 1377 for originations
+      invalidDerivationPath
+    );
+    console.log("ORIGINATION RESULT", originationResult);
+    // expect(originationResult.operationGroupID).to.exist;
 
     //     /*
     //         // Comment out this section in the FIRST run
     //         // Activate this section in the SECOND run.
     //         // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
     // */
-    //     let delegatedKeyStore = randomKeys;
+    let delegatedKeyStore = randomKeys;
     //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
 
-    //     console.log('+++++Sending delegation operation');
-    //     const delegationResult = await TezosOperations.sendDelegationOperation(
-    //       tezosURL,
-    //       delegatedKeyStore,
-    //       randomBakerAddress2,
-    //       2000000, // Protocol 003 minimum fee is 1100 for delegations
-    //       invalidDerivationPath
-    //     );
-    //     expect(delegationResult.operationGroupID).to.exist;
-    //     console.log('DELEGATION RESULT', delegationResult);
+    console.log("+++++Sending delegation operation");
+    const delegationResult = await TezosOperations.sendDelegationOperation(
+      tezosURL,
+      fundraiserKeys,
+      randomBakerAddress2,
+      2000000, // Protocol 003 minimum fee is 1100 for delegations
+      invalidDerivationPath
+    );
+    expect(delegationResult.operationGroupID).to.exist;
+    console.log("DELEGATION RESULT", delegationResult);
 
     //     sleep(33);
   });
