@@ -110,10 +110,25 @@ var TezosMessageUtils;
     /**
      * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1' or 'kt1'. Message format contains hints on address type.
      * @param {string} address Base58 address to encode.
-     * @returns {string} Hex represntaton of a Tezos address.
+     * @returns {string} Hex representation of a Tezos address.
      */
     function writeAddress(address) {
-        return bs58check_1.default.decode(address).slice(3).toString("hex");
+        const hex = bs58check_1.default.decode(address).slice(3).toString("hex");
+        if (address.startsWith("tz1")) {
+            return "0000" + hex;
+        }
+        else if (address.startsWith("tz2")) {
+            return "0001" + hex;
+        }
+        else if (address.startsWith("tz3")) {
+            return "0002" + hex;
+        }
+        else if (address.startsWith("KT1")) {
+            return "01" + hex + "00";
+        }
+        else {
+            throw new Error("Unrecognized address type.");
+        }
     }
     TezosMessageUtils.writeAddress = writeAddress;
     /**
@@ -150,16 +165,34 @@ var TezosMessageUtils;
             return bs58check_1.default.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
         }
         else if (hint === "01" && hex.length === 68) { // secp256k1
-            return bs58check_1.default.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+            return bs58check_1.default.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
         }
         else if (hint === "02" && hex.length === 68) { // p256
-            return bs58check_1.default.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+            return bs58check_1.default.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         }
         else {
             throw new Error("Unrecognized key type");
         }
     }
     TezosMessageUtils.readPublicKey = readPublicKey;
+    /**
+     * Encodes a public key
+     */
+    function writePublicKey(publicKey) {
+        if (publicKey.startsWith("edpk")) { // ed25519
+            return "00" + bs58check_1.default.decode(publicKey).slice(4).toString("hex");
+        }
+        else if (publicKey.startsWith("sppk")) { // secp256k1
+            return "01" + bs58check_1.default.decode(publicKey).slice(4).toString("hex");
+        }
+        else if (publicKey.startsWith("p2pk")) { // p256
+            return "02" + bs58check_1.default.decode(publicKey).slice(4).toString("hex");
+        }
+        else {
+            throw new Error("Unrecognized key type");
+        }
+    }
+    TezosMessageUtils.writePublicKey = writePublicKey;
     /**
      * Reads the key hash from the provided, bounded hex string.
      * @param {string} hex Encoded message part.
@@ -174,10 +207,10 @@ var TezosMessageUtils;
             return bs58check_1.default.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
         }
         else if (hint === "01") { // secp256k1
-            return bs58check_1.default.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+            return bs58check_1.default.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
         }
         else if (hint === "02") { // p256
-            return bs58check_1.default.encode(Buffer.from("00000000" + hex.substring(2), "hex"));
+            return bs58check_1.default.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         }
         else {
             throw new Error("Unrecognized hash type");

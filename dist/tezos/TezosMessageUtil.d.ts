@@ -39,7 +39,7 @@ export declare namespace TezosMessageUtils {
     /**
      * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1' or 'kt1'. Message format contains hints on address type.
      * @param {string} address Base58 address to encode.
-     * @returns {string} Hex represntaton of a Tezos address.
+     * @returns {string} Hex representation of a Tezos address.
      */
     function writeAddress(address: string): string;
     /**
@@ -59,6 +59,10 @@ export declare namespace TezosMessageUtils {
      * @returns {string} Key.
      */
     function readPublicKey(hex: string): string;
+    /**
+     * Encodes a public key
+     */
+    function writePublicKey(publicKey: string): string;
     /**
      * Reads the key hash from the provided, bounded hex string.
      * @param {string} hex Encoded message part.

@@ -137,11 +137,12 @@ var TezosOperations;
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw (new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
         }
         for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind))
-                throw (new Error(`Could not apply operation because: ${op.id}`));
+            if (!validAppliedKinds.has(op.kind)) {
+                throw new Error(`Could not apply operation because: ${op.metadata}`);
+            }
         }
     }
     /**

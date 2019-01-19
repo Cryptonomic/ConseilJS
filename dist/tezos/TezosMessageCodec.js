@@ -41,25 +41,18 @@ var TezosMessageCodec;
     function parseOperation(hex, opType, isFirst = true) {
         switch (opType) {
             case "endorsement":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "seedNonceRevelation":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleEndorsementEvidence":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "doubleBakingEvidence":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
-            case "accountActivate":
-                console.log(`unsupported message ${hex}`);
+            case "accountActivation":
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "proposal":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "ballot":
-                console.log(`unsupported message ${hex}`);
                 throw new Error(`Unsupported operation type: ${opType}`);
             case "reveal":
                 return parseReveal(hex, isFirst);
@@ -127,6 +120,27 @@ var TezosMessageCodec;
         return envelope;
     }
     TezosMessageCodec.parseReveal = parseReveal;
+    /**
+     * Creates a hex string for the provided reveal operation.
+     * @param {string} reveal A reveal operation to be encoded.
+     */
+    function encodeReveal(reveal) {
+        if (reveal.kind !== "reveal") {
+            throw new Error("Incorrect operation type.");
+        }
+        if (reveal.public_key === undefined) {
+            throw new Error("Missing public key.");
+        }
+        let hex = TezosMessageUtil_1.TezosMessageUtils.writeInt(operationTypes.indexOf("reveal"));
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(reveal.source);
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(reveal.fee));
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(reveal.counter));
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(reveal.gas_limit));
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(reveal.storage_limit));
+        hex += TezosMessageUtil_1.TezosMessageUtils.writePublicKey(reveal.public_key);
+        return hex;
+    }
+    TezosMessageCodec.encodeReveal = encodeReveal;
     /**
      * Parse a transaction message possibly containing siblings.
      * @param {string} transactionMessage Encoded transaction-type message

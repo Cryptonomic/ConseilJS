@@ -35,14 +35,11 @@ export namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
      */
-    export async function signOperationGroup(
-        forgedOperation: string,
-        keyStore: KeyStore,
-        derivationPath: string): Promise<SignedOperationGroup> {
+    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<SignedOperationGroup> {
         const watermark = '03';
-        const watermarkedForgedOperationBytesHex: string = watermark + forgedOperation;
+        const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
 
-        let opSignature: Buffer = new Buffer(0);
+        let opSignature = new Buffer(0);
         switch(keyStore.storeType) {
             case StoreType.Hardware:
                 opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
@@ -55,7 +52,7 @@ export namespace TezosOperations {
         }
 
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
-        const signedOpBytes: Buffer = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+        const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
         return {
             bytes: signedOpBytes,
             signature: hexSignature.toString()
@@ -145,16 +142,16 @@ export namespace TezosOperations {
      * Ensures the results of operation application do not contain errors. Throws as needed if there are errors.
      * @param appliedOp Results of operation application.
      */
-    function checkAppliedOperationResults(appliedOp): void {
+    function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void {
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
 
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw(new Error(`Could not apply operation because: ${firstAppliedOp.id}`));
+            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
         }
 
         for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind)) throw(new Error(`Could not apply operation because: ${op.id}`))
+            if (!validAppliedKinds.has(op.kind)) { throw new Error(`Could not apply operation because: ${op.metadata}`); }
         }
     }
 
@@ -164,9 +161,7 @@ export namespace TezosOperations {
      * @param {SignedOperationGroup} signedOpGroup  Signed operation group
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
-    export function injectOperation(
-        network: string,
-        signedOpGroup: SignedOperationGroup): Promise<string> {
+    export function injectOperation(network: string, signedOpGroup: SignedOperationGroup): Promise<string> {
         const payload = sodium.to_hex(signedOpGroup.bytes);
         return TezosNode.injectOperation(network, payload);
     }
