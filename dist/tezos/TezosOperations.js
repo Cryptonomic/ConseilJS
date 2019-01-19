@@ -276,7 +276,7 @@ var TezosOperations;
                 gas_limit: "10160",
                 storage_limit: "277",
                 managerPubkey: keyStore.publicKeyHash,
-                //   manager_pubkey: keyStore.publicKeyHash, // zeronet
+                // manager_pubkey: keyStore.publicKeyHash, // zeronet
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,

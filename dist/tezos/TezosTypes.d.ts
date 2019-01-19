@@ -65,6 +65,7 @@ export interface Operation {
     delegate?: String;
     public_key?: string;
     managerPubkey?: string;
+    manager_pubkey?: string;
     balance?: string;
     spendable?: boolean;
     delegatable?: boolean;
