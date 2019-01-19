@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
+import { Operation } from "../src/tezos/TezosTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -39,6 +40,21 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.storage_limit).to.equal('0'); // microtez
   });
 
+  it("correctly encode a reveal operation", () => {
+    let reveal: Operation = {
+      kind: "reveal",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "0",
+      counter: "425748",
+      storage_limit: "0",
+      gas_limit: "10000",
+      public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
+    };
+
+    const result = TezosMessageCodec.encodeReveal(reveal);
+    expect(result).to.equal("07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6");
+  });
+
   it("correctly parse a reveal/transaction operation group", () => {
     const result = TezosMessageCodec.parseOperationGroup("7571d2132243697e5bf1d869f4393ec7f45748fc2ba837ffe610c7687b393df10700009fcc83e722c9d9f7a150555e632e6e0f97bfc29b00cd78904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dce78bc50ac0280897a0106bca459c3521c6b2e25f1a2143035d28faade8d0000");
 
@@ -66,6 +82,7 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.kind).to.equal("origination");
     expect(result.operation.source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
     expect(result.operation.managerPubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result.operation.script).to.undefined;
     expect(result.operation.balance).to.equal('256000000'); // microtez
     expect(result.operation.spendable).to.equal(true);
     expect(result.operation.delegatable).to.equal(true);
@@ -82,7 +99,7 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.kind).to.equal("origination");
     expect(result.operation.source).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
     expect(result.operation.managerPubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
-    //script
+    expect(result.operation.script).to.exist;
     expect(result.operation.balance).to.equal('2000000'); // microtez
     expect(result.operation.spendable).to.equal(true);
     expect(result.operation.delegatable).to.equal(true);
@@ -123,5 +140,15 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result[1].gas_limit).to.equal('10000'); // microtez
     expect(result[1].storage_limit).to.equal('0'); // microtez
     expect(result[1].counter).to.equal('2');
+  });
+
+  it("fail unsupported operation types", () => {
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "endorsement", true)).to.throw("Unsupported operation type: endorsement");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleEndorsementEvidence", true)).to.throw("Unsupported operation type: doubleEndorsementEvidence");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleBakingEvidence", true)).to.throw("Unsupported operation type: doubleBakingEvidence");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "accountActivation", true)).to.throw("Unsupported operation type: accountActivation");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "proposal", true)).to.throw("Unsupported operation type: proposal");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "ballot", true)).to.throw("Unsupported operation type: ballot");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "invalid", true)).to.throw("Unsupported operation type: invalid");
   });
 });

@@ -46,13 +46,14 @@ describe('loadWallet()', () => {
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result = <KeyStore> TezosWallet.unlockFundraiserIdentity(
-            'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
-            'byixpeyi.dofdqvwn@tezos.example.org',
-            'SU0j4HSgbd',
-            'tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew'
-        );
-        expect(result.publicKeyHash).to.equal('tz1aj32NRPg49jtvSDhkpruQAFevjaewaLew');
+        const result = TezosWallet.unlockFundraiserIdentity(
+            "woman chaos mammal brain huge race weasel vintage doll pulse spot mansion lawsuit fat target",
+            "psgtnfuc.vjppumbu@tezos.example.org",
+            "A0mEUNNzP7",
+            "tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+        expect(result["publicKey"]).to.equal("edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa");
+        expect(result["privateKey"]).to.equal("edskRpjW6egVEyFwQAttuHy8S5WLYqkpichsW2MzDpAQHWvunrr4ZVWRRQ6dx5y4G9S2s8Y4MDevmpavPVVYDN6egrbypcbWAc");
+        expect(result["publicKeyHash"]).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
 
         const result2 = <Error> TezosWallet.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
@@ -80,4 +81,3 @@ describe('unlockIdentityWithMnemonic()', () => {
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
 });
-

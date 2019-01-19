@@ -41,25 +41,18 @@ export namespace TezosMessageCodec {
   export function parseOperation(hex: string, opType: string, isFirst: boolean = true): OperationEnvelope {
     switch (opType) {
       case "endorsement":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
       case "seedNonceRevelation":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
       case "doubleEndorsementEvidence":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
       case "doubleBakingEvidence":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
-      case "accountActivate":
-        console.log(`unsupported message ${hex}`);
+      case "accountActivation":
         throw new Error(`Unsupported operation type: ${opType}`);
       case "proposal":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
       case "ballot":
-        console.log(`unsupported message ${hex}`);
         throw new Error(`Unsupported operation type: ${opType}`);
       case "reveal":
         return parseReveal(hex, isFirst);
@@ -135,6 +128,25 @@ export namespace TezosMessageCodec {
     }
 
     return envelope;
+  }
+
+  /**
+   * Creates a hex string for the provided reveal operation.
+   * @param {string} reveal A reveal operation to be encoded.
+   */
+  export function encodeReveal(reveal: Operation): string {
+    if (reveal.kind !== "reveal") {throw new Error("Incorrect operation type."); }
+    if (reveal.public_key === undefined) {throw new Error("Missing public key."); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf("reveal"));
+    hex += TezosMessageUtils.writeAddress(reveal.source);
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.fee));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.counter));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.gas_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(reveal.storage_limit));
+    hex += TezosMessageUtils.writePublicKey(reveal.public_key);
+
+    return hex;
   }
 
   /**
