@@ -2,25 +2,21 @@ import {TezosOperations} from "../src";
 import {expect} from "chai";
 import {KeyStore} from "../src/types/KeyStore";
 import {TezosWallet} from "../src";
-import {servers} from "../test/servers";
+import {servers} from "./servers";
 import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
 import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
 const tezosURL = servers.tezosServer;
 const derivationPathIndex = Math.floor(Math.random()*10).toString();
 const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;
-console.log("Derivation path: ", derivationPath)
 
-function sleep(seconds)
-{
+function sleep(seconds) {
     const e = new Date().getTime() + (seconds * 1000);
     while (new Date().getTime() <= e) {}
 }
 
 describe('Tezos operation functions', () => {
-
     it('successfully perform operations on a new identity', async (done) => {
-
         setTimeout(done, 15000);
 
         //get fields from tezos alphanet faucet
@@ -34,10 +30,7 @@ describe('Tezos operation functions', () => {
         const fundraiserKeySecret = 'e4766f7316aae6b455d7ab886e634a92a24a22dd';
 
         const mnemonic = TezosWallet.generateMnemonic();
-        const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(
-            mnemonic,
-            ''
-        );
+        const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');
         const inactiveImplicitAddress = randomKeys.publicKeyHash;
         const anActiveImplicitAddress = 'tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc';
         const randomDelegatedAddress = 'KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc';

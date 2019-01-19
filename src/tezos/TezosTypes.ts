@@ -76,7 +76,7 @@ export interface Operation {
   delegate?: String;
   public_key?: string;
   managerPubkey?: string; // mainnet, alphanet
-  manager_pubkey?: string; // zeronet
+  //manager_pubkey?: string, // zeronet
   balance?: string;
   spendable?: boolean;
   delegatable?: boolean;
@@ -161,7 +161,7 @@ export interface Operation {
   delegate?: String;
   public_key?: string;
   managerPubkey?: string; // mainnet, alphanet
-  // manager_pubkey?: string; // zeronet
+  //manager_pubkey?: string, // zeronet
   balance?: string;
   spendable?: boolean;
   delegatable?: boolean;
@@ -180,6 +180,7 @@ export interface ContractOriginationOperation {
   delegate?: String;
   public_key?: string;
   managerPubkey?: string; // mainnet, alphanet
+  //   manager_pubkey?: string; // zeronet
   balance?: string;
   spendable?: boolean;
   delegatable?: boolean;

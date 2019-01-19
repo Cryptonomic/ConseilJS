@@ -1,9 +1,8 @@
 // Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
-// Use below code to run your tests:
-// ./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/TezosOperations.spec.ts
 import { expect } from "chai";
 import { TezosOperations } from "../src";
+import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "../test/servers";
 import { TezosWallet } from "../src";
@@ -229,7 +228,7 @@ describe("Tezos operation functions", () => {
         sleep(33);
 //*/
 
-    // console.log('+++++Sending 1 tez to an inactive implicit account');
+    // console.log("+++++Sending 1 tez to an inactive implicit account");
     // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
     //   tezosURL,
     //   fundraiserKeys,
@@ -281,37 +280,37 @@ describe("Tezos operation functions", () => {
     //       ]
     //     },
     //     {
-    //       prim: "storage",
+    //       prim: 'storage',
     //       args: [
     //         {
-    //           prim: "string"
+    //           prim: 'string'
     //         }
     //       ]
     //     },
     //     {
-    //       prim: "code",
+    //       prim: 'code',
     //       args: [
     //         [
     //           {
-    //             prim: "CAR"
+    //             prim: 'CAR'
     //           },
     //           {
-    //             prim: "NIL",
+    //             prim: 'NIL',
     //             args: [
     //               {
-    //                 prim: "operation"
+    //                 prim: 'operation'
     //               }
     //             ]
     //           },
     //           {
-    //             prim: "PAIR"
+    //             prim: 'PAIR'
     //           }
     //         ]
     //       ]
     //     }
     //   ],
     //   {
-    //     string: "hello"
+    //     string: 'hello'
     //   },
     //   tezosURL,
     //   fundraiserKeys,
@@ -346,38 +345,40 @@ describe("Tezos operation functions", () => {
     //     .errors
     // );
 
-    console.log("+++++Originating an account with 1 tez");
-    const originationResult = await TezosOperations.sendOriginationOperation(
-      tezosURL,
-      fundraiserKeys,
-      200000000,
-      randomBakerAddress1,
-      true,
-      true,
-      2000000, // Protocol 003 minimum fee is 1377 for originations
-      invalidDerivationPath
-    );
-    console.log("ORIGINATION RESULT", originationResult);
-    // expect(originationResult.operationGroupID).to.exist;
+    //     console.log('+++++Originating an account with 1 tez');
+    //     const originationResult = await TezosOperations.sendOriginationOperation(
+    //       tezosURL,
+    //       fundraiserKeys,
+    //       20000000,
+    //       randomBakerAddress1,
+    //       true,
+    //       true,
+    //       2000000, // Protocol 003 minimum fee is 1377 for originations
+    //       invalidDerivationPath
+    //     );
+    //     console.log('ORIGINATION RESULT', originationResult);
+    //     // expect(originationResult.operationGroupID).to.exist;
+
+    //     sleep(33);
 
     //     /*
     //         // Comment out this section in the FIRST run
     //         // Activate this section in the SECOND run.
     //         // Set delegatedKeyStore.publicKeyHash to the newly originated KT1 address before starting the SECOND run.
     // */
-    let delegatedKeyStore = randomKeys;
+    //     let delegatedKeyStore = randomKeys;
     //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
 
-    console.log("+++++Sending delegation operation");
-    const delegationResult = await TezosOperations.sendDelegationOperation(
-      tezosURL,
-      fundraiserKeys,
-      randomBakerAddress2,
-      2000000, // Protocol 003 minimum fee is 1100 for delegations
-      invalidDerivationPath
-    );
-    expect(delegationResult.operationGroupID).to.exist;
-    console.log("DELEGATION RESULT", delegationResult);
+    //     console.log('+++++Sending delegation operation');
+    //     const delegationResult = await TezosOperations.sendDelegationOperation(
+    //       tezosURL,
+    //       delegatedKeyStore,
+    //       randomBakerAddress2,
+    //       2000000, // Protocol 003 minimum fee is 1100 for delegations
+    //       invalidDerivationPath
+    //     );
+    //     expect(delegationResult.operationGroupID).to.exist;
+    //     console.log('DELEGATION RESULT', delegationResult);
 
     //     sleep(33);
   });

@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import { KeyStore } from "../types/KeyStore";
 import * as TezosTypes from "./TezosTypes";
-import { Operation } from "./TezosTypes";
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -17,7 +16,7 @@ export interface SignedOperationGroup {
  */
 export interface OperationResult {
     results: TezosTypes.AlphaOperationsWithMetadata;
-    operationGroupID: String;
+    operationGroupID: string;
 }
 export declare namespace TezosOperations {
     /**
@@ -36,10 +35,10 @@ export declare namespace TezosOperations {
     function computeOperationHash(signedOpGroup: SignedOperationGroup): string;
     /**
      * Forge an operation group using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
+     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * @returns {Promise<string>}   Forged operation bytes (as a hex string)
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string>;
     /**
@@ -79,7 +78,7 @@ export declare namespace TezosOperations {
      * @param account Which account to use
      * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: Operation[]): Promise<TezosTypes.Operation[]>;
+    function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;
     /**
      * Creates and sends a transaction operation.
      * @param {string} network  Which Tezos network to go against
@@ -90,7 +89,7 @@ export declare namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  Result of the operation
      */
-    function sendTransactionOperation(network: string, keyStore: KeyStore, to: String, amount: number, fee: number, derivationPath: string): Promise<OperationResult>;
+    function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string): Promise<OperationResult>;
     /**
      * Creates and sends a delegation operation.
      * @param {string} network  Which Tezos network to go against
@@ -100,7 +99,7 @@ export declare namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  Result of the operation
      */
-    function sendDelegationOperation(network: string, keyStore: KeyStore, delegate: String, fee: number, derivationPath: string): Promise<OperationResult>;
+    function sendDelegationOperation(network: string, keyStore: KeyStore, delegate: string, fee: number, derivationPath: string): Promise<OperationResult>;
     /**
      * Creates and sends an origination operation.
      * @param {string} network  Which Tezos network to go against
