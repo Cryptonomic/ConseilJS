@@ -62,13 +62,49 @@ export interface Operation {
     counter: string;
     storage_limit: string;
     gas_limit: string;
-    delegate?: string;
     public_key?: string;
     managerPubkey?: string;
     balance?: string;
+    delegate?: string;
     spendable?: boolean;
     delegatable?: boolean;
     destination?: string;
     amount?: string;
     script?: string;
+}
+export interface ContractOriginationOperation {
+    scripts: object;
+    kind: string;
+    source: string;
+    fee: string;
+    counter: string;
+    storage_limit: string;
+    gas_limit: string;
+    delegate?: string;
+    public_key?: string;
+    managerPubkey?: string;
+    manager_pubkey?: string;
+    balance?: string;
+    spendable?: boolean;
+    delegatable?: boolean;
+    destination?: string;
+    amount?: string;
+}
+export interface ContractInvocationOperation {
+    kind: string;
+    source: string;
+    fee: string;
+    counter: string;
+    storage_limit: string;
+    gas_limit: string;
+    delegate?: string;
+    public_key?: string;
+    parameters: object;
+    managerPubkey?: string;
+    manager_pubkey?: string;
+    balance?: string;
+    spendable?: boolean;
+    delegatable?: boolean;
+    destination?: string;
+    amount?: string;
 }

@@ -114,6 +114,32 @@ export declare namespace TezosOperations {
      */
     function sendOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<OperationResult>;
     /**
+       * Creates and originates a smart contract.
+       * @param {string} network  Which Tezos network to go against
+       * @param {KeyStore} keyStore   Key pair along with public key hash
+       * @param {number} amount   Initial funding amount of new account
+       * @param {string} delegate Account ID to delegate to, blank if none
+       * @param {boolean} spendable   Is account spendable?
+       * @param {boolean} delegatable Is account delegatable?
+       * @param {number} fee  Operation fee
+       * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+       * @returns {Promise<OperationResult>}  Result of the operation
+       */
+    function sendContractOriginationOperation(code: Array<object>, // may have to change this type depending on how parser (from JS to michelson) works
+    storage: object, // may have to change this type depending on how parser (from JS to michelson) works
+    network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string, storage_limit: string, gas_limit: string): Promise<OperationResult>;
+    /**
+      * Invokes a contract with desired parameters.
+      * @param {string} network  Which Tezos network to go against
+      * @param {KeyStore} keyStore   Key pair along with public key hash
+      * @param {String} to   Destination public key hash
+      * @param {number} amount   Amount to send
+      * @param {number} fee  Fee to use
+      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+      * @returns {Promise<OperationResult>}  Result of the operation
+      */
+    function sendContractInvocationOperation(parameters: object, network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string, storage_limit: string, gas_limit: string): Promise<OperationResult>;
+    /**
      * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
      * @param {string} network  Which Tezos network to go against
      * @param {KeyStore} keyStore   Key pair along with public key hash

@@ -1,10 +1,11 @@
 // Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
+// Use below code to run your tests:
+// ./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/TezosOperations.spec.ts
 import { expect } from "chai";
 import { TezosOperations } from "../src";
-import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
-import { servers } from "./servers";
+import { servers } from "../test/servers";
 import { TezosWallet } from "../src";
 import { KeyStore } from "../src/types/KeyStore";
 
@@ -228,7 +229,7 @@ describe("Tezos operation functions", () => {
         sleep(33);
 //*/
 
-    // console.log("+++++Sending 1 tez to an inactive implicit account");
+    // console.log('+++++Sending 1 tez to an inactive implicit account');
     // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
     //   tezosURL,
     //   fundraiserKeys,
@@ -241,17 +242,17 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    console.log("+++++Sending 1 tez to an active implicit address");
-    const activeImplicitResult = await TezosOperations.sendTransactionOperation(
-      tezosURL,
-      fundraiserKeys,
-      "KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim",
-      //   anActiveImplicitAddress,
-      20000000,
-      2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
-      invalidDerivationPath
-    );
-    expect(activeImplicitResult.operationGroupID).to.exist;
+    // console.log('+++++Sending 1 tez to an active implicit address');
+    // const activeImplicitResult = await TezosOperations.sendTransactionOperation(
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   'KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim',
+    //   //   anActiveImplicitAddress,
+    //   20000000,
+    //   2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
+    //   invalidDerivationPath
+    // );
+    // expect(activeImplicitResult.operationGroupID).to.exist;
 
     // sleep(33);
 
@@ -268,62 +269,76 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    // console.log('+++++Originating a contract from manager address');
-    // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
-    //   [
-    //     {
-    //       prim: 'parameter',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'storage',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'code',
-    //       args: [
-    //         [
-    //           {
-    //             prim: 'CAR'
-    //           },
-    //           {
-    //             prim: 'NIL',
-    //             args: [
-    //               {
-    //                 prim: 'operation'
-    //               }
-    //             ]
-    //           },
-    //           {
-    //             prim: 'PAIR'
-    //           }
-    //         ]
-    //       ]
-    //     }
-    //   ],
-    //   {
-    //     string: 'hello'
-    //   },
+    console.log("+++++Originating a contract from manager address");
+    const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+      [
+        {
+          prim: "parameter",
+          args: [
+            {
+              prim: "string"
+            }
+          ]
+        },
+        {
+          prim: "storage",
+          args: [
+            {
+              prim: "string"
+            }
+          ]
+        },
+        {
+          prim: "code",
+          args: [
+            [
+              {
+                prim: "CAR"
+              },
+              {
+                prim: "NIL",
+                args: [
+                  {
+                    prim: "operation"
+                  }
+                ]
+              },
+              {
+                prim: "PAIR"
+              }
+            ]
+          ]
+        }
+      ],
+      {
+        string: "hello"
+      },
+      tezosURL,
+      fundraiserKeys,
+      2000000,
+      randomBakerAddress1,
+      true,
+      true,
+      200000, // Protocol 003 minimum fee is 1377 for originations
+      invalidDerivationPath,
+      "10160",
+      "27777" // "consumed_gas":"11262"
+    );
+    expect(contractOriginationResult["operationGroupID"]).to.exist;
+
+    // console.log("+++++Invoke a contract from manager address");
+    // const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
+    //   { string: "Cryptonomicon" },
     //   tezosURL,
     //   fundraiserKeys,
-    //   2000000,
-    //   randomBakerAddress1,
-    //   true,
-    //   true,
-    //   200000, // Protocol 003 minimum fee is 1377 for originations
+    //   "KT1EiEdJEKw13fsyYeZ1NEq3VpwDNnvMYPxd",
+    //   10000000, // Amount sent
+    //   1000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
     //   invalidDerivationPath,
-    //   '10160',
-    //   '27777' // "consumed_gas":"11262"
+    //   "100000", // Storage Limit
+    //   "100000" // Gas Limit
     // );
-    // expect(contractOriginationResult['operationGroupID']).to.exist;
+    // expect(contractInvocationResult["operationGroupID"]).to.exist;
 
     // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
     // console.log(

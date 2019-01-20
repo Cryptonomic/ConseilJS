@@ -5,6 +5,11 @@ import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
+import {
+  Operation,
+  ContractOriginationOperation,
+  ContractInvocationOperation
+} from "./TezosTypes";
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -336,6 +341,116 @@ export namespace TezosOperations {
         const operations = await appendRevealOperation(network, keyStore, account, [origination])
         return sendOperation(network, operations, keyStore, derivationPath);
     }
+
+    /**
+       * Creates and originates a smart contract.
+       * @param {string} network  Which Tezos network to go against
+       * @param {KeyStore} keyStore   Key pair along with public key hash
+       * @param {number} amount   Initial funding amount of new account
+       * @param {string} delegate Account ID to delegate to, blank if none
+       * @param {boolean} spendable   Is account spendable?
+       * @param {boolean} delegatable Is account delegatable?
+       * @param {number} fee  Operation fee
+       * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+       * @returns {Promise<OperationResult>}  Result of the operation
+       */
+      export async function sendContractOriginationOperation(
+        code: Array<object>, // may have to change this type depending on how parser (from JS to michelson) works
+        storage: object, // may have to change this type depending on how parser (from JS to michelson) works
+        network: string,
+        keyStore: KeyStore,
+        amount: number,
+        delegate: string,
+        spendable: boolean,
+        delegatable: boolean,
+        fee: number,
+        derivationPath: string,
+        storage_limit: string,
+        gas_limit: string
+      ) {
+        const blockHead = await TezosNode.getBlockHead(network);
+        const account = await TezosNode.getAccountForBlock(
+          network,
+          blockHead.hash,
+          keyStore.publicKeyHash
+        );
+        const origination: ContractOriginationOperation = {
+          scripts: {
+            code: code,
+            storage: storage
+          },
+          kind: "origination",
+          source: keyStore.publicKeyHash,
+          fee: fee.toString(),
+          counter: (Number(account.counter) + 1).toString(),
+          gas_limit,
+          storage_limit,
+          managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+          //   manager_pubkey: keyStore.publicKeyHash, // zeronet
+          balance: amount.toString(),
+          spendable: spendable,
+          delegatable: delegatable,
+          delegate: delegate
+        };
+      const operations = await appendRevealOperation(network, keyStore, account, [
+        origination
+      ]);
+      return sendOperation(network, operations, keyStore, derivationPath);
+    }
+
+    /**
+      * Invokes a contract with desired parameters.
+      * @param {string} network  Which Tezos network to go against
+      * @param {KeyStore} keyStore   Key pair along with public key hash
+      * @param {String} to   Destination public key hash
+      * @param {number} amount   Amount to send
+      * @param {number} fee  Fee to use
+      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+      * @returns {Promise<OperationResult>}  Result of the operation
+      */
+     export async function sendContractInvocationOperation(
+       parameters: object,
+       network: string,
+       keyStore: KeyStore,
+       to: string,
+       amount: number,
+       fee: number,
+       derivationPath: string,
+       storage_limit: string,
+       gas_limit: string
+     ) {
+       const blockHead = await TezosNode.getBlockHead(network);
+       const sourceAccount = await TezosNode.getAccountForBlock(
+         network,
+         blockHead.hash,
+         keyStore.publicKeyHash
+       );
+       const targetAccount = await TezosNode.getAccountForBlock(
+         network,
+         blockHead.hash,
+         to.toString()
+       );
+
+       const transaction: ContractInvocationOperation = {
+         parameters: parameters,
+         destination: to,
+         amount: amount.toString(),
+         storage_limit,
+         gas_limit,
+         counter: (Number(sourceAccount.counter) + 1).toString(),
+         fee: fee.toString(),
+         source: keyStore.publicKeyHash,
+         kind: "transaction"
+       };
+
+       const operations = await appendRevealOperation(
+         network,
+         keyStore,
+         sourceAccount,
+         [transaction]
+       );
+       return sendOperation(network, operations, keyStore, derivationPath);
+     }
 
     /**
      * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
