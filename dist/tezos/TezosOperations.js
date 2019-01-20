@@ -323,7 +323,7 @@ var TezosOperations;
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const origination = {
-                scripts: {
+                script: {
                     code: code,
                     storage: storage
                 },

@@ -70,10 +70,10 @@ export interface Operation {
     delegatable?: boolean;
     destination?: string;
     amount?: string;
-    script?: string;
+    script?: string | object;
 }
 export interface ContractOriginationOperation {
-    scripts: object;
+    script: object;
     kind: string;
     source: string;
     fee: string;

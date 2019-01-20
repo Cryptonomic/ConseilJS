@@ -375,7 +375,7 @@ export namespace TezosOperations {
           keyStore.publicKeyHash
         );
         const origination: ContractOriginationOperation = {
-          scripts: {
+          script: {
             code: code,
             storage: storage
           },
