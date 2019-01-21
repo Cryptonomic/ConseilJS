@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { TezosOperations } from "../src";
 import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
-import { servers } from "./servers";
+import { servers } from "../test/servers";
 import { TezosWallet } from "../src";
 import { KeyStore } from "../src/types/KeyStore";
 
@@ -241,17 +241,17 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    console.log("+++++Sending 1 tez to an active implicit address");
-    const activeImplicitResult = await TezosOperations.sendTransactionOperation(
-      tezosURL,
-      fundraiserKeys,
-      "KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim",
-      //   anActiveImplicitAddress,
-      20000000,
-      2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
-      invalidDerivationPath
-    );
-    expect(activeImplicitResult.operationGroupID).to.exist;
+    // console.log("+++++Sending 1 tez to an active implicit address");
+    // const activeImplicitResult = await TezosOperations.sendTransactionOperation(
+    //   tezosURL,
+    //   fundraiserKeys,
+    //   "KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim",
+    //   //   anActiveImplicitAddress,
+    //   20000000,
+    //   2000000, // Protocol 003 minimum fee for active implicit accounts is 1100
+    //   invalidDerivationPath
+    // );
+    // expect(activeImplicitResult.operationGroupID).to.exist;
 
     // sleep(33);
 
@@ -330,6 +330,20 @@ describe("Tezos operation functions", () => {
     //   contractOriginationResult.results.contents[0].metadata['operation_result']
     //     .errors
     // );
+
+  console.log("+++++Invoke a contract from manager address");
+    const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
+      { string: "Cryptonomicon" },
+      tezosURL,
+      fundraiserKeys,
+      "KT1LM2dZEYQsmu7Cz94x6Bn8dXzXNtHfF2RW",
+      10000000, // Amount sent
+      1000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+      invalidDerivationPath,
+      "100000", // Storage Limit
+      "100000" // Gas Limit
+    );
+    expect(contractInvocationResult["operationGroupID"]).to.exist;
 
     //     console.log('+++++Originating an account with 1 tez');
     //     const originationResult = await TezosOperations.sendOriginationOperation(
