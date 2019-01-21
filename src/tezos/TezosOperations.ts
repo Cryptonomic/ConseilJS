@@ -5,11 +5,6 @@ import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
-import {
-    Operation,
-    ContractOriginationOperation,
-    ContractInvocationOperation
-  } from "./TezosTypes";
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -373,7 +368,7 @@ export namespace TezosOperations {
           blockHead.hash,
           keyStore.publicKeyHash
         );
-        const origination: ContractOriginationOperation = {
+        const origination: TezosTypes.ContractOriginationOperation = {
           script: {
             code: code,
             storage: storage
@@ -430,7 +425,7 @@ export namespace TezosOperations {
          to.toString()
        );
 
-       const transaction: ContractInvocationOperation = {
+       const transaction: TezosTypes.ContractInvocationOperation = {
          parameters: parameters,
          destination: to,
          amount: amount.toString(),
