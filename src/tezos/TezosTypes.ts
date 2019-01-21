@@ -85,40 +85,10 @@ export interface Operation {
     script?: string | object;
 }
 
-export interface ContractOriginationOperation {
+export interface ContractOriginationOperation extends Operation {
     script: object;
-    kind: string;
-    source: string;
-    fee: string;
-    counter: string;
-    storage_limit: string;
-    gas_limit: string;
-    delegate?: string;
-    public_key?: string;
-    managerPubkey?: string; // mainnet, alphanet
-    // manager_pubkey?: string; // zeronet
-    balance?: string;
-    spendable?: boolean;
-    delegatable?: boolean;
-    destination?: string;
-    amount?: string;
   }
   
-  export interface ContractInvocationOperation {
-    kind: string;
-    source: string;
-    fee: string;
-    counter: string;
-    storage_limit: string;
-    gas_limit: string;
-    delegate?: string;
-    public_key?: string;
+  export interface ContractInvocationOperation extends Operation {
     parameters: object;
-    managerPubkey?: string; // mainnet, alphanet
-    // manager_pubkey?: string; // zeronet
-    balance?: string;
-    spendable?: boolean;
-    delegatable?: boolean;
-    destination?: string;
-    amount?: string;
   }
