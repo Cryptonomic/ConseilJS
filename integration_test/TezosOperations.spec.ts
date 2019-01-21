@@ -326,19 +326,19 @@ describe("Tezos operation functions", () => {
     );
     expect(contractOriginationResult["operationGroupID"]).to.exist;
 
-    // console.log("+++++Invoke a contract from manager address");
-    // const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
-    //   { string: "Cryptonomicon" },
-    //   tezosURL,
-    //   fundraiserKeys,
-    //   "KT1EiEdJEKw13fsyYeZ1NEq3VpwDNnvMYPxd",
-    //   10000000, // Amount sent
-    //   1000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
-    //   invalidDerivationPath,
-    //   "100000", // Storage Limit
-    //   "100000" // Gas Limit
-    // );
-    // expect(contractInvocationResult["operationGroupID"]).to.exist;
+    console.log("+++++Invoke a contract from manager address");
+    const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
+        { string: "Cryptonomicon" },
+        tezosURL,
+        fundraiserKeys,
+        "KT1EiEdJEKw13fsyYeZ1NEq3VpwDNnvMYPxd",
+         10000000, // Amount sent
+         1000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+        invalidDerivationPath,
+         "100000", // Storage Limit
+        "100000" // Gas Limit
+    );
+    expect(contractInvocationResult["operationGroupID"]).to.exist;
 
     // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
     // console.log(
