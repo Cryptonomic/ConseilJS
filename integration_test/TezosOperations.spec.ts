@@ -213,6 +213,7 @@ describe("Tezos operation functions", () => {
     const randomDelegatedAddress = "KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc";
     const randomBakerAddress1 = "tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ";
     const randomBakerAddress2 = "tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u";
+    const randomBakerAddress3 = 'tz1YCABRTa6H8PLKx2EtDWeCGPaKxUhNgv47'; //alphanet
 
     /*       
         //Activate this section in FIRST run to activate the fundraiser account
@@ -268,62 +269,62 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    // console.log('+++++Originating a contract from manager address');
-    // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
-    //   [
-    //     {
-    //       prim: 'parameter',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'storage',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'code',
-    //       args: [
-    //         [
-    //           {
-    //             prim: 'CAR'
-    //           },
-    //           {
-    //             prim: 'NIL',
-    //             args: [
-    //               {
-    //                 prim: 'operation'
-    //               }
-    //             ]
-    //           },
-    //           {
-    //             prim: 'PAIR'
-    //           }
-    //         ]
-    //       ]
-    //     }
-    //   ],
-    //   {
-    //     string: 'hello'
-    //   },
-    //   tezosURL,
-    //   fundraiserKeys,
-    //   2000000,
-    //   randomBakerAddress1,
-    //   true,
-    //   true,
-    //   200000, // Protocol 003 minimum fee is 1377 for originations
-    //   invalidDerivationPath,
-    //   '10160',
-    //   '27777' // "consumed_gas":"11262"
-    // );
-    // expect(contractOriginationResult['operationGroupID']).to.exist;
+    console.log('+++++Originating a contract from manager address');
+    const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+      [
+        {
+          prim: 'parameter',
+          args: [
+            {
+              prim: 'string'
+            }
+          ]
+        },
+        {
+          prim: 'storage',
+          args: [
+            {
+              prim: 'string'
+            }
+          ]
+        },
+        {
+          prim: 'code',
+          args: [
+            [
+              {
+                prim: 'CAR'
+              },
+              {
+                prim: 'NIL',
+                args: [
+                  {
+                    prim: 'operation'
+                  }
+                ]
+              },
+              {
+                prim: 'PAIR'
+              }
+            ]
+          ]
+        }
+      ],
+      {
+        string: 'hello'
+      },
+      tezosURL,
+      fundraiserKeys,
+      2000000,
+      randomBakerAddress3,
+      true,
+      true,
+      200000, // Protocol 003 minimum fee is 1377 for originations
+      invalidDerivationPath,
+      '10160',
+      '27777' // "consumed_gas":"11262"
+    );
+    expect(contractOriginationResult['operationGroupID']).to.exist;
 
     // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
     // console.log(
@@ -336,11 +337,11 @@ describe("Tezos operation functions", () => {
       { string: "Cryptonomicon" },
       tezosURL,
       fundraiserKeys,
-      "KT1LM2dZEYQsmu7Cz94x6Bn8dXzXNtHfF2RW",
-      10000000, // Amount sent
-      1000000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+      "KT1Wb4LE19jCNDuhp8Md7YpEDYmW9rhLTHsW",
+      100000, // Amount sent
+      100000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
       invalidDerivationPath,
-      "100000", // Storage Limit
+      "1000", // Storage Limit
       "100000" // Gas Limit
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;
