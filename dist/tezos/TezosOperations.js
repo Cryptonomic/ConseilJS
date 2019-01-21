@@ -333,8 +333,8 @@ var TezosOperations;
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit,
                 storage_limit,
-                managerPubkey: keyStore.publicKeyHash,
-                //   manager_pubkey: keyStore.publicKeyHash, // zeronet
+                //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+                manager_pubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,
