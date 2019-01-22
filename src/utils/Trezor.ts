@@ -150,7 +150,7 @@ export namespace TezFns {
                     resolve();
                 }
             } else {
-                protobuf.load("src/utils/protob/trezor.tezos.proto", (err, root) => {
+                protobuf.load("protob/trezor.tezos.proto", (err, root) => {
                     if (err){
                         pbError = err;
                         isLoaded = true;
