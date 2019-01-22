@@ -44,7 +44,7 @@ export interface TezosOperation {
     amount: string,
     destination: string,
     //managerPubkey: string, //mainnet, aplhanet
-    manager_pubkey: string,  //zeronet
+    managerPubkey: string,  //zeronet
     balance: string,
     delegate: string,
     operationGroupHash: string,

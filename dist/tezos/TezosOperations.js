@@ -270,7 +270,7 @@ var TezosOperations;
                 gas_limit: '10160',
                 storage_limit: '277',
                 //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
-                manager_pubkey: keyStore.publicKeyHash,
+                managerPubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable,

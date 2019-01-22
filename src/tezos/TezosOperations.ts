@@ -315,7 +315,7 @@ export namespace TezosOperations {
             gas_limit: '10160',
             storage_limit: '277',
             //managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
-            manager_pubkey: keyStore.publicKeyHash,  // zeronet
+            managerPubkey: keyStore.publicKeyHash,  // zeronet
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
