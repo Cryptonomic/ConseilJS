@@ -28,9 +28,7 @@ function getBranch(enc) {
 function getTezosPublicKey(derivationPath) {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield Trezor_1.TezFns.getAddress(derivationPath, true);
-        console.log('address', result.address);
-        const hexEncodedPublicKey = result.publicKey;
-        return hexEncodedPublicKey;
+        return result;
     });
 }
 exports.getTezosPublicKey = getTezosPublicKey;

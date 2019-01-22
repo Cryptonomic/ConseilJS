@@ -11,11 +11,9 @@ function getBranch(enc) {
  * Given a BIP44 derivation path for Tezos, get the Tezos Public Key
  * @param derivationPath BIP44 Derivation Path
  */
-export async function getTezosPublicKey(derivationPath: string): Promise<string> {
+export async function getTezosPublicKey(derivationPath: string): Promise<any> {
     const result: any = await TezFns.getAddress(derivationPath, true);
-    console.log('address', result.address);
-    const hexEncodedPublicKey = result.publicKey;
-    return hexEncodedPublicKey;
+    return result;
 }
 
 export async function signTezosOperation(derivationPath: string, forgedOperation: string, operations: object[]): Promise<Buffer> {

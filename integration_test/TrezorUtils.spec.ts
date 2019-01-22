@@ -15,7 +15,7 @@ describe('getTezosPublicKey()', () => {
     it('should correctly fetch the root key', mochaAsync(async () => {
         const result = await trezorUtils.getTezosPublicKey("44'/1729'/0'/0'/0'");
         console.log('22222222result=', result);
-        expect(result).to.be.a('string');
+        expect(result.publicKey).to.be.a('string');
     }));
 });
 
