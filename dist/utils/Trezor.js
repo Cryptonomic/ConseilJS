@@ -166,7 +166,16 @@ var TezFns;
                 }
             }
             else {
-                protobuf.load("protob/trezor.tezos.proto", (err, root) => {
+                let mainPath = '';
+                const indexPath = __dirname.indexOf('src/utils');
+                if (indexPath > 0) {
+                    mainPath = __dirname.replace('src/utils', '');
+                }
+                else {
+                    mainPath = __dirname.replace('dist/utils', '');
+                }
+                const realPath = mainPath + 'protob/trezor.tezos.proto';
+                protobuf.load(realPath, (err, root) => {
                     if (err) {
                         pbError = err;
                         isLoaded = true;
