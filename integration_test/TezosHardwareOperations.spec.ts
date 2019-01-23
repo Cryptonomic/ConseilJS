@@ -7,7 +7,7 @@ import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
 import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
 const tezosURL = servers.tezosServer;
-const derivationPathIndex = Math.floor(Math.random()*10).toString();
+const derivationPathIndex = 0;
 const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;
 
 function sleep(seconds) {
@@ -21,13 +21,13 @@ describe('Tezos operation functions', () => {
 
         //get fields from tezos alphanet faucet
         const fundraiserKeys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
-            "pistol traffic confirm prefer sausage payment maze drum act fever can gloom skate output sand",
-            "xqmbhwrr.vlizqazr@tezos.example.org",
-            "mdVVjA62pJ",
-            "tz1TVRx7bwYdESpRmvRiXtS6WCjZXq2jj6Rm"
+            "catalog swarm security term cherry junk burger solid rhythm law ladder field cluster swarm more",
+            "jknpqqnh.ahxlkslh@tezos.example.org",
+            "8NhItxrOx0",
+            "tz1gjvk1kiNEPzmF6VzGoKepAvvhUnoB5rwV"
         );
 
-        const fundraiserKeySecret = '67b9ba6251c827cb7ff425658ec53984db8ee9ec';
+        const fundraiserKeySecret = '4996d9e79e744aa0ee42dca5ac94b1e43a62f9f9';
 
         const mnemonic = TezosWallet.generateMnemonic();
         const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');
@@ -63,6 +63,7 @@ describe('Tezos operation functions', () => {
             100000, //Protocol 003 minimum fee for inactive implicit accounts is 1387
             derivationPath
         );
+        console.log('receiveResult---------', receiveResult);
         expect(receiveResult.operationGroupID).to.exist;
 
         sleep(33);
