@@ -5,8 +5,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha",
     "integration-test": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/*.spec.ts",
+    "test-device": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/TezosHardwareOperations.spec.ts",
+    "test-trezor": "./node_modules/mocha/bin/mocha --timeout 50000 -r ts-node/register integration_test/TrezorUtils.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
@@ -58,6 +59,7 @@
     "https": "^1.0.0",
     "libsodium-wrappers": "^0.5.4",
     "libsodium-wrappers-sumo": "^0.5.4",
+    "protobufjs": "^6.8.8",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "zxcvbn": "^4.4.2"
   },
@@ -97,12 +99,32 @@
     },
     "extends": "airbnb-base",
     "rules": {
-      "comma-dangle": [2, "never"],
-      "curly": [2, "all"],
-      "indent": [1, 4],
-      "max-len": [2, { "code": 200, "ignoreTrailingComments": true }],
-      "no-tabs": [2],
-      "quotes": [2, "double"]
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "double"
+      ]
     }
   }
 }

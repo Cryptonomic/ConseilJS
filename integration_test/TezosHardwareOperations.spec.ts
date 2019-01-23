@@ -2,7 +2,7 @@ import {TezosOperations} from "../src";
 import {expect} from "chai";
 import {KeyStore} from "../src/types/KeyStore";
 import {TezosWallet} from "../src";
-import {servers} from "./servers";
+import {servers} from "../test/servers";
 import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
 import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
@@ -21,13 +21,13 @@ describe('Tezos operation functions', () => {
 
         //get fields from tezos alphanet faucet
         const fundraiserKeys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
-            "economy allow chef brave erosion talk panic mirror tail message letter pact remove final pizza",
-            "eriajpqb.sgqzfzjm@tezos.example.org",
-            "NJ73redfI4",
-            "tz1irFsFXR9iT8rW9WJYYKXZPJU2nzaMfyMp"
+            "pistol traffic confirm prefer sausage payment maze drum act fever can gloom skate output sand",
+            "xqmbhwrr.vlizqazr@tezos.example.org",
+            "mdVVjA62pJ",
+            "tz1TVRx7bwYdESpRmvRiXtS6WCjZXq2jj6Rm"
         );
 
-        const fundraiserKeySecret = 'e4766f7316aae6b455d7ab886e634a92a24a22dd';
+        const fundraiserKeySecret = '67b9ba6251c827cb7ff425658ec53984db8ee9ec';
 
         const mnemonic = TezosWallet.generateMnemonic();
         const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');

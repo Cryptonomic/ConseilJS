@@ -76,11 +76,30 @@ export interface Operation {
     delegate?: string,
     public_key?: string,
     managerPubkey?: string, // mainnet, alphanet
-    //manager_pubkey?: string, // zeronet
+    //managerPubkey?: string, // zeronet
     balance?: string,
     spendable?: boolean,
     delegatable?: boolean,
     destination?: string,
     amount?: string,
+    script?: string
+}
+
+export interface TrezorOperation {
+    kind: string,
+    source: string,
+    fee: number,
+    counter: number,
+    storageLimit: number,
+    gasLimit: number,
+    delegate?: string,
+    publicKey?: string,
+    managerPubkey?: string, // mainnet, alphanet
+    //managerPubkey?: string, // zeronet
+    balance?: string,
+    spendable?: boolean,
+    delegatable?: boolean,
+    destination?: string,
+    amount?: number,
     script?: string
 }

@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import {TezosConseilQuery} from '../src'
-import {servers} from "./servers";
+import {servers} from "../test/servers";
 
 const conseilURL = servers.conseilServer;
 const conseilApiKey = servers.conseilApiKey;

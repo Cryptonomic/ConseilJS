@@ -1,15 +1,16 @@
 import 'mocha';
 import {expect} from 'chai';
-import * as tezHardwareWallet from '../src/tezos/TezosHardwareWallet';
+import {TezosHardwareWallet} from '../src/tezos/TezosHardwareWallet';
 import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
 
 describe('getTezosPublicKey()', () => {
     it('should correctly fetch the root key', async () => {
-        const derivationPath = "44'/1729'/0'/0'";
-        const result = await tezHardwareWallet.TezosHardwareWallet.unlockAddress(
-            HardwareDeviceType.Ledger,
+        const derivationPath = "44'/1729'/0'/0'/0'";
+        const result = await TezosHardwareWallet.unlockAddress(
+            HardwareDeviceType.Trezor,
             derivationPath);
-        console.log(result)
+        console.log('hardware',result)
+        expect(result.publicKey).to.be.a('string');
     });
 });
 
