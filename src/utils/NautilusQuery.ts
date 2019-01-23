@@ -1,4 +1,6 @@
-import fetch, {Response} from 'node-fetch';
+import FetchInstance from './FetchInstance';
+
+const fetch = FetchInstance.getFetch();
 
 /**
  * Generic functions for running queries against blockchain nodes.
@@ -32,7 +34,7 @@ export function runGetQuery(server: string, command: string): Promise<object> {
  * @param {object} payload  Payload to submit
  * @returns {Promise<object>}   JSON-encoded response
  */
-export function runPostQuery(server: string, command: string, payload = {}): Promise<Response> {
+export function runPostQuery(server: string, command: string, payload = {}): Promise<any> {
     const url = `${server}/${command}`;
     const payloadStr = JSON.stringify(payload);
     console.log(`Querying Tezos node with URL ${url} and payload: ${payloadStr}`);
