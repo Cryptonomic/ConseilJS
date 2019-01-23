@@ -1,0 +1,1 @@
+{"version":3,"file":"FetchInstance.js","sourceRoot":"","sources":["../../src/utils/FetchInstance.ts"],"names":[],"mappings":";;AAAA;IAEI,MAAM,CAAC,QAAQ,CAAC,KAAU;QACtB,IAAI,CAAC,KAAK,GAAG,KAAK,CAAC;IACvB,CAAC;IAED,MAAM,CAAC,QAAQ;QACX,OAAO,IAAI,CAAC,KAAK,CAAC;IACtB,CAAC;;AAPM,mBAAK,GAAQ,IAAI,CAAC;AAD7B,gCASC"}
