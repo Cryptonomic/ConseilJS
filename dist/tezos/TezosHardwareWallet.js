@@ -16,6 +16,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ledgerUtils = __importStar(require("../utils/LedgerUtils"));
+const trezorUtils = __importStar(require("../utils/TrezorUtils"));
 const CryptoUtils_1 = require("../utils/CryptoUtils");
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 const KeyStore_1 = require("../types/KeyStore");
@@ -23,18 +24,30 @@ var TezosHardwareWallet;
 (function (TezosHardwareWallet) {
     function unlockAddress(deviceType, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const hexEncodedPublicKey = yield ledgerUtils.getTezosPublicKey(derivationPath);
-            //We slice off a byte to make sure we have a 64 bits coming in from the ledger package
-            const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
-            const publicKey = CryptoUtils_1.base58CheckEncode(publicKeyBytes, "edpk");
-            const publicKeyHash = CryptoUtils_1.base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
-            return {
-                publicKey: publicKey,
-                privateKey: '',
-                publicKeyHash: publicKeyHash,
-                seed: '',
-                storeType: KeyStore_1.StoreType.Hardware
-            };
+            if (!deviceType) {
+                const hexEncodedPublicKey = yield ledgerUtils.getTezosPublicKey(derivationPath);
+                // We slice off a byte to make sure we have a 64 bits coming in from the ledger package
+                const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
+                const publicKey = CryptoUtils_1.base58CheckEncode(publicKeyBytes, "edpk");
+                const publicKeyHash = CryptoUtils_1.base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
+                return {
+                    publicKey: publicKey,
+                    privateKey: '',
+                    publicKeyHash: publicKeyHash,
+                    seed: '',
+                    storeType: KeyStore_1.StoreType.Hardware
+                };
+            }
+            else {
+                const { publicKey, address } = yield trezorUtils.getTezosPublicKey(derivationPath);
+                return {
+                    publicKey: publicKey,
+                    privateKey: '',
+                    publicKeyHash: address,
+                    seed: '',
+                    storeType: KeyStore_1.StoreType.Hardware
+                };
+            }
         });
     }
     TezosHardwareWallet.unlockAddress = unlockAddress;

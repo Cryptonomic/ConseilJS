@@ -72,3 +72,20 @@ export interface Operation {
     amount?: string;
     script?: string;
 }
+export interface TrezorOperation {
+    kind: string;
+    source: string;
+    fee: number;
+    counter: number;
+    storageLimit: number;
+    gasLimit: number;
+    delegate?: string;
+    publicKey?: string;
+    managerPubkey?: string;
+    balance?: string;
+    spendable?: boolean;
+    delegatable?: boolean;
+    destination?: string;
+    amount?: number;
+    script?: string;
+}

@@ -15,11 +15,19 @@ function sleep(seconds) {
     while (new Date().getTime() <= e) {}
 }
 
-describe('Tezos operation functions', () => {
-    it('successfully perform operations on a new identity', async (done) => {
-        setTimeout(done, 15000);
+const mochaAsync = (fn) => {
+    return done => {
+      fn.call().then(done, err => {
+        done(err);
+      });
+    };
+};
 
-        //get fields from tezos alphanet faucet
+describe('Tezos operation functions', () => {
+    it('successfully perform operations on a new identity', mochaAsync(async () => {
+        // setTimeout(done, 15000);
+
+        // get fields from tezos alphanet faucet
         const fundraiserKeys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
             "catalog swarm security term cherry junk burger solid rhythm law ladder field cluster swarm more",
             "jknpqqnh.ahxlkslh@tezos.example.org",
@@ -32,13 +40,15 @@ describe('Tezos operation functions', () => {
         const mnemonic = TezosWallet.generateMnemonic();
         const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');
         const inactiveImplicitAddress = randomKeys.publicKeyHash;
-        const anActiveImplicitAddress = 'tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc';
+        const anActiveImplicitAddress = fundraiserKeys.publicKeyHash;
         const randomDelegatedAddress = 'KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc';
         const randomBakerAddress1 = 'tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ';
         const randomBakerAddress2 = 'tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u';
 
-        const ledgerKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, derivationPath);
-        console.log("ledgerKeys: ", ledgerKeys)
+        const ledgerKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Trezor, derivationPath);
+        console.log("ledgerKeys: ", ledgerKeys);
+
+        TezosOperations.setDeviceType(HardwareDeviceType.Trezor);
 
         /*
         Uncomment this section if the fundraiser account is inactive
@@ -54,7 +64,7 @@ describe('Tezos operation functions', () => {
         sleep(33);
 
 */
-        //Send 10tz to Ledger to perform the tests.
+        // Send 10tz to Ledger to perform the tests.
         const receiveResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             fundraiserKeys,
@@ -66,61 +76,61 @@ describe('Tezos operation functions', () => {
         console.log('receiveResult---------', receiveResult);
         expect(receiveResult.operationGroupID).to.exist;
 
-        sleep(33);
+        // sleep(10);
 
-        console.log("+++++Sending 1 tez to an inactive implicit account");
-        const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
-            tezosURL,
-            ledgerKeys,
-            inactiveImplicitAddress,
-            1000000,
-            300000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
-            derivationPath
-        );
-        expect(inactiveImplicitResult.operationGroupID).to.exist;
+        // console.log("+++++Sending 1 tez to an inactive implicit account");
+        // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
+        //     tezosURL,
+        //     ledgerKeys,
+        //     inactiveImplicitAddress,
+        //     1000000,
+        //     300000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+        //     derivationPath
+        // );
+        // expect(inactiveImplicitResult.operationGroupID).to.exist;
 
-        sleep(33);
+        // sleep(33);
 
-        console.log("+++++Sending 1 tez to an active implicit address");
-        const activeImplicitResult = await TezosOperations.sendTransactionOperation(
-            tezosURL,
-            ledgerKeys,
-            anActiveImplicitAddress,
-            1000000,
-            300000, // Protocol 003 minimum fee for active implicit accounts is 1100
-            derivationPath
-        );
-        expect(activeImplicitResult.operationGroupID).to.exist;
+        // console.log("+++++Sending 1 tez to an active implicit address");
+        // const activeImplicitResult = await TezosOperations.sendTransactionOperation(
+        //     tezosURL,
+        //     ledgerKeys,
+        //     anActiveImplicitAddress,
+        //     1000000,
+        //     300000, // Protocol 003 minimum fee for active implicit accounts is 1100
+        //     derivationPath
+        // );
+        // expect(activeImplicitResult.operationGroupID).to.exist;
 
-        sleep(33);
+        // sleep(33);
 
-        console.log("+++++Sending 1 tez to a random delegated address");
-        const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
-            tezosURL,
-            ledgerKeys,
-            randomDelegatedAddress,
-            1000000,
-            300000, // Protocol 003 minimum fee for active kt1 accounts is 1100
-            derivationPath
-        );
-        expect(delegatedAccountResult.operationGroupID).to.exist;
+        // console.log("+++++Sending 1 tez to a random delegated address");
+        // const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
+        //     tezosURL,
+        //     ledgerKeys,
+        //     randomDelegatedAddress,
+        //     1000000,
+        //     300000, // Protocol 003 minimum fee for active kt1 accounts is 1100
+        //     derivationPath
+        // );
+        // expect(delegatedAccountResult.operationGroupID).to.exist;
 
-        sleep(33);
+        // sleep(33);
 
-        console.log("+++++Origination an account with 1 tez");
-        const originationResult = await TezosOperations.sendOriginationOperation(
-            tezosURL,
-            ledgerKeys,
-            1000000,
-            randomBakerAddress1,
-            true,
-            true,
-            300000, // Protocol 003 minimum fee is 1377 for originations
-            derivationPath
-        );
-        expect(originationResult.operationGroupID).to.exist;
+        // console.log("+++++Origination an account with 1 tez");
+        // const originationResult = await TezosOperations.sendOriginationOperation(
+        //     tezosURL,
+        //     ledgerKeys,
+        //     1000000,
+        //     randomBakerAddress1,
+        //     true,
+        //     true,
+        //     300000, // Protocol 003 minimum fee is 1377 for originations
+        //     derivationPath
+        // );
+        // expect(originationResult.operationGroupID).to.exist;
 
-        sleep(33);
+        // sleep(33);
 
         /*
           // Comment out delegation section in the FIRST run
@@ -142,5 +152,5 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
         */
-    });
+    }));
 });

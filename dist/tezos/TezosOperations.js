@@ -18,9 +18,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = require("libsodium-wrappers");
 const CryptoUtils = __importStar(require("../utils/CryptoUtils"));
 const LedgerUtils = __importStar(require("../utils/LedgerUtils"));
+const trezorUtils = __importStar(require("../utils/TrezorUtils"));
 const KeyStore_1 = require("../types/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
+let deviceType = 0;
 var TezosOperations;
 (function (TezosOperations) {
     /**
@@ -152,7 +154,7 @@ var TezosOperations;
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
     function injectOperation(network, signedOpGroup) {
-        const payload = sodium.to_hex(signedOpGroup.bytes);
+        const payload = !deviceType ? sodium.to_hex(signedOpGroup.bytes) : trezorUtils.Utility.buf2hex(signedOpGroup.bytes);
         return TezosNodeQuery_1.TezosNode.injectOperation(network, payload);
     }
     TezosOperations.injectOperation = injectOperation;
@@ -168,8 +170,15 @@ var TezosOperations;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
-            const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
-            const operationGroupHash = computeOperationHash(signedOpGroup);
+            let signedOpGroup;
+            let operationGroupHash;
+            if (!deviceType) {
+                signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+                operationGroupHash = computeOperationHash(signedOpGroup);
+            }
+            else {
+                signedOpGroup = yield trezorUtils.signTezosOperation(derivationPath, operations, blockHead.hash, forgedOperationGroup);
+            }
             const appliedOp = yield applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
             checkAppliedOperationResults(appliedOp);
             const injectedOperation = yield injectOperation(network, signedOpGroup);
@@ -378,5 +387,9 @@ var TezosOperations;
         return sendOperation(network, operations, keyStore, derivationPath);
     }
     TezosOperations.sendIdentityActivationOperation = sendIdentityActivationOperation;
+    function setDeviceType(type) {
+        deviceType = type;
+    }
+    TezosOperations.setDeviceType = setDeviceType;
 })(TezosOperations = exports.TezosOperations || (exports.TezosOperations = {}));
 //# sourceMappingURL=TezosOperations.js.map

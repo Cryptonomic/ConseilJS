@@ -1,6 +1,7 @@
 /// <reference types="node" />
 import { KeyStore } from "../types/KeyStore";
 import * as TezosTypes from "./TezosTypes";
+import { HardwareDeviceType } from "../types/HardwareDeviceType";
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -145,4 +146,5 @@ export declare namespace TezosOperations {
      * @returns {Promise<OperationResult>}  Result of the operation
      */
     function sendIdentityActivationOperation(network: string, keyStore: KeyStore, activationCode: string, derivationPath: string): Promise<OperationResult>;
+    function setDeviceType(type: HardwareDeviceType): void;
 }
