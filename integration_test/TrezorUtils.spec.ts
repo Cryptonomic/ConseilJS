@@ -7,17 +7,10 @@ import {TezosOperations} from "../src";
 import {servers} from "../test/servers";
 import {KeyStore} from "../src/types/KeyStore";
 import {TezosWallet} from "../src";
+import mochaAsync from '../src/utils/mochaTestHelper';
 
 const derivationPath = `44'/1729'/0'/0'/0'`;
 const tezosURL = servers.tezosServer;
-
-const mochaAsync = (fn) => {
-    return done => {
-      fn.call().then(done, err => {
-        done(err);
-      });
-    };
-};
 
 
 // describe('getTezosPublicKey()', () => {
@@ -34,11 +27,12 @@ describe('signTezosOperation()', () => {
         const mnemonic = TezosWallet.generateMnemonic();
         const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');
         const inactiveImplicitAddress = randomKeys.publicKeyHash;
+        const activeAdress = 'tz1gjvk1kiNEPzmF6VzGoKepAvvhUnoB5rwV';
         TezosOperations.setDeviceType(HardwareDeviceType.Trezor);
         const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             ledgerKeys,
-            inactiveImplicitAddress,
+            activeAdress,
             1000000,
             300000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
             derivationPath

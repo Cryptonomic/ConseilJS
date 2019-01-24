@@ -33,12 +33,13 @@ const msgidToPb = {
     154: "hw.trezor.messages.tezos.TezosGetPublicKey",
     155: "hw.trezor.messages.tezos.TezosPublicKey",
 };
+const usbIds = [4617, 21441];
 var TezFns;
 (function (TezFns) {
     let device, interf, inep, outep, pbroot, currentMessageData, currentMessageId, currentMessageLength, currentMessageHandler, currentMessageErrorHandler, isLoaded, pbError;
     function openDevice() {
         return new Promise((resolve, reject) => {
-            device = usb.findByIds(4617, 21441);
+            device = usb.findByIds(usbIds[0], usbIds[1]);
             reject = (e) => { throw e; };
             if (!device)
                 reject("No device found");

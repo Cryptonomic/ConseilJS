@@ -90,7 +90,7 @@ export declare namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  Result of the operation
      */
-    function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string): Promise<OperationResult>;
+    function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath?: string): Promise<OperationResult>;
     /**
      * Creates and sends a delegation operation.
      * @param {string} network  Which Tezos network to go against

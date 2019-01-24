@@ -22,6 +22,7 @@ const trezorUtils = __importStar(require("../utils/TrezorUtils"));
 const KeyStore_1 = require("../types/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
+const HardwareDeviceType_1 = require("../types/HardwareDeviceType");
 let deviceType = 0;
 var TezosOperations;
 (function (TezosOperations) {
@@ -154,7 +155,7 @@ var TezosOperations;
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
     function injectOperation(network, signedOpGroup) {
-        const payload = !deviceType ? sodium.to_hex(signedOpGroup.bytes) : trezorUtils.Utility.buf2hex(signedOpGroup.bytes);
+        const payload = deviceType === HardwareDeviceType_1.HardwareDeviceType.Trezor ? trezorUtils.Utility.buf2hex(signedOpGroup.bytes) : sodium.to_hex(signedOpGroup.bytes);
         return TezosNodeQuery_1.TezosNode.injectOperation(network, payload);
     }
     TezosOperations.injectOperation = injectOperation;
@@ -172,7 +173,7 @@ var TezosOperations;
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
             let signedOpGroup;
             let operationGroupHash;
-            if (!deviceType) {
+            if (deviceType !== HardwareDeviceType_1.HardwareDeviceType.Trezor) {
                 signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
                 operationGroupHash = computeOperationHash(signedOpGroup);
             }

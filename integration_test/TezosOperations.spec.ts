@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { TezosOperations } from "../src";
 import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
-import { servers } from "./servers";
+import { servers } from "../test/servers";
 import { TezosWallet } from "../src";
 import { KeyStore } from "../src/types/KeyStore";
 

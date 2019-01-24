@@ -76,7 +76,7 @@ export interface Operation {
     delegate?: string,
     public_key?: string,
     managerPubkey?: string, // mainnet, alphanet
-    //managerPubkey?: string, // zeronet
+    // manager_pubkey?: string, // zeronet
     balance?: string,
     spendable?: boolean,
     delegatable?: boolean,

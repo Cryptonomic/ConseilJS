@@ -169,7 +169,7 @@ export namespace TezosOperations {
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
     export function injectOperation(network: string, signedOpGroup: SignedOperationGroup): Promise<string> {
-        const payload = !deviceType? sodium.to_hex(signedOpGroup.bytes) : trezorUtils.Utility.buf2hex(signedOpGroup.bytes);
+        const payload = deviceType === HardwareDeviceType.Trezor? trezorUtils.Utility.buf2hex(signedOpGroup.bytes) : sodium.to_hex(signedOpGroup.bytes);
         return TezosNode.injectOperation(network, payload);
     }
 
@@ -190,10 +190,9 @@ export namespace TezosOperations {
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         let signedOpGroup;
         let operationGroupHash;
-        if (!deviceType) {
+        if (deviceType !== HardwareDeviceType.Trezor) {
             signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
             operationGroupHash = computeOperationHash(signedOpGroup);
-
         } else {
             signedOpGroup = await trezorUtils.signTezosOperation(derivationPath, operations, blockHead.hash, forgedOperationGroup);
         }
@@ -258,7 +257,7 @@ export namespace TezosOperations {
         to: string,
         amount: number,
         fee: number,
-        derivationPath: string
+        derivationPath?: string
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);

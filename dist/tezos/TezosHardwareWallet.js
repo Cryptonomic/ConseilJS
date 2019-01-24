@@ -17,6 +17,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ledgerUtils = __importStar(require("../utils/LedgerUtils"));
 const trezorUtils = __importStar(require("../utils/TrezorUtils"));
+const HardwareDeviceType_1 = require("../types/HardwareDeviceType");
 const CryptoUtils_1 = require("../utils/CryptoUtils");
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 const KeyStore_1 = require("../types/KeyStore");
@@ -24,7 +25,7 @@ var TezosHardwareWallet;
 (function (TezosHardwareWallet) {
     function unlockAddress(deviceType, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (!deviceType) {
+            if (deviceType === HardwareDeviceType_1.HardwareDeviceType.Ledger) {
                 const hexEncodedPublicKey = yield ledgerUtils.getTezosPublicKey(derivationPath);
                 // We slice off a byte to make sure we have a 64 bits coming in from the ledger package
                 const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);

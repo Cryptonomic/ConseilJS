@@ -7,7 +7,6 @@
   "scripts": {
     "integration-test": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/*.spec.ts",
     "test-device": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/TezosHardwareOperations.spec.ts",
-    "test-trezor": "./node_modules/mocha/bin/mocha --timeout 50000 -r ts-node/register integration_test/TrezorUtils.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
