@@ -1,12 +1,17 @@
 import fetch from "node-fetch";
 
+/**
+ * Utility functions for querying backend Conseil v2 API
+ */
+
 export enum ConseilV2SortDirection {
-    ASC = "asc",
-    DESC = "desc"
+    ASC = 'asc',
+    DESC = 'desc'
 }
 
 export enum ConseilV2Operator {
-    BETWEEN = "between"
+    BETWEEN = 'between',
+    EQ = 'eq'
 }
 
 export interface ConseilV2Ordering {
@@ -17,7 +22,7 @@ export interface ConseilV2Ordering {
 export interface ConseilV2Predicate {
     field: string,
     operation: string,
-    set: string[],
+    set: any[],
     inverse: boolean
 }
 
@@ -30,10 +35,10 @@ export interface ConseilV2Filter {
 
 export namespace ConseilV2Query {
 
-    export function runMetadataQuery(
+    export async function runMetadataQuery(
+        apiKey: string,
         server: string,
-        route: string,
-        apiKey: string
+        route: string
     ): Promise<object> {
         const url = `${server}/v2/metadata/${route}`;
         console.log(`Querying Conseil server at URL ${url}`);
@@ -46,32 +51,35 @@ export namespace ConseilV2Query {
             .then(response => {return response.json()});
     }
 
-    export function getPlatforms(server: string, apiKey: string): Promise<object> {
+    export async function getPlatforms(server: string, apiKey: string): Promise<object> {
         return runMetadataQuery(server, 'platforms', apiKey)
     }
 
-    export function getNetworks(server: string, apiKey: string, platform: string): Promise<object> {
+    export async function getNetworks(server: string, apiKey: string, platform: string): Promise<object> {
         return runMetadataQuery(server, `${platform}/networks`, apiKey)
     }
 
-    export function getEntities(server: string, apiKey: string, platform: string, network: string): Promise<object> {
+    export async function getEntities(server: string, apiKey: string, platform: string, network: string): Promise<object> {
         return runMetadataQuery(server, `${platform}/${network}/entities`, apiKey)
     }
 
-    export function getAttributes(server: string, apiKey: string, platform: string, network: string, entity: string): Promise<object> {
+    export async function getAttributes(server: string, apiKey: string, platform: string, network: string, entity: string): Promise<object> {
         return runMetadataQuery(server, `${platform}/${network}/${entity}/attributes`, apiKey)
     }
 
-    export function getElements(server: string, apiKey: string, platform: string, network: string, entity: string, attribute: string): Promise<object> {
+    export async function getElements(server: string, apiKey: string, platform: string, network: string, entity: string, attribute: string): Promise<object> {
         return runMetadataQuery(server, `${platform}/${network}/${entity}/${attribute}`, apiKey)
     }
 
-    export function runDataQuery(
+    export async function runDataQuery(
+        apiKey: string,
         server: string,
-        route: string,
-        filter: ConseilV2Filter,
-        apiKey: string): Promise<object> {
-        const url = `${server}/${route}`;
+        platform: string,
+        network: string,
+        entity: string,
+        filter: ConseilV2Filter
+        ): Promise<object> {
+        const url = `${server}/v2/data/${platform}/${network}/${entity}`;
         console.log(`Querying Conseil server at URL ${url}`);
         return fetch(url, {
             method: 'POST',
@@ -88,7 +96,7 @@ export namespace ConseilV2Query {
             fields: [],
             predicates: [],
             orderBy: {
-                field: "",
+                field: "INVALID_FIELD",
                 direction: ConseilV2SortDirection.ASC
             },
             limit: 100
@@ -108,7 +116,7 @@ export namespace ConseilV2Query {
             operation,
             set: values,
             inverse: invert
-        }
+        };
         return {
             ...filter,
             predicates: filter.predicates.concat(newPredicate)
