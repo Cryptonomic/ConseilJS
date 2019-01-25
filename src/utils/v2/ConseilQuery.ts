@@ -5,7 +5,15 @@ export enum ConseilSortDirection {
 
 export enum ConseilOperator {
     BETWEEN = 'between',
-    EQ = 'eq'
+    EQ = 'eq',
+    IN = 'in',
+    LIKE = 'like',
+    LT = 'lt',
+    BEFORE = 'before',
+    GT = 'gt',
+    AFTER = 'after',
+    STARTSWITH = 'startsWith',
+    ENDSWITH = 'endsWith'
 }
 
 export interface ConseilOrdering {
@@ -21,25 +29,39 @@ export interface ConseilPredicate {
 }
 
 export class ConseilQuery {
-    fields: string[];
+    fields: Set<string>;
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
 
     constructor(){
-        this.fields = [];
+        this.fields = new Set<string>();
         this.predicates =[];
         this.orderBy = [];
         this.limit = 100;
     }
 
+    addField(field: string): ConseilQuery {
+        this.fields.add(field);
+
+        return this;
+    }
+
     addFields(fields: string[]): ConseilQuery {
-        this.fields.concat(fields);
+        fields.forEach(f => this.fields.add(f));
 
         return this;
     }
 
     addPredicate(field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
+        if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
+            throw new Error();
+        } else if (operation === ConseilOperator.IN && values.length < 2) {
+            throw new Error();
+        } else if (values.length !== 1) {
+            throw new Error();
+        }
+
         this.predicates.concat({ field, operation, set: values, inverse: invert });
 
         return this;
@@ -52,6 +74,8 @@ export class ConseilQuery {
     }
 
     setLimit(limit: number): ConseilQuery {
+        if (limit < 1) { throw new Error(); }
+
         this.limit = limit;
 
         return this;
