@@ -28,9 +28,9 @@ export class ConseilQuery {
 
     constructor(){
         this.fields = [];
-        this.predicates =[]
-        this.orderBy = []
-        this.limit = 100
+        this.predicates =[];
+        this.orderBy = [];
+        this.limit = 100;
     }
 
     addFields(fields: string[]): ConseilQuery {

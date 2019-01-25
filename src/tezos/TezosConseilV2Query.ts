@@ -34,7 +34,7 @@ export class TezosConseilClient extends ConseilDataClient {
      * @param filter Filter to apply.
      */
     async getTezosEntityData(network: string, entity: string, query: ConseilQuery): Promise<object> {
-        return super.runDataQuery(this.apiKey, this.server, this.platform, network, entity, query);
+        return super.executeEntityQuery(this.apiKey, this.server, this.platform, network, entity, query);
     }
 
     /**
