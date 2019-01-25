@@ -34,7 +34,6 @@ export interface ConseilV2Filter {
 }
 
 export namespace ConseilV2Query {
-
     export async function runMetadataQuery(
         apiKey: string,
         server: string,
@@ -44,11 +43,8 @@ export namespace ConseilV2Query {
         console.log(`Querying Conseil server at URL ${url}`);
         return fetch(url, {
             method: 'GET',
-            headers: {
-                "apiKey": apiKey
-            },
-        })
-            .then(response => {return response.json()});
+            headers: { "apiKey": apiKey },
+        }).then(response => {return response.json()});
     }
 
     export async function getPlatforms(server: string, apiKey: string): Promise<object> {
@@ -83,22 +79,16 @@ export namespace ConseilV2Query {
         console.log(`Querying Conseil server at URL ${url}`);
         return fetch(url, {
             method: 'POST',
-            headers: {
-                "apiKey": apiKey
-            },
+            headers: { "apiKey": apiKey },
             body: JSON.stringify(filter)
-        })
-            .then(response => {return response.json()});
+        }).then(response => {return response.json()});
     }
 
     export function getEmptyFilter(): ConseilV2Filter {
         return {
             fields: [],
             predicates: [],
-            orderBy: {
-                field: "INVALID_FIELD",
-                direction: ConseilV2SortDirection.ASC
-            },
+            orderBy: [],
             limit: 100
         }
     }
@@ -123,10 +113,10 @@ export namespace ConseilV2Query {
         }
     }
 
-    export function setOrderingForFilter(filter: ConseilV2Filter, field: string, direction: ConseilV2SortDirection): ConseilV2Filter {
+    export function setOrderingForFilter(filter: ConseilV2Filter, field: string, direction = ConseilV2SortDirection.ASC: ConseilV2SortDirection): ConseilV2Filter {
         return {
             ...filter,
-            orderBy: {field, direction}
+            orderBy: filter.orderBy.concat({ field, direction })
         }
     }
 
