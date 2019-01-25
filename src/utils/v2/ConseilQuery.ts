@@ -20,55 +20,40 @@ export interface ConseilPredicate {
     inverse: boolean
 }
 
-export interface ConseilFilter {
-    fields: string[],
-    predicates: ConseilPredicate[],
-    orderBy: ConseilOrdering[],
-    limit: number
-}
+export class ConseilQuery {
+    fields: string[];
+    predicates: ConseilPredicate[];
+    orderBy: ConseilOrdering[];
+    limit: number;
 
-export namespace ConseilQuery {
-    export function getEmptyFilter(): ConseilFilter {
-        return {
-            fields: [],
-            predicates: [],
-            orderBy: [],
-            limit: 100
-        }
+    constructor(){
+        this.fields = [];
+        this.predicates =[]
+        this.orderBy = []
+        this.limit = 100
     }
 
-    export function addFieldsToFilter(filter: ConseilFilter, fields: string[]): ConseilFilter {
-        return {
-            ...filter,
-            fields: filter.fields.concat(fields)
-        }
+    addFields(fields: string[]): ConseilQuery {
+        this.fields.concat(fields);
+
+        return this;
     }
 
-    export function addPredicateToFilter(filter: ConseilFilter, field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilFilter {
-        const newPredicate = {
-            field,
-            operation,
-            set: values,
-            inverse: invert
-        };
+    addPredicate(field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
+        this.predicates.concat({ field, operation, set: values, inverse: invert });
 
-        return {
-            ...filter,
-            predicates: filter.predicates.concat(newPredicate)
-        }
+        return this;
     }
 
-    export function setOrderingForFilter(filter: ConseilFilter, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilFilter {
-        return {
-            ...filter,
-            orderBy: filter.orderBy.concat({ field, direction })
-        }
+    setOrdering(field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
+        this.orderBy.concat({ field, direction })
+
+        return this;
     }
 
-    export function setLimitForFilter(filter: ConseilFilter, limit: number): ConseilFilter {
-        return {
-            ...filter,
-            limit
-        }
+    setLimit(limit: number): ConseilQuery {
+        this.limit = limit;
+
+        return this;
     }
 }

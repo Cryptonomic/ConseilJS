@@ -1,4 +1,4 @@
-import {ConseilFilter, ConseilOperator, ConseilQuery, ConseilSortDirection} from "../utils/v2/ConseilQuery";
+import {ConseilOperator, ConseilQuery, ConseilSortDirection} from "../utils/v2/ConseilQuery";
 import {ConseilMetadataClient} from "../utils/v2/ConseilMetadataClient";
 import {ConseilDataClient} from "../utils/v2/ConseilDataClient";
 
@@ -27,60 +27,58 @@ export class TezosConseilClient extends ConseilDataClient {
     }
 
     /**
+     * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
      * 
-     * @param network 
-     * @param entity 
-     * @param filter 
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param entity Entity to retrieve.
+     * @param filter Filter to apply.
      */
-    async getTezosEntityData(network: string, entity: string, filter: ConseilFilter): Promise<object> {
-        return super.runDataQuery(this.apiKey, this.server, this.platform, network, entity, filter);
+    async getTezosEntityData(network: string, entity: string, query: ConseilQuery): Promise<object> {
+        return super.runDataQuery(this.apiKey, this.server, this.platform, network, entity, query);
     }
 
+    /**
+     * Get the head block from the Tezos platform given a network.
+     * 
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     */
     async getBlockHead(network: string): Promise<object> {
-        let filter = ConseilQuery.getEmptyFilter();
-        filter = ConseilQuery.setOrderingForFilter(filter, 'level', ConseilSortDirection.DESC);
-        filter = ConseilQuery.setLimitForFilter(filter, 1);
+        const query = new ConseilQuery().setOrdering('level', ConseilSortDirection.DESC).setLimit(1);
 
-        return this.getTezosEntityData(network, this.BLOCKS, filter);
+        return this.getTezosEntityData(network, this.BLOCKS, query);
     }
 
     async getBlock(network: string, hash: string): Promise<object> {
-        let filter = ConseilQuery.getEmptyFilter();
-        filter = ConseilQuery.addPredicateToFilter(filter, 'hash', ConseilOperator.EQ, [hash], false);
-        filter = ConseilQuery.setLimitForFilter(filter, 1);
+        const query = new ConseilQuery().addPredicate('hash', ConseilOperator.EQ, [hash], false).setLimit(1);
 
-        return this.getTezosEntityData(network, this.BLOCKS , filter)
+        return this.getTezosEntityData(network, this.BLOCKS, query);
     }
 
     async getAccount(network: string, accountID: string): Promise<object> {
-        let filter = ConseilQuery.getEmptyFilter();
-        filter = ConseilQuery.addPredicateToFilter(filter, 'account_id', ConseilOperator.EQ, [accountID], false);
-        filter = ConseilQuery.setLimitForFilter(filter, 1);
+        const query = new ConseilQuery().addPredicate('account_id', ConseilOperator.EQ, [accountID], false).setLimit(1);
 
-        return this.getTezosEntityData(network, this.ACCOUNTS , filter)
+        return this.getTezosEntityData(network, this.ACCOUNTS, query);
     }
 
     async getOperationGroup(network: string, operationGroupID: string): Promise<object> {
-        let filter = ConseilQuery.getEmptyFilter();
-        filter = ConseilQuery.addPredicateToFilter(filter, 'operation_id', ConseilOperator.EQ, [operationGroupID], false);
-        filter = ConseilQuery.setLimitForFilter(filter, 1);
+        const query = new ConseilQuery().addPredicate('operation_id', ConseilOperator.EQ, [operationGroupID], false).setLimit(1);
 
-        return this.getTezosEntityData(network, this.OPERATION_GROUPS , filter)
+        return this.getTezosEntityData(network, this.OPERATION_GROUPS, query);
     }
 
-    async getBlocks(network: string, filter: ConseilFilter): Promise<object> {
-        return this.getTezosEntityData(network, this.BLOCKS , filter)
+    async getBlocks(network: string, query: ConseilQuery): Promise<object> {
+        return this.getTezosEntityData(network, this.BLOCKS, query)
     }
 
-    async getAccounts(network: string, filter: ConseilFilter): Promise<object> {
-        return this.getTezosEntityData(network, this.ACCOUNTS , filter)
+    async getAccounts(network: string, query: ConseilQuery): Promise<object> {
+        return this.getTezosEntityData(network, this.ACCOUNTS, query)
     }
 
-    async getOperationGroups(server: string, apiKey: string, network: string, filter: ConseilFilter): Promise<object> {
-        return this.getTezosEntityData(network, this.OPERATION_GROUPS , filter)
+    async getOperationGroups(network: string, query: ConseilQuery): Promise<object> {
+        return this.getTezosEntityData(network, this.OPERATION_GROUPS, query)
     }
 
-    async getOperations(server: string, apiKey: string, network: string, filter: ConseilFilter): Promise<object> {
-        return this.getTezosEntityData(network, this.OPERATIONS , filter)
+    async getOperations(network: string, query: ConseilQuery): Promise<object> {
+        return this.getTezosEntityData(network, this.OPERATIONS, query)
     }
 }
