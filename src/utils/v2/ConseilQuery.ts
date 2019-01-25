@@ -23,7 +23,7 @@ export interface ConseilOrdering {
 
 export interface ConseilPredicate {
     field: string,
-    operation: string,
+    operation: ConseilOperator,
     set: any[],
     inverse: boolean
 }
@@ -36,7 +36,7 @@ export class ConseilQuery {
 
     constructor(){
         this.fields = new Set<string>();
-        this.predicates =[];
+        this.predicates = [];
         this.orderBy = [];
         this.limit = 100;
     }
@@ -68,7 +68,8 @@ export class ConseilQuery {
     }
 
     setOrdering(field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
-        this.orderBy.concat({ field, direction })
+        // TODO: validate field uniqueness
+        this.orderBy.concat({ field, direction });
 
         return this;
     }
