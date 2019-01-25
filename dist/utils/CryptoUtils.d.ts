@@ -37,7 +37,7 @@ export declare function getBase58BytesForPrefix(prefix: string): Buffer;
  * @param {String} prefix   Prefix
  * @returns {String}    Encoded string
  */
-export declare function base58CheckEncode(payload: Buffer, prefix: string): string;
+export declare function base58CheckEncode(payload: Buffer | Uint8Array, prefix: string): string;
 /**
  * Base58Check decodes a given binary payload using a given prefix.
  * @param {String} s    Base58Check-encoded string
