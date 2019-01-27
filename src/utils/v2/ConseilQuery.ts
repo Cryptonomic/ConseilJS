@@ -1,3 +1,8 @@
+export interface ConseilServerInfo {
+    url: string;
+    apiKey: string;
+}
+
 export enum ConseilSortDirection {
     ASC = 'asc',
     DESC = 'desc'
@@ -10,7 +15,7 @@ export enum ConseilOperator {
     LIKE = 'like',
     LT = 'lt',
     BEFORE = 'before',
-    GT = 'gt',
+    GT = 'gt', 
     AFTER = 'after',
     STARTSWITH = 'startsWith',
     ENDSWITH = 'endsWith'

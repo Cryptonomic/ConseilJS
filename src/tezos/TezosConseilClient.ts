@@ -1,6 +1,7 @@
 import {ConseilOperator, ConseilQuery, ConseilSortDirection} from "../utils/v2/ConseilQuery";
 import {ConseilMetadataClient} from "../utils/v2/ConseilMetadataClient";
 import {ConseilDataClient} from "../utils/v2/ConseilDataClient";
+import { url } from "inspector";
 
 /**
  * Functions for querying the Conseil backend REST API v2
@@ -33,7 +34,7 @@ export class TezosConseilClient extends ConseilDataClient {
      * @param filter Filter to apply.
      */
     async getTezosEntityData(network: string, entity: string, query: ConseilQuery): Promise<object> {
-        return super.executeEntityQuery(this.apiKey, this.server, 'tezos', network, entity, query);
+        return super.executeEntityQuery({ "url": this.server, "apiKey": this.apiKey }, 'tezos', network, entity, query);
     }
 
     /**

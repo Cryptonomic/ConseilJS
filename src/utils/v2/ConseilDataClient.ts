@@ -1,4 +1,4 @@
-import {ConseilQuery} from "../v2/ConseilQuery";
+import {ConseilServerInfo, ConseilQuery} from "../v2/ConseilQuery";
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
@@ -14,10 +14,10 @@ export class ConseilDataClient {
      * @param entity 
      * @param query 
      */
-    async executeEntityQuery(apiKey: string, server: string, platform: string, network: string, entity: string, query: ConseilQuery): Promise<object> {
-        return fetch(`${server}/v2/data/${platform}/${network}/${entity}`, {
+    async executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<object> {
+        return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
             method: 'POST',
-            headers: { "apiKey": apiKey },
+            headers: { "apiKey": serverInfo.apiKey },
             body: JSON.stringify(query)
         }).then(response => { return response.json() });
     }
@@ -31,10 +31,10 @@ export class ConseilDataClient {
      * @param network 
      * @param query 
      */
-    async executeComplexQuery(apiKey: string, server: string, platform: string, network: string, query: ConseilQuery): Promise<object> {
-        return fetch(`${server}/v2/query/${platform}/${network}`, {
+    async executeComplexQuery(serverInfo: ConseilServerInfo, platform: string, network: string, query: ConseilQuery): Promise<object> {
+        return fetch(`${serverInfo.url}/v2/query/${platform}/${network}`, {
             method: 'POST',
-            headers: { "apiKey": apiKey },
+            headers: { "apiKey": serverInfo.apiKey },
             body: JSON.stringify(query)
         }).then(response => { return response.json() });
     }
