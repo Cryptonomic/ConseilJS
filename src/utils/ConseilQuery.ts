@@ -23,7 +23,8 @@ export function queryConseilServer(server: string, route: string, apiKey: string
         method: 'get',
         headers: {
             "apiKey": apiKey
-        }
+        },
+        credentials: 'include'
     })
         .then(response => {return response.json()});
 }

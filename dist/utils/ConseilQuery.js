@@ -31,7 +31,8 @@ function queryConseilServer(server, route, apiKey) {
         method: 'get',
         headers: {
             "apiKey": apiKey
-        }
+        },
+        credentials: 'include'
     })
         .then(response => { return response.json(); });
 }
