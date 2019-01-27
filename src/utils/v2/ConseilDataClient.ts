@@ -5,10 +5,10 @@ import {ConseilQuery} from "../v2/ConseilQuery";
  */
 export class ConseilDataClient {
     /**
-     * Requests data for a specific entity for a given platform/network combination, for example a Block or an Operation
+     * Requests data for a specific entity for a given platform/network combination, for example a block or an operation.
      * 
-     * @param apiKey 
-     * @param server 
+     * @param server A fully qualified base URL for a Conseil server instance
+     * @param apiKey Conseil API key
      * @param platform 
      * @param network 
      * @param entity 
@@ -25,8 +25,8 @@ export class ConseilDataClient {
     /**
      * Requests data that may return result set composed of attributes of multiple entities.
      * 
-     * @param apiKey 
-     * @param server 
+     * @param server A fully qualified base URL for a Conseil server instance
+     * @param apiKey Conseil API key
      * @param platform 
      * @param network 
      * @param query 

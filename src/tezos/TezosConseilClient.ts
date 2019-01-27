@@ -13,7 +13,6 @@ export class TezosConseilClient extends ConseilDataClient {
 
     apiKey = '';
     server = '';
-    platform = 'tezos';
 
     metaDataClient: ConseilMetadataClient;
 
@@ -34,7 +33,7 @@ export class TezosConseilClient extends ConseilDataClient {
      * @param filter Filter to apply.
      */
     async getTezosEntityData(network: string, entity: string, query: ConseilQuery): Promise<object> {
-        return super.executeEntityQuery(this.apiKey, this.server, this.platform, network, entity, query);
+        return super.executeEntityQuery(this.apiKey, this.server, 'tezos', network, entity, query);
     }
 
     /**

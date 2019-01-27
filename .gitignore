@@ -73,3 +73,5 @@ build
 */servers.ts
 
 coverage
+
+doc
