@@ -1,6 +1,5 @@
 import {ConseilOperator, ConseilQuery, ConseilSortDirection, ConseilServerInfo} from "../utils/v2/ConseilQuery";
 import {ConseilDataClient} from "../utils/v2/ConseilDataClient";
-import { url } from "inspector";
 
 /**
  * Functions for querying the Conseil backend REST API v2
