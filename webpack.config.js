@@ -7,14 +7,12 @@ module.exports = {
     devtool: "inline-source-map",
     entry: "./src/index.ts",
     output: {
-        // filename: "bundle.js"
         path: path.resolve(__dirname, './build'),
         filename: 'bundle.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
     },
     resolve: {
-        // Add `.ts` and `.tsx` as a resolvable extension.
         extensions: [".ts", ".tsx", ".js"],
         plugins: [
             new TsConfigPathsPlugin({
@@ -24,13 +22,14 @@ module.exports = {
     },
     module: {
         rules: [
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' }
         ]
     },
     node: {
-        // handle "Can't resolve 'fs'" issue
-        fs: 'empty', child_process: 'empty'
+        child_process: 'empty',
+        fs: 'empty',
+        net: 'empty',
+        tls: 'empty',
     },
     plugins: [
         new UglifyJsPlugin()
