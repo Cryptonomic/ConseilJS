@@ -44,9 +44,8 @@ function runPostQuery(server, command, payload = {}) {
         method: 'post',
         body: payloadStr,
         headers: {
-            'content-type': 'application/json',
-        },
-        credentials: 'include'
+            'content-type': 'application/json'
+        }
     });
 }
 exports.runPostQuery = runPostQuery;
