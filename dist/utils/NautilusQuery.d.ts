@@ -1,4 +1,3 @@
-import { Response } from 'node-fetch';
 /**
  * Generic functions for running queries against blockchain nodes.
  */

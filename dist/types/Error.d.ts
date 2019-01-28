@@ -1,5 +1,5 @@
 /**
- * Represents a generic cryptocurrency wallet.
+ * A generic Error container
  */
 export interface Error {
     error: string;
