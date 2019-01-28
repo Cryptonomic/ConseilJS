@@ -85,7 +85,8 @@
     "typescript-eslint-parser": "^21.0.2",
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.28.1",
-    "webpack-cli": "^3.0.3"
+    "webpack-cli": "^3.0.3",
+    "webpack-node-externals": "^1.7.2"
   },
   "peerDependencies": {
     "node-fetch": "^2.1.1"

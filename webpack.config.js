@@ -1,11 +1,13 @@
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const path = require('path')
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
     mode: "development",
     devtool: "inline-source-map",
     entry: "./src/index.ts",
+    target: 'node',
     output: {
         path: path.resolve(__dirname, './build'),
         filename: 'bundle.js',
@@ -25,12 +27,7 @@ module.exports = {
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' }
         ]
     },
-    node: {
-        child_process: 'empty',
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty',
-    },
+    externals: [nodeExternals()],
     plugins: [
         new UglifyJsPlugin()
     ]
