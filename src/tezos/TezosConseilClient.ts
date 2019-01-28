@@ -13,6 +13,7 @@ export class TezosConseilClient extends ConseilDataClient {
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
      * 
+     * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param entity Entity to retrieve.
      * @param filter Filter to apply.
@@ -24,6 +25,7 @@ export class TezosConseilClient extends ConseilDataClient {
     /**
      * Get the head block from the Tezos platform given a network.
      * 
+     * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
     async getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<object> {
