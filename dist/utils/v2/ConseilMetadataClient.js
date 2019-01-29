@@ -7,30 +7,37 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const node_fetch_1 = __importDefault(require("node-fetch"));
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
  */
-class ConseilMetadataClient {
-    executeMetadataQuery(serverInfo, route) {
+var ConseilMetadataClient;
+(function (ConseilMetadataClient) {
+    function executeMetadataQuery(serverInfo, route) {
         return __awaiter(this, void 0, void 0, function* () {
-            return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
+            return node_fetch_1.default(`${serverInfo.url}/v2/metadata/${route}`, {
                 method: 'GET',
                 headers: { "apiKey": serverInfo.apiKey },
             }).then(response => { return response.json(); });
         });
     }
+    ConseilMetadataClient.executeMetadataQuery = executeMetadataQuery;
     /**
      * Retrieves the list of available platforms, for example: 'tezos'.
      *
      * @param server A fully qualified base URL for a Conseil server instance
      * @param apiKey Conseil API key
      */
-    getPlatforms(server, apiKey) {
+    function getPlatforms(server, apiKey) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.executeMetadataQuery({ "url": server, "apiKey": apiKey }, 'platforms');
+            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, 'platforms');
         });
     }
+    ConseilMetadataClient.getPlatforms = getPlatforms;
     /**
      * Retrieves the list of available networks given a platform, for example: 'mainnet', 'alphanet', as is the case with tezos.
      *
@@ -40,11 +47,12 @@ class ConseilMetadataClient {
      *
      * @see {@link getPlatforms}
      */
-    getNetworks(server, apiKey, platform) {
+    function getNetworks(server, apiKey, platform) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/networks`);
+            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/networks`);
         });
     }
+    ConseilMetadataClient.getNetworks = getNetworks;
     /**
      * Retrieves a list of entities given a network, for example: 'block', 'operation', 'account'.
      *
@@ -55,11 +63,12 @@ class ConseilMetadataClient {
      *
      * @see {@link getNetworks}
      */
-    getEntities(server, apiKey, platform, network) {
+    function getEntities(server, apiKey, platform, network) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/entities`);
+            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/entities`);
         });
     }
+    ConseilMetadataClient.getEntities = getEntities;
     /**
      * Retrieves a list of attributes for an entity.
      *
@@ -71,11 +80,12 @@ class ConseilMetadataClient {
      *
      * @see {@link getEntities}
      */
-    getAttributes(server, apiKey, platform, network, entity) {
+    function getAttributes(server, apiKey, platform, network, entity) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/attributes`);
+            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/attributes`);
         });
     }
+    ConseilMetadataClient.getAttributes = getAttributes;
     /**
      * Retrieves a list of distinct values for a specific attribute of an entity. This would work on low-cardinality, generally non-date and non-numeric data. The intended use-case for this result set is type-ahead auto-complete.
      *
@@ -88,11 +98,11 @@ class ConseilMetadataClient {
      *
      * @see {@link getAttributes}
      */
-    getAttributeValues(server, apiKey, platform, network, entity, attribute) {
+    function getAttributeValues(server, apiKey, platform, network, entity, attribute) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/${attribute}`);
+            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/${attribute}`);
         });
     }
-}
-exports.ConseilMetadataClient = ConseilMetadataClient;
+    ConseilMetadataClient.getAttributeValues = getAttributeValues;
+})(ConseilMetadataClient = exports.ConseilMetadataClient || (exports.ConseilMetadataClient = {}));
 //# sourceMappingURL=ConseilMetadataClient.js.map

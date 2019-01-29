@@ -11,7 +11,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
  */
-class ConseilDataClient {
+var ConseilDataClient;
+(function (ConseilDataClient) {
     /**
      * Requests data for a specific entity for a given platform/network combination, for example a block or an operation.
      *
@@ -21,7 +22,7 @@ class ConseilDataClient {
      * @param entity Entity to query, eg: block, account, operation, etc.
      * @param query JSON object confirming to the Conseil query spec.
      */
-    executeEntityQuery(serverInfo, platform, network, entity, query) {
+    function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
                 method: 'POST',
@@ -30,6 +31,7 @@ class ConseilDataClient {
             }).then(response => { return response.json(); });
         });
     }
+    ConseilDataClient.executeEntityQuery = executeEntityQuery;
     /**
      * Requests data that may return result set composed of attributes of multiple entities.
      *
@@ -38,7 +40,7 @@ class ConseilDataClient {
      * @param network Network to query, eg: mainnet.
      * @param query JSON object confirming to the Conseil query spec.
      */
-    executeComplexQuery(serverInfo, platform, network, query) {
+    function executeComplexQuery(serverInfo, platform, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
             return fetch(`${serverInfo.url}/v2/query/${platform}/${network}`, {
                 method: 'POST',
@@ -47,6 +49,6 @@ class ConseilDataClient {
             }).then(response => { return response.json(); });
         });
     }
-}
-exports.ConseilDataClient = ConseilDataClient;
+    ConseilDataClient.executeComplexQuery = executeComplexQuery;
+})(ConseilDataClient = exports.ConseilDataClient || (exports.ConseilDataClient = {}));
 //# sourceMappingURL=ConseilDataClient.js.map

@@ -13,78 +13,140 @@ const ConseilDataClient_1 = require("../utils/v2/ConseilDataClient");
 /**
  * Functions for querying the Conseil backend REST API v2
  */
-class TezosConseilClient extends ConseilDataClient_1.ConseilDataClient {
-    constructor() {
-        super(...arguments);
-        this.BLOCKS = 'blocks';
-        this.ACCOUNTS = 'accounts';
-        this.OPERATION_GROUPS = 'operation_groups';
-        this.OPERATIONS = 'operations';
-    }
+var TezosConseilClient;
+(function (TezosConseilClient) {
+    const BLOCKS = 'blocks';
+    const ACCOUNTS = 'accounts';
+    const OPERATION_GROUPS = 'operation_groups';
+    const OPERATIONS = 'operations';
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
      *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param entity Entity to retrieve.
-     * @param filter Filter to apply.
+     * @param query Query to submit.
      */
-    getTezosEntityData(serverInfo, network, entity, query) {
-        const _super = name => super[name];
+    function getTezosEntityData(serverInfo, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return _super("executeEntityQuery").call(this, serverInfo, 'tezos', network, entity, query);
+            return ConseilDataClient_1.ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', network, entity, query);
         });
     }
+    TezosConseilClient.getTezosEntityData = getTezosEntityData;
     /**
      * Get the head block from the Tezos platform given a network.
      *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
-    getBlockHead(serverInfo, network) {
+    function getBlockHead(serverInfo, network) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = new ConseilQuery_1.ConseilQuery().setOrdering('level', ConseilQuery_1.ConseilSortDirection.DESC).setLimit(1);
-            return this.getTezosEntityData(serverInfo, network, this.BLOCKS, query);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addOrdering(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'level', ConseilQuery_1.ConseilSortDirection.DESC), 1);
+            return getTezosEntityData(serverInfo, network, BLOCKS, query);
         });
     }
-    getBlock(serverInfo, network, hash) {
+    TezosConseilClient.getBlockHead = getBlockHead;
+    /**
+     * Get a block by hash from the Tezos platform given a network.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param hash Block hash to query for.
+     */
+    function getBlock(serverInfo, network, hash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = new ConseilQuery_1.ConseilQuery().addPredicate('hash', ConseilQuery_1.ConseilOperator.EQ, [hash], false).setLimit(1);
-            return this.getTezosEntityData(serverInfo, network, this.BLOCKS, query);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'hash', ConseilQuery_1.ConseilOperator.EQ, [hash], false), 1);
+            return getTezosEntityData(serverInfo, network, BLOCKS, query);
         });
     }
-    getAccount(serverInfo, network, accountID) {
+    TezosConseilClient.getBlock = getBlock;
+    /**
+     * Get an account from the Tezos platform given a network by account id.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param accountID Account hash to query for.
+     */
+    function getAccount(serverInfo, network, accountID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = new ConseilQuery_1.ConseilQuery().addPredicate('account_id', ConseilQuery_1.ConseilOperator.EQ, [accountID], false).setLimit(1);
-            return this.getTezosEntityData(serverInfo, network, this.ACCOUNTS, query);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'account_id', ConseilQuery_1.ConseilOperator.EQ, [accountID], false), 1);
+            return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
         });
     }
-    getOperationGroup(serverInfo, network, operationGroupID) {
+    TezosConseilClient.getAccount = getAccount;
+    /**
+     * Get an operation group from the Tezos platform given a network by id.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param operationGroupID Operation group hash to query for.
+     */
+    function getOperationGroup(serverInfo, network, operationGroupID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = new ConseilQuery_1.ConseilQuery().addPredicate('operation_id', ConseilQuery_1.ConseilOperator.EQ, [operationGroupID], false).setLimit(1);
-            return this.getTezosEntityData(serverInfo, network, this.OPERATION_GROUPS, query);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'operation_id', ConseilQuery_1.ConseilOperator.EQ, [operationGroupID], false), 1);
+            return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
         });
     }
-    getBlocks(serverInfo, network, query) {
+    TezosConseilClient.getOperationGroup = getOperationGroup;
+    /**
+     * Request block-entity data for a given network. Rather than simply requesting a block by hash, this function allows modification of the response to contain a subset of block attributes subject to a filter on some of them.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param query Conseil JSON query. See reference.
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     */
+    function getBlocks(serverInfo, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getTezosEntityData(serverInfo, network, this.BLOCKS, query);
+            return getTezosEntityData(serverInfo, network, BLOCKS, query);
         });
     }
-    getAccounts(serverInfo, network, query) {
+    TezosConseilClient.getBlocks = getBlocks;
+    /**
+     * Request account-entity data for a given network. Rather than simply requesting an account by hash, this function allows modification of the response to contain a subset of account attributes subject to a filter on some of them.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param query Conseil JSON query. See reference.
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     */
+    function getAccounts(serverInfo, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getTezosEntityData(serverInfo, network, this.ACCOUNTS, query);
+            return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
         });
     }
-    getOperationGroups(serverInfo, network, query) {
+    TezosConseilClient.getAccounts = getAccounts;
+    /**
+     * Request operation group-entity data for a given network. Rather than simply requesting an operation group by hash, this function allows modification of the response to contain a subset of operation group attributes subject to a filter on some of them.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param query Conseil JSON query. See reference.
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     */
+    function getOperationGroups(serverInfo, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getTezosEntityData(serverInfo, network, this.OPERATION_GROUPS, query);
+            return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
         });
     }
-    getOperations(serverInfo, network, query) {
+    TezosConseilClient.getOperationGroups = getOperationGroups;
+    /**
+     * Request operation-entity data for a given network. This function allows modification of the response to contain a subset of operation attributes subject to a filter on some of them.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param query Conseil JSON query. See reference.
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     */
+    function getOperations(serverInfo, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.getTezosEntityData(serverInfo, network, this.OPERATIONS, query);
+            return getTezosEntityData(serverInfo, network, OPERATIONS, query);
         });
     }
-}
-exports.TezosConseilClient = TezosConseilClient;
+    TezosConseilClient.getOperations = getOperations;
+})(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map
