@@ -16,7 +16,7 @@ export namespace TezosConseilClient {
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param entity Entity to retrieve.
-     * @param filter Filter to apply.
+     * @param query Query to submit.
      */
     export async function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<object> {
         return ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', network, entity, query);
