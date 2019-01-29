@@ -33,32 +33,42 @@ export interface ConseilPredicate {
     inverse: boolean
 }
 
-export class ConseilQuery {
+export interface ConseilQuery {
     fields: Set<string>;
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
+}
 
-    constructor(){
-        this.fields = new Set<string>();
-        this.predicates = [];
-        this.orderBy = [];
-        this.limit = 100;
+export namespace ConseilQueryBuilder {
+    export function blankQuery(): ConseilQuery {
+        return {
+            'fields': new Set(),
+            'predicates': [],
+            'orderBy': [],
+            'limit': 100
+        }
     }
 
-    addField(field: string): ConseilQuery {
-        this.fields.add(field);
+    /**
+     * 
+     * @param field 
+     */
+    export function addField(query: ConseilQuery, field: string): ConseilQuery {
+        let q = {...query};
+        q.fields.add(field);
 
-        return this;
+        return q;
     }
 
-    addFields(fields: string[]): ConseilQuery {
-        fields.forEach(f => this.fields.add(f));
+    export function addFields(query: ConseilQuery, fields: string[]): ConseilQuery {
+        let q = {...query};
+        fields.forEach(f => q.fields.add(f));
 
-        return this;
+        return q;
     }
 
-    addPredicate(field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
+    export function addPredicate(query: ConseilQuery, field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
         if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
             throw new Error();
         } else if (operation === ConseilOperator.IN && values.length < 2) {
@@ -67,23 +77,26 @@ export class ConseilQuery {
             throw new Error();
         }
 
-        this.predicates.concat({ field, operation, set: values, inverse: invert });
+        let q = {...query};
+        q.predicates.concat({ field, operation, set: values, inverse: invert });
 
-        return this;
+        return q;
     }
 
-    setOrdering(field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
+    export function setOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
         // TODO: validate field uniqueness
-        this.orderBy.concat({ field, direction });
+        let q = {...query};
+        q.orderBy.concat({ field, direction });
 
-        return this;
+        return q;
     }
 
-    setLimit(limit: number): ConseilQuery {
+    export function setLimit(query: ConseilQuery, limit: number): ConseilQuery {
         if (limit < 1) { throw new Error(); }
 
-        this.limit = limit;
+        let q = {...query};
+        q.limit = limit;
 
-        return this;
+        return q;
     }
 }
