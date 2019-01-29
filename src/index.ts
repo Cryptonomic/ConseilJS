@@ -3,8 +3,7 @@ import FetchInstance from './utils/FetchInstance';
 import DeviceUtils from './utils/DeviceUtils';
 import * as LedgerUtils from './utils/LedgerUtils';
 
-const myFetch = typeof window === 'undefined' ? fetch : window.fetch;
-FetchInstance.setFetch(myFetch);
+FetchInstance.setFetch(fetch);
 DeviceUtils.setLedgerUtils(LedgerUtils);
 
 export * from "./tezos/TezosConseilQuery";
