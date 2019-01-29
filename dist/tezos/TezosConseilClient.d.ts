@@ -1,4 +1,4 @@
-import { ConseilQuery, ConseilServerInfo } from "../utils/v2/ConseilQuery";
+import { ConseilQuery, ConseilServerInfo } from "../utils/v2/QueryTypes";
 /**
  * Functions for querying the Conseil backend REST API v2
  */

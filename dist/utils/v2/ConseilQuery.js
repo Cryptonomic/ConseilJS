@@ -1,23 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ConseilSortDirection;
-(function (ConseilSortDirection) {
-    ConseilSortDirection["ASC"] = "asc";
-    ConseilSortDirection["DESC"] = "desc";
-})(ConseilSortDirection = exports.ConseilSortDirection || (exports.ConseilSortDirection = {}));
-var ConseilOperator;
-(function (ConseilOperator) {
-    ConseilOperator["BETWEEN"] = "between";
-    ConseilOperator["EQ"] = "eq";
-    ConseilOperator["IN"] = "in";
-    ConseilOperator["LIKE"] = "like";
-    ConseilOperator["LT"] = "lt";
-    ConseilOperator["BEFORE"] = "before";
-    ConseilOperator["GT"] = "gt";
-    ConseilOperator["AFTER"] = "after";
-    ConseilOperator["STARTSWITH"] = "startsWith";
-    ConseilOperator["ENDSWITH"] = "endsWith";
-})(ConseilOperator = exports.ConseilOperator || (exports.ConseilOperator = {}));
+const QueryTypes_1 = require("../v2/QueryTypes");
 var ConseilQueryBuilder;
 (function (ConseilQueryBuilder) {
     /**
@@ -54,10 +37,10 @@ var ConseilQueryBuilder;
      * @param invert Set inverse, default is false. This is equivalent to matching inside the set of values as in SQL IN command. Setting inverse true is interpreted as NOT IN.
      */
     function addPredicate(query, field, operation, values, invert = false) {
-        if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
+        if (operation === QueryTypes_1.ConseilOperator.BETWEEN && values.length !== 2) {
             throw new Error();
         }
-        else if (operation === ConseilOperator.IN && values.length < 2) {
+        else if (operation === QueryTypes_1.ConseilOperator.IN && values.length < 2) {
             throw new Error();
         }
         else if (values.length !== 1) {
@@ -75,7 +58,7 @@ var ConseilQueryBuilder;
      * @param field Field name to order by.
      * @param direction Sort direction.
      */
-    function addOrdering(query, field, direction = ConseilSortDirection.ASC) {
+    function addOrdering(query, field, direction = QueryTypes_1.ConseilSortDirection.ASC) {
         // TODO: validate field uniqueness
         let q = Object.assign({}, query);
         q.orderBy.concat({ field, direction });

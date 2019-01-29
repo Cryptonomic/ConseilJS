@@ -6,8 +6,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = __importStar(require("querystring"));
+const node_fetch_1 = __importDefault(require("node-fetch"));
 /**
  * Utility functions for querying backend Conseil API
  */
@@ -21,7 +25,7 @@ const querystring = __importStar(require("querystring"));
  */
 function queryConseilServer(server, route, apiKey) {
     const url = `${server}/${route}`;
-    return fetch(url, {
+    return node_fetch_1.default(url, {
         method: 'get',
         headers: {
             "apiKey": apiKey

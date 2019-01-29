@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const node_fetch_1 = __importDefault(require("node-fetch"));
 /**
  * Generic functions for running queries against blockchain nodes.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Runs a query against a Tezos node.
  * TODO: Make blockchain agnostic
@@ -12,7 +16,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
  */
 function runGetQuery(server, command) {
     const url = `${server}/${command}`;
-    return fetch(url, {
+    return node_fetch_1.default(url, {
         method: 'get',
     })
         .then(response => { return response.json(); })
@@ -33,7 +37,7 @@ exports.runGetQuery = runGetQuery;
 function runPostQuery(server, command, payload = {}) {
     const url = `${server}/${command}`;
     const payloadStr = JSON.stringify(payload);
-    return fetch(url, {
+    return node_fetch_1.default(url, {
         method: 'post',
         body: payloadStr,
         headers: {

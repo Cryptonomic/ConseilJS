@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ConseilQuery_1 = require("../utils/v2/ConseilQuery");
+const QueryTypes_1 = require("../utils/v2/QueryTypes");
 const ConseilDataClient_1 = require("../utils/v2/ConseilDataClient");
 /**
  * Functions for querying the Conseil backend REST API v2
@@ -41,7 +42,7 @@ var TezosConseilClient;
      */
     function getBlockHead(serverInfo, network) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addOrdering(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'level', ConseilQuery_1.ConseilSortDirection.DESC), 1);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addOrdering(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'level', QueryTypes_1.ConseilSortDirection.DESC), 1);
             return getTezosEntityData(serverInfo, network, BLOCKS, query);
         });
     }
@@ -55,7 +56,7 @@ var TezosConseilClient;
      */
     function getBlock(serverInfo, network, hash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'hash', ConseilQuery_1.ConseilOperator.EQ, [hash], false), 1);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'hash', QueryTypes_1.ConseilOperator.EQ, [hash], false), 1);
             return getTezosEntityData(serverInfo, network, BLOCKS, query);
         });
     }
@@ -69,7 +70,7 @@ var TezosConseilClient;
      */
     function getAccount(serverInfo, network, accountID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'account_id', ConseilQuery_1.ConseilOperator.EQ, [accountID], false), 1);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'account_id', QueryTypes_1.ConseilOperator.EQ, [accountID], false), 1);
             return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
         });
     }
@@ -83,7 +84,7 @@ var TezosConseilClient;
      */
     function getOperationGroup(serverInfo, network, operationGroupID) {
         return __awaiter(this, void 0, void 0, function* () {
-            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'operation_id', ConseilQuery_1.ConseilOperator.EQ, [operationGroupID], false), 1);
+            const query = ConseilQuery_1.ConseilQueryBuilder.setLimit(ConseilQuery_1.ConseilQueryBuilder.addPredicate(ConseilQuery_1.ConseilQueryBuilder.blankQuery(), 'operation_id', QueryTypes_1.ConseilOperator.EQ, [operationGroupID], false), 1);
             return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
         });
     }

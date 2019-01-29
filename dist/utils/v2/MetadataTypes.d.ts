@@ -17,8 +17,19 @@ export interface EntityDefinition {
 export interface AttributeDefinition {
     name: string;
     displayName: string;
-    dataType: string;
+    dataType: AttrbuteDataType;
     cardinality: number;
-    keyType: string;
+    keyType: AttrbuteKeyType;
     entity: string;
+}
+export declare enum AttrbuteDataType {
+    STRING = "String",
+    INT = "Int",
+    DECIMAL = "Decimal",
+    BOOLEAN = "Boolean"
+}
+export declare enum AttrbuteKeyType {
+    PRIMARYKEY = "PrimaryKey",
+    UNIQUEKEY = "UniqueKey",
+    NONKEY = "NonKey"
 }

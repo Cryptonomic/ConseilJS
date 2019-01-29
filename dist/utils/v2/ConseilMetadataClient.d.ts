@@ -1,4 +1,4 @@
-import { ConseilServerInfo } from "../v2/ConseilQuery";
+import { ConseilServerInfo } from "../v2/QueryTypes";
 import { PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition } from "../v2/MetadataTypes";
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
