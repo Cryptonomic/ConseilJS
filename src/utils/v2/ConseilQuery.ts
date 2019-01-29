@@ -52,16 +52,9 @@ export namespace ConseilQueryBuilder {
 
     /**
      * 
-     * @param field 
+     * @param fields
      */
-    export function addField(query: ConseilQuery, field: string): ConseilQuery {
-        let q = {...query};
-        q.fields.add(field);
-
-        return q;
-    }
-
-    export function addFields(query: ConseilQuery, fields: string[]): ConseilQuery {
+    export function addFields(query: ConseilQuery, ...fields: string[]): ConseilQuery {
         let q = {...query};
         fields.forEach(f => q.fields.add(f));
 
@@ -83,7 +76,7 @@ export namespace ConseilQueryBuilder {
         return q;
     }
 
-    export function setOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
+    export function addOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
         // TODO: validate field uniqueness
         let q = {...query};
         q.orderBy.concat({ field, direction });
