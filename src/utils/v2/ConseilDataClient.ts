@@ -1,4 +1,4 @@
-import {ConseilServerInfo, ConseilQuery} from "../v2/ConseilQuery";
+import {ConseilServerInfo, ConseilQuery} from "../v2/QueryTypes"
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata

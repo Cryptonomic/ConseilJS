@@ -20,8 +20,21 @@ export interface EntityDefinition {
 export interface AttributeDefinition {
     name: string,
     displayName: string,
-    dataType: string, // TODO should be enum
+    dataType: AttrbuteDataType,
     cardinality: number,
-    keyType: string, // TODO should be enum
+    keyType: AttrbuteKeyType, // TODO should be enum
     entity: string
+}
+
+export enum AttrbuteDataType {
+    STRING = 'String',
+    INT = 'Int',
+    DECIMAL = 'Decimal',
+    BOOLEAN = 'Boolean'
+}
+
+export enum AttrbuteKeyType {
+    PRIMARYKEY = 'PrimaryKey',
+    UNIQUEKEY = 'UniqueKey',
+    NONKEY = 'NonKey'
 }
