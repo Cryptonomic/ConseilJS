@@ -1,10 +1,12 @@
+import fetch from 'node-fetch';
 import {ConseilServerInfo} from "../v2/ConseilQuery";
+import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from "../v2/MetadataTypes";
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
  */
 export namespace ConseilMetadataClient {
-    export async function executeMetadataQuery(serverInfo: ConseilServerInfo, route: string): Promise<object> {
+    export async function executeMetadataQuery(serverInfo: ConseilServerInfo, route: string): Promise<any> {
         return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
             method: 'GET',
             headers: { "apiKey": serverInfo.apiKey },
@@ -17,7 +19,7 @@ export namespace ConseilMetadataClient {
      * @param server A fully qualified base URL for a Conseil server instance
      * @param apiKey Conseil API key
      */
-    export async function getPlatforms(server: string, apiKey: string): Promise<object> {
+    export async function getPlatforms(server: string, apiKey: string): Promise<PlatformDefinition[]> {
         return executeMetadataQuery({ "url": server, "apiKey": apiKey }, 'platforms');
     }
 
@@ -30,7 +32,7 @@ export namespace ConseilMetadataClient {
      * 
      * @see {@link getPlatforms}
      */
-    export async function getNetworks(server: string, apiKey: string, platform: string): Promise<object> {
+    export async function getNetworks(server: string, apiKey: string, platform: string): Promise<NetworkDefinition[]> {
         return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/networks`);
     }
 
@@ -44,7 +46,7 @@ export namespace ConseilMetadataClient {
      * 
      * @see {@link getNetworks}
      */
-    export async function getEntities(server: string, apiKey: string, platform: string, network: string): Promise<object> {
+    export async function getEntities(server: string, apiKey: string, platform: string, network: string): Promise<EntityDefinition[]> {
         return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/entities`);
     }
 
@@ -59,7 +61,7 @@ export namespace ConseilMetadataClient {
      * 
      * @see {@link getEntities}
      */
-    export async function getAttributes(server: string, apiKey: string, platform: string, network: string, entity: string): Promise<object> {
+    export async function getAttributes(server: string, apiKey: string, platform: string, network: string, entity: string): Promise<AttributeDefinition[]> {
         return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/attributes`);
     }
 
@@ -75,7 +77,7 @@ export namespace ConseilMetadataClient {
      * 
      * @see {@link getAttributes}
      */
-    export async function getAttributeValues(server: string, apiKey: string, platform: string, network: string, entity: string, attribute: string): Promise<object> {
+    export async function getAttributeValues(server: string, apiKey: string, platform: string, network: string, entity: string, attribute: string): Promise<string[]> {
         return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/${attribute}`);
     }
 }
