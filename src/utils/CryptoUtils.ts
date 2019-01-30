@@ -77,17 +77,17 @@ export function getBase58BytesForPrefix(prefix: string): Buffer {
     switch(prefix)
     {
         case "tz1":
-            return new Buffer([6, 161, 159]);
+            return Buffer.from([6, 161, 159]);
         case "edpk":
-            return new Buffer([13, 15, 37, 217]);
+            return Buffer.from([13, 15, 37, 217]);
         case "edsk":
-            return new Buffer([43, 246, 78, 7]);
+            return Buffer.from([43, 246, 78, 7]);
         case "edsig":
-            return new Buffer([9, 245, 205, 134, 18]);
+            return Buffer.from([9, 245, 205, 134, 18]);
         case "op":
-            return new Buffer([5, 116]);
+            return Buffer.from([5, 116]);
         case "":
-            return new Buffer([]);
+            return Buffer.from([]);
         default:
             throw new RangeError("Unknown prefix");
     }
