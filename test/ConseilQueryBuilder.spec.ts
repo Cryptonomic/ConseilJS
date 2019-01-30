@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import {ConseilQueryBuilder} from "../src/utils/v2/ConseilQuery";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../src/utils/v2/QueryTypes"
+import {ConseilOperator, ConseilSortDirection} from "../src/utils/v2/QueryTypes"
 
 
 describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {

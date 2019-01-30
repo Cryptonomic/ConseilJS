@@ -334,7 +334,6 @@ describe("Tezos operation functions", () => {
 
   console.log("+++++Invoke a contract from manager address");
     const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
-      { string: "Cryptonomicon" },
       tezosURL,
       fundraiserKeys,
       "KT1Wb4LE19jCNDuhp8Md7YpEDYmW9rhLTHsW",
@@ -342,7 +341,8 @@ describe("Tezos operation functions", () => {
       100000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
       invalidDerivationPath,
       "1000", // Storage Limit
-      "100000" // Gas Limit
+      "100000", // Gas Limit
+      { string: "Cryptonomicon" }
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;
 
