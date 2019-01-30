@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport": "4.21.0",
-    "@ledgerhq/hw-transport-node-hid": "^4.35.0",
+    "@ledgerhq/hw-transport-node-hid": "^4.24.0",
     "aws-sdk": "^2.395.0",
     "babel-runtime": "6.26.0",
     "base-n": "git://github.com/yourcodesucks/base-n.git",
