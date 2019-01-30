@@ -1,4 +1,5 @@
 import FetchInstance from './FetchInstance';
+import {Response} from 'node-fetch';
 
 const fetch = FetchInstance.getFetch();
 
@@ -34,7 +35,7 @@ export function runGetQuery(server: string, command: string): Promise<object> {
  * @param {object} payload  Payload to submit
  * @returns {Promise<object>}   JSON-encoded response
  */
-export function runPostQuery(server: string, command: string, payload = {}): Promise<any> {
+export function runPostQuery(server: string, command: string, payload = {}): Promise<Response> {
     const url = `${server}/${command}`;
     const payloadStr = JSON.stringify(payload);
     console.log(`Querying Tezos node with URL ${url} and payload: ${payloadStr}`);
