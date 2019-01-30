@@ -19,7 +19,7 @@ export namespace TezosConseilClient {
      * @param entity Entity to retrieve.
      * @param query Query to submit.
      */
-    export async function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<object> {
+    export async function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
         return ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', network, entity, query);
     }
 
@@ -29,7 +29,7 @@ export namespace TezosConseilClient {
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
-    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<object> {
+    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.blankQuery(), 'level', ConseilSortDirection.DESC), 1);
 
         return getTezosEntityData(serverInfo, network, BLOCKS, query);
@@ -42,7 +42,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param hash Block hash to query for.
      */
-    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<object> {
+    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [hash], false), 1);
 
         return getTezosEntityData(serverInfo, network, BLOCKS, query);
@@ -55,7 +55,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param accountID Account hash to query for.
      */
-    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<object> {
+    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 1);
 
         return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
@@ -68,7 +68,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationGroupID Operation group hash to query for.
      */
-    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<object> {
+    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_id', ConseilOperator.EQ, [operationGroupID], false), 1);
 
         return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
@@ -83,7 +83,7 @@ export namespace TezosConseilClient {
      * 
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
      */
-    export async function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<object> {
+    export async function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, BLOCKS, query)
     }
 
@@ -96,7 +96,7 @@ export namespace TezosConseilClient {
      * 
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
      */
-    export async function getAccounts(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<object> {
+    export async function getAccounts(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, ACCOUNTS, query)
     }
 
@@ -109,7 +109,7 @@ export namespace TezosConseilClient {
      * 
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
      */
-    export async function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<object> {
+    export async function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query)
     }
 
@@ -122,7 +122,7 @@ export namespace TezosConseilClient {
      * 
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
      */
-    export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<object> {
+    export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATIONS, query)
     }
 }

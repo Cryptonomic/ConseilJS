@@ -34,8 +34,24 @@ export interface ConseilPredicate {
 }
 
 export interface ConseilQuery {
-    fields: Set<string>;
+    fields: string[];
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
+}
+
+export class ConseilRequestError extends Error {
+    httpStatus: number;
+    httpMessage: string;
+    conseilURL: string;
+    conseilQuery: ConseilQuery;
+
+    constructor(httpStatus: number, httpMessage: string, conseilURL: string, conseilQuery: ConseilQuery){
+        super();
+
+        this.httpStatus = httpStatus;
+        this.httpMessage = httpMessage;
+        this.conseilURL = conseilURL;
+        this.conseilQuery = conseilQuery;
+    }
 }
