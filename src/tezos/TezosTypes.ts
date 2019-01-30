@@ -87,8 +87,24 @@ export interface Operation {
 
 export interface ContractOriginationOperation extends Operation {
     script: object;
-  }
-  
-  export interface ContractInvocationOperation extends Operation {
+}
+
+export interface ContractInvocationOperation extends Operation {
     parameters: object;
-  }
+}
+
+/**
+ * Output of operation signing.
+ */
+export interface SignedOperationGroup {
+    bytes: Buffer;
+    signature: string;
+}
+
+/**
+ * Result of a successfully sent operation
+ */
+export interface OperationResult {
+    results: AlphaOperationsWithMetadata;
+    operationGroupID: string;
+}

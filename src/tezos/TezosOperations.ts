@@ -5,36 +5,19 @@ import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
+
 /**
  *  Functions for sending operations on the Tezos network.
  */
-
-/**
- * Output of operation signing.
- */
-export interface SignedOperationGroup {
-    bytes: Buffer;
-    signature: string;
-}
-
-/**
- * Result of a successfully sent operation
- */
-export interface OperationResult {
-    results: TezosTypes.AlphaOperationsWithMetadata;
-    operationGroupID: string;
-}
-
 export namespace TezosOperations {
-
     /**
      * Signs a forged operation
-     * @param {string} forgedOperation  Forged operation group returned by the Tezos client (as a hex string)
-     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @param {string} forgedOperation Forged operation group returned by the Tezos client (as a hex string)
+     * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {SignedOperationGroup}  Bytes of the signed operation along with the actual signature
+     * @returns {SignedOperationGroup} Bytes of the signed operation along with the actual signature
      */
-    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<SignedOperationGroup> {
+    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup> {
         const watermark = '03';
         const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
 
@@ -61,9 +44,9 @@ export namespace TezosOperations {
     /**
      * Computes the ID of an operation group using Base58Check.
      * @param {SignedOperationGroup} signedOpGroup  Signed operation group
-     * @returns {string}    Base58Check hash of signed operation
+     * @returns {string} Base58Check hash of signed operation
      */
-    export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
+    export function computeOperationHash(signedOpGroup: TezosTypes.SignedOperationGroup): string {
         const hash: Buffer = sodium.crypto_generichash(32, signedOpGroup.bytes);
         return CryptoUtils.base58CheckEncode(hash, "op");
     }
@@ -127,7 +110,7 @@ export namespace TezosOperations {
         operations: object[],
         operationGroupHash: string,
         forgedOperationGroup: string,
-        signedOpGroup: SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+        signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const payload = [{
             protocol: blockHead.protocol,
             branch: blockHead.hash,
@@ -160,7 +143,7 @@ export namespace TezosOperations {
      * @param {SignedOperationGroup} signedOpGroup  Signed operation group
      * @returns {Promise<InjectedOperation>}    ID of injected operation
      */
-    export function injectOperation(network: string, signedOpGroup: SignedOperationGroup): Promise<string> {
+    export function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string> {
         const payload = sodium.to_hex(signedOpGroup.bytes);
         return TezosNode.injectOperation(network, payload);
     }
@@ -177,7 +160,7 @@ export namespace TezosOperations {
         network: string,
         operations: object[],
         keyStore: KeyStore,
-        derivationPath): Promise<OperationResult> {
+        derivationPath): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNode.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
@@ -228,13 +211,13 @@ export namespace TezosOperations {
 
     /**
      * Creates and sends a transaction operation.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
-     * @param {String} to   Destination public key hash
-     * @param {number} amount   Amount to send
-     * @param {number} fee  Fee to use
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {String} to Destination public key hash
+     * @param {number} amount Amount to send
+     * @param {number} fee Fee to use
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>}  Result of the operation
+     * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendTransactionOperation(
         network: string,
@@ -265,12 +248,12 @@ export namespace TezosOperations {
 
     /**
      * Creates and sends a delegation operation.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {String} delegate Account ID to delegate to
-     * @param {number} fee  Operation fee
+     * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>}  Result of the operation
+     * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendDelegationOperation(
         network: string,
@@ -380,7 +363,7 @@ export namespace TezosOperations {
           gas_limit,
           storage_limit,
           managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
-          //   manager_pubkey: keyStore.publicKeyHash, // zeronet
+          //manager_pubkey: keyStore.publicKeyHash, // zeronet
           balance: amount.toString(),
           spendable: spendable,
           delegatable: delegatable,
