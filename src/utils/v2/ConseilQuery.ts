@@ -6,7 +6,7 @@ export namespace ConseilQueryBuilder {
      */
     export function blankQuery(): ConseilQuery {
         return {
-            'fields': new Set(),
+            'fields': [],
             'predicates': [],
             'orderBy': [],
             'limit': 100
@@ -21,7 +21,9 @@ export namespace ConseilQueryBuilder {
      */
     export function addFields(query: ConseilQuery, ...fields: string[]): ConseilQuery {
         let q = {...query};
-        fields.forEach(f => q.fields.add(f));
+        let fieldSet = new Set(query.fields);
+        fields.forEach(f => fieldSet.add(f));
+        q.fields = Array.from(fieldSet.values());
 
         return q; 
     }
@@ -45,7 +47,7 @@ export namespace ConseilQueryBuilder {
         }
 
         let q = {...query};
-        q.predicates.concat({ field, operation, set: values, inverse: invert });
+        q.predicates.push({ field, operation, set: values, inverse: invert });
 
         return q;
     }
@@ -60,7 +62,7 @@ export namespace ConseilQueryBuilder {
     export function addOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
         // TODO: validate field uniqueness
         let q = {...query};
-        q.orderBy.concat({ field, direction });
+        q.orderBy.push({ field, direction });
 
         return q;
     }
