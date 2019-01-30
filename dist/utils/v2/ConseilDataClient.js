@@ -12,6 +12,9 @@ var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log('url===', `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`);
+            console.log('apikey===', serverInfo.apiKey);
+            console.log('body ==== ', JSON.stringify(query));
             return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
                 method: 'POST',
                 headers: { "apiKey": serverInfo.apiKey },

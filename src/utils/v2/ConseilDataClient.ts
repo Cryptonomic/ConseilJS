@@ -14,6 +14,9 @@ export namespace ConseilDataClient {
      * @param query JSON object confirming to the Conseil query spec.
      */
     export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<object> {
+        console.log('url===', `${serverInfo.url}/v2/data/${platform}/${network}/${entity}` );
+        console.log('apikey===', serverInfo.apiKey);
+        console.log('body ==== ', JSON.stringify(query));
         return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
             method: 'POST',
             headers: { "apiKey": serverInfo.apiKey },
