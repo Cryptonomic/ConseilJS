@@ -4,7 +4,7 @@ const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { CheckerPlugin } = require('awesome-typescript-loader');
 
 module.exports = {
-    mode: 'development',
+    mode: 'production',
     devtool: 'inline-source-map',
     entry: './src/index-browser.ts',
     output: {

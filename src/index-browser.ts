@@ -1,4 +1,3 @@
-import 'whatwg-fetch';
 import FetchInstance from './utils/FetchInstance';
 
 FetchInstance.setFetch(window.fetch);

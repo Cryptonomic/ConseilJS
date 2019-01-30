@@ -88,12 +88,10 @@
     "uglifyjs-webpack-plugin": "^1.2.5",
     "webpack": "^4.28.1",
     "webpack-cli": "^3.0.3",
-    "whatwg-fetch": "^3.0.0",
     "webpack-node-externals": "^1.7.2"
   },
   "peerDependencies": {
-    "node-fetch": "^2.1.1",
-    "whatwg-fetch": "^3.0.0"
+    "node-fetch": "^2.1.1"
   },
   "eslintConfig": {
     "parser": "typescript-eslint-parser",
