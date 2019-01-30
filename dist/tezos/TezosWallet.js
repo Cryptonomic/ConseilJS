@@ -20,16 +20,6 @@ const CryptoUtils = __importStar(require("../utils/CryptoUtils"));
 const fs = __importStar(require("fs"));
 var TezosWallet;
 (function (TezosWallet) {
-    /**
-     * Functions for Tezos wallet functionality.
-     */
-    /**
-     * Saves a wallet to a given file.
-     * @param {string} filename Name of file
-     * @param {Wallet} wallet   Wallet object
-     * @param {string} passphrase User-supplied passphrase
-     * @returns {Promise<Wallet>} Wallet object loaded from disk
-     */
     function saveWallet(filename, wallet, passphrase) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise(((resolve, reject) => {
@@ -62,12 +52,6 @@ var TezosWallet;
         });
     }
     TezosWallet.saveWallet = saveWallet;
-    /**
-     * Loads a wallet from a given file.
-     * @param {string} filename Name of file
-     * @param {string} passphrase User-supplied passphrase
-     * @returns {Promise<Wallet>}   Loaded wallet
-     */
     function loadWallet(filename, passphrase) {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
@@ -89,12 +73,6 @@ var TezosWallet;
         });
     }
     TezosWallet.loadWallet = loadWallet;
-    /**
-     * Creates a new wallet file.
-     * @param {string} filename Where to save the wallet file
-     * @param {string} password User-supplied passphrase used to secure wallet file
-     * @returns {Promise<Wallet>}   Object corresponding to newly-created wallet
-     */
     function createWallet(filename, password) {
         return __awaiter(this, void 0, void 0, function* () {
             const wallet = {
@@ -105,33 +83,15 @@ var TezosWallet;
         });
     }
     TezosWallet.createWallet = createWallet;
-    /**
-     * Unlocks an identity supplied during the 2017 Tezos fundraiser.
-     * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
-     * @param {string} email    Email address from fundraiser PDF.
-     * @param {string} password Password from fundraiser PDF.
-     * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
-     * @returns {KeyStore}  Wallet file
-     */
     function unlockFundraiserIdentity(mnemonic, email, password, pkh) {
         const passphrase = email + password;
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh, true, KeyStore_1.StoreType.Fundraiser);
     }
     TezosWallet.unlockFundraiserIdentity = unlockFundraiserIdentity;
-    /**
-     * Generates a fifteen word mnemonic phrase using the BIP39 standard.
-     * @returns {string}
-     */
     function generateMnemonic() {
         return CryptoUtils.generateMnemonic();
     }
     TezosWallet.generateMnemonic = generateMnemonic;
-    /**
-     * Generates a key pair based on a mnemonic.
-     * @param {string} mnemonic Fifteen word memonic phrase
-     * @param {string} passphrase   User-supplied passphrase
-     * @returns {KeyStore}  Unlocked key pair
-     */
     function unlockIdentityWithMnemonic(mnemonic, passphrase) {
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, "", false, KeyStore_1.StoreType.Mnemonic);
     }

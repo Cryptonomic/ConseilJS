@@ -7,46 +7,47 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Utility functions for querying backend Conseil v2 API for metadata
- */
+const node_fetch_1 = __importDefault(require("node-fetch"));
+const QueryTypes_1 = require("../v2/QueryTypes");
 var ConseilDataClient;
 (function (ConseilDataClient) {
-    /**
-     * Requests data for a specific entity for a given platform/network combination, for example a block or an operation.
-     *
-     * @param serverInfo Conseil server connection definition.
-     * @param platform Platform to query, eg: Tezos.
-     * @param network Network to query, eg: mainnet.
-     * @param entity Entity to query, eg: block, account, operation, etc.
-     * @param query JSON object confirming to the Conseil query spec.
-     */
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
+            const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
+            return node_fetch_1.default(url, {
                 method: 'POST',
-                headers: { "apiKey": serverInfo.apiKey },
+                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
-            }).then(response => { return response.json(); });
+            })
+                .then(response => {
+                if (!response.ok) {
+                    throw new QueryTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
+                }
+                return response;
+            })
+                .then(response => response.json());
         });
     }
     ConseilDataClient.executeEntityQuery = executeEntityQuery;
-    /**
-     * Requests data that may return result set composed of attributes of multiple entities.
-     *
-     * @param serverInfo Conseil server connection definition.
-     * @param platform Platform to query, eg: Tezos.
-     * @param network Network to query, eg: mainnet.
-     * @param query JSON object confirming to the Conseil query spec.
-     */
     function executeComplexQuery(serverInfo, platform, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return fetch(`${serverInfo.url}/v2/query/${platform}/${network}`, {
+            const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
+            return node_fetch_1.default(url, {
                 method: 'POST',
-                headers: { "apiKey": serverInfo.apiKey },
+                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
-            }).then(response => { return response.json(); });
+            })
+                .then(response => {
+                if (!response.ok) {
+                    throw new QueryTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
+                }
+                return response;
+            })
+                .then(response => response.json());
         });
     }
     ConseilDataClient.executeComplexQuery = executeComplexQuery;

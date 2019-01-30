@@ -18,4 +18,14 @@ var ConseilOperator;
     ConseilOperator["STARTSWITH"] = "startsWith";
     ConseilOperator["ENDSWITH"] = "endsWith";
 })(ConseilOperator = exports.ConseilOperator || (exports.ConseilOperator = {}));
+class ConseilRequestError extends Error {
+    constructor(httpStatus, httpMessage, conseilURL, conseilQuery) {
+        super();
+        this.httpStatus = httpStatus;
+        this.httpMessage = httpMessage;
+        this.conseilURL = conseilURL;
+        this.conseilQuery = conseilQuery;
+    }
+}
+exports.ConseilRequestError = ConseilRequestError;
 //# sourceMappingURL=QueryTypes.js.map

@@ -1,6 +1,4 @@
-/**
- * Types used to process data returned from Conseil server.
- */
+/// <reference types="node" />
 export interface BlockHeader {
     level: number;
     proto: number;
@@ -77,4 +75,12 @@ export interface ContractOriginationOperation extends Operation {
 }
 export interface ContractInvocationOperation extends Operation {
     parameters: object;
+}
+export interface SignedOperationGroup {
+    bytes: Buffer;
+    signature: string;
+}
+export interface OperationResult {
+    results: AlphaOperationsWithMetadata;
+    operationGroupID: string;
 }

@@ -3,39 +3,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const QueryTypes_1 = require("../v2/QueryTypes");
 var ConseilQueryBuilder;
 (function (ConseilQueryBuilder) {
-    /**
-     * Creates an empty ConseilQuery object with limit set to 100.
-     */
     function blankQuery() {
         return {
-            'fields': new Set(),
+            'fields': [],
             'predicates': [],
             'orderBy': [],
             'limit': 100
         };
     }
     ConseilQueryBuilder.blankQuery = blankQuery;
-    /**
-     * Appends one or more fields to the query. A new query object is returned.
-     *
-     * @param query Source query.
-     * @param fields Fields to add.
-     */
     function addFields(query, ...fields) {
         let q = Object.assign({}, query);
-        fields.forEach(f => q.fields.add(f));
+        let fieldSet = new Set(query.fields);
+        fields.forEach(f => fieldSet.add(f));
+        q.fields = Array.from(fieldSet.values());
         return q;
     }
     ConseilQueryBuilder.addFields = addFields;
-    /**
-     * Appends a predicate to the query. A new query object is returned.
-     *
-     * @param query Source query.
-     * @param field Field to apply the operation to.
-     * @param operation Operation to apply. ConseilOperator.IN requires two or more values, ConseilOperator.BETWEEN is inclusive and requires two values, all other operators require at least one value.
-     * @param values Set of values to operate on.
-     * @param invert Set inverse, default is false. This is equivalent to matching inside the set of values as in SQL IN command. Setting inverse true is interpreted as NOT IN.
-     */
     function addPredicate(query, field, operation, values, invert = false) {
         if (operation === QueryTypes_1.ConseilOperator.BETWEEN && values.length !== 2) {
             throw new Error();
@@ -47,30 +31,16 @@ var ConseilQueryBuilder;
             throw new Error();
         }
         let q = Object.assign({}, query);
-        q.predicates.concat({ field, operation, set: values, inverse: invert });
+        q.predicates.push({ field, operation, set: values, inverse: invert });
         return q;
     }
     ConseilQueryBuilder.addPredicate = addPredicate;
-    /**
-     * Appends an ordering instructionc to the query. Ordering is possible on fields that are not part of the result set. A new query object is returned.
-     *
-     * @param query Source query.
-     * @param field Field name to order by.
-     * @param direction Sort direction.
-     */
     function addOrdering(query, field, direction = QueryTypes_1.ConseilSortDirection.ASC) {
-        // TODO: validate field uniqueness
         let q = Object.assign({}, query);
-        q.orderBy.concat({ field, direction });
+        q.orderBy.push({ field, direction });
         return q;
     }
     ConseilQueryBuilder.addOrdering = addOrdering;
-    /**
-     * Sets a maximum result set size on a query. A new query object is returned.
-     *
-     * @param query Source query.
-     * @param limit Maximum number of rows to return, must be 1 or more.
-     */
     function setLimit(query, limit) {
         if (limit < 1) {
             throw new Error();

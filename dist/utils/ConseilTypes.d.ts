@@ -1,6 +1,3 @@
-/**
- * Types used for parsing data returned by Conseil backend API.
- */
 export interface TezosBlock {
     level: number;
     proto: number;
