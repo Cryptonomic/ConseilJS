@@ -2,7 +2,6 @@ import 'mocha';
 import {expect} from 'chai';
 import {ConseilQueryBuilder} from "../src/utils/v2/ConseilQuery";
 import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../src/utils/v2/QueryTypes"
-import {ConseilDataClient} from "../src/utils/v2/ConseilDataClient";
 
 
 describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
@@ -32,5 +31,15 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
         expect(query.fields.length).to.equals(2);
         expect(query.fields[0]).to.equals('field 1');
         expect(query.fields[1]).to.equals('field 2');
+    });
+
+    it('make a query with a predicate', async () => {
+        const query = ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.IN, ['a', 'b', 'c', 'd']);
+
+        expect(query.predicates.length).to.equals(1);
+        expect(query.predicates[0].field).to.equals('field 1');
+        expect(query.predicates[0].operation).to.equals(ConseilOperator.IN);
+        expect(query.predicates[0].set).to.contains('b');
+        expect(query.predicates[0].inverse).to.equals(false);
     });
 });
