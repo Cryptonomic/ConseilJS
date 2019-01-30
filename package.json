@@ -9,7 +9,7 @@
     "test": "mocha test/*.spec.ts",
     "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
-    "package": "rm -rf ./dist && tsc && yarn build",
+    "package": "rm -rf ./dist && tsc && npm run build",
     "build": "webpack",
     "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage",
     "doc": "rm -rf ./doc && typedoc --out ./doc ./src"
@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport": "4.21.0",
-    "@ledgerhq/hw-transport-node-hid": "^4.24.0",
+    "@ledgerhq/hw-transport-node-hid": "4.24.0",
     "aws-sdk": "^2.395.0",
     "babel-runtime": "6.26.0",
     "base-n": "git://github.com/yourcodesucks/base-n.git",
