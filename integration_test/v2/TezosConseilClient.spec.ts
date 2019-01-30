@@ -12,22 +12,19 @@ describe('Tezos date interface test suite', () => {
     it('retrieve top block', async () => {
         const result = await TezosConseilClient.getBlockHead({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet');
 
-        console.log(result);
-        //expect(result).to.contain('tezos');
+        expect(result.length).to.equal(1);
     });
 
     it('retrieve a block by hash', async () => {
         const result = await TezosConseilClient.getBlock({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'BKnMKWCeJwRtetQwuY5HRtbrsXPLyACFrygdwnM8jxAYcYEVkdd');
 
-        console.log(result);
-        //expect(result).to.contain('tezos');
+        expect(result.length).to.equal(1);
     });
 
     it('retrieve an account by address', async () => {
         const result = await TezosConseilClient.getAccount({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'tz1UzDGcT9JAZnryiDJmvGnNRMg3WzVnjLrn');
 
-        console.log(result);
-        //expect(result).to.contain('tezos');
+        expect(result.length).to.equal(1);
     });
 
     //getOperationGroup
@@ -40,8 +37,9 @@ describe('Tezos date interface test suite', () => {
 
         const result = await TezosConseilClient.getBlocks({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', q);
 
-        console.log(result);
-        //expect(result).to.contain('tezos');
+        expect(result.length).to.equal(10);
+        expect(parseInt(result[9]["level"])).to.greaterThan(parseInt(result[1]["level"]));
+        expect(result[9]["predecessor"]).to.equal(result[8]["hash"]);
     });
 
     //getAccounts
