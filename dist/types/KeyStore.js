@@ -1,8 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * Type of key store, i.e. whether it was generated from a fundraiser PDF or from a new mnemonic
- */
 var StoreType;
 (function (StoreType) {
     StoreType[StoreType["Mnemonic"] = 0] = "Mnemonic";

@@ -1,6 +1,3 @@
-/**
- * Types used to process data returned from Conseil server.
- */
 export interface BlockHeader {
     level: number;
     proto: number;

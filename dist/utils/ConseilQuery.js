@@ -13,17 +13,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = __importStar(require("querystring"));
 const FetchInstance_1 = __importDefault(require("./FetchInstance"));
 const fetch = FetchInstance_1.default.getFetch();
-/**
- * Utility functions for querying backend Conseil API
- */
-/**
- * Runs a query against Conseil backend API
- * TODO: Also make the blockchain a parameter
- * @param {string} server  Conseil server to go against
- * @param {string} route API route to query
- * @param {string} apiKey    API key to use for Conseil server.
- * @returns {Promise<object>}   JSON representation of response from Conseil
- */
 function queryConseilServer(server, route, apiKey) {
     const url = `${server}/${route}`;
     console.log(`Querying Conseil server at URL ${url}`);
@@ -36,25 +25,12 @@ function queryConseilServer(server, route, apiKey) {
         .then(response => { return response.json(); });
 }
 exports.queryConseilServer = queryConseilServer;
-/**
- * Runs a query against Conseil backend API with the given filter
- * @param {string} server  Conseil server to go against
- * @param {string} route    API route to query
- * @param {TezosFilter} filter  Conseil filter
- * @param {string} apiKey    API key to use for Conseil server.
- * @returns {Promise<object>}   Data returned by Conseil as a JSON object
- */
 function queryConseilServerWithFilter(server, route, filter, apiKey) {
     let params = querystring.stringify(sanitizeFilter(filter));
     let cmdWithParams = `${route}?${params}`;
     return queryConseilServer(server, cmdWithParams, apiKey);
 }
 exports.queryConseilServerWithFilter = queryConseilServerWithFilter;
-/**
- * Removes extraneous data from Conseil fitler predicates.
- * @param {TezosFilter} filter  Conseil filter
- * @returns {TezosFilter}   Sanitized Conseil filter
- */
 function sanitizeFilter(filter) {
     return {
         limit: filter.limit,

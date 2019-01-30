@@ -1,15 +1,16 @@
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const path = require('path');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const { CheckerPlugin } = require('awesome-typescript-loader');
 
 module.exports = {
     mode: 'development',
     devtool: 'inline-source-map',
-    entry: './src/index.ts',
+    entry: './src/index-browser.ts',
     output: {
         // filename: "bundle.js"
-        path: path.resolve(__dirname, './build'),
-        filename: 'bundle.js',
+        path: path.resolve(__dirname, './dist'),
+        filename: 'conseil.min.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
     },
@@ -33,6 +34,7 @@ module.exports = {
         fs: 'empty', child_process: 'empty'
     },
     plugins: [
-        new UglifyJsPlugin()
+        new UglifyJsPlugin(),
+        new CheckerPlugin()
     ]
 };

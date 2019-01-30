@@ -9,8 +9,8 @@
     "test": "mocha",
     "integration-test": "./node_modules/mocha/bin/mocha --timeout 1000000 -r ts-node/register integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
-    "package": "rm -rf ./dist && tsc",
-    "build": "webpack && rm -rf ./build/dist",
+    "package": "rm -rf ./dist && tsc && yarn build",
+    "build": "webpack",
     "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage"
   },
   "repository": {
