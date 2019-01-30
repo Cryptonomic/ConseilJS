@@ -101,7 +101,7 @@ export namespace TezosOperations {
      * @param {object[]} operations The operations to create and send
      * @param {string} operationGroupHash   Hash of the operation group being applied (in Base58Check format)
      * @param {string} forgedOperationGroup Forged operation group returned by the Tezos client (as a hex string)
-     * @param {SignedOperationGroup} signedOpGroup  Signed operation group
+     * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
     export function applyOperation(
@@ -122,6 +122,7 @@ export namespace TezosOperations {
 
     /**
      * Ensures the results of operation application do not contain errors. Throws as needed if there are errors.
+     * 
      * @param appliedOp Results of operation application.
      */
     function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void {
@@ -139,9 +140,10 @@ export namespace TezosOperations {
 
     /**
      * Injects an opertion using the Tezos RPC client.
-     * @param {string} network  Which Tezos network to go against
-     * @param {SignedOperationGroup} signedOpGroup  Signed operation group
-     * @returns {Promise<InjectedOperation>}    ID of injected operation
+     * 
+     * @param {string} network Which Tezos network to go against
+     * @param {SignedOperationGroup} signedOpGroup Signed operation group
+     * @returns {Promise<InjectedOperation>} ID of injected operation
      */
     export function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string> {
         const payload = sodium.to_hex(signedOpGroup.bytes);
@@ -152,7 +154,7 @@ export namespace TezosOperations {
      * Master function for creating and sending all supported types of operations.
      * @param {string} network  Which Tezos network to go against
      * @param {object[]} operations The operations to create and send
-     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
@@ -178,6 +180,7 @@ export namespace TezosOperations {
      * Helper function for sending Delegations, Transactions, and Originations.
      * Checks if manager's public key has been revealed for operation. If yes,
      * do nothing, else, bundle a reveal operation before the input operation.
+     * 
      * @param network Which Tezos network to go against
      * @param keyStore  Key pair along with public key hash
      * @param fee Fee to use
@@ -278,15 +281,15 @@ export namespace TezosOperations {
 
     /**
      * Creates and sends an origination operation.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
-     * @param {number} amount   Initial funding amount of new account
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {number} amount Initial funding amount of new account
      * @param {string} delegate Account ID to delegate to, blank if none
-     * @param {boolean} spendable   Is account spendable?
+     * @param {boolean} spendable Is account spendable?
      * @param {boolean} delegatable Is account delegatable?
-     * @param {number} fee  Operation fee
+     * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>}  Result of the operation
+     * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendOriginationOperation(
         network: string,
@@ -328,10 +331,10 @@ export namespace TezosOperations {
      * @param {boolean} delegatable Is account delegatable?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @param {string} storage_limit
-     * @param {string} gas_limit
-     * @param {Array<object>} code
-     * @param {object} storage
+     * @param {string} storage_limit Storage fee.
+     * @param {string} gas_limit Gas limit.
+     * @param {Array<object>} code Contract code.
+     * @param {object} storage Initial storage value.
      * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendContractOriginationOperation(
