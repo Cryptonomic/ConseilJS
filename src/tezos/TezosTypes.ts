@@ -82,5 +82,13 @@ export interface Operation {
     delegatable?: boolean,
     destination?: string,
     amount?: string,
-    script?: string
+    script?: string | object;
 }
+
+export interface ContractOriginationOperation extends Operation {
+    script: object;
+  }
+  
+  export interface ContractInvocationOperation extends Operation {
+    parameters: object;
+  }

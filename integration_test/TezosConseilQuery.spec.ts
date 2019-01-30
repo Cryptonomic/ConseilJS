@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import {TezosConseilQuery} from '../src'
-import {servers} from "./servers";
+import {servers} from "../test/servers";
 
 const conseilURL = servers.conseilServer;
 const conseilApiKey = servers.conseilApiKey;
@@ -11,7 +11,7 @@ describe('Block fetchers', () => {
         const head = await TezosConseilQuery.getBlockHead(conseilURL, conseilApiKey);
         expect(head.hash.startsWith('B')).to.equal(true);
         const aBlock = await TezosConseilQuery.getBlock(conseilURL, head.hash, conseilApiKey);
-        expect(aBlock.block.hash).to.equal(head.hash);
+        expect(aBlock["'block"].hash).to.equal(head.hash);
     });
 });
 
@@ -22,8 +22,8 @@ describe('Operation fetchers', () => {
         const ops = await TezosConseilQuery.getOperations(conseilURL, opFilter, conseilApiKey);
         expect(ops.length).to.equal(10);
         const opGroup = await TezosConseilQuery.getOperationGroup(conseilURL, ops[0].operationGroupHash, conseilApiKey);
-        expect(opGroup.operation_group.hash).to.equal(ops[0].operationGroupHash);
-        const opGroupsFilter = {...emptyFilter, limit: 10, operation_id: [opGroup.operation_group.hash]};
+        expect(opGroup["'operation_group"].hash).to.equal(ops[0].operationGroupHash);
+        const opGroupsFilter = {...emptyFilter, limit: 10, operation_id:  [opGroup["'operation_group"].hash]};
         const opGroups = await TezosConseilQuery.getOperationGroups(conseilURL, opGroupsFilter, conseilApiKey);
         expect(opGroups.length).to.equal(1)
     });
