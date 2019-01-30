@@ -40,7 +40,7 @@ function sanitizeFilter(filter) {
         block_protocol: filter.block_protocol.filter(Boolean),
         operation_id: filter.operation_id.filter(Boolean),
         operation_source: filter.operation_source.filter(Boolean),
-        operation_destination: filter.operation_source.filter(Boolean),
+        operation_destination: filter.operation_destination.filter(Boolean),
         operation_participant: filter.operation_participant.filter(Boolean),
         operation_kind: filter.operation_kind.filter(Boolean),
         account_id: filter.account_id.filter(Boolean),

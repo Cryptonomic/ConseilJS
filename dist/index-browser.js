@@ -12,4 +12,5 @@ __export(require("./tezos/TezosConseilQuery"));
 __export(require("./tezos/TezosNodeQuery"));
 __export(require("./tezos/TezosOperations"));
 __export(require("./tezos/TezosWallet"));
+__export(require("./tezos/TezosConseilClient"));
 //# sourceMappingURL=index-browser.js.map

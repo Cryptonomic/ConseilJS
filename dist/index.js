@@ -24,4 +24,5 @@ __export(require("./tezos/TezosNodeQuery"));
 __export(require("./tezos/TezosOperations"));
 __export(require("./tezos/TezosWallet"));
 __export(require("./tezos/TezosHardwareWallet"));
+__export(require("./tezos/TezosConseilClient"));
 //# sourceMappingURL=index.js.map
