@@ -1,10 +1,13 @@
 import sodium = require('libsodium-wrappers');
 import * as CryptoUtils from '../utils/CryptoUtils';
-import * as LedgerUtils from '../utils/LedgerUtils';
 import {KeyStore, StoreType} from "../types/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "./TezosTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
+
+import DeviceUtils from '../utils/DeviceUtils';
+
+let LedgerUtils = DeviceUtils.getLedgerUtils();
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -52,7 +55,7 @@ export namespace TezosOperations {
         }
 
         const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
-        const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+        const signedOpBytes = Buffer.concat([Buffer.from(sodium.from_hex(forgedOperation)), Buffer.from(opSignature)]);
         return {
             bytes: signedOpBytes,
             signature: hexSignature.toString()

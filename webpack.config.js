@@ -1,26 +1,27 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const path = require('path')
-const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const nodeExternals = require('webpack-node-externals');
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const path = require('path');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const { CheckerPlugin } = require('awesome-typescript-loader');
 
 module.exports = {
-    mode: "development",
-    devtool: "inline-source-map",
-    entry: "./src/index.ts",
-    target: 'node',
+    mode: 'development',
+    devtool: 'inline-source-map',
+    entry: './src/index-browser.ts',
     output: {
-        path: path.resolve(__dirname, './build'),
-        filename: 'bundle.js',
+        // filename: "bundle.js"
+        path: path.resolve(__dirname, './dist'),
+        filename: 'conseil.min.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
     },
     resolve: {
-        extensions: [".ts", ".tsx", ".js"],
+        // Add `.ts` and `.tsx` as a resolvable extension.
+        extensions: ['.ts', '.tsx', '.js'],
         plugins: [
             new TsConfigPathsPlugin({
-                configFile: './tsconfig.json',
-            }),
-        ],
+                configFile: './tsconfig.json'
+            })
+        ]
     },
     module: {
         rules: [
@@ -29,6 +30,7 @@ module.exports = {
     },
     externals: [nodeExternals()],
     plugins: [
-        new UglifyJsPlugin()
+        new UglifyJsPlugin(),
+        new CheckerPlugin()
     ]
 };
