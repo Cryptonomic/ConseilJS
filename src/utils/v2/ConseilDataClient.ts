@@ -1,5 +1,7 @@
-import fetch from 'node-fetch';
 import {ConseilServerInfo, ConseilQuery, ConseilRequestError} from "../v2/QueryTypes"
+import FetchSelector from '../FetchSelector';
+
+const fetch = FetchSelector.getFetch();
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata

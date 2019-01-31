@@ -1,4 +1,7 @@
-import fetch, {Response} from 'node-fetch';
+import {Response} from 'node-fetch';
+import FetchSelector from './FetchSelector';
+
+const fetch = FetchSelector.getFetch();
 
 /**
  * Generic functions for running queries against blockchain nodes.

@@ -1,6 +1,8 @@
-import fetch from 'node-fetch';
 import {ConseilServerInfo} from "../v2/QueryTypes"
 import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from "../v2/MetadataTypes";
+import FetchSelector from '../FetchSelector';
+
+const fetch = FetchSelector.getFetch();
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata

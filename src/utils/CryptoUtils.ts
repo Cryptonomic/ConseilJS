@@ -12,7 +12,7 @@ import zxcvbn from 'zxcvbn';
 
 /**
  * Generates a salt for key derivation.
- * @returns {Buffer}    Salt
+ * @returns {Buffer} Salt
  */
 export function generateSaltForPwHash() {
     return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES)
@@ -20,10 +20,10 @@ export function generateSaltForPwHash() {
 
 /**
  * Encrypts a given message using a passphrase
- * @param {string} message  Message to encrypt
- * @param {string} passphrase   User-supplied passphrase
+ * @param {string} message Message to encrypt
+ * @param {string} passphrase User-supplied passphrase
  * @param {Buffer} salt Salt for key derivation
- * @returns {Buffer}    Concatenated bytes of nonce and cipher text
+ * @returns {Buffer} Concatenated bytes of nonce and cipher text
  */
 export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
     const passwordStrength = getPasswordStrength(passphrase);
@@ -49,7 +49,7 @@ export function encryptMessage(message: string, passphrase: string, salt: Buffer
  * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
  * @param {string} passphrase   User-supplied passphrase
  * @param {Buffer} salt Salt for key derivation
- * @returns {any}   Decrypted message
+ * @returns {any} Decrypted message
  */
 export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
     const keyBytes = sodium.crypto_pwhash(
@@ -70,8 +70,8 @@ export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string,
 
 /**
  * Get byte prefix for Base58Check encoding and decoding of a given type of data.
- * @param {String} prefix   The type of data
- * @returns {Buffer}    Byte prefix
+ * @param {String} prefix The type of data
+ * @returns {Buffer} Byte prefix
  */
 export function getBase58BytesForPrefix(prefix: string): Buffer {
     switch(prefix)
