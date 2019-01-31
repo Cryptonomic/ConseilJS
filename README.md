@@ -39,7 +39,7 @@ Below is the list of namespaces you can import to your project and start buildin
 
 `TezosConseilQuery` - Functions for querying the Conseil backend REST API v1
 
-`TezosHardwareWallet` - Functions for interaction with the Tezos node via a Hardware wallet. (Supports only Ledger Nano S for now)
+`TezosHardwareWallet` - Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
 
 `TezosMessageCodec` - A collection of functions to encode and decode various Tezos P2P message components
 
