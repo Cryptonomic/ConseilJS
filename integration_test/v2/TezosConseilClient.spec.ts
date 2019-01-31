@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {ConseilQueryBuilder} from "../../src/utils/v2/ConseilQuery";
+import {ConseilQueryBuilder} from "../../src/utils/v2/ConseilQueryBuilder";
 import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../src/utils/v2/QueryTypes"
 import {TezosConseilClient} from '../../src/tezos/TezosConseilClient'
 import {servers} from "../servers";

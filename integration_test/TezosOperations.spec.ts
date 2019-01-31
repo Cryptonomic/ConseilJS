@@ -85,9 +85,9 @@ const invalidDerivationPath = "ighiehgieh";
     });
 });*/
 
-/*describe('sendOriginationOperation()', () => {
+/*describe('sendAccountOriginationOperation()', () => {
     it('originate an account', async () => {
-        const result = await TezosOperations.sendOriginationOperation(
+        const result = await TezosOperations.sendAccountOriginationOperation(
             tezosURL,
             keys,
             100,
@@ -149,7 +149,7 @@ const invalidDerivationPath = "ighiehgieh";
             invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist;
-        const result2 = await TezosOperations.sendOriginationOperation(
+        const result2 = await TezosOperations.sendAccountOriginationOperation(
             tezosURL,
             newKeys,
             100,
@@ -347,7 +347,7 @@ describe("Tezos operation functions", () => {
     expect(contractInvocationResult["operationGroupID"]).to.exist;
 
     //     console.log('+++++Originating an account with 1 tez');
-    //     const originationResult = await TezosOperations.sendOriginationOperation(
+    //     const originationResult = await TezosOperations.sendAccountOriginationOperation(
     //       tezosURL,
     //       fundraiserKeys,
     //       20000000,

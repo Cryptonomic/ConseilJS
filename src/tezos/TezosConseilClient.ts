@@ -1,4 +1,4 @@
-import {ConseilQueryBuilder} from "../utils/v2/ConseilQuery";
+import {ConseilQueryBuilder} from "../utils/v2/ConseilQueryBuilder";
 import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../utils/v2/QueryTypes"
 import {ConseilDataClient} from "../utils/v2/ConseilDataClient";
 

@@ -280,7 +280,8 @@ export namespace TezosOperations {
     }
 
     /**
-     * Creates and sends an origination operation.
+     * Sends an account origination operation.
+     * 
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
@@ -291,7 +292,7 @@ export namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendOriginationOperation(
+    export async function sendAccountOriginationOperation (
         network: string,
         keyStore: KeyStore,
         amount: number,
@@ -301,28 +302,12 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string
     ) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const origination: TezosTypes.Operation = {
-            kind: "origination",
-            source: keyStore.publicKeyHash,
-            fee: fee.toString(),
-            counter: (Number(account.counter) + 1).toString(),
-            gas_limit: '10160',
-            storage_limit: '277',
-            managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
-            //manager_pubkey: keyStore.publicKeyHash,  // zeronet
-            balance: amount.toString(),
-            spendable: spendable,
-            delegatable: delegatable,
-            delegate: delegate
-        };
-        const operations = await appendRevealOperation(network, keyStore, account, [origination])
-        return sendOperation(network, operations, keyStore, derivationPath);
+        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
     }
 
     /**
-     * Creates and originates a smart contract.
+     * Sends a contract origination operation.
+     * 
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
@@ -335,7 +320,6 @@ export namespace TezosOperations {
      * @param {string} gas_limit Gas limit.
      * @param {Array<object>} code Contract code.
      * @param {object} storage Initial storage value.
-     * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendContractOriginationOperation(
         network: string,
@@ -348,37 +332,69 @@ export namespace TezosOperations {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code: Array<object>, // may have to change this type depending on how parser (from JS to michelson) works
-        storage: object // may have to change this type depending on how parser (from JS to michelson) works
+        code: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
+    ) {
+        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
+    }
+
+    /**
+     * General purpose function for origination.
+     * 
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {number} amount Initial funding amount of new account
+     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {boolean} spendable Is account spendable?
+     * @param {boolean} delegatable Is account delegatable?
+     * @param {number} fee Operation fee
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {string} storage_limit Storage fee.
+     * @param {string} gas_limit Gas limit.
+     * @param {Array<object>} code Contract code.
+     * @param {object} storage Initial storage value.
+     * 
+     * @returns {Promise<OperationResult>} Result of the operation
+     */
+    async function sendOriginationOperation(
+        network: string,
+        keyStore: KeyStore,
+        amount: number,
+        delegate: string,
+        spendable: boolean,
+        delegatable: boolean,
+        fee: number,
+        derivationPath: string,
+        storage_limit: string,
+        gas_limit: string,
+        code?: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage?: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         const blockHead = await TezosNode.getBlockHead(network);
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-        const origination: TezosTypes.ContractOriginationOperation = {
+        const origination: TezosTypes.Operation = {
             kind: "origination",
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
-            gas_limit,
-            storage_limit,
+            gas_limit: gas_limit,
+            storage_limit: storage_limit,
             managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
             //manager_pubkey: keyStore.publicKeyHash, // zeronet
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
             delegate: delegate,
-            script: {
-                code: code,
-                storage: storage
-            }
+            script: code ? { code: code, storage: storage } : undefined
         };
         const operations = await appendRevealOperation(network, keyStore, account, [origination]);
+
         return sendOperation(network, operations, keyStore, derivationPath);
     }
 
     /**
      * Invokes a contract with desired parameters
      * 
-     
      * @param network 
      * @param keyStore 
      * @param to 

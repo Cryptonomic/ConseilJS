@@ -22,13 +22,13 @@ var ConseilQueryBuilder;
     ConseilQueryBuilder.addFields = addFields;
     function addPredicate(query, field, operation, values, invert = false) {
         if (operation === QueryTypes_1.ConseilOperator.BETWEEN && values.length !== 2) {
-            throw new Error();
+            throw new Error('BETWEEN operation requires a list of two values.');
         }
         else if (operation === QueryTypes_1.ConseilOperator.IN && values.length < 2) {
-            throw new Error();
+            throw new Error('IN operation requires a list of two or more values.');
         }
-        else if (values.length !== 1 && operation !== QueryTypes_1.ConseilOperator.IN) {
-            throw new Error();
+        else if (values.length !== 1 && operation !== QueryTypes_1.ConseilOperator.IN && operation !== QueryTypes_1.ConseilOperator.BETWEEN) {
+            throw new Error(`invalid values list for ${operation}.`);
         }
         let q = Object.assign({}, query);
         q.predicates.push({ field, operation, set: values, inverse: invert });
@@ -43,7 +43,7 @@ var ConseilQueryBuilder;
     ConseilQueryBuilder.addOrdering = addOrdering;
     function setLimit(query, limit) {
         if (limit < 1) {
-            throw new Error();
+            throw new Error('Limit cannot be less than one.');
         }
         let q = Object.assign({}, query);
         q.limit = limit;
@@ -51,4 +51,4 @@ var ConseilQueryBuilder;
     }
     ConseilQueryBuilder.setLimit = setLimit;
 })(ConseilQueryBuilder = exports.ConseilQueryBuilder || (exports.ConseilQueryBuilder = {}));
-//# sourceMappingURL=ConseilQuery.js.map
+//# sourceMappingURL=ConseilQueryBuilder.js.map
