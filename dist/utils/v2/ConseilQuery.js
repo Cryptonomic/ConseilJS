@@ -27,7 +27,7 @@ var ConseilQueryBuilder;
         else if (operation === QueryTypes_1.ConseilOperator.IN && values.length < 2) {
             throw new Error();
         }
-        else if (values.length !== 1) {
+        else if (values.length !== 1 && operation !== QueryTypes_1.ConseilOperator.IN) {
             throw new Error();
         }
         let q = Object.assign({}, query);

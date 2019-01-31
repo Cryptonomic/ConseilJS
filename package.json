@@ -93,7 +93,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "peerDependencies": {
-    "node-fetch": "^2.1.1"
+    "node-fetch": "^2.3.0"
   },
   "eslintConfig": {
     "parser": "typescript-eslint-parser",
