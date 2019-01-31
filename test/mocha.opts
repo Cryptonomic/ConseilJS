@@ -3,4 +3,3 @@
 --require ts-node/register
 --full-trace
 --timeout 10000
-test/*.spec.ts
