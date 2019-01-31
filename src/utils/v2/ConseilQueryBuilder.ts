@@ -39,11 +39,11 @@ export namespace ConseilQueryBuilder {
      */
     export function addPredicate(query: ConseilQuery, field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
         if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
-            throw new Error();
+            throw new Error('BETWEEN operation requires a list of two values.');
         } else if (operation === ConseilOperator.IN && values.length < 2) {
-            throw new Error();
+            throw new Error('IN operation requires a list of two or more values.');
         } else if (values.length !== 1 && operation !== ConseilOperator.IN && operation !== ConseilOperator.BETWEEN) {
-            throw new Error();
+            throw new Error(`invalid values list for ${operation}.`);
         }
 
         let q = {...query};
@@ -74,7 +74,7 @@ export namespace ConseilQueryBuilder {
      * @param limit Maximum number of rows to return, must be 1 or more.
      */
     export function setLimit(query: ConseilQuery, limit: number): ConseilQuery {
-        if (limit < 1) { throw new Error(); }
+        if (limit < 1) { throw new Error('Limit cannot be less than one.'); }
 
         let q = {...query};
         q.limit = limit;
