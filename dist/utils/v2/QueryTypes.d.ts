@@ -29,8 +29,15 @@ export interface ConseilPredicate {
     inverse: boolean;
 }
 export interface ConseilQuery {
-    fields: Set<string>;
+    fields: string[];
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
+}
+export declare class ConseilRequestError extends Error {
+    httpStatus: number;
+    httpMessage: string;
+    conseilURL: string;
+    conseilQuery: ConseilQuery;
+    constructor(httpStatus: number, httpMessage: string, conseilURL: string, conseilQuery: ConseilQuery);
 }

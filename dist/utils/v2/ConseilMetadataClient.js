@@ -11,15 +11,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_fetch_1 = __importDefault(require("node-fetch"));
+const FetchInstance_1 = __importDefault(require("../FetchInstance"));
+const fetch = FetchInstance_1.default.getFetch();
 var ConseilMetadataClient;
 (function (ConseilMetadataClient) {
     function executeMetadataQuery(serverInfo, route) {
         return __awaiter(this, void 0, void 0, function* () {
-            return node_fetch_1.default(`${serverInfo.url}/v2/metadata/${route}`, {
+            return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
                 method: 'GET',
                 headers: { "apiKey": serverInfo.apiKey },
-            }).then(response => { return response.json(); });
+            }).then(response => response.json());
         });
     }
     ConseilMetadataClient.executeMetadataQuery = executeMetadataQuery;

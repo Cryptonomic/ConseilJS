@@ -7,29 +7,48 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const QueryTypes_1 = require("../v2/QueryTypes");
+const FetchInstance_1 = __importDefault(require("../FetchInstance"));
+const fetch = FetchInstance_1.default.getFetch();
 var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('url===', `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`);
-            console.log('apikey===', serverInfo.apiKey);
-            console.log('body ==== ', JSON.stringify(query));
-            return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
+            const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
+            return fetch(url, {
                 method: 'POST',
-                headers: { "apiKey": serverInfo.apiKey },
+                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
-            }).then(response => { return response.json(); });
+            })
+                .then(response => {
+                if (!response.ok) {
+                    throw new QueryTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
+                }
+                return response;
+            })
+                .then(response => response.json());
         });
     }
     ConseilDataClient.executeEntityQuery = executeEntityQuery;
     function executeComplexQuery(serverInfo, platform, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
-            return fetch(`${serverInfo.url}/v2/query/${platform}/${network}`, {
+            const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
+            return fetch(url, {
                 method: 'POST',
-                headers: { "apiKey": serverInfo.apiKey },
+                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
-            }).then(response => { return response.json(); });
+            })
+                .then(response => {
+                if (!response.ok) {
+                    throw new QueryTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
+                }
+                return response;
+            })
+                .then(response => response.json());
         });
     }
     ConseilDataClient.executeComplexQuery = executeComplexQuery;

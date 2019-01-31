@@ -107,7 +107,7 @@ describe('Tezos operation functions', () => {
         sleep(33);
 
         console.log("+++++Origination an account with 1 tez");
-        const originationResult = await TezosOperations.sendOriginationOperation(
+        const originationResult = await TezosOperations.sendAccountOriginationOperation(
             tezosURL,
             ledgerKeys,
             1000000,

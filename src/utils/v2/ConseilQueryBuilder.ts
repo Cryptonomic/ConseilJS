@@ -6,7 +6,7 @@ export namespace ConseilQueryBuilder {
      */
     export function blankQuery(): ConseilQuery {
         return {
-            'fields': new Set(),
+            'fields': [],
             'predicates': [],
             'orderBy': [],
             'limit': 100
@@ -21,7 +21,9 @@ export namespace ConseilQueryBuilder {
      */
     export function addFields(query: ConseilQuery, ...fields: string[]): ConseilQuery {
         let q = {...query};
-        fields.forEach(f => q.fields.add(f));
+        let fieldSet = new Set(query.fields);
+        fields.forEach(f => fieldSet.add(f));
+        q.fields = Array.from(fieldSet.values());
 
         return q; 
     }
@@ -37,15 +39,15 @@ export namespace ConseilQueryBuilder {
      */
     export function addPredicate(query: ConseilQuery, field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
         if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
-            throw new Error();
+            throw new Error('BETWEEN operation requires a list of two values.');
         } else if (operation === ConseilOperator.IN && values.length < 2) {
-            throw new Error();
-        } else if (values.length !== 1) {
-            throw new Error();
+            throw new Error('IN operation requires a list of two or more values.');
+        } else if (values.length !== 1 && operation !== ConseilOperator.IN && operation !== ConseilOperator.BETWEEN) {
+            throw new Error(`invalid values list for ${operation}.`);
         }
 
         let q = {...query};
-        q.predicates.concat({ field, operation, set: values, inverse: invert });
+        q.predicates.push({ field, operation, set: values, inverse: invert });
 
         return q;
     }
@@ -60,7 +62,7 @@ export namespace ConseilQueryBuilder {
     export function addOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
         // TODO: validate field uniqueness
         let q = {...query};
-        q.orderBy.concat({ field, direction });
+        q.orderBy.push({ field, direction });
 
         return q;
     }
@@ -72,7 +74,7 @@ export namespace ConseilQueryBuilder {
      * @param limit Maximum number of rows to return, must be 1 or more.
      */
     export function setLimit(query: ConseilQuery, limit: number): ConseilQuery {
-        if (limit < 1) { throw new Error(); }
+        if (limit < 1) { throw new Error('Limit cannot be less than one.'); }
 
         let q = {...query};
         q.limit = limit;

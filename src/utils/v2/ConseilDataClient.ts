@@ -1,5 +1,7 @@
-import {ConseilServerInfo, ConseilQuery} from "../v2/QueryTypes"
+import {ConseilServerInfo, ConseilQuery, ConseilRequestError} from "../v2/QueryTypes"
+import FetchInstance from '../FetchInstance';
 
+const fetch = FetchInstance.getFetch();
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
  */
@@ -13,15 +15,18 @@ export namespace ConseilDataClient {
      * @param entity Entity to query, eg: block, account, operation, etc.
      * @param query JSON object confirming to the Conseil query spec.
      */
-    export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<object> {
-        console.log('url===', `${serverInfo.url}/v2/data/${platform}/${network}/${entity}` );
-        console.log('apikey===', serverInfo.apiKey);
-        console.log('body ==== ', JSON.stringify(query));
-        return fetch(`${serverInfo.url}/v2/data/${platform}/${network}/${entity}`, {
+    export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
+        const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`
+        return fetch(url, {
             method: 'POST',
-            headers: { "apiKey": serverInfo.apiKey },
+            headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
             body: JSON.stringify(query)
-        }).then(response => { return response.json() });
+        })
+        .then(response => {
+            if (!response.ok) { throw new ConseilRequestError(response.status, response.statusText, url, query); }
+            return response;
+        })
+        .then(response => response.json());
     }
 
     /**
@@ -32,11 +37,17 @@ export namespace ConseilDataClient {
      * @param network Network to query, eg: mainnet.
      * @param query JSON object confirming to the Conseil query spec.
      */
-    export async function executeComplexQuery(serverInfo: ConseilServerInfo, platform: string, network: string, query: ConseilQuery): Promise<object> {
-        return fetch(`${serverInfo.url}/v2/query/${platform}/${network}`, {
+    export async function executeComplexQuery(serverInfo: ConseilServerInfo, platform: string, network: string, query: ConseilQuery): Promise<any[]> {
+        const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
+        return fetch(url, {
             method: 'POST',
-            headers: { "apiKey": serverInfo.apiKey },
+            headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
             body: JSON.stringify(query)
-        }).then(response => { return response.json() });
+        })
+        .then(response => {
+            if (!response.ok) { throw new ConseilRequestError(response.status, response.statusText, url, query); }
+            return response;
+        })
+        .then(response => response.json());
     }
 }

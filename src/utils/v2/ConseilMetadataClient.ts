@@ -1,7 +1,8 @@
-import fetch from 'node-fetch';
 import {ConseilServerInfo} from "../v2/QueryTypes"
 import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from "../v2/MetadataTypes";
+import FetchInstance from '../FetchInstance';
 
+const fetch = FetchInstance.getFetch();
 /**
  * Utility functions for querying backend Conseil v2 API for metadata
  */
@@ -10,7 +11,7 @@ export namespace ConseilMetadataClient {
         return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
             method: 'GET',
             headers: { "apiKey": serverInfo.apiKey },
-        }).then(response => { return response.json() });
+        }).then(response => response.json());
     }
 
     /**

@@ -1,3 +1,4 @@
+/// <reference types="node" />
 export interface BlockHeader {
     level: number;
     proto: number;
@@ -67,5 +68,19 @@ export interface Operation {
     delegatable?: boolean;
     destination?: string;
     amount?: string;
-    script?: string;
+    script?: string | object;
+}
+export interface ContractOriginationOperation extends Operation {
+    script: object;
+}
+export interface ContractInvocationOperation extends Operation {
+    parameters: object;
+}
+export interface SignedOperationGroup {
+    bytes: Buffer;
+    signature: string;
+}
+export interface OperationResult {
+    results: AlphaOperationsWithMetadata;
+    operationGroupID: string;
 }

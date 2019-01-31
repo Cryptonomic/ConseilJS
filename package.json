@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.1.40.1",
+  "version": "0.1.40.2",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-browser.js",
   "main": "dist/index.js",
@@ -11,7 +11,7 @@
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc && npm run build",
     "build": "webpack",
-    "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage",
+    "coverage": "nyc mocha test/*.spec.ts || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage",
     "doc": "rm -rf ./doc && typedoc --out ./doc ./src"
   },
   "repository": {
@@ -20,7 +20,10 @@
   },
   "keywords": [
     "tezos",
-    "conseil"
+    "conseil",
+    "blockchain analytics",
+    "blockchain reporting",
+    "blockchain data access"
   ],
   "author": "Cryptonomic Inc",
   "license": "GPL-3.0",
@@ -47,7 +50,7 @@
     "instrument": true
   },
   "dependencies": {
-    "@ledgerhq/hw-transport": "4.21.0",
+    "@ledgerhq/hw-transport": "4.24.0",
     "@ledgerhq/hw-transport-node-hid": "4.24.0",
     "aws-sdk": "^2.395.0",
     "babel-runtime": "6.26.0",
@@ -91,7 +94,7 @@
     "webpack-node-externals": "^1.7.2"
   },
   "peerDependencies": {
-    "node-fetch": "^2.1.1"
+    "node-fetch": "^2.3.0"
   },
   "eslintConfig": {
     "parser": "typescript-eslint-parser",
