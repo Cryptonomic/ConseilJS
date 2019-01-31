@@ -15,24 +15,10 @@ const bip39 = __importStar(require("bip39"));
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 const crypto = __importStar(require("crypto"));
 const zxcvbn_1 = __importDefault(require("zxcvbn"));
-/**
- * Cryptography helpers
- */
-/**
- * Generates a salt for key derivation.
- * @returns {Buffer}    Salt
- */
 function generateSaltForPwHash() {
     return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES);
 }
 exports.generateSaltForPwHash = generateSaltForPwHash;
-/**
- * Encrypts a given message using a passphrase
- * @param {string} message  Message to encrypt
- * @param {string} passphrase   User-supplied passphrase
- * @param {Buffer} salt Salt for key derivation
- * @returns {Buffer}    Concatenated bytes of nonce and cipher text
- */
 function encryptMessage(message, passphrase, salt) {
     const passwordStrength = getPasswordStrength(passphrase);
     if (passwordStrength < 3) {
@@ -45,13 +31,6 @@ function encryptMessage(message, passphrase, salt) {
     return Buffer.concat([nonce, cipherText]);
 }
 exports.encryptMessage = encryptMessage;
-/**
- * Decrypts a given message using a passphrase
- * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
- * @param {string} passphrase   User-supplied passphrase
- * @param {Buffer} salt Salt for key derivation
- * @returns {any}   Decrypted message
- */
 function decryptMessage(nonce_and_ciphertext, passphrase, salt) {
     const keyBytes = sodium.crypto_pwhash(sodium.crypto_box_SEEDBYTES, passphrase, salt, sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE, sodium.crypto_pwhash_ALG_DEFAULT);
     if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
@@ -62,48 +41,31 @@ function decryptMessage(nonce_and_ciphertext, passphrase, salt) {
     return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
 }
 exports.decryptMessage = decryptMessage;
-/**
- * Get byte prefix for Base58Check encoding and decoding of a given type of data.
- * @param {String} prefix   The type of data
- * @returns {Buffer}    Byte prefix
- */
 function getBase58BytesForPrefix(prefix) {
     switch (prefix) {
         case "tz1":
-            return new Buffer([6, 161, 159]);
+            return Buffer.from([6, 161, 159]);
         case "edpk":
-            return new Buffer([13, 15, 37, 217]);
+            return Buffer.from([13, 15, 37, 217]);
         case "edsk":
-            return new Buffer([43, 246, 78, 7]);
+            return Buffer.from([43, 246, 78, 7]);
         case "edsig":
-            return new Buffer([9, 245, 205, 134, 18]);
+            return Buffer.from([9, 245, 205, 134, 18]);
         case "op":
-            return new Buffer([5, 116]);
+            return Buffer.from([5, 116]);
         case "":
-            return new Buffer([]);
+            return Buffer.from([]);
         default:
             throw new RangeError("Unknown prefix");
     }
 }
 exports.getBase58BytesForPrefix = getBase58BytesForPrefix;
-/**
- * Base58Check encodes a given binary payload using a given prefix.
- * @param {Buffer} payload  Binary payload
- * @param {String} prefix   Prefix
- * @returns {String}    Encoded string
- */
 function base58CheckEncode(payload, prefix) {
     const prefixBytes = getBase58BytesForPrefix(prefix);
     const prefixedPayload = Buffer.concat([prefixBytes, payload]);
     return base58Check.encode(prefixedPayload);
 }
 exports.base58CheckEncode = base58CheckEncode;
-/**
- * Base58Check decodes a given binary payload using a given prefix.
- * @param {String} s    Base58Check-encoded string
- * @param {String} prefix   Prefix
- * @returns {Buffer}    Decoded bytes
- */
 function base58CheckDecode(s, prefix) {
     const prefixBytes = getBase58BytesForPrefix(prefix);
     const charsToSlice = prefixBytes.length;
@@ -111,15 +73,6 @@ function base58CheckDecode(s, prefix) {
     return decoded.slice(charsToSlice);
 }
 exports.base58CheckDecode = base58CheckDecode;
-/**
- * Generates keys from a user-supplied mnemonic and passphrase.
- * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
- * @param {string} passphrase   User-supplied passphrase
- * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
- * @param {boolean} checkPKH Check whether presumed public key hash matches the actual public key hash
- * @param {StoreType} storeType   Type of the generated key store
- * @returns {KeyStore}  Generated keys
- */
 function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh = '', checkPKH = true, storeType) {
     const lengthOfMnemonic = mnemonic.split(" ").length;
     if (lengthOfMnemonic !== 15)
@@ -143,18 +96,10 @@ function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh = '', checkP
     };
 }
 exports.getKeysFromMnemonicAndPassphrase = getKeysFromMnemonicAndPassphrase;
-/**
- * Generates a new bip39 mnemonic
- * @returns {string}    Fifteen word mnemonic
- */
 function generateMnemonic() {
     return bip39.generateMnemonic(160);
 }
 exports.generateMnemonic = generateMnemonic;
-/**
- * Checking the password strength using zxcvbn
- * @returns {number}    Password score
- */
 function getPasswordStrength(password) {
     const results = zxcvbn_1.default(password);
     return results.score;
