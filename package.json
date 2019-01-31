@@ -10,7 +10,7 @@
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
-    "coverage": "nyc mocha || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage",
+    "coverage": "nyc mocha test/*.spec.ts || nyc report --reporter=text-lcov | coveralls && rm -rf ./coverage",
     "doc": "rm -rf ./doc && typedoc --out ./doc ./src"
   },
   "repository": {
