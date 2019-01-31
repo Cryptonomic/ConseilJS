@@ -11,11 +11,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const querystring = __importStar(require("querystring"));
-const node_fetch_1 = __importDefault(require("node-fetch"));
+const FetchSelector_1 = __importDefault(require("./FetchSelector"));
+const fetch = FetchSelector_1.default.getFetch();
 function queryConseilServer(server, route, apiKey) {
     const url = `${server}/${route}`;
     console.log(`Querying Conseil server at URL ${url}`);
-    return node_fetch_1.default(url, {
+    return fetch(url, {
         method: 'get',
         headers: {
             "apiKey": apiKey

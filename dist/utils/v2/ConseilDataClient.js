@@ -11,14 +11,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_fetch_1 = __importDefault(require("node-fetch"));
 const QueryTypes_1 = require("../v2/QueryTypes");
+const FetchSelector_1 = __importDefault(require("../FetchSelector"));
+const fetch = FetchSelector_1.default.getFetch();
 var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
-            return node_fetch_1.default(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
@@ -36,7 +37,7 @@ var ConseilDataClient;
     function executeComplexQuery(serverInfo, platform, network, query) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
-            return node_fetch_1.default(url, {
+            return fetch(url, {
                 method: 'POST',
                 headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
                 body: JSON.stringify(query)
