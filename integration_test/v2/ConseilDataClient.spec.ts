@@ -5,8 +5,6 @@ import {ConseilQueryBuilder} from '../../src/utils/v2/ConseilQueryBuilder';
 import {ConseilServerInfo, ConseilSortDirection, ConseilOperator} from '../../src/utils/v2/QueryTypes';
 import {servers} from "../servers";
 
-//https://conseil-dev.cryptonomic-infra.tech:443
-//https://tezos-dev.cryptonomic-infra.tech:443/chains/main/blocks/head
 const ConseilV2URL = servers.conseilServer;
 const ConseilV2APIKey = servers.conseilApiKey;
 
