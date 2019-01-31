@@ -12,9 +12,14 @@ ConseilJS connects to [Conseil](https://github.com/Cryptonomic/Conseil) for cach
 
 ## Use
 
-Add our [NPM package]() to your project.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
-In your `webpack.config.js` file, add:
+```bash
+$ npm i conseiljs
+
+```
+
+If you are using webpack in your project, add below lines to your `webpack.config.js` file:
 
 ```javascript
  node: {
@@ -24,21 +29,41 @@ In your `webpack.config.js` file, add:
 
 ## Develop
 
-`TezosNodeQuery` queries Tezos blockchain nodes directly.
+You can find some tutorials in our [wiki](https://github.com/Cryptonomic/ConseilJS/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-ConseilJS-v2-API) to help you get started with ConseilJS.
 
-`TezosConseilQuery` queries Conseil server to get blockchain data. 
+Below is the list of namespaces you can import to your project and start building immediately:
 
-`TezosOperations` performs operations such as transactions, delegation and originations.
+`TezosNodeQuery` - Utility functions for interacting with the Tezos node.
 
-`TezosWallet` provides wallet functionality.
+`TezosConseilClient` - Functions for querying the Conseil backend REST API v2
+
+`TezosConseilQuery` - Functions for querying the Conseil backend REST API v1
+
+`TezosHardwareWallet` - Functions for interaction with the Tezos node via a Hardware wallet. (Supports only Ledger Nano S for now)
+
+`TezosMessageCodec` - A collection of functions to encode and decode various Tezos P2P message components
+
+`TezosOperations` - Functions for sending operations on the Tezos network.
+
+`TezosWallet` - Functions for Tezos wallet functionality.
+
+`TezosTypes` - Types used to process data returned from Conseil server.
 
 Example import:
 
-```import { TezosOperations } from 'conseiljs';```
+```javascript
+import { TezosOperations } from 'conseiljs';
+```
 
-### Run Tests
+## Run Tests
 
-Add a file called `test/servers.ts` with these contents:
+### Unit Tests
+
+`npm run test` runs all unit tests.
+
+### Integration Tests
+
+Add a file called `servers.ts` under the `integration_test` with these contents:
 
 ```javascript
 export const servers = {
@@ -46,13 +71,13 @@ export const servers = {
     conseilApiKey: '',
     tezosServer: ''
 }
-``` 
+```
 
-The blank strings should be replaced with the details of actual test servers. 
+The blank strings should be replaced with the details of your Conseil & Tezos servers.
 
-After this, run `npm run test` to run all unit tests.
+After this, `npm run integration-test` to run all integration tests.
+Please note that some of the integration tests require the usage of a hardware wallet.
 
-
-### Dependency Issues 
+### Dependency Issues
 - As later versions of the npm package libsodium-sumo (a JS wrapper around libSodium) do not support all methods of libSodium, this version must remain at 0.5.4
 - AWS-SDK dependency must remain as the Ledger Connect feature depends on this package
