@@ -42,7 +42,7 @@ export namespace ConseilQueryBuilder {
             throw new Error();
         } else if (operation === ConseilOperator.IN && values.length < 2) {
             throw new Error();
-        } else if (values.length !== 1 && operation !== ConseilOperator.IN) {
+        } else if (values.length !== 1 && operation !== ConseilOperator.IN && operation !== ConseilOperator.BETWEEN) {
             throw new Error();
         }
 

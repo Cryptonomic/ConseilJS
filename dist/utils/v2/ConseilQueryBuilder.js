@@ -27,7 +27,7 @@ var ConseilQueryBuilder;
         else if (operation === QueryTypes_1.ConseilOperator.IN && values.length < 2) {
             throw new Error();
         }
-        else if (values.length !== 1 && operation !== QueryTypes_1.ConseilOperator.IN) {
+        else if (values.length !== 1 && operation !== QueryTypes_1.ConseilOperator.IN && operation !== QueryTypes_1.ConseilOperator.BETWEEN) {
             throw new Error();
         }
         let q = Object.assign({}, query);
@@ -51,4 +51,4 @@ var ConseilQueryBuilder;
     }
     ConseilQueryBuilder.setLimit = setLimit;
 })(ConseilQueryBuilder = exports.ConseilQueryBuilder || (exports.ConseilQueryBuilder = {}));
-//# sourceMappingURL=ConseilQuery.js.map
+//# sourceMappingURL=ConseilQueryBuilder.js.map
