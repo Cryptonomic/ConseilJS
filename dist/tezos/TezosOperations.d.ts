@@ -10,7 +10,7 @@ export declare namespace TezosOperations {
     function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;
     function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
     function sendDelegationOperation(network: string, keyStore: KeyStore, delegate: string, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
-    function sendOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
+    function sendAccountOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
     function sendContractOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, code: Array<object>, storage: object): Promise<TezosTypes.OperationResult>;
     function sendContractInvocationOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, parameters: object): Promise<TezosTypes.OperationResult>;
     function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean>;
