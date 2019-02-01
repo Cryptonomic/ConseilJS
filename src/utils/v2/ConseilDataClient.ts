@@ -1,4 +1,4 @@
-import {ConseilServerInfo, ConseilQuery, ConseilRequestError} from "../v2/QueryTypes"
+import {ConseilServerInfo, ConseilQuery, ConseilRequestError} from "../v2/QueryTypes";
 import FetchSelector from '../FetchSelector';
 
 const fetch = FetchSelector.getFetch();

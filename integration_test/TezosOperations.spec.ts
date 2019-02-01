@@ -256,7 +256,6 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    console.log('+++++Sending 1 tez to a random delegated address');
     const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
       tezosURL,
       fundraiserKeys,
@@ -332,7 +331,6 @@ describe("Tezos operation functions", () => {
     //     .errors
     // );
 
-  console.log("+++++Invoke a contract from manager address");
     const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
       tezosURL,
       fundraiserKeys,

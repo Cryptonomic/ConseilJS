@@ -22,7 +22,7 @@ export interface AttributeDefinition {
     displayName: string,
     dataType: AttrbuteDataType,
     cardinality: number,
-    keyType: AttrbuteKeyType, // TODO should be enum
+    keyType: AttrbuteKeyType,
     entity: string
 }
 
