@@ -4,7 +4,6 @@ import sodium = require('libsodium-wrappers');
 
 import { TezosOperations, TezosWallet, TezosNode } from "../src";
 import mochaAsync from '../test/mochaTestHelper';
-import { servers } from './servers';
 import {
     blockHead,
     forgedOpGroupList,
@@ -48,7 +47,7 @@ describe('Tezos Operations Test', () => {
 
         keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
-        const nockOb = nock(servers.tezosServer);
+        const nockOb = nock('http://conseil.server');
         nockOb
             .persist()
             .get(`/chains/main/blocks/head`)
@@ -90,7 +89,7 @@ describe('Tezos Operations Test', () => {
                 secret: info0.secret
             };
             ops = [activation];
-            const nockOb1 = nock(servers.tezosServer);
+            const nockOb1 = nock('http://conseil.server');
             nockOb1
                 .persist()
                 .filteringRequestBody(body => '*')
@@ -103,19 +102,19 @@ describe('Tezos Operations Test', () => {
         });
 
         it('TezosNode.getBlockHead test ---', mochaAsync(async () => {
-            const block = await TezosNode.getBlockHead(servers.tezosServer);
+            const block = await TezosNode.getBlockHead('http://conseil.server');
             expect(block).to.be.an('object');
             expect(block.hash).to.exist;
         }));
 
         it('TezosNode.forgeOperation test ---', mochaAsync(async () => {
             const payload = { branch: blockHead.hash, contents: ops };
-            const forgeOp = await TezosNode.forgeOperation(servers.tezosServer, payload);
+            const forgeOp = await TezosNode.forgeOperation('http://conseil.server', payload);
             expect(forgeOp).to.be.a('string');
         }));
 
         it('forgeOperations test ----', mochaAsync(async () => {
-            const forgedOperationGroup = await forgeOperations(servers.tezosServer, blockHead, ops);
+            const forgedOperationGroup = await forgeOperations('http://conseil.server', blockHead, ops);
             expect(forgedOperationGroup).to.be.a('string');
         }));
 
@@ -132,14 +131,14 @@ describe('Tezos Operations Test', () => {
                 contents: ops,
                 signature: signedOpGroup.signature
             }];
-            const appliedOp = await TezosNode.applyOperation(servers.tezosServer, payload);
+            const appliedOp = await TezosNode.applyOperation('http://conseil.server', payload);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
         }));
 
         it('applyOperation test ---', mochaAsync(async () => {
-            const appliedOp = await applyOperation(servers.tezosServer, blockHead, ops, signedOpGroup);
+            const appliedOp = await applyOperation('http://conseil.server', blockHead, ops, signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
@@ -147,44 +146,44 @@ describe('Tezos Operations Test', () => {
 
         it('TezosNode.injectOperation test ---', mochaAsync(async () => {
             const payload = sodium.to_hex(signedOpGroup.bytes);
-            const injectOp = await TezosNode.injectOperation(servers.tezosServer, payload);
+            const injectOp = await TezosNode.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
 
         it('injectOperation test ---', mochaAsync(async () => {
-            const injectOp = await injectOperation(servers.tezosServer, signedOpGroup);
+            const injectOp = await injectOperation('http://conseil.server', signedOpGroup);
             expect(injectOp).to.exist;
         }));
 
         it('TezosNode.getAccountForBlock', mochaAsync(async () => {
-            const account = await TezosNode.getAccountForBlock(servers.tezosServer, blockHead.hash, keyStore.publicKeyHash);
+            const account = await TezosNode.getAccountForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
             expect(account).to.be.an('object');
             expect(account.manager).to.be.a('string');
         }));
 
         it('TezosNode.getAccountManagerForBlock', mochaAsync(async () => {
-            const managerKey = await TezosNode.getAccountManagerForBlock(servers.tezosServer, blockHead.hash, keyStore.publicKeyHash);
+            const managerKey = await TezosNode.getAccountManagerForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
             expect(managerKey).to.be.an('object');
             expect(managerKey.manager).to.be.a('string');
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
-            const isMangerRevealed = await isManagerKeyRevealedForAccount(servers.tezosServer, keyStore);
+            const isMangerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
             expect(isMangerRevealed).to.be.true;
         }));
 
         it('isManagerKeyRevealedForAccount should be false', mochaAsync(async () => {
-            const isMangerRevealed = await isManagerKeyRevealedForAccount(servers.tezosServer, keyStore1);
+            const isMangerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
             expect(isMangerRevealed).to.be.false;
         }));
 
         it('isImplicitAndEmpty should be true', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty(servers.tezosServer, keyStore1.publicKeyHash);
+            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
             expect(isImplicit).to.be.true;
         }));
         
         it('isImplicitAndEmpty should be false', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty(servers.tezosServer, keyStore.publicKeyHash);
+            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
             expect(isImplicit).to.be.false;
         }));
 
@@ -192,7 +191,7 @@ describe('Tezos Operations Test', () => {
 
     describe('Main Operations Test', () => {
         beforeEach(async () => {
-            const nockOb2 = nock(servers.tezosServer);
+            const nockOb2 = nock('http://conseil.server');
             nockOb2
                 .persist()
                 .filteringRequestBody(body => '*')
@@ -206,7 +205,7 @@ describe('Tezos Operations Test', () => {
         });
         it('sendIdentityActivationOperation', mochaAsync(async () => {
             const activeResult = await sendIdentityActivationOperation(
-                servers.tezosServer,
+                'http://conseil.server',
                 keyStore,
                 info0.secret,
                 ''
@@ -217,7 +216,7 @@ describe('Tezos Operations Test', () => {
 
         it('sendKeyRevealOperation', mochaAsync(async () => {
             const revealResult = await sendKeyRevealOperation(
-                servers.tezosServer,
+                'http://conseil.server',
                 keyStore,
                 0,
                 ''
@@ -231,7 +230,7 @@ describe('Tezos Operations Test', () => {
             const amount = 10000000;
             const fee = 100000;
             const sendResult = await sendTransactionOperation(
-                servers.tezosServer,
+                'http://conseil.server',
                 keyStore,
                 toAddress,
                 amount,
@@ -247,7 +246,7 @@ describe('Tezos Operations Test', () => {
             const amount = 10000000;
             const fee = 100000;
             const originationResult = await sendAccountOriginationOperation(
-                servers.tezosServer,
+                'http://conseil.server',
                 keyStore,
                 amount,
                 bakerAddress,
@@ -265,7 +264,7 @@ describe('Tezos Operations Test', () => {
             const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
             const fee = 300000;
             const delegationResult = await sendDelegationOperation(
-                servers.tezosServer,
+                'http://conseil.server',
                 keyStore,
                 bakerAddress,
                 fee, 
