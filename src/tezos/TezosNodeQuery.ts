@@ -13,7 +13,7 @@ export namespace TezosNode {
      * @returns {Promise<BlockMetadata>}    Block
      */
     export function getBlock(server: string, hash: string): Promise<BlockMetadata> {
-        return Nautilus.runGetQuery(server, `/chains/main/blocks/${hash}`)
+        return Nautilus.runGetQuery(server, `chains/main/blocks/${hash}`)
             .then(json => {return <TezosTypes.BlockMetadata> json})
     }
 
@@ -34,7 +34,7 @@ export namespace TezosNode {
      * @returns {Promise<Account>}  The account
      */
     export function getAccountForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.Account> {
-        return Nautilus.runGetQuery(server, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
+        return Nautilus.runGetQuery(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
             .then(json => {return <TezosTypes.Account> json})
     }
 
@@ -46,7 +46,7 @@ export namespace TezosNode {
      * @returns {Promise<ManagerKey>}   The account
      */
     export function getAccountManagerForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
-        return Nautilus.runGetQuery(server, `/chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
+        return Nautilus.runGetQuery(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
             .then(json => {return <TezosTypes.ManagerKey> json})
     }
 
@@ -61,7 +61,7 @@ export namespace TezosNode {
     export async function forgeOperation(server: string, opGroup: object): Promise<string> {
         const response = await Nautilus.runPostQuery(
             server,
-            "/chains/main/blocks/head/helpers/forge/operations",
+            "chains/main/blocks/head/helpers/forge/operations",
             opGroup
         );
         const forgedOperation = await response.text();
@@ -82,7 +82,7 @@ export namespace TezosNode {
     export async function applyOperation(server: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const response  = await Nautilus.runPostQuery(
             server,
-            `/chains/main/blocks/head/helpers/preapply/operations`,
+            `chains/main/blocks/head/helpers/preapply/operations`,
             payload
         );
         const json = await response.json();
