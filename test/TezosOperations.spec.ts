@@ -3,7 +3,6 @@ import { expect } from "chai";
 import sodium = require('libsodium-wrappers');
 
 import { TezosOperations, TezosWallet, TezosNode } from "../src";
-import { KeyStore } from "../src/types/KeyStore";
 import mochaAsync from './mochaTestHelper';
 import { servers } from './servers';
 import {
