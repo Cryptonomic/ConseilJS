@@ -7,7 +7,7 @@ describe('getTezosPublicKey()', () => {
     it('should correctly fetch the root key', async () => {
         const derivationPath = "44'/1729'/0'/0'";
         const result = await tezHardwareWallet.TezosHardwareWallet.unlockAddress(
-            HardwareDeviceType.Ledger,
+            HardwareDeviceType.LedgerNanoS,
             derivationPath);
         console.log(result)
     });

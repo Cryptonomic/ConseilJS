@@ -53,6 +53,7 @@ export namespace TezosOperations {
 
     /**
      * Forge an operation group using the Tezos RPC client.
+     * 
      * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
@@ -96,6 +97,7 @@ export namespace TezosOperations {
 
     /**
      * Applies an operation using the Tezos RPC client.
+     * 
      * @param {string} network  Which Tezos network to go against
      * @param {BlockMetadata} blockHead Block head
      * @param {object[]} operations The operations to create and send
@@ -117,6 +119,7 @@ export namespace TezosOperations {
             contents: operations,
             signature: signedOpGroup.signature
         }];
+
         return TezosNode.applyOperation(network, payload);
     }
 
@@ -170,6 +173,7 @@ export namespace TezosOperations {
         const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
+
         return {
             results: appliedOp[0],
             operationGroupID: injectedOperation
@@ -209,6 +213,7 @@ export namespace TezosOperations {
             operation.counter = (Number(account.counter) + 2).toString();
             returnedOperations = [revealOp, operation];
         }
+
         return returnedOperations;
     }
 
@@ -245,6 +250,7 @@ export namespace TezosOperations {
         };
 
         const operations = await appendRevealOperation(network, keyStore, sourceAccount, [transaction])
+
         return sendOperation(network, operations, keyStore, derivationPath);
     }
 
@@ -276,6 +282,7 @@ export namespace TezosOperations {
             delegate: delegate
         }
         const operations = await appendRevealOperation(network, keyStore, account, [delegation])
+
         return sendOperation(network, operations, keyStore, derivationPath);
     }
 
@@ -437,9 +444,9 @@ export namespace TezosOperations {
 
     /**
      * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
-     * @returns {Promise<boolean>}  Result
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @returns {Promise<boolean>} Result
      */
     export async function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean> {
         const blockHead = await TezosNode.getBlockHead(network);
@@ -460,6 +467,7 @@ export namespace TezosOperations {
     export async function isManagerKeyRevealedForAccount(network: string, keyStore: KeyStore): Promise<boolean> {
         const blockHead = await TezosNode.getBlockHead(network);
         const managerKey = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+
         return managerKey.key != null;
     }
 
@@ -488,6 +496,7 @@ export namespace TezosOperations {
             public_key: keyStore.publicKey
         };
         const operations = [revealOp];
+
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 
@@ -510,6 +519,7 @@ export namespace TezosOperations {
             secret: activationCode
         };
         const operations = [activation];
+
         return sendOperation(network, operations, keyStore, derivationPath)
     }
 }

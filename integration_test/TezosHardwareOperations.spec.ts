@@ -37,8 +37,7 @@ describe('Tezos operation functions', () => {
         const randomBakerAddress1 = 'tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ';
         const randomBakerAddress2 = 'tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u';
 
-        const ledgerKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.Ledger, derivationPath);
-        console.log("ledgerKeys: ", ledgerKeys)
+        const ledgerKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
 
         /*
         Uncomment this section if the fundraiser account is inactive
@@ -67,7 +66,6 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("+++++Sending 1 tez to an inactive implicit account");
         const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             ledgerKeys,
@@ -80,7 +78,6 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("+++++Sending 1 tez to an active implicit address");
         const activeImplicitResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             ledgerKeys,
@@ -93,7 +90,6 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("+++++Sending 1 tez to a random delegated address");
         const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
             tezosURL,
             ledgerKeys,
@@ -106,7 +102,6 @@ describe('Tezos operation functions', () => {
 
         sleep(33);
 
-        console.log("+++++Origination an account with 1 tez");
         const originationResult = await TezosOperations.sendAccountOriginationOperation(
             tezosURL,
             ledgerKeys,

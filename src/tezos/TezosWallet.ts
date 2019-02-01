@@ -12,7 +12,7 @@ export namespace TezosWallet {
     /**
      * Saves a wallet to a given file.
      * @param {string} filename Name of file
-     * @param {Wallet} wallet   Wallet object
+     * @param {Wallet} wallet Wallet object
      * @param {string} passphrase User-supplied passphrase
      * @returns {Promise<Wallet>} Wallet object loaded from disk
      */
@@ -38,18 +38,19 @@ export namespace TezosWallet {
                 fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
                     if (err) reject(err);
                     resolve(loadWallet(filename, passphrase))
-                })
+                });
             } catch (err) {
                 reject(err);
             }
-        }))
+        }));
     }
 
     /**
      * Loads a wallet from a given file.
+     * 
      * @param {string} filename Name of file
      * @param {string} passphrase User-supplied passphrase
-     * @returns {Promise<Wallet>}   Loaded wallet
+     * @returns {Promise<Wallet>} Loaded wallet
      */
     export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
         return new Promise<Wallet>((resolve, reject) => {
@@ -64,9 +65,9 @@ export namespace TezosWallet {
                 }
                 catch(e) {
                     reject(e);
-                }    
+                }
             });
-        })
+        });
     }
 
     /**
@@ -85,21 +86,22 @@ export namespace TezosWallet {
 
     /**
      * Unlocks an identity supplied during the 2017 Tezos fundraiser.
+     * 
      * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
-     * @param {string} email    Email address from fundraiser PDF.
+     * @param {string} email Email address from fundraiser PDF.
      * @param {string} password Password from fundraiser PDF.
-     * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
-     * @returns {KeyStore}  Wallet file
+     * @param {string} pkh The public key hash supposedly produced by the given mnemonic and passphrase
+     * @returns {KeyStore} Wallet file
      */
     export function unlockFundraiserIdentity(
         mnemonic: string,
         email: string,
         password: string,
         pkh: string): KeyStore | Error {
-        const passphrase = email + password;
+
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(
             mnemonic,
-            passphrase,
+            email + password,
             pkh,
             true,
             StoreType.Fundraiser
@@ -111,7 +113,7 @@ export namespace TezosWallet {
      * @returns {string}
      */
     export function generateMnemonic(): string {
-        return CryptoUtils.generateMnemonic()
+        return CryptoUtils.generateMnemonic();
     }
 
     /**
@@ -127,7 +129,6 @@ export namespace TezosWallet {
             "",
             false,
             StoreType.Mnemonic
-        )
+        );
     }
-    
 }

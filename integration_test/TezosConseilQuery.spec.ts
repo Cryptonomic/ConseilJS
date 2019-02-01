@@ -3,11 +3,11 @@ import {expect} from 'chai';
 import {TezosConseilQuery} from '../src'
 import {servers} from "./servers";
 
-const conseilURL = servers.conseilServer;
+const conseilURL = servers.conseilServer + '/tezos/zeronet';
 const conseilApiKey = servers.conseilApiKey;
 
 describe('Block fetchers', () => {
-    it('should correctly fetch blocks', async () => {
+    it('should correctly fetch top block, then same block by hash', async () => {
         const head = await TezosConseilQuery.getBlockHead(conseilURL, conseilApiKey);
         expect(head.hash.startsWith('B')).to.equal(true);
 
@@ -21,7 +21,6 @@ describe('Operation fetchers', () => {
         const emptyFilter = TezosConseilQuery.getEmptyTezosFilter();
         const opFilter = {...emptyFilter, limit: 10, operation_kind: ['transaction']};
         const ops = await TezosConseilQuery.getOperations(conseilURL, opFilter, conseilApiKey);
-
         expect(ops.length).to.equal(10);
 
         const opGroup = await TezosConseilQuery.getOperationGroup(conseilURL, ops[0].operationGroupHash, conseilApiKey);
@@ -39,6 +38,7 @@ describe('Account fetchers', () => {
         const accountsFilter = {...emptyFilter, limit: 10};
         const accounts = await TezosConseilQuery.getAccounts(conseilURL, accountsFilter, conseilApiKey);
         expect(accounts.length).to.equal(10);
+
         const account = await TezosConseilQuery.getAccount(conseilURL, accounts[0].accountId, conseilApiKey);
         expect(account.account.accountId).to.equal(accounts[0].accountId)
     });
@@ -50,6 +50,7 @@ describe('Transaction fetchers', () => {
         const opFilter = {...emptyFilter, limit: 10, operation_kind: ['transaction']};
         const ops = await TezosConseilQuery.getOperations(conseilURL, opFilter, conseilApiKey);
         expect(ops.length).to.equal(10);
+
         const account = ops[0].source;
         const transFilter = {...emptyFilter, limit: 10, operation_participant: [account], operation_kind: ['transaction']};
         const transactions = await TezosConseilQuery.getOperations(conseilURL, transFilter, conseilApiKey);
