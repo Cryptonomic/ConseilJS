@@ -108,8 +108,6 @@ export namespace TezosOperations {
         network: string,
         blockHead: TezosTypes.BlockMetadata,
         operations: object[],
-        operationGroupHash: string,
-        forgedOperationGroup: string,
         signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const payload = [{
             protocol: blockHead.protocol,
@@ -167,7 +165,7 @@ export namespace TezosOperations {
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
         const operationGroupHash = computeOperationHash(signedOpGroup);
-        const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+        const appliedOp = await applyOperation(network, blockHead, operations, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
         return {
