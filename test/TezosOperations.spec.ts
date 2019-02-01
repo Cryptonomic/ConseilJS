@@ -49,7 +49,7 @@ describe('Tezos Operations Test', () => {
 
         keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
-        const nockOb = nock('https://tezos-dev.cryptonomic-infra.tech:443');
+        const nockOb = nock(servers.tezosServer);
         nockOb
             .persist()
             .get(`/chains/main/blocks/head`)
@@ -91,7 +91,7 @@ describe('Tezos Operations Test', () => {
                 secret: info0.secret
             };
             ops = [activation];
-            const nockOb1 = nock('https://tezos-dev.cryptonomic-infra.tech:443');
+            const nockOb1 = nock(servers.tezosServer);
             nockOb1
                 .persist()
                 .filteringRequestBody(body => '*')
@@ -193,7 +193,7 @@ describe('Tezos Operations Test', () => {
 
     describe('Main Operations Test', () => {
         beforeEach(async () => {
-            const nockOb2 = nock('https://tezos-dev.cryptonomic-infra.tech:443');
+            const nockOb2 = nock(servers.tezosServer);
             nockOb2
                 .persist()
                 .filteringRequestBody(body => '*')
