@@ -11,11 +11,13 @@ const fetch = FetchSelector.getFetch();
 
 /**
  * Runs a query against Conseil backend API
- * TODO: Also make the blockchain a parameter
+ * 
  * @param {string} server Conseil server to go against
  * @param {string} route API route to query
  * @param {string} apiKey API key to use for Conseil server.
  * @returns {Promise<object>} JSON representation of response from Conseil
+ * 
+ * @deprecated since beta 2.0
  */
 export function queryConseilServer(server: string, route: string, apiKey: string): Promise<object> {
     const url = `${server}/${route}`;
@@ -39,11 +41,14 @@ export function queryConseilServer(server: string, route: string, apiKey: string
 
 /**
  * Runs a query against Conseil backend API with the given filter
- * @param {string} server  Conseil server to go against
- * @param {string} route    API route to query
- * @param {TezosFilter} filter  Conseil filter
- * @param {string} apiKey    API key to use for Conseil server.
- * @returns {Promise<object>}   Data returned by Conseil as a JSON object
+ * 
+ * @param {string} server Conseil server to go against
+ * @param {string} route API route to query
+ * @param {TezosFilter} filter Conseil filter
+ * @param {string} apiKey API key to use for Conseil server.
+ * @returns {Promise<object>} Data returned by Conseil as a JSON object
+ * 
+ * @deprecated since beta 2.0
  */
 export function queryConseilServerWithFilter(server: string, route: string, filter: TezosFilter, apiKey: string): Promise<object> {
     let params = querystring.stringify(sanitizeFilter(filter));
@@ -52,9 +57,12 @@ export function queryConseilServerWithFilter(server: string, route: string, filt
 }
 
 /**
- * Removes extraneous data from Conseil fitler predicates.
- * @param {TezosFilter} filter  Conseil filter
- * @returns {TezosFilter}   Sanitized Conseil filter
+ * Removes extraneous data from Conseil filter predicates.
+ * 
+ * @param {TezosFilter} filter Conseil filter
+ * @returns {TezosFilter} Sanitized Conseil filter
+ * 
+ * @deprecated since beta 2.0
  */
 function sanitizeFilter(filter: TezosFilter): TezosFilter {
     return {
