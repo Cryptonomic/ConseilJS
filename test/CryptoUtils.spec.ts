@@ -1,7 +1,7 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as cryptoUtils from "../src/utils/CryptoUtils";
-import {KeyStore, StoreType} from "../src/types/KeyStore";
+import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
 
 describe('base58CheckDecode() and base58CheckEncode()', () => {
     it('should correctly decode and encode a Tezos account ID', () => {
