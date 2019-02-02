@@ -1,6 +1,6 @@
-import { Wallet } from "../types/Wallet";
-import { KeyStore } from "../types/KeyStore";
-import { Error } from "../types/Error";
+import { Wallet } from "../types/wallet/Wallet";
+import { KeyStore } from "../types/wallet/KeyStore";
+import { Error } from "../types/wallet/Error";
 export declare namespace TezosWallet {
     function saveWallet(filename: string, wallet: Wallet, passphrase: string): Promise<Wallet>;
     function loadWallet(filename: string, passphrase: string): Promise<Wallet>;

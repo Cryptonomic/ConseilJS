@@ -1,4 +1,4 @@
-import { OperationFees, TezosAccount, TezosAccountWithOperationGroups, TezosBlock, TezosBlockWithOperationGroups, TezosOperation, TezosOperationGroup, TezosOperationGroupWithOperations } from "../utils/ConseilTypes";
+import { OperationFees, TezosAccount, TezosAccountWithOperationGroups, TezosBlock, TezosBlockWithOperationGroups, TezosOperation, TezosOperationGroup, TezosOperationGroupWithOperations } from "../types/conseil/ConseilTezosTypes";
 export interface TezosFilter {
     limit: number;
     block_id: string[];

@@ -34,10 +34,3 @@ export interface ConseilQuery {
     orderBy: ConseilOrdering[];
     limit: number;
 }
-export declare class ConseilRequestError extends Error {
-    httpStatus: number;
-    httpMessage: string;
-    conseilURL: string;
-    conseilQuery: ConseilQuery;
-    constructor(httpStatus: number, httpMessage: string, conseilURL: string, conseilQuery: ConseilQuery);
-}

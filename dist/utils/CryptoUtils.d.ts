@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { KeyStore, StoreType } from "../types/KeyStore";
-import { Error } from "../types/Error";
+import { KeyStore, StoreType } from "../types/wallet/KeyStore";
+import { Error } from "../types/wallet/Error";
 export declare function generateSaltForPwHash(): Buffer;
 export declare function encryptMessage(message: string, passphrase: string, salt: Buffer): Buffer;
 export declare function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer): any;

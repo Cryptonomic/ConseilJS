@@ -1,4 +1,4 @@
-import { Operation } from "./TezosTypes";
+import { Operation } from "../types/tezos/TezosChainTypes";
 export declare namespace TezosMessageCodec {
     function getOperationType(hex: string): string;
     function idFirstOperation(hex: string): string;

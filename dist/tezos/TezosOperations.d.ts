@@ -1,10 +1,10 @@
-import { KeyStore } from "../types/KeyStore";
-import * as TezosTypes from "./TezosTypes";
+import { KeyStore } from "../types/wallet/KeyStore";
+import * as TezosTypes from "../types/tezos/TezosChainTypes";
 export declare namespace TezosOperations {
     function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup>;
     function computeOperationHash(signedOpGroup: TezosTypes.SignedOperationGroup): string;
     function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string>;
-    function applyOperation(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[], operationGroupHash: string, forgedOperationGroup: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]>;
+    function applyOperation(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[], signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]>;
     function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string>;
     function sendOperation(network: string, operations: object[], keyStore: KeyStore, derivationPath: any): Promise<TezosTypes.OperationResult>;
     function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;

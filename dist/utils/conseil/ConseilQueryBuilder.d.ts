@@ -1,4 +1,4 @@
-import { ConseilQuery, ConseilOperator, ConseilSortDirection } from "../v2/QueryTypes";
+import { ConseilQuery, ConseilOperator, ConseilSortDirection } from "../../types/conseil/QueryTypes";
 export declare namespace ConseilQueryBuilder {
     function blankQuery(): ConseilQuery;
     function addFields(query: ConseilQuery, ...fields: string[]): ConseilQuery;

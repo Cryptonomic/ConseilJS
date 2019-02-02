@@ -1,4 +1,4 @@
-import { ConseilQuery, ConseilServerInfo } from "../utils/v2/QueryTypes";
+import { ConseilQuery, ConseilServerInfo } from "../types/conseil/QueryTypes";
 export declare namespace TezosConseilClient {
     function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<any[]>;
     function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]>;

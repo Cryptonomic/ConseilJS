@@ -1,5 +1,5 @@
-import { HardwareDeviceType } from "../types/HardwareDeviceType";
-import { KeyStore } from "../types/KeyStore";
+import { HardwareDeviceType } from "../types/wallet/HardwareDeviceType";
+import { KeyStore } from "../types/wallet/KeyStore";
 export declare namespace TezosHardwareWallet {
     function unlockAddress(deviceType: HardwareDeviceType, derivationPath: string): Promise<KeyStore>;
     function initLedgerTransport(): void;
