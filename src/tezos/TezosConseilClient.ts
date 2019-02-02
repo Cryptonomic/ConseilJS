@@ -1,6 +1,6 @@
-import {ConseilQueryBuilder} from "../utils/v2/ConseilQueryBuilder";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../utils/v2/QueryTypes"
-import {ConseilDataClient} from "../utils/v2/ConseilDataClient";
+import {ConseilQueryBuilder} from "../utils/conseil/ConseilQueryBuilder";
+import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../types/conseil/QueryTypes"
+import {ConseilDataClient} from "../utils/conseil/ConseilDataClient";
 
 /**
  * Functions for querying the Conseil backend REST API v2

@@ -5,7 +5,7 @@ import {
     TezosBlock, TezosBlockWithOperationGroups, TezosOperation,
     TezosOperationGroup,
     TezosOperationGroupWithOperations
-} from "../utils/ConseilTypes";
+} from "../types/conseil/ConseilTezosTypes";
 import {queryConseilServer, queryConseilServerWithFilter} from "../utils/ConseilQuery";
 
 /**

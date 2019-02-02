@@ -1,8 +1,8 @@
 import * as ledgerUtils from "../utils/LedgerUtils";
-import {HardwareDeviceType} from "../types/HardwareDeviceType";
+import {HardwareDeviceType} from "../types/wallet/HardwareDeviceType";
 import {base58CheckEncode} from "../utils/CryptoUtils";
 import * as sodium  from 'libsodium-wrappers-sumo';
-import {KeyStore, StoreType} from "../types/KeyStore";
+import {KeyStore, StoreType} from "../types/wallet/KeyStore";
 
 export namespace TezosHardwareWallet {
     export async function unlockAddress(deviceType: HardwareDeviceType, derivationPath: string): Promise<KeyStore> {

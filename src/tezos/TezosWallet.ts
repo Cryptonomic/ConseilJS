@@ -1,6 +1,6 @@
-import {Wallet, EncryptedWalletVersionOne} from "../types/Wallet";
-import {KeyStore, StoreType} from "../types/KeyStore";
-import {Error} from "../types/Error";
+import {Wallet, EncryptedWalletVersionOne} from "../types/wallet/Wallet";
+import {KeyStore, StoreType} from "../types/wallet/KeyStore";
+import {Error} from "../types/wallet/Error";
 import * as CryptoUtils from "../utils/CryptoUtils";
 import * as fs from "fs";
 

@@ -1,5 +1,5 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
-import { Operation } from "./TezosTypes";
+import { Operation } from "../types/tezos/TezosChainTypes";
 
 const operationTypes: Array<string> = [
   "endorsement",

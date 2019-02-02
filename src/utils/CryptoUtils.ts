@@ -1,8 +1,8 @@
 import * as base58Check from 'bs58check'
 import * as bip39 from 'bip39';
 import * as sodium  from 'libsodium-wrappers-sumo';
-import {KeyStore, StoreType} from "../types/KeyStore";
-import {Error} from "../types/Error";
+import {KeyStore, StoreType} from "../types/wallet/KeyStore";
+import {Error} from "../types/wallet/Error";
 import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
 

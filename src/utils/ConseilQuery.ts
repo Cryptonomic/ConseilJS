@@ -1,7 +1,7 @@
 import * as querystring from "querystring";
 import {TezosFilter} from "..";
 import FetchSelector from './FetchSelector';
-import {ConseilRequestError, ConseilResponseError} from "../utils/v2/QueryTypes";
+import {ConseilRequestError, ConseilResponseError} from "../types/conseil/ErrorTypes";
 
 const fetch = FetchSelector.getFetch();
 

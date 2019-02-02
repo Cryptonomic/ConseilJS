@@ -1,9 +1,9 @@
 import sodium = require('libsodium-wrappers');
 import * as CryptoUtils from '../utils/CryptoUtils';
 import * as LedgerUtils from '../utils/LedgerUtils';
-import {KeyStore, StoreType} from "../types/KeyStore";
+import {KeyStore, StoreType} from "../types/wallet/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
-import * as TezosTypes from "./TezosTypes";
+import * as TezosTypes from "../types/tezos/TezosChainTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
 
 /**
@@ -43,7 +43,7 @@ export namespace TezosOperations {
 
     /**
      * Computes the ID of an operation group using Base58Check.
-     * @param {SignedOperationGroup} signedOpGroup  Signed operation group
+     * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {string} Base58Check hash of signed operation
      */
     export function computeOperationHash(signedOpGroup: TezosTypes.SignedOperationGroup): string {
@@ -101,8 +101,6 @@ export namespace TezosOperations {
      * @param {string} network  Which Tezos network to go against
      * @param {BlockMetadata} blockHead Block head
      * @param {object[]} operations The operations to create and send
-     * @param {string} operationGroupHash   Hash of the operation group being applied (in Base58Check format)
-     * @param {string} forgedOperationGroup Forged operation group returned by the Tezos client (as a hex string)
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
@@ -110,8 +108,6 @@ export namespace TezosOperations {
         network: string,
         blockHead: TezosTypes.BlockMetadata,
         operations: object[],
-        operationGroupHash: string,
-        forgedOperationGroup: string,
         signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const payload = [{
             protocol: blockHead.protocol,
@@ -169,8 +165,7 @@ export namespace TezosOperations {
         const blockHead = await TezosNode.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
-        const operationGroupHash = computeOperationHash(signedOpGroup);
-        const appliedOp = await applyOperation(network, blockHead, operations, operationGroupHash, forgedOperationGroup, signedOpGroup);
+        const appliedOp = await applyOperation(network, blockHead, operations, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
 
