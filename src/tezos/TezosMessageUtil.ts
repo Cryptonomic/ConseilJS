@@ -81,6 +81,8 @@ export namespace TezosMessageUtils {
 
   /**
    * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
+   * An address is a public key hash of the account.
+   * 
    * @param {string} hex Encoded message part.
    */
   export function readAddress(hex: string): string {
@@ -133,6 +135,7 @@ export namespace TezosMessageUtils {
 
   /**
    * Encodes the branch hash to hex.
+   * 
    * @param {string} branch Branch hash.
    * @returns {string} Hex represntaton of the Base58 branch hash.
    */
@@ -142,6 +145,7 @@ export namespace TezosMessageUtils {
 
   /**
    * Reads the key from the provided, bounded hex string.
+   * 
    * @param {string} hex Encoded message part.
    * @returns {string} Key.
    */
@@ -177,6 +181,7 @@ export namespace TezosMessageUtils {
 
   /**
    * Reads the key hash from the provided, bounded hex string.
+   * 
    * @param {string} hex Encoded message part.
    * @returns {string} Key hash.
    */
