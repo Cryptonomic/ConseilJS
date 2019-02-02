@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import * as tezHardwareWallet from '../src/tezos/TezosHardwareWallet';
-import {HardwareDeviceType} from "../src/types/HardwareDeviceType";
+import {HardwareDeviceType} from "../src/types/wallet/HardwareDeviceType";
 
 describe('getTezosPublicKey()', () => {
     it('should correctly fetch the root key', async () => {

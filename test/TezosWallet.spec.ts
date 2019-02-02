@@ -1,9 +1,10 @@
 import {expect} from 'chai';
 import 'mocha';
+import * as fs from 'fs'
+
 import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
 import {Wallet} from "../src/types/wallet/Wallet";
-import * as fs from 'fs'
-import { TezosWallet } from "../src";
+import {TezosWallet} from "../src";
 import {Error} from "../src/types/wallet/Error";
 
 describe('createWallet()', () => {

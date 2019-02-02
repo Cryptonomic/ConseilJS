@@ -42,4 +42,10 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
         expect(query.predicates[0].set).to.contains('b');
         expect(query.predicates[0].inverse).to.equals(false);
     });
+
+    it('predecate creation error conditions', async () => {
+        expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.BETWEEN, ['a', 'b', 'c'])).to.throw("BETWEEN operation requires a list of two values.");
+        expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.IN, ['a'])).to.throw("IN operation requires a list of two or more values.");
+        expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.EQ, ['a', 'b'])).to.throw("invalid values list for eq.");
+    });
 });

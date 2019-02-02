@@ -84,8 +84,8 @@ describe('Tezos Operations Test', () => {
     describe('Some Base Operations Test', () => {
         before(async () => {
             const activation = {
-                kind:   "activate_account",
-                pkh:    keyStore.publicKeyHash,
+                kind: 'activate_account',
+                pkh: keyStore.publicKeyHash,
                 secret: info0.secret
             };
             ops = [activation];
@@ -204,12 +204,7 @@ describe('Tezos Operations Test', () => {
             opIndex ++;
         });
         it('sendIdentityActivationOperation', mochaAsync(async () => {
-            const activeResult = await sendIdentityActivationOperation(
-                'http://conseil.server',
-                keyStore,
-                info0.secret,
-                ''
-            );
+            const activeResult = await sendIdentityActivationOperation('http://conseil.server',keyStore, info0.secret, '');
             expect(activeResult).to.exist;
             expect(activeResult.operationGroupID).to.be.a('string');
         }));

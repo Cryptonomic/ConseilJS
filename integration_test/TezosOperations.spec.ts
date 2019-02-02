@@ -6,7 +6,7 @@ import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "./servers";
 import { TezosWallet } from "../src";
-import { KeyStore } from "../src/types/KeyStore";
+import { KeyStore } from "../src/types/wallet/KeyStore";
 
 const tezosURL = servers.tezosServer;
 

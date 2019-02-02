@@ -1,5 +1,3 @@
-import {BlockMetadata} from '../src/types/tezos/TezosChainTypes';
-
 // BLa9pmsQ5Hf6E9MSqVTHp65wNchXe8WjsGgjKeutAwmeQrd9YsT   --- manager not revealed
 // BLNB68pLiAgXiJHXNUK7CDKRnCx1TqzaNGsRXsASg38wNueb8bx   --- manager reveal
 export const blockHead = {
