@@ -1,9 +1,9 @@
 import sodium = require('libsodium-wrappers');
-import * as CryptoUtils from '../utils/CryptoUtils';
-import * as LedgerUtils from '../utils/LedgerUtils';
-import {KeyStore, StoreType} from "../types/wallet/KeyStore";
+import * as CryptoUtils from '../../utils/CryptoUtils';
+import {TezosLedgerWallet} from '../../identity/tezos/TezosLedgerWallet';
+import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
-import * as TezosTypes from "../types/tezos/TezosChainTypes";
+import * as TezosTypes from "../../types/tezos/TezosChainTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
 
 /**
@@ -17,6 +17,7 @@ export namespace TezosOperations {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {SignedOperationGroup} Bytes of the signed operation along with the actual signature
      */
+    // TODO: move this function to wallet files
     export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup> {
         const watermark = '03';
         const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
@@ -24,7 +25,7 @@ export namespace TezosOperations {
         let opSignature: Buffer;
         switch(keyStore.storeType) {
             case StoreType.Hardware:
-                opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                opSignature = await TezosLedgerWallet.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
                 break;
             default:
                 const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
@@ -448,7 +449,7 @@ export namespace TezosOperations {
         const account = await TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith("tz");
-        const isEmpty = account.balance == 0;
+        const isEmpty = account.balance === 0;
 
         return (isImplicit && isEmpty)
     }

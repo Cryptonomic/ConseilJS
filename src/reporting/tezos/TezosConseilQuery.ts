@@ -5,8 +5,8 @@ import {
     TezosBlock, TezosBlockWithOperationGroups, TezosOperation,
     TezosOperationGroup,
     TezosOperationGroupWithOperations
-} from "../types/conseil/ConseilTezosTypes";
-import {queryConseilServer, queryConseilServerWithFilter} from "../utils/ConseilQuery";
+} from "../../types/conseil/ConseilTezosTypes";
+import {queryConseilServer, queryConseilServerWithFilter} from "../ConseilQuery";
 
 /**
  * Functions for querying the Conseil backend REST API

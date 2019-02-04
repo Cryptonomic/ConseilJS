@@ -34,7 +34,7 @@ export namespace TezosMessageUtils {
     //@ts-ignore
     return Buffer.from(base128.encode(parseInt(value, 10)), "hex")
       .map((v, i) => {
-        return i == 0 ? v : v ^ 0x80;
+        return i === 0 ? v : v ^ 0x80;
       })
       .reverse()
       .toString("hex");
@@ -50,7 +50,7 @@ export namespace TezosMessageUtils {
       Buffer.from(hex, "hex")
         .reverse()
         .map((v, i) => {
-          return i == 0 ? v : v & 0x7f;
+          return i === 0 ? v : v & 0x7f;
         })
         .toString("hex")
     );

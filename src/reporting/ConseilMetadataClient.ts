@@ -1,6 +1,6 @@
-import {ConseilServerInfo} from "../../types/conseil/QueryTypes"
-import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from "../../types/conseil/MetadataTypes";
-import FetchSelector from '../FetchSelector';
+import {ConseilServerInfo} from "../types/conseil/QueryTypes"
+import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from "../types/conseil/MetadataTypes";
+import FetchSelector from '../utils/FetchSelector';
 
 const fetch = FetchSelector.getFetch();
 

@@ -1,6 +1,6 @@
 import * as querystring from "querystring";
 import {TezosFilter} from "..";
-import FetchSelector from './FetchSelector';
+import FetchSelector from '../utils/FetchSelector';
 import {ConseilRequestError, ConseilResponseError} from "../types/conseil/ErrorTypes";
 
 const fetch = FetchSelector.getFetch();

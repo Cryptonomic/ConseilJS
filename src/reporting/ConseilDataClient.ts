@@ -1,6 +1,6 @@
-import {ConseilServerInfo, ConseilQuery} from "../../types/conseil/QueryTypes";
-import {ConseilRequestError, ConseilResponseError} from "../../types/conseil/ErrorTypes";
-import FetchSelector from '../FetchSelector';
+import {ConseilServerInfo, ConseilQuery} from "../types/conseil/QueryTypes";
+import {ConseilRequestError, ConseilResponseError} from "../types/conseil/ErrorTypes";
+import FetchSelector from '../utils/FetchSelector';
 
 const fetch = FetchSelector.getFetch();
 

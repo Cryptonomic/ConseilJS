@@ -1,4 +1,4 @@
-import {ConseilQuery, ConseilOperator, ConseilSortDirection} from "../../types/conseil/QueryTypes"
+import {ConseilQuery, ConseilOperator, ConseilSortDirection} from "../types/conseil/QueryTypes"
 
 export namespace ConseilQueryBuilder {
     /**

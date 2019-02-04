@@ -1,5 +1,5 @@
-import * as TezosTypes from '../types/tezos/TezosChainTypes'
-import FetchSelector from '../utils/FetchSelector'
+import * as TezosTypes from '../../types/tezos/TezosChainTypes'
+import FetchSelector from '../../utils/FetchSelector'
 
 const fetch = FetchSelector.getFetch();
 
