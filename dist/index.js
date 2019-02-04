@@ -9,10 +9,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const FetchSelector_1 = __importDefault(require("./utils/FetchSelector"));
 FetchSelector_1.default.setFetch(node_fetch_1.default);
-__export(require("./tezos/TezosConseilQuery"));
-__export(require("./tezos/TezosNodeQuery"));
-__export(require("./tezos/TezosOperations"));
-__export(require("./tezos/TezosWallet"));
-__export(require("./tezos/TezosHardwareWallet"));
-__export(require("./tezos/TezosConseilClient"));
+__export(require("./chain/tezos/TezosNodeQuery"));
+__export(require("./chain/tezos/TezosOperations"));
+__export(require("./identity/tezos/TezosFileWallet"));
+__export(require("./identity/tezos/TezosLedgerWallet"));
+__export(require("./identity/tezos/TezosWalletUtil"));
+__export(require("./reporting/tezos/TezosConseilClient"));
+__export(require("./reporting/tezos/TezosConseilQuery"));
 //# sourceMappingURL=index.js.map

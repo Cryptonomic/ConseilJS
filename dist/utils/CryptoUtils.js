@@ -75,10 +75,12 @@ function base58CheckDecode(s, prefix) {
 exports.base58CheckDecode = base58CheckDecode;
 function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh = '', checkPKH = true, storeType) {
     const lengthOfMnemonic = mnemonic.split(" ").length;
-    if (lengthOfMnemonic !== 15)
+    if (lengthOfMnemonic !== 15) {
         return { error: "The mnemonic should be 15 words." };
-    if (!bip39.validateMnemonic(mnemonic))
+    }
+    if (!bip39.validateMnemonic(mnemonic)) {
         return { error: "The given mnemonic could not be validated." };
+    }
     const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
     const nonce = "";
     const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
