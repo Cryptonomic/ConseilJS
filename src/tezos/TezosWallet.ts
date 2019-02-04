@@ -11,6 +11,7 @@ export namespace TezosWallet {
 
     /**
      * Saves a wallet to a given file.
+     * 
      * @param {string} filename Name of file
      * @param {Wallet} wallet Wallet object
      * @param {string} passphrase User-supplied passphrase
@@ -36,8 +37,8 @@ export namespace TezosWallet {
         
             try {
                 fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
-                    if (err) reject(err);
-                    resolve(loadWallet(filename, passphrase))
+                    if (err) { reject(err); }
+                    resolve(loadWallet(filename, passphrase));
                 });
             } catch (err) {
                 reject(err);
@@ -55,15 +56,14 @@ export namespace TezosWallet {
     export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
         return new Promise<Wallet>((resolve, reject) => {
             fs.readFile(filename, (err, data) => {
-                if (err) reject(err);
+                if (err) { reject(err); }
                 const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
                 const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
                 const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
                 try {
                     const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
                     resolve({identities: keys});
-                }
-                catch(e) {
+                } catch(e) {
                     reject(e);
                 }
             });
@@ -77,9 +77,7 @@ export namespace TezosWallet {
      * @returns {Promise<Wallet>}   Object corresponding to newly-created wallet
      */
     export async function createWallet(filename: string, password: string): Promise<any> {
-        const wallet: Wallet = {
-            identities: []
-        };
+        const wallet: Wallet = { identities: [] };
         await saveWallet(filename, wallet, password);
         return wallet
     }
@@ -110,7 +108,6 @@ export namespace TezosWallet {
 
     /**
      * Generates a fifteen word mnemonic phrase using the BIP39 standard.
-     * @returns {string}
      */
     export function generateMnemonic(): string {
         return CryptoUtils.generateMnemonic();
@@ -118,9 +115,10 @@ export namespace TezosWallet {
 
     /**
      * Generates a key pair based on a mnemonic.
+     * 
      * @param {string} mnemonic Fifteen word memonic phrase
-     * @param {string} passphrase   User-supplied passphrase
-     * @returns {KeyStore}  Unlocked key pair
+     * @param {string} passphrase User-supplied passphrase
+     * @returns {KeyStore} Unlocked key pair
      */
     export function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): KeyStore | Error{
         return CryptoUtils.getKeysFromMnemonicAndPassphrase(

@@ -14,5 +14,8 @@ export interface EncryptedWalletVersionOne {
     version: string,
     salt: string,
     ciphertext: string,
+    /**
+     * Key derivation function
+     */
     kdf: string
 }

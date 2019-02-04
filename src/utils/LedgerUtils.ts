@@ -22,8 +22,8 @@ class TransportInstance {
 }
 
 /**
-    initialize of transport
-*/
+ * Initialize transport
+ */
 export function initLedgerTransport () {
     TransportInstance.transport = null;
 }
@@ -47,7 +47,6 @@ export async function getTezosPublicKey(derivationPath: string): Promise<string>
  * @param watermarkedOpInHex Operation
  */
 export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
-    console.log('Signing using Ledger..');
     const transport = await TransportInstance.getInstance();
     const xtz = new App(transport);
     const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);
