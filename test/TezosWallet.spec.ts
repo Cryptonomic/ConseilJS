@@ -83,3 +83,36 @@ describe('unlockIdentityWithMnemonic()', () => {
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
 });
+
+describe('getKeysFromMnemonicAndPassphrase()', () => {
+    it('should produce the correct mnemonic-based key pair', () => {
+        const result = <KeyStore> TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
+            'password',
+            '',
+            false,
+            StoreType.Mnemonic
+        );
+        expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
+    });
+    it('should be 15 words', () => {
+        const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
+            'password',
+            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
+            true,
+            StoreType.Mnemonic
+        );
+        expect(result.error).to.equal("The mnemonic should be 15 words.");
+    });
+    it('should detect invalid mnemonics', () => {
+        const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
+            'password',
+            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
+            true,
+            StoreType.Mnemonic
+        );
+        expect(result.error).to.equal("The given mnemonic could not be validated.");
+    });
+});

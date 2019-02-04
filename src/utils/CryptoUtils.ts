@@ -95,9 +95,9 @@ export function getBase58BytesForPrefix(prefix: string): Buffer {
 
 /**
  * Base58Check encodes a given binary payload using a given prefix.
- * @param {Buffer} payload  Binary payload
- * @param {String} prefix   Prefix
- * @returns {String}    Encoded string
+ * @param {Buffer} payload Binary payload
+ * @param {String} prefix Prefix
+ * @returns {String} Encoded string
  */
 export function base58CheckEncode(payload: Buffer, prefix: string): string {
     const prefixBytes = getBase58BytesForPrefix(prefix);
@@ -107,9 +107,9 @@ export function base58CheckEncode(payload: Buffer, prefix: string): string {
 
 /**
  * Base58Check decodes a given binary payload using a given prefix.
- * @param {String} s    Base58Check-encoded string
- * @param {String} prefix   Prefix
- * @returns {Buffer}    Decoded bytes
+ * @param {String} s Base58Check-encoded string
+ * @param {String} prefix Prefix
+ * @returns {Buffer} Decoded bytes
  */
 export function base58CheckDecode(s: string, prefix: string): Buffer {
     const prefixBytes = getBase58BytesForPrefix(prefix);
@@ -119,42 +119,8 @@ export function base58CheckDecode(s: string, prefix: string): Buffer {
 }
 
 /**
- * Generates keys from a user-supplied mnemonic and passphrase.
- * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
- * @param {string} passphrase   User-supplied passphrase
- * @param {string} pkh  The public key hash supposedly produced by the given mnemonic and passphrase
- * @param {boolean} checkPKH Check whether presumed public key hash matches the actual public key hash
- * @param {StoreType} storeType   Type of the generated key store
- * @returns {KeyStore}  Generated keys
- */
-export function getKeysFromMnemonicAndPassphrase(
-    mnemonic: string,
-    passphrase: string,
-    pkh = '',
-    checkPKH = true,
-    storeType: StoreType): Error | KeyStore {
-    const lengthOfMnemonic = mnemonic.split(" ").length;
-    if (lengthOfMnemonic !== 15) { return {error: "The mnemonic should be 15 words."}; }
-    if (!bip39.validateMnemonic(mnemonic)) { return {error: "The given mnemonic could not be validated."}; }
-    const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-    const nonce = "";
-    const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
-    const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
-    const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
-    const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
-    if(checkPKH && publicKeyHash != pkh) return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"};
-    return {
-        publicKey,
-        privateKey,
-        publicKeyHash,
-        seed,
-        storeType
-    }
-}
-
-/**
  * Generates a new bip39 mnemonic
- * @returns {string}    Fifteen word mnemonic
+ * @returns {string} Fifteen word mnemonic
  */
 export function generateMnemonic(): string {
     return bip39.generateMnemonic(160)
@@ -162,7 +128,7 @@ export function generateMnemonic(): string {
 
 /**
  * Checking the password strength using zxcvbn
- * @returns {number}    Password score
+ * @returns {number} Password score
  */
 export function getPasswordStrength(password: string): number {
     const results = zxcvbn(password);

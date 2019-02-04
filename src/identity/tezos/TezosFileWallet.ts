@@ -80,6 +80,4 @@ export namespace TezosFileWallet {
         await saveWallet(filename, wallet, password);
         return wallet
     }
-
-
 }
