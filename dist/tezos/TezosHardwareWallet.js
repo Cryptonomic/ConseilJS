@@ -16,6 +16,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const ledgerUtils = __importStar(require("../utils/LedgerUtils"));
+const HardwareDeviceType_1 = require("../types/wallet/HardwareDeviceType");
 const CryptoUtils_1 = require("../utils/CryptoUtils");
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 const KeyStore_1 = require("../types/wallet/KeyStore");
@@ -23,17 +24,16 @@ var TezosHardwareWallet;
 (function (TezosHardwareWallet) {
     function unlockAddress(deviceType, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const hexEncodedPublicKey = yield ledgerUtils.getTezosPublicKey(derivationPath);
-            const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
-            const publicKey = CryptoUtils_1.base58CheckEncode(publicKeyBytes, "edpk");
-            const publicKeyHash = CryptoUtils_1.base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
-            return {
-                publicKey: publicKey,
-                privateKey: '',
-                publicKeyHash: publicKeyHash,
-                seed: '',
-                storeType: KeyStore_1.StoreType.Hardware
-            };
+            if (deviceType === HardwareDeviceType_1.HardwareDeviceType.LedgerNanoS) {
+                const hexEncodedPublicKey = yield ledgerUtils.getTezosPublicKey(derivationPath);
+                const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
+                const publicKey = CryptoUtils_1.base58CheckEncode(publicKeyBytes, "edpk");
+                const publicKeyHash = CryptoUtils_1.base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
+                return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Hardware };
+            }
+            else {
+                throw new Error("Unsupported hardware device");
+            }
         });
     }
     TezosHardwareWallet.unlockAddress = unlockAddress;

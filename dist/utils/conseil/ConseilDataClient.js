@@ -30,7 +30,14 @@ var ConseilDataClient;
                 }
                 return response;
             })
-                .then(response => response.json());
+                .then(response => {
+                try {
+                    return response.json();
+                }
+                catch (_a) {
+                    throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
+                }
+            });
         });
     }
     ConseilDataClient.executeEntityQuery = executeEntityQuery;
@@ -48,7 +55,14 @@ var ConseilDataClient;
                 }
                 return response;
             })
-                .then(response => response.json());
+                .then(response => {
+                try {
+                    return response.json();
+                }
+                catch (_a) {
+                    throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
+                }
+            });
         });
     }
     ConseilDataClient.executeComplexQuery = executeComplexQuery;

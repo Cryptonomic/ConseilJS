@@ -45,7 +45,6 @@ function getTezosPublicKey(derivationPath) {
 exports.getTezosPublicKey = getTezosPublicKey;
 function signTezosOperation(derivationPath, watermarkedOpInHex) {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('Signing using Ledger..');
         const transport = yield TransportInstance.getInstance();
         const xtz = new App(transport);
         const result = yield xtz.signOperation(derivationPath, watermarkedOpInHex);

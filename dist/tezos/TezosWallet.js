@@ -40,8 +40,9 @@ var TezosWallet;
                 };
                 try {
                     fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
-                        if (err)
+                        if (err) {
                             reject(err);
+                        }
                         resolve(loadWallet(filename, passphrase));
                     });
                 }
@@ -56,8 +57,9 @@ var TezosWallet;
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 fs.readFile(filename, (err, data) => {
-                    if (err)
+                    if (err) {
                         reject(err);
+                    }
                     const encryptedWallet = JSON.parse(data.toString());
                     const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
                     const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
@@ -75,9 +77,7 @@ var TezosWallet;
     TezosWallet.loadWallet = loadWallet;
     function createWallet(filename, password) {
         return __awaiter(this, void 0, void 0, function* () {
-            const wallet = {
-                identities: []
-            };
+            const wallet = { identities: [] };
             yield saveWallet(filename, wallet, password);
             return wallet;
         });
