@@ -268,21 +268,21 @@ export const injectOpList = [
 export const accountMockList = [
   {
     manager: 'tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP',
-    balance: '13191787593',
+    balance: 13191787593,
     spendable: true,
     delegate: { setable: false },
     counter: '17259'
   },
   {
     manager: 'tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa',
-    balance: '0',
+    balance: 0,
     spendable: true,
     delegate: { setable: false },
     counter: '17259'
   },
   { 
     manager: 'tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP',
-    balance: '9700000',
+    balance: 9700000,
     spendable: true,
     delegate: { setable: false },
     counter: '2' 

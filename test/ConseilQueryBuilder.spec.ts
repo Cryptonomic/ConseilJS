@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {ConseilQueryBuilder} from "../src/utils/conseil/ConseilQueryBuilder";
+import {ConseilQueryBuilder} from "../src/reporting/ConseilQueryBuilder";
 import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
 
 

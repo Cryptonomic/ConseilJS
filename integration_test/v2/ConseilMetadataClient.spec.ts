@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import {ConseilMetadataClient} from '../../src/utils/conseil/ConseilMetadataClient'
+import {ConseilMetadataClient} from '../../src/reporting/ConseilMetadataClient'
 import {servers} from "../servers";
 
 const ConseilV2URL = servers.conseilServer;

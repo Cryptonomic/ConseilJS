@@ -2,10 +2,10 @@
 // Uncomment specific unit tests to test specific operation logic.
 import { expect } from "chai";
 import { TezosOperations } from "../src";
-import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
+import * as TezosMessageCodec from "../src/chain/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "./servers";
-import { TezosWallet } from "../src";
+import { TezosWalletUtil } from "../src";
 import { KeyStore } from "../src/types/wallet/KeyStore";
 
 const tezosURL = servers.tezosServer;
@@ -194,7 +194,7 @@ function sleep(seconds) {
 describe("Tezos operation functions", () => {
   it("successfully perform operations on a new identity", async () => {
     const fundraiserKeys = <KeyStore>(
-      await TezosWallet.unlockFundraiserIdentity(
+      await TezosWalletUtil.unlockFundraiserIdentity(
         "major cannon mistake disorder bachelor depart jazz pudding worry attract scrap element uncover tide jump",
         "vttufpvh.xgbzugwn@tezos.example.org",
         "Wz41fjtUHJ",
@@ -204,9 +204,9 @@ describe("Tezos operation functions", () => {
 
     const fundraiserKeySecret = "6da483843eba2526ea6d2c08aa39dd00efa99521";
 
-    const mnemonic = await TezosWallet.generateMnemonic();
+    const mnemonic = await TezosWalletUtil.generateMnemonic();
     const randomKeys = <KeyStore>(
-      await TezosWallet.unlockIdentityWithMnemonic(mnemonic, "")
+      await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, "")
     );
     const inactiveImplicitAddress = randomKeys.publicKeyHash;
     const anActiveImplicitAddress = "tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc";

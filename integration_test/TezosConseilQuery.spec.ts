@@ -45,7 +45,7 @@ describe('Account fetchers', () => {
 });
 
 describe('Transaction fetchers', () => {
-    it('should correctly fetch operations', async () => {
+    it('should correctly fetch transactions', async () => {
         const emptyFilter = TezosConseilQuery.getEmptyTezosFilter();
         const opFilter = {...emptyFilter, limit: 10, operation_kind: ['transaction']};
         const ops = await TezosConseilQuery.getOperations(conseilURL, opFilter, conseilApiKey);
@@ -54,7 +54,7 @@ describe('Transaction fetchers', () => {
         const account = ops[0].source;
         const transFilter = {...emptyFilter, limit: 10, operation_participant: [account], operation_kind: ['transaction']};
         const transactions = await TezosConseilQuery.getOperations(conseilURL, transFilter, conseilApiKey);
-        expect(transactions[0].source == account || transactions[0].destination == account).to.equal(true)
+        expect(transactions[0].source === account || transactions[0].destination === account).to.equal(true)
     });
 });
 

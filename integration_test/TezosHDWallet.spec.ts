@@ -1,6 +1,6 @@
 import 'mocha';
 import {expect} from 'chai';
-import * as tezHardwareWallet from '../src/tezos/TezosHardwareWallet';
+//import {TezosLedgerWallet} from '../src/tezos/TezosLedgerWallet';
 import {HardwareDeviceType} from "../src/types/wallet/HardwareDeviceType";
 const bip32 = require('bip32')
 const bip39 = require('bip39')

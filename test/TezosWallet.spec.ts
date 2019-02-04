@@ -4,13 +4,14 @@ import * as fs from 'fs'
 
 import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
 import {Wallet} from "../src/types/wallet/Wallet";
-import {TezosWallet} from "../src";
+import {TezosFileWallet} from "../src";
+import {TezosWalletUtil} from "../src/identity/tezos/TezosWalletUtil";
 import {Error} from "../src/types/wallet/Error";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
         fs.unlinkSync("//tmp//test.tezwallet");
-        const result = await TezosWallet.createWallet("//tmp//test.tezwallet", "passwordwithentropy");
+        const result = await TezosFileWallet.createWallet("//tmp//test.tezwallet", "passwordwithentropy");
         expect(result).to.deep.equal({identities: []});
     });
 });
@@ -25,7 +26,7 @@ describe('saveWallet()', () => {
             storeType: StoreType.Mnemonic
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await TezosWallet.saveWallet("//tmp//test.tezwallet", wallet, "passwordwithentropy");
+        const result = await TezosFileWallet.saveWallet("//tmp//test.tezwallet", wallet, "passwordwithentropy");
         expect(result).to.deep.equal({identities: [keys]});
     });
 });
@@ -40,14 +41,14 @@ describe('loadWallet()', () => {
             storeType: StoreType.Mnemonic
         };
         const wallet: Wallet = {identities: [keys]};
-        const result = await TezosWallet.loadWallet("//tmp//test.tezwallet", "passwordwithentropy");
+        const result = await TezosFileWallet.loadWallet("//tmp//test.tezwallet", "passwordwithentropy");
         expect(result).to.deep.equal(wallet);
     });
 });
 
 describe('unlockFundraiserIdentity()', () => {
     it('should produce the correct fundraiser key pair', () => {
-        const result = TezosWallet.unlockFundraiserIdentity(
+        const result = TezosWalletUtil.unlockFundraiserIdentity(
             "woman chaos mammal brain huge race weasel vintage doll pulse spot mansion lawsuit fat target",
             "psgtnfuc.vjppumbu@tezos.example.org",
             "A0mEUNNzP7",
@@ -56,7 +57,7 @@ describe('unlockFundraiserIdentity()', () => {
         expect(result["privateKey"]).to.equal("edskRpjW6egVEyFwQAttuHy8S5WLYqkpichsW2MzDpAQHWvunrr4ZVWRRQ6dx5y4G9S2s8Y4MDevmpavPVVYDN6egrbypcbWAc");
         expect(result["publicKeyHash"]).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
 
-        const result2 = <Error> TezosWallet.unlockFundraiserIdentity(
+        const result2 = <Error> TezosWalletUtil.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
             'SU0j4HSgbd',
@@ -68,14 +69,14 @@ describe('unlockFundraiserIdentity()', () => {
 
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
-        const result = TezosWallet.generateMnemonic();
+        const result = TezosWalletUtil.generateMnemonic();
         expect(result.split(' ').length).to.equal(15);
     });
 });
 
 describe('unlockIdentityWithMnemonic()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result: any = TezosWallet.unlockIdentityWithMnemonic(
+        const result: any = TezosWalletUtil.unlockIdentityWithMnemonic(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );

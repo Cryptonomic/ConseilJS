@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
+import { TezosMessageCodec } from "../src/chain/tezos/TezosMessageCodec";
 import { Operation } from "../src/types/tezos/TezosChainTypes";
 import "mocha";
 

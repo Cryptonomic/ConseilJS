@@ -3,7 +3,7 @@ import { expect } from "chai";
 import sodium = require('libsodium-wrappers');
 import nock from 'nock';
 
-import { TezosOperations, TezosWallet, TezosNode } from "../src";
+import { TezosOperations, TezosWalletUtil, TezosNode } from "../src";
 import mochaAsync from '../test/mochaTestHelper';
 import {
     blockHead,
@@ -16,7 +16,7 @@ import {
     walletInfoLists
 } from './TezosOperations.responses';
 
-const { unlockFundraiserIdentity } = TezosWallet;
+const { unlockFundraiserIdentity } = TezosWalletUtil;
 const { getBlockHead, forgeOperation } = TezosNode;
 const {
     signOperationGroup,
@@ -168,13 +168,13 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
-            const isMangerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
-            expect(isMangerRevealed).to.be.true;
+            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
+            expect(isManagerRevealed).to.be.true;
         }));
 
         it('isManagerKeyRevealedForAccount should be false', mochaAsync(async () => {
-            const isMangerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
-            expect(isMangerRevealed).to.be.false;
+            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
+            expect(isManagerRevealed).to.be.false;
         }));
 
         it('isImplicitAndEmpty should be true', mochaAsync(async () => {

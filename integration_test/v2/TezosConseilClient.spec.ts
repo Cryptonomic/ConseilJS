@@ -1,8 +1,8 @@
 import 'mocha';
 import {expect} from 'chai';
-import {ConseilQueryBuilder} from "../../src/utils/conseil/ConseilQueryBuilder";
+import {ConseilQueryBuilder} from "../../src/reporting/ConseilQueryBuilder";
 import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../src/types/conseil/QueryTypes"
-import {TezosConseilClient} from '../../src/tezos/TezosConseilClient'
+import {TezosConseilClient} from '../../src/reporting/tezos/TezosConseilClient'
 import {servers} from "../servers";
 
 const ConseilV2URL = servers.conseilServer;

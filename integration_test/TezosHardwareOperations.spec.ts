@@ -1,10 +1,11 @@
-import {TezosOperations} from "../src";
 import {expect} from "chai";
 import {KeyStore} from "../src/types/wallet/KeyStore";
-import {TezosWallet} from "../src";
-import {servers} from "./servers";
-import {TezosHardwareWallet} from "../src/tezos/TezosHardwareWallet";
+import {TezosWalletUtil} from "../src/identity/tezos/TezosWalletUtil";
+import {TezosOperations} from "../src";
+import {TezosLedgerWallet} from "../src/identity/tezos/TezosLedgerWallet";
 import {HardwareDeviceType} from "../src/types/wallet/HardwareDeviceType";
+
+import {servers} from "./servers";
 
 const tezosURL = servers.tezosServer;
 const derivationPathIndex = Math.floor(Math.random()*10).toString();
@@ -20,7 +21,7 @@ describe('Tezos operation functions', () => {
         setTimeout(done, 15000);
 
         //get fields from tezos alphanet faucet
-        const fundraiserKeys = <KeyStore> TezosWallet.unlockFundraiserIdentity(
+        const fundraiserKeys = <KeyStore> TezosWalletUtil.unlockFundraiserIdentity(
             "economy allow chef brave erosion talk panic mirror tail message letter pact remove final pizza",
             "eriajpqb.sgqzfzjm@tezos.example.org",
             "NJ73redfI4",
@@ -29,15 +30,15 @@ describe('Tezos operation functions', () => {
 
         const fundraiserKeySecret = 'e4766f7316aae6b455d7ab886e634a92a24a22dd';
 
-        const mnemonic = TezosWallet.generateMnemonic();
-        const randomKeys = <KeyStore> TezosWallet.unlockIdentityWithMnemonic(mnemonic, '');
+        const mnemonic = TezosWalletUtil.generateMnemonic();
+        const randomKeys = <KeyStore> TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
         const inactiveImplicitAddress = randomKeys.publicKeyHash;
         const anActiveImplicitAddress = 'tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc';
         const randomDelegatedAddress = 'KT1N5t39Lw7zivvgBN9HJJzUuk64GursRzyc';
         const randomBakerAddress1 = 'tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ';
         const randomBakerAddress2 = 'tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u';
 
-        const ledgerKeys = await TezosHardwareWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
+        const ledgerKeys = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
 
         /*
         Uncomment this section if the fundraiser account is inactive
