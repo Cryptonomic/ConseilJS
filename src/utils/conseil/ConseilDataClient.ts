@@ -1,5 +1,5 @@
 import {ConseilServerInfo, ConseilQuery} from "../../types/conseil/QueryTypes";
-import {ConseilRequestError} from "../../types/conseil/ErrorTypes";
+import {ConseilRequestError, ConseilResponseError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../FetchSelector';
 
 const fetch = FetchSelector.getFetch();
@@ -28,7 +28,13 @@ export namespace ConseilDataClient {
             if (!response.ok) { throw new ConseilRequestError(response.status, response.statusText, url, query); }
             return response;
         })
-        .then(response => response.json());
+        .then(response => {
+            try {
+                return response.json();
+            } catch {
+                throw new ConseilResponseError(response.status, response.statusText, url, null, response);
+            }
+        });
     }
 
     /**
@@ -50,6 +56,12 @@ export namespace ConseilDataClient {
             if (!response.ok) { throw new ConseilRequestError(response.status, response.statusText, url, query); }
             return response;
         })
-        .then(response => response.json());
+        .then(response => {
+            try {
+                return response.json();
+            } catch {
+                throw new ConseilResponseError(response.status, response.statusText, url, null, response);
+            }
+        });
     }
 }
