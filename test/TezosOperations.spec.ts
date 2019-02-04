@@ -17,7 +17,6 @@ import {
 
 const nock = require('nock');
 const { unlockFundraiserIdentity } = TezosWallet;
-const { getBlockHead, forgeOperation } = TezosNode;
 const {
     signOperationGroup,
     forgeOperations,

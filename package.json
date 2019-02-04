@@ -7,6 +7,7 @@
   "scripts": {
     "test": "mocha test/*.spec.ts",
     "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
+    "hardware-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/TezosHardwareOperations.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
