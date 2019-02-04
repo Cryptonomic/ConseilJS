@@ -3,9 +3,12 @@ import FetchSelector from './utils/FetchSelector';
 
 FetchSelector.setFetch(fetch);
 
-export * from "./tezos/TezosConseilQuery";
-export * from "./tezos/TezosNodeQuery";
-export * from "./tezos/TezosOperations";
-export * from "./tezos/TezosWallet";
-export * from "./tezos/TezosHardwareWallet";
-export * from "./tezos/TezosConseilClient";
+export * from "./chain/tezos/TezosNodeQuery";
+export * from "./chain/tezos/TezosOperations";
+
+export * from "./identity/tezos/TezosFileWallet";
+export * from "./identity/tezos/TezosLedgerWallet";
+export * from "./identity/tezos/TezosWalletUtil";
+
+export * from "./reporting/tezos/TezosConseilClient";
+export * from "./reporting/tezos/TezosConseilQuery";
