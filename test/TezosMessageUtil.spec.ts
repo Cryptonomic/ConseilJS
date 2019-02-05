@@ -40,11 +40,6 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('019c96e27f418b5db7c301147b3e941b41bd224fe400');
   });
 
-  it('fail unsupported address types', () => {
-    expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');
-  });
-
-
   it('test boolean write function', () => {
     let result = TezosMessageUtils.writeBoolean(false);
     expect(result).to.equal('00');
@@ -89,4 +84,17 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result.value).to.equal(184003923);
     expect(result.length).to.equal(8);
   });
+
+  it("test various parsing and encoding failures", () => {
+    expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');
+    expect(() => TezosMessageUtils.readAddressWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'zz9')).to.throw('Unrecognized address hint, \'zz9\'');
+    expect(() => TezosMessageUtils.readPublicKey('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized key type');
+    expect(() => TezosMessageUtils.writePublicKey('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized key type');
+    expect(() => TezosMessageUtils.readKeyWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'kkkk')).to.throw('Unrecognized key hint, \'kkkk\'');
+    expect(() => TezosMessageUtils.writeKeyWithHint('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'kkkk')).to.throw('Unrecognized key hint, \'kkkk\'');
+    expect(() => TezosMessageUtils.readKeyWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'sssss')).to.throw('Unrecognized key hint, \'sssss\'');
+    expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
+    expect(() => TezosMessageUtils.writeBufferWithHint('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'bb')).to.throw('Unsupported hint, \'bb\'');
+  });
 });
+

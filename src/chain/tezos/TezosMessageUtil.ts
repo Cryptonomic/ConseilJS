@@ -122,7 +122,7 @@ export namespace TezosMessageUtils {
     } else if (hint === 'kt1') {
       return readAddress(`01${address.toString('hex')}00`);
     } else {
-      throw new Error(`Unrecognized address hint, ${hint}`);
+      throw new Error(`Unrecognized address hint, '${hint}'`);
     }
   }
 
@@ -216,7 +216,7 @@ export namespace TezosMessageUtils {
     } else if (hint === 'edpk') {
       return readPublicKey(`00${key.toString('hex')}`);
     } else {
-      throw new Error(`Unrecognized key hint '${hint}'`);
+      throw new Error(`Unrecognized key hint, '${hint}'`);
     }
   }
 
@@ -224,7 +224,7 @@ export namespace TezosMessageUtils {
     if (hint === 'edsk') {
       return base58check.decode(b).slice(4);
     } else {
-      throw new Error(`Unrecognized signature hint '${hint}'`);
+      throw new Error(`Unrecognized key hint, '${hint}'`);
     }
   }
 
@@ -240,7 +240,7 @@ export namespace TezosMessageUtils {
     if (hint === 'edsig') {
       return base58check.encode(Buffer.from('09f5cd8612' + sig.toString('hex'), 'hex'));
     } else {
-      throw new Error(`Unrecognized signature hint '${hint}'`);
+      throw new Error(`Unrecognized signature hint, '${hint}'`);
     }
   }
 
@@ -258,7 +258,7 @@ export namespace TezosMessageUtils {
     } else if (hint === '') {
       return base58check.encode(buffer);
     } else {
-      throw new Error(`Unsupported hint '${hint}'`);
+      throw new Error(`Unsupported hint, '${hint}'`);
     }
   }
 
@@ -266,7 +266,7 @@ export namespace TezosMessageUtils {
     if (hint === '') {
       return base58check.decode(b);
     } else {
-      throw new Error(`Unsupported hint: '${hint}'`);
+      throw new Error(`Unsupported hint, '${hint}'`);
     }
   }
 }
