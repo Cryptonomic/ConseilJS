@@ -104,8 +104,24 @@ export namespace TezosMessageUtils {
     }
   }
 
+  export function readAddressWithHint(b: Buffer | Uint8Array, hint: string): string {
+    const address = !(b instanceof Buffer) ? Buffer.from(b) : b;
+
+    if (hint === 'tz1') {
+      return readAddress(`0000${address.toString('hex')}`);
+    } else if (hint === 'tz2') {
+      return readAddress(`0001${address.toString('hex')}`);
+    } else if (hint === 'tz3') {
+      return readAddress(`0002${address.toString('hex')}`);
+    } else if (hint === 'kt1') {
+      return readAddress(`01${address.toString('hex')}00`);
+    } else {
+      throw new Error(`Unrecognized address hint, ${hint}`);
+    }
+  }
+
   /**
-   * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1' or 'kt1'. Message format contains hints on address type.
+   * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1', 'tz2', 'tz3' or 'kt1'. Message format contains hints on address type.
    * @param {string} address Base58 address to encode.
    * @returns {string} Hex representation of a Tezos address.
    */
@@ -144,13 +160,13 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Reads the key from the provided, bounded hex string.
+   * Reads the public key from the provided, bounded hex string.
    * 
    * @param {string} hex Encoded message part.
    * @returns {string} Key.
    */
   export function readPublicKey(hex: string): string {
-    if (hex.length !== 66 && hex.length !== 68) { throw new Error("Incorrect hex length to parse a key."); }
+    if (hex.length !== 66 && hex.length !== 68) { throw new Error(`Incorrect hex length, ${hex.length} to parse a key.`); }
 
     let hint = hex.substring(0, 2);
     if (hint === "00") { // ed25519
@@ -160,7 +176,7 @@ export namespace TezosMessageUtils {
     } else if (hint === "02" && hex.length === 68) { // p256
       return base58check.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
     } else {
-      throw new Error("Unrecognized key type");
+      throw new Error('Unrecognized key type');
     }
   }
 
@@ -175,28 +191,57 @@ export namespace TezosMessageUtils {
     } else if (publicKey.startsWith("p2pk")) { // p256
       return "02" + base58check.decode(publicKey).slice(4).toString("hex");
     } else {
-      throw new Error("Unrecognized key type");
+      throw new Error('Unrecognized key type');
     }
   }
 
-  /**
-   * Reads the key hash from the provided, bounded hex string.
-   * 
-   * @param {string} hex Encoded message part.
-   * @returns {string} Key hash.
-   */
-  export function readPublicKeyHash(hex: string): string {
-    if (hex.length !== 42) { throw new Error("Incorrect hex length to parse a key."); }
+  export function readKeyWithHint(b: Buffer | Uint8Array, hint: string): string {
+    const key = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
-    let hint = hex.substring(0, 2);
-    if (hint === "00") { // ed25519
-      return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
-    } else if (hint === "01") { // secp256k1
-      return base58check.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
-    } else if (hint === "02") { // p256
-      return base58check.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
+    if (hint === 'edsk') {
+      return base58check.encode(Buffer.from('2bf64e07' + key.toString('hex'), 'hex'));
+    } else if (hint === 'edpk') {
+      return readPublicKey(`00${key.toString('hex')}`);
     } else {
-      throw new Error("Unrecognized hash type");
+      throw new Error(`Unrecognized key hint '${hint}'`);
+    }
+  }
+
+  export function writeKeyWithHint(b: string, hint: string): Buffer {
+    if (hint === 'edsk') {
+      return base58check.decode(b).slice(4);
+    } else {
+      throw new Error(`Unrecognized signature hint '${hint}'`);
+    }
+  }
+
+  export function readSignatureWithHint(b: Buffer | Uint8Array, hint: string): string {
+    const sig = !(b instanceof Buffer) ? Buffer.from(b) : b;
+
+    if (hint === 'edsig') {
+      return base58check.encode(Buffer.from('09f5cd8612' + sig.toString('hex'), 'hex'));
+    } else {
+      throw new Error(`Unrecognized signature hint '${hint}'`);
+    }
+  }
+
+  export function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string {
+    const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
+
+    if (hint === 'op') {
+      return base58check.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
+    } else if (hint === '') {
+      return base58check.encode(buffer);
+    } else {
+      throw new Error(`Unsupported hint '${hint}'`);
+    }
+  }
+
+  export function writeBufferWithHint(b: string, hint: string): Buffer {
+    if (hint === '') {
+      return base58check.decode(b);
+    } else {
+      throw new Error(`Unsupported hint: '${hint}'`);
     }
   }
 }

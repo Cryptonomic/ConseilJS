@@ -1,11 +1,7 @@
-import * as base58Check from 'bs58check'
-import * as bip39 from 'bip39';
-import * as sodium  from 'libsodium-wrappers-sumo';
+import * as sodium from 'libsodium-wrappers-sumo';
 import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
 
-import {KeyStore, StoreType} from "../types/wallet/KeyStore";
-import {Error} from "../types/wallet/Error";
 /**
  * Cryptography helpers
  */
@@ -41,6 +37,7 @@ export function encryptMessage(message: string, passphrase: string, salt: Buffer
     );
     const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES));
     const cipherText = Buffer.from(sodium.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
+
     return Buffer.concat([nonce, cipherText]);
 }
 
@@ -66,64 +63,6 @@ export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string,
     const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
     const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
     return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
-}
-
-/**
- * Get byte prefix for Base58Check encoding and decoding of a given type of data.
- * @param {String} prefix The type of data
- * @returns {Buffer} Byte prefix
- */
-export function getBase58BytesForPrefix(prefix: string): Buffer {
-    switch(prefix)
-    {
-        case "tz1":
-            return Buffer.from([6, 161, 159]);
-        case "edpk":
-            return Buffer.from([13, 15, 37, 217]);
-        case "edsk":
-            return Buffer.from([43, 246, 78, 7]);
-        case "edsig":
-            return Buffer.from([9, 245, 205, 134, 18]);
-        case "op":
-            return Buffer.from([5, 116]);
-        case "":
-            return Buffer.from([]);
-        default:
-            throw new RangeError("Unknown prefix");
-    }
-}
-
-/**
- * Base58Check encodes a given binary payload using a given prefix.
- * @param {Buffer} payload Binary payload
- * @param {String} prefix Prefix
- * @returns {String} Encoded string
- */
-export function base58CheckEncode(payload: Buffer, prefix: string): string {
-    const prefixBytes = getBase58BytesForPrefix(prefix);
-    const prefixedPayload = Buffer.concat([prefixBytes, payload]);
-    return base58Check.encode(prefixedPayload)
-}
-
-/**
- * Base58Check decodes a given binary payload using a given prefix.
- * @param {String} s Base58Check-encoded string
- * @param {String} prefix Prefix
- * @returns {Buffer} Decoded bytes
- */
-export function base58CheckDecode(s: string, prefix: string): Buffer {
-    const prefixBytes = getBase58BytesForPrefix(prefix);
-    const charsToSlice = prefixBytes.length;
-    const decoded = base58Check.decode(s);
-    return decoded.slice(charsToSlice)
-}
-
-/**
- * Generates a new bip39 mnemonic
- * @returns {string} Fifteen word mnemonic
- */
-export function generateMnemonic(): string {
-    return bip39.generateMnemonic(160)
 }
 
 /**

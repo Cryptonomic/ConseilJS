@@ -1,16 +1,6 @@
 import {expect} from 'chai';
 import 'mocha';
 import * as cryptoUtils from "../src/utils/CryptoUtils";
-import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
-
-describe('base58CheckDecode() and base58CheckEncode()', () => {
-    it('should correctly decode and encode a Tezos account ID', () => {
-        const accountID = "tz1Z5pFi5Sy99Kcz36XA5WtKW7Z6NVG9LdA4";
-        const decoded = cryptoUtils.base58CheckDecode(accountID, 'tz1');
-        const encoded = cryptoUtils.base58CheckEncode(decoded, 'tz1');
-        expect(encoded).to.equal(accountID);
-    });
-});
 
 describe('encryptMessage() and decryptMessage()', () => {
     it('should correctly encrypt and decrypt text', () => {
