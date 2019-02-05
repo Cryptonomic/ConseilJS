@@ -104,6 +104,11 @@ export namespace TezosMessageUtils {
     }
   }
 
+  /**
+   * Reads an address value from binary and decodes it into a base58check address without a prefix.
+   * @param b Bytes containing address.
+   * @param hint One of: kt1, tz1, tz2, tz3.
+   */
   export function readAddressWithHint(b: Buffer | Uint8Array, hint: string): string {
     const address = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
