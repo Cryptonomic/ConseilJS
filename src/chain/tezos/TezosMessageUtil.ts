@@ -105,9 +105,10 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Reads an address value from binary and decodes it into a base58check address without a prefix.
-   * @param b Bytes containing address.
-   * @param hint One of: kt1, tz1, tz2, tz3.
+   * Reads an address value from binary and decodes it into a Base58-check address without a prefix.
+   * 
+   * @param {Buffer | Uint8Array} b Bytes containing address.
+   * @param hint One of: 'kt1', 'tz1', 'tz2', 'tz3'.
    */
   export function readAddressWithHint(b: Buffer | Uint8Array, hint: string): string {
     const address = !(b instanceof Buffer) ? Buffer.from(b) : b;
@@ -127,7 +128,8 @@ export namespace TezosMessageUtils {
 
   /**
    * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1', 'tz2', 'tz3' or 'kt1'. Message format contains hints on address type.
-   * @param {string} address Base58 address to encode.
+   * 
+   * @param {string} address Base58-check address to encode.
    * @returns {string} Hex representation of a Tezos address.
    */
   export function writeAddress(address: string): string {
@@ -158,7 +160,7 @@ export namespace TezosMessageUtils {
    * Encodes the branch hash to hex.
    * 
    * @param {string} branch Branch hash.
-   * @returns {string} Hex represntaton of the Base58 branch hash.
+   * @returns {string} Hex represntaton of the Base58-check branch hash.
    */
   export function writeBranch(branch: string): string {
     return base58check.decode(branch).toString("hex");
@@ -200,6 +202,12 @@ export namespace TezosMessageUtils {
     }
   }
 
+  /**
+   * Reads a key without a prefix from binary and decodes it into a Base58-check representation.
+   * 
+   * @param {Buffer | Uint8Array} b Bytes containing the key.
+   * @param hint One of 'edsk' (private key), 'edpk' (public key).
+   */
   export function readKeyWithHint(b: Buffer | Uint8Array, hint: string): string {
     const key = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
@@ -220,6 +228,12 @@ export namespace TezosMessageUtils {
     }
   }
 
+  /**
+   * Reads a signature value without a prefix from binary and decodes it into a Base58-check representation.
+   * 
+   * @param {Buffer | Uint8Array} b Bytes containing signature.
+   * @param hint Support 'edsig'.
+   */
   export function readSignatureWithHint(b: Buffer | Uint8Array, hint: string): string {
     const sig = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
@@ -230,6 +244,12 @@ export namespace TezosMessageUtils {
     }
   }
 
+  /**
+   * Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
+   * 
+   * @param {Buffer | Uint8Array} b Bytes to encode
+   * @param hint One of: 'op' (operation encoding helper), '' (blank)
+   */
   export function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string {
     const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
