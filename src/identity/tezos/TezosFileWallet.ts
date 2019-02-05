@@ -3,6 +3,7 @@ import * as fs from "fs";
 import {Wallet, EncryptedWalletVersionOne} from "../../types/wallet/Wallet";
 import {KeyStore} from "../../types/wallet/KeyStore";
 import * as CryptoUtils from "../../utils/CryptoUtils";
+import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
 
 /**
  * Functions for Tezos file wallet functionality.
@@ -29,8 +30,8 @@ export namespace TezosFileWallet {
             
             const encryptedWallet: EncryptedWalletVersionOne = {
                 version: '1',
-                salt: CryptoUtils.base58CheckEncode(salt, ""),
-                ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
+                salt: TezosMessageUtils.readBufferWithHint(salt, ''),
+                ciphertext: TezosMessageUtils.readBufferWithHint(encryptedKeys, ''),
                 kdf: 'Argon2'
             };
         
@@ -57,8 +58,8 @@ export namespace TezosFileWallet {
             fs.readFile(filename, (err, data) => {
                 if (err) { reject(err); }
                 const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
-                const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
-                const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
+                const encryptedKeys = TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext, '');
+                const salt = TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt, '');
                 try {
                     const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
                     resolve({identities: keys});

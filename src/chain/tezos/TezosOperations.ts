@@ -1,10 +1,11 @@
 import sodium = require('libsodium-wrappers');
-import * as CryptoUtils from '../../utils/CryptoUtils';
+
 import {TezosLedgerWallet} from '../../identity/tezos/TezosLedgerWallet';
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "../../types/tezos/TezosChainTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
+import {TezosMessageUtils} from './TezosMessageUtil';
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -30,11 +31,11 @@ export namespace TezosOperations {
             default:
                 const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
                 const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
-                const privateKeyBytes: Buffer = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
+                const privateKeyBytes: Buffer = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
                 opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
-        const hexSignature: string = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
+        const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
         const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
         return {
             bytes: signedOpBytes,
@@ -49,7 +50,7 @@ export namespace TezosOperations {
      */
     export function computeOperationHash(signedOpGroup: TezosTypes.SignedOperationGroup): string {
         const hash: Buffer = sodium.crypto_generichash(32, signedOpGroup.bytes);
-        return CryptoUtils.base58CheckEncode(hash, "op");
+        return TezosMessageUtils.readBufferWithHint(hash, "op");
     }
 
     /**

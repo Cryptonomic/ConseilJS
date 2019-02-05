@@ -1,9 +1,9 @@
 import * as bip39 from 'bip39';
 import * as sodium  from 'libsodium-wrappers-sumo';
 
+import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {Error} from "../../types/wallet/Error";
-import * as CryptoUtils from "../../utils/CryptoUtils";
 
 export namespace TezosWalletUtil {
     /**
@@ -21,20 +21,14 @@ export namespace TezosWalletUtil {
         password: string,
         pkh: string): KeyStore | Error {
 
-        return getKeysFromMnemonicAndPassphrase(
-            mnemonic,
-            email + password,
-            pkh,
-            true,
-            StoreType.Fundraiser
-        )
+        return getKeysFromMnemonicAndPassphrase(mnemonic, email + password, pkh, true, StoreType.Fundraiser);
     }
 
     /**
      * Generates a fifteen word mnemonic phrase using the BIP39 standard.
      */
     export function generateMnemonic(): string {
-        return CryptoUtils.generateMnemonic();
+        return bip39.generateMnemonic(160)
     }
 
     /**
@@ -69,22 +63,18 @@ export namespace TezosWalletUtil {
         pkh = '',
         checkPKH = true,
         storeType: StoreType): Error | KeyStore { // TODO throw instead
-        const lengthOfMnemonic = mnemonic.split(" ").length;
-        if (lengthOfMnemonic !== 15) { return {error: "The mnemonic should be 15 words."}; }
+
+        if (mnemonic.split(' ').length !== 15) { return {error: "The mnemonic should be 15 words."}; }
         if (!bip39.validateMnemonic(mnemonic)) { return {error: "The given mnemonic could not be validated."}; }
+
         const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-        const nonce = "";
-        const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
-        const privateKey = CryptoUtils.base58CheckEncode(key_pair.privateKey, "edsk"); // TODO use TezosMessageUtil instead
-        const publicKey = CryptoUtils.base58CheckEncode(key_pair.publicKey, "edpk");
-        const publicKeyHash = CryptoUtils.base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
-        if (checkPKH && publicKeyHash !== pkh) return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"};
-        return {
-            publicKey,
-            privateKey,
-            publicKeyHash,
-            seed,
-            storeType
-        }
+        const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
+        const privateKey = TezosMessageUtils.readKeyWithHint(key_pair.privateKey, "edsk");
+        const publicKey = TezosMessageUtils.readKeyWithHint(key_pair.publicKey, "edpk");
+        
+        const publicKeyHash = TezosMessageUtils.readAddressWithHint(sodium.crypto_generichash(20, key_pair.publicKey), 'tz1');
+        if (checkPKH && publicKeyHash !== pkh) { return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"}; }
+
+        return { publicKey, privateKey, publicKeyHash, seed, storeType };
     }
 }
