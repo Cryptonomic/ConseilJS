@@ -7,6 +7,7 @@ import {
     TezosOperationGroupWithOperations
 } from "../../types/conseil/ConseilTezosTypes";
 import {queryConseilServer, queryConseilServerWithFilter} from "../ConseilQuery";
+import {TezosFilter} from "../../types/tezos/TezosFilterType";
 
 /**
  * Functions for querying the Conseil backend REST API
@@ -18,21 +19,7 @@ import {queryConseilServer, queryConseilServerWithFilter} from "../ConseilQuery"
  *
  * @deprecated since beta 2.0
  */
-export interface TezosFilter {
-    limit: number;
-    block_id: string[];
-    block_level: number[];
-    block_netid: string[];
-    block_protocol: string[];
-    operation_id: string[];
-    operation_source: string[];
-    operation_destination: string[];
-    operation_participant: string[];
-    operation_kind: string[];
-    account_id: string[];
-    account_manager: string[];
-    account_delegate: string[];
-}
+
 
 export namespace TezosConseilQuery {
     /**
