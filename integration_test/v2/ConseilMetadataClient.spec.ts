@@ -1,5 +1,10 @@
 import 'mocha';
 import {expect} from 'chai';
+import fetch from 'node-fetch';
+
+import FetchSelector from '../../src/utils/FetchSelector';
+FetchSelector.setFetch(fetch);
+
 import {ConseilMetadataClient} from '../../src/reporting/ConseilMetadataClient'
 import {servers} from "../servers";
 
