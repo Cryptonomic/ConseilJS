@@ -1,5 +1,5 @@
 import * as querystring from "querystring";
-import {TezosFilter} from "..";
+import {TezosFilter} from "../types/tezos/TezosFilterType";
 import FetchSelector from '../utils/FetchSelector';
 import {ConseilRequestError, ConseilResponseError} from "../types/conseil/ErrorTypes";
 
