@@ -39,7 +39,7 @@ export namespace TezosOperations {
         }
 
         const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
-        const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+        const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), Buffer.from(opSignature)]);
         return {
             bytes: signedOpBytes,
             signature: hexSignature.toString()

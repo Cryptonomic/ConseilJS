@@ -36,7 +36,7 @@ var TezosOperations;
                     opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
             const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
-            const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
+            const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), Buffer.from(opSignature)]);
             return {
                 bytes: signedOpBytes,
                 signature: hexSignature.toString()
