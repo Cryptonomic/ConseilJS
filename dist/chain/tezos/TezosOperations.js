@@ -7,13 +7,17 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = require("libsodium-wrappers");
-const TezosLedgerWallet_1 = require("../../identity/tezos/TezosLedgerWallet");
 const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
+const DeviceUtils_1 = __importDefault(require("../../utils/DeviceUtils"));
+let LedgerUtils = DeviceUtils_1.default.getLedgerUtils();
 var TezosOperations;
 (function (TezosOperations) {
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {
@@ -23,7 +27,7 @@ var TezosOperations;
             let opSignature;
             switch (keyStore.storeType) {
                 case KeyStore_1.StoreType.Hardware:
-                    opSignature = yield TezosLedgerWallet_1.TezosLedgerWallet.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                    opSignature = yield LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
                     break;
                 default:
                     const watermarkedForgedOperationBytes = sodium.from_hex(watermarkedForgedOperationBytesHex);
