@@ -1,4 +1,4 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 const { CheckerPlugin } = require('awesome-typescript-loader');
@@ -9,17 +9,17 @@ const webConfig = {
     target: 'web',
     output: {
         path: path.resolve(__dirname, './build'),
-        filename: 'conseiljs.web.js',
-        library: 'conseiljs-web',
+        filename: 'conseiljs.min.js',
+        library: 'conseiljs',
         libraryTarget: 'umd'
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
         plugins: [
             new TsConfigPathsPlugin({
-                configFile: './tsconfig.json',
-            }),
-        ],
+                configFile: './tsconfig.json'
+            })
+        ]
     },
     module: {
         rules: [
@@ -30,9 +30,12 @@ const webConfig = {
         child_process: 'empty',
         fs: 'empty',
         net: 'empty',
-        tls: 'empty',
+        tls: 'empty'
     },
-    plugins: [new UglifyJsPlugin(), new CheckerPlugin()],
-}
+    plugins: [new CheckerPlugin()],
+    optimization: {
+        minimizer: [new TerserPlugin()]
+    }
+};
 
 module.exports = [webConfig];
