@@ -19,8 +19,9 @@ export namespace ConseilDataClient {
      */
     export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
         const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`
+
         return fetch(url, {
-            method: 'POST',
+            method: 'post',
             headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
             body: JSON.stringify(query)
         })
@@ -48,7 +49,7 @@ export namespace ConseilDataClient {
     export async function executeComplexQuery(serverInfo: ConseilServerInfo, platform: string, network: string, query: ConseilQuery): Promise<any[]> {
         const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
         return fetch(url, {
-            method: 'POST',
+            method: 'post',
             headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
             body: JSON.stringify(query)
         })

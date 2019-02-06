@@ -3,7 +3,7 @@ import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} 
 import {ConseilDataClient} from "../ConseilDataClient";
 
 /**
- * Functions for querying the Conseil backend REST API v2
+ * Functions for querying the Conseil backend REST API v2 for Tezos chain data.
  */
 export namespace TezosConseilClient {
     const BLOCKS = 'blocks';

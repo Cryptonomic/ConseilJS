@@ -44,7 +44,8 @@ export namespace TezosOperations {
     }
 
     /**
-     * Computes the ID of an operation group using Base58Check.
+     * Computes a has of an operation group then encodes it with Base58-check. This value becomes the operation group id.
+     * 
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {string} Base58Check hash of signed operation
      */
@@ -122,7 +123,7 @@ export namespace TezosOperations {
     }
 
     /**
-     * Ensures the results of operation application do not contain errors. Throws as needed if there are errors.
+     * Ensures the results of operation application do not contain errors. Throws if there are errors.
      * 
      * @param appliedOp Results of operation application.
      */
@@ -457,9 +458,10 @@ export namespace TezosOperations {
 
     /**
      * Indicates whether a reveal operation has already been done for a given account.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
-     * @returns {Promise<boolean>}  Result
+     * 
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @returns {Promise<boolean>} Result
      */
     export async function isManagerKeyRevealedForAccount(network: string, keyStore: KeyStore): Promise<boolean> {
         const blockHead = await TezosNode.getBlockHead(network);
@@ -470,11 +472,12 @@ export namespace TezosOperations {
 
     /**
      * Creates and sends a reveal operation.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
+     * 
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} fee  Fee to pay
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>}  Result of the operation
+     * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendKeyRevealOperation(
         network: string,
@@ -499,24 +502,16 @@ export namespace TezosOperations {
 
     /**
      * Creates and sends an activation operation.
-     * @param {string} network  Which Tezos network to go against
-     * @param {KeyStore} keyStore   Key pair along with public key hash
-     * @param {string} activationCode   Activation code provided by fundraiser process
+     * 
+     * @param {string} network Which Tezos network to go against
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} activationCode Activation code provided by fundraiser process
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>}  Result of the operation
+     * @returns {Promise<OperationResult>} Result of the operation
      */
-    export function sendIdentityActivationOperation(
-        network: string,
-        keyStore: KeyStore,
-        activationCode: string,
-        derivationPath: string) {
-        const activation = {
-            kind:   "activate_account",
-            pkh:    keyStore.publicKeyHash,
-            secret: activationCode
-        };
-        const operations = [activation];
+    export function sendIdentityActivationOperation(network: string, keyStore: KeyStore, activationCode: string, derivationPath: string) {
+        const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
 
-        return sendOperation(network, operations, keyStore, derivationPath)
+        return sendOperation(network, [activation], keyStore, derivationPath)
     }
 }

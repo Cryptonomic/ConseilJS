@@ -34,7 +34,7 @@ export namespace TezosFileWallet {
                 ciphertext: TezosMessageUtils.readBufferWithHint(encryptedKeys, ''),
                 kdf: 'Argon2'
             };
-        
+
             try {
                 fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
                     if (err) { reject(err); }
@@ -57,11 +57,11 @@ export namespace TezosFileWallet {
         return new Promise<Wallet>((resolve, reject) => {
             fs.readFile(filename, (err, data) => {
                 if (err) { reject(err); }
-                const encryptedWallet: EncryptedWalletVersionOne = <EncryptedWalletVersionOne> JSON.parse(data.toString());
+                const encryptedWallet: EncryptedWalletVersionOne = JSON.parse(data.toString()) as EncryptedWalletVersionOne;
                 const encryptedKeys = TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext, '');
                 const salt = TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt, '');
                 try {
-                    const keys = <KeyStore[]> JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
+                    const keys = JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];
                     resolve({identities: keys});
                 } catch(e) {
                     reject(e);
