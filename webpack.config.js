@@ -1,40 +1,11 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const path = require('path')
-const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
-const nodeExternals = require('webpack-node-externals');
-
-const nodeConfig = {
-    mode: "production",
-    entry: "./src/index.ts",
-    target: 'node',
-    output: {
-        path: path.resolve(__dirname, './build'),
-        filename: 'conseiljs.node.js',
-        library: 'conseiljs',
-        libraryTarget: 'umd'
-    },
-    resolve: {
-        extensions: [".ts", ".tsx", ".js"],
-        plugins: [
-            new TsConfigPathsPlugin({
-                configFile: './tsconfig.json',
-            }),
-        ],
-    },
-    module: {
-        rules: [
-            { test: /\.tsx?$/, loader: 'awesome-typescript-loader' }
-        ]
-    },
-    externals: [nodeExternals()],
-    plugins: [
-        new UglifyJsPlugin()
-    ]
-};
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const path = require('path');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const { CheckerPlugin } = require('awesome-typescript-loader');
 
 const webConfig = {
-    mode: "production",
-    entry: "./src/index-web.ts",
+    mode: 'production',
+    entry: './src/index-web.ts',
     target: 'web',
     output: {
         path: path.resolve(__dirname, './build'),
@@ -43,7 +14,7 @@ const webConfig = {
         libraryTarget: 'umd'
     },
     resolve: {
-        extensions: [".ts", ".tsx", ".js"],
+        extensions: ['.ts', '.tsx', '.js'],
         plugins: [
             new TsConfigPathsPlugin({
                 configFile: './tsconfig.json',
@@ -61,12 +32,7 @@ const webConfig = {
         net: 'empty',
         tls: 'empty',
     },
-    plugins: [new UglifyJsPlugin()],
-    optimization: {
-        splitChunks: {
-            chunks: 'all'
-        }
-   }
+    plugins: [new UglifyJsPlugin(), new CheckerPlugin()],
 }
 
-module.exports = [nodeConfig, webConfig];
+module.exports = [webConfig];
