@@ -18,8 +18,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 let Transport = require("@ledgerhq/hw-transport-node-hid").default;
 let App = require("basil-tezos-ledger").default;
+const TezosMessageUtil_1 = require("../../chain/tezos/TezosMessageUtil");
 const HardwareDeviceType_1 = require("../../types/wallet/HardwareDeviceType");
-const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const KeyStore_1 = require("../../types/wallet/KeyStore");
 class TransportInstance {
     static getInstance() {
@@ -41,8 +41,8 @@ var TezosLedgerWallet;
             }
             const hexEncodedPublicKey = yield getTezosPublicKey(derivationPath);
             const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
-            const publicKey = CryptoUtils_1.base58CheckEncode(publicKeyBytes, "edpk");
-            const publicKeyHash = CryptoUtils_1.base58CheckEncode(sodium.crypto_generichash(20, publicKeyBytes), "tz1");
+            const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.readAddressWithHint(sodium.crypto_generichash(20, publicKeyBytes), 'tz1');
             return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Hardware };
         });
     }

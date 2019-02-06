@@ -7,20 +7,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sodium = require("libsodium-wrappers");
-const CryptoUtils = __importStar(require("../../utils/CryptoUtils"));
 const TezosLedgerWallet_1 = require("../../identity/tezos/TezosLedgerWallet");
 const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
+const TezosMessageUtil_1 = require("./TezosMessageUtil");
 var TezosOperations;
 (function (TezosOperations) {
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {
@@ -35,10 +28,10 @@ var TezosOperations;
                 default:
                     const watermarkedForgedOperationBytes = sodium.from_hex(watermarkedForgedOperationBytesHex);
                     const hashedWatermarkedOpBytes = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
-                    const privateKeyBytes = CryptoUtils.base58CheckDecode(keyStore.privateKey, "edsk");
+                    const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
                     opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
-            const hexSignature = CryptoUtils.base58CheckEncode(opSignature, "edsig").toString();
+            const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
             const signedOpBytes = Buffer.concat([sodium.from_hex(forgedOperation), opSignature]);
             return {
                 bytes: signedOpBytes,
@@ -49,7 +42,7 @@ var TezosOperations;
     TezosOperations.signOperationGroup = signOperationGroup;
     function computeOperationHash(signedOpGroup) {
         const hash = sodium.crypto_generichash(32, signedOpGroup.bytes);
-        return CryptoUtils.base58CheckEncode(hash, "op");
+        return TezosMessageUtil_1.TezosMessageUtils.readBufferWithHint(hash, "op");
     }
     TezosOperations.computeOperationHash = computeOperationHash;
     function forgeOperations(network, blockHead, operations) {
@@ -282,13 +275,8 @@ var TezosOperations;
     }
     TezosOperations.sendKeyRevealOperation = sendKeyRevealOperation;
     function sendIdentityActivationOperation(network, keyStore, activationCode, derivationPath) {
-        const activation = {
-            kind: "activate_account",
-            pkh: keyStore.publicKeyHash,
-            secret: activationCode
-        };
-        const operations = [activation];
-        return sendOperation(network, operations, keyStore, derivationPath);
+        const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
+        return sendOperation(network, [activation], keyStore, derivationPath);
     }
     TezosOperations.sendIdentityActivationOperation = sendIdentityActivationOperation;
 })(TezosOperations = exports.TezosOperations || (exports.TezosOperations = {}));

@@ -75,6 +75,25 @@ var TezosMessageUtils;
         }
     }
     TezosMessageUtils.readAddress = readAddress;
+    function readAddressWithHint(b, hint) {
+        const address = !(b instanceof Buffer) ? Buffer.from(b) : b;
+        if (hint === 'tz1') {
+            return readAddress(`0000${address.toString('hex')}`);
+        }
+        else if (hint === 'tz2') {
+            return readAddress(`0001${address.toString('hex')}`);
+        }
+        else if (hint === 'tz3') {
+            return readAddress(`0002${address.toString('hex')}`);
+        }
+        else if (hint === 'kt1') {
+            return readAddress(`01${address.toString('hex')}00`);
+        }
+        else {
+            throw new Error(`Unrecognized address hint, '${hint}'`);
+        }
+    }
+    TezosMessageUtils.readAddressWithHint = readAddressWithHint;
     function writeAddress(address) {
         const hex = bs58check_1.default.decode(address).slice(3).toString("hex");
         if (address.startsWith("tz1")) {
@@ -107,7 +126,7 @@ var TezosMessageUtils;
     TezosMessageUtils.writeBranch = writeBranch;
     function readPublicKey(hex) {
         if (hex.length !== 66 && hex.length !== 68) {
-            throw new Error("Incorrect hex length to parse a key.");
+            throw new Error(`Incorrect hex length, ${hex.length} to parse a key.`);
         }
         let hint = hex.substring(0, 2);
         if (hint === "00") {
@@ -120,7 +139,7 @@ var TezosMessageUtils;
             return bs58check_1.default.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         }
         else {
-            throw new Error("Unrecognized key type");
+            throw new Error('Unrecognized key type');
         }
     }
     TezosMessageUtils.readPublicKey = readPublicKey;
@@ -135,28 +154,63 @@ var TezosMessageUtils;
             return "02" + bs58check_1.default.decode(publicKey).slice(4).toString("hex");
         }
         else {
-            throw new Error("Unrecognized key type");
+            throw new Error('Unrecognized key type');
         }
     }
     TezosMessageUtils.writePublicKey = writePublicKey;
-    function readPublicKeyHash(hex) {
-        if (hex.length !== 42) {
-            throw new Error("Incorrect hex length to parse a key.");
+    function readKeyWithHint(b, hint) {
+        const key = !(b instanceof Buffer) ? Buffer.from(b) : b;
+        if (hint === 'edsk') {
+            return bs58check_1.default.encode(Buffer.from('2bf64e07' + key.toString('hex'), 'hex'));
         }
-        let hint = hex.substring(0, 2);
-        if (hint === "00") {
-            return bs58check_1.default.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
-        }
-        else if (hint === "01") {
-            return bs58check_1.default.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
-        }
-        else if (hint === "02") {
-            return bs58check_1.default.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
+        else if (hint === 'edpk') {
+            return readPublicKey(`00${key.toString('hex')}`);
         }
         else {
-            throw new Error("Unrecognized hash type");
+            throw new Error(`Unrecognized key hint, '${hint}'`);
         }
     }
-    TezosMessageUtils.readPublicKeyHash = readPublicKeyHash;
+    TezosMessageUtils.readKeyWithHint = readKeyWithHint;
+    function writeKeyWithHint(b, hint) {
+        if (hint === 'edsk') {
+            return bs58check_1.default.decode(b).slice(4);
+        }
+        else {
+            throw new Error(`Unrecognized key hint, '${hint}'`);
+        }
+    }
+    TezosMessageUtils.writeKeyWithHint = writeKeyWithHint;
+    function readSignatureWithHint(b, hint) {
+        const sig = !(b instanceof Buffer) ? Buffer.from(b) : b;
+        if (hint === 'edsig') {
+            return bs58check_1.default.encode(Buffer.from('09f5cd8612' + sig.toString('hex'), 'hex'));
+        }
+        else {
+            throw new Error(`Unrecognized signature hint, '${hint}'`);
+        }
+    }
+    TezosMessageUtils.readSignatureWithHint = readSignatureWithHint;
+    function readBufferWithHint(b, hint) {
+        const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
+        if (hint === 'op') {
+            return bs58check_1.default.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
+        }
+        else if (hint === '') {
+            return bs58check_1.default.encode(buffer);
+        }
+        else {
+            throw new Error(`Unsupported hint, '${hint}'`);
+        }
+    }
+    TezosMessageUtils.readBufferWithHint = readBufferWithHint;
+    function writeBufferWithHint(b, hint) {
+        if (hint === '') {
+            return bs58check_1.default.decode(b);
+        }
+        else {
+            throw new Error(`Unsupported hint, '${hint}'`);
+        }
+    }
+    TezosMessageUtils.writeBufferWithHint = writeBufferWithHint;
 })(TezosMessageUtils = exports.TezosMessageUtils || (exports.TezosMessageUtils = {}));
 //# sourceMappingURL=TezosMessageUtil.js.map

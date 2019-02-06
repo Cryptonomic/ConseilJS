@@ -11,6 +11,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ErrorTypes_1 = require("../../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../../utils/FetchSelector"));
 const fetch = FetchSelector_1.default.getFetch();
 var TezosNode;
@@ -18,17 +19,25 @@ var TezosNode;
     function performGetRequest(server, command) {
         const url = `${server}/${command}`;
         return fetch(url, { method: 'get' })
-            .then(response => response.json())
-            .then(json => new Promise(resolve => resolve(json)));
+            .then(response => {
+            if (!response.ok) {
+                throw new ErrorTypes_1.ServiceRequestError(response.status, response.statusText, url, null);
+            }
+            return response;
+        })
+            .then(response => {
+            try {
+                return response.json();
+            }
+            catch (_a) {
+                throw new ErrorTypes_1.ServiceResponseError(response.status, response.statusText, url, null, response);
+            }
+        });
     }
     function performPostRequest(server, command, payload = {}) {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
-        return fetch(url, {
-            method: 'post',
-            body: payloadStr,
-            headers: { 'content-type': 'application/json' }
-        });
+        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
     function getBlock(server, hash) {
         return performGetRequest(server, `chains/main/blocks/${hash}`)

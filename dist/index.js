@@ -16,4 +16,9 @@ __export(require("./identity/tezos/TezosLedgerWallet"));
 __export(require("./identity/tezos/TezosWalletUtil"));
 __export(require("./reporting/tezos/TezosConseilClient"));
 __export(require("./reporting/tezos/TezosConseilQuery"));
+__export(require("./reporting/ConseilQuery"));
+__export(require("./reporting/ConseilQueryBuilder"));
+__export(require("./reporting/ConseilMetadataClient"));
+__export(require("./reporting/ConseilDataClient"));
+__export(require("./types/conseil/QueryTypes"));
 //# sourceMappingURL=index.js.map

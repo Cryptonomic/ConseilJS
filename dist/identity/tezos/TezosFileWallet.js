@@ -17,6 +17,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
 const CryptoUtils = __importStar(require("../../utils/CryptoUtils"));
+const TezosMessageUtil_1 = require("../../chain/tezos/TezosMessageUtil");
 var TezosFileWallet;
 (function (TezosFileWallet) {
     function saveWallet(filename, wallet, passphrase) {
@@ -33,8 +34,8 @@ var TezosFileWallet;
                 }
                 const encryptedWallet = {
                     version: '1',
-                    salt: CryptoUtils.base58CheckEncode(salt, ""),
-                    ciphertext: CryptoUtils.base58CheckEncode(encryptedKeys, ""),
+                    salt: TezosMessageUtil_1.TezosMessageUtils.readBufferWithHint(salt, ''),
+                    ciphertext: TezosMessageUtil_1.TezosMessageUtils.readBufferWithHint(encryptedKeys, ''),
                     kdf: 'Argon2'
                 };
                 try {
@@ -60,8 +61,8 @@ var TezosFileWallet;
                         reject(err);
                     }
                     const encryptedWallet = JSON.parse(data.toString());
-                    const encryptedKeys = CryptoUtils.base58CheckDecode(encryptedWallet.ciphertext, "");
-                    const salt = CryptoUtils.base58CheckDecode(encryptedWallet.salt, "");
+                    const encryptedKeys = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext, '');
+                    const salt = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt, '');
                     try {
                         const keys = JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
                         resolve({ identities: keys });

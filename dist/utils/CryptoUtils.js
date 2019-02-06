@@ -10,8 +10,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const base58Check = __importStar(require("bs58check"));
-const bip39 = __importStar(require("bip39"));
 const sodium = __importStar(require("libsodium-wrappers-sumo"));
 const crypto = __importStar(require("crypto"));
 const zxcvbn_1 = __importDefault(require("zxcvbn"));
@@ -41,67 +39,6 @@ function decryptMessage(nonce_and_ciphertext, passphrase, salt) {
     return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
 }
 exports.decryptMessage = decryptMessage;
-function getBase58BytesForPrefix(prefix) {
-    switch (prefix) {
-        case "tz1":
-            return Buffer.from([6, 161, 159]);
-        case "edpk":
-            return Buffer.from([13, 15, 37, 217]);
-        case "edsk":
-            return Buffer.from([43, 246, 78, 7]);
-        case "edsig":
-            return Buffer.from([9, 245, 205, 134, 18]);
-        case "op":
-            return Buffer.from([5, 116]);
-        case "":
-            return Buffer.from([]);
-        default:
-            throw new RangeError("Unknown prefix");
-    }
-}
-exports.getBase58BytesForPrefix = getBase58BytesForPrefix;
-function base58CheckEncode(payload, prefix) {
-    const prefixBytes = getBase58BytesForPrefix(prefix);
-    const prefixedPayload = Buffer.concat([prefixBytes, payload]);
-    return base58Check.encode(prefixedPayload);
-}
-exports.base58CheckEncode = base58CheckEncode;
-function base58CheckDecode(s, prefix) {
-    const prefixBytes = getBase58BytesForPrefix(prefix);
-    const charsToSlice = prefixBytes.length;
-    const decoded = base58Check.decode(s);
-    return decoded.slice(charsToSlice);
-}
-exports.base58CheckDecode = base58CheckDecode;
-function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh = '', checkPKH = true, storeType) {
-    const lengthOfMnemonic = mnemonic.split(" ").length;
-    if (lengthOfMnemonic !== 15) {
-        return { error: "The mnemonic should be 15 words." };
-    }
-    if (!bip39.validateMnemonic(mnemonic)) {
-        return { error: "The given mnemonic could not be validated." };
-    }
-    const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-    const nonce = "";
-    const key_pair = sodium.crypto_sign_seed_keypair(seed, nonce);
-    const privateKey = base58CheckEncode(key_pair.privateKey, "edsk");
-    const publicKey = base58CheckEncode(key_pair.publicKey, "edpk");
-    const publicKeyHash = base58CheckEncode(sodium.crypto_generichash(20, key_pair.publicKey), "tz1");
-    if (checkPKH && publicKeyHash != pkh)
-        return { error: "The given mnemonic and passphrase do not correspond to the applied public key hash" };
-    return {
-        publicKey,
-        privateKey,
-        publicKeyHash,
-        seed,
-        storeType
-    };
-}
-exports.getKeysFromMnemonicAndPassphrase = getKeysFromMnemonicAndPassphrase;
-function generateMnemonic() {
-    return bip39.generateMnemonic(160);
-}
-exports.generateMnemonic = generateMnemonic;
 function getPasswordStrength(password) {
     const results = zxcvbn_1.default(password);
     return results.score;
