@@ -12,3 +12,9 @@ export * from "./identity/tezos/TezosWalletUtil";
 
 export * from "./reporting/tezos/TezosConseilClient";
 export * from "./reporting/tezos/TezosConseilQuery";
+
+export * from './reporting/ConseilQuery';
+export * from './reporting/ConseilQueryBuilder';
+export * from './reporting/ConseilMetadataClient';
+export * from './reporting/ConseilDataClient';
+export * from './types/conseil/QueryTypes';
