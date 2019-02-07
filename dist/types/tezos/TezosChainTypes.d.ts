@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export interface BlockHeader {
     level: number;
     proto: number;

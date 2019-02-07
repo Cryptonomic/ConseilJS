@@ -1,4 +1,3 @@
-/// <reference types="node" />
 export declare namespace TezosMessageUtils {
     function writeBoolean(value: boolean): string;
     function readBoolean(hex: string): boolean;

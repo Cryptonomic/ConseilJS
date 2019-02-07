@@ -1,4 +1,3 @@
-/// <reference types="node" />
 import { HardwareDeviceType } from "../../types/wallet/HardwareDeviceType";
 import { KeyStore } from "../../types/wallet/KeyStore";
 export declare namespace TezosLedgerWallet {
