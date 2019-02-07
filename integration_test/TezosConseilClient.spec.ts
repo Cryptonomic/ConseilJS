@@ -2,13 +2,15 @@ import 'mocha';
 import {expect} from 'chai';
 import fetch from 'node-fetch';
 
-import FetchSelector from '../../src/utils/FetchSelector';
+import FetchSelector from '../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {ConseilQueryBuilder} from "../../src/reporting/ConseilQueryBuilder";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../src/types/conseil/QueryTypes"
-import {TezosConseilClient} from '../../src/reporting/tezos/TezosConseilClient'
-import {servers} from "../servers";
+import {ConseilQueryBuilder} from "../src/reporting/ConseilQueryBuilder";
+import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
+import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient'
+import {servers} from "./servers";
+
+const util = require('util');
 
 const ConseilV2URL = servers.conseilServer;
 const ConseilV2APIKey = servers.conseilApiKey;
@@ -47,7 +49,24 @@ describe('Tezos date interface test suite', () => {
         expect(result[9]["predecessor"]).to.equal(result[8]["hash"]);
     });
 
-    //getAccounts
+    it('retrieve a single an account', async () => {
+        var result = await TezosConseilClient.getAccount({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e');
+
+        //console.log(util.inspect(result, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
+    });
+
+    it('retrieve a accounts for a manager address', async () => {
+        let accountsquery = ConseilQueryBuilder.blankQuery();
+        accountsquery = ConseilQueryBuilder.addPredicate(accountsquery, 'manager', ConseilOperator.EQ, ['tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e'], false);
+        accountsquery = ConseilQueryBuilder.addOrdering(accountsquery, 'block_level', ConseilSortDirection.DESC);
+        accountsquery = ConseilQueryBuilder.setLimit(accountsquery, 300);
+        const accounts = await TezosConseilClient.getAccounts({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', accountsquery);
+
+        console.log(accounts.length);
+        console.log(accounts.filter(a => a.account_id !== 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e').length);
+        //console.log(util.inspect(accounts, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
+        //console.log(util.inspect(accountsquery, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
+    });
 
     //getOperationGroups
 
@@ -75,7 +94,6 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.addFields(operationFeesQuery, 'fee');
         operationFeesQuery = ConseilQueryBuilder.addPredicate(operationFeesQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
         operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'block_level', ConseilSortDirection.DESC);
-        operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'fee', ConseilSortDirection.ASC);
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1000);
 
         const fees = await TezosConseilClient.getOperations({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', operationFeesQuery);
@@ -84,6 +102,7 @@ describe('Tezos date interface test suite', () => {
         const lowAverageFee = sortedfees.slice(0, 300).reduce((s, c) => s + c) / 300;
         const mediumAverageFee = sortedfees.slice(300, 700).reduce((s, c) => s + c) / 400;
         const highAverageFee = sortedfees.slice(700).reduce((s, c) => s + c) / 300;
+
 
         expect(lowAverageFee).to.lessThan(mediumAverageFee);
         expect(mediumAverageFee).to.lessThan(highAverageFee);
