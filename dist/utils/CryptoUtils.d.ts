@@ -1,4 +1,7 @@
-export declare function generateSaltForPwHash(): Buffer;
-export declare function encryptMessage(message: string, passphrase: string, salt: Buffer): Buffer;
-export declare function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer): any;
-export declare function getPasswordStrength(password: string): number;
+export declare namespace CryptoUtils {
+    function generateSaltForPwHash(): Buffer;
+    function encryptMessage(message: string, passphrase: string, salt: Buffer): Buffer;
+    function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer): any;
+    function simpleHash(payload: Buffer): Buffer;
+    function getPasswordStrength(password: string): number;
+}

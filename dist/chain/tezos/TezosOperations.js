@@ -16,8 +16,8 @@ const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
-const DeviceUtils_1 = __importDefault(require("../../utils/DeviceUtils"));
-let LedgerUtils = DeviceUtils_1.default.getLedgerUtils();
+const DeviceSelector_1 = __importDefault(require("../../utils/DeviceSelector"));
+let LedgerUtils = DeviceSelector_1.default.getLedgerUtils();
 var TezosOperations;
 (function (TezosOperations) {
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {
@@ -44,11 +44,6 @@ var TezosOperations;
         });
     }
     TezosOperations.signOperationGroup = signOperationGroup;
-    function computeOperationHash(signedOpGroup) {
-        const hash = sodium.crypto_generichash(32, signedOpGroup.bytes);
-        return TezosMessageUtil_1.TezosMessageUtils.readBufferWithHint(hash, "op");
-    }
-    TezosOperations.computeOperationHash = computeOperationHash;
     function forgeOperations(network, blockHead, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = { branch: blockHead.hash, contents: operations };

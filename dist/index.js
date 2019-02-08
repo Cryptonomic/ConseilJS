@@ -8,10 +8,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const node_fetch_1 = __importDefault(require("node-fetch"));
 const FetchSelector_1 = __importDefault(require("./utils/FetchSelector"));
-const DeviceUtils_1 = __importDefault(require("./utils/DeviceUtils"));
+const DeviceSelector_1 = __importDefault(require("./utils/DeviceSelector"));
 const TezosLedgerWallet_1 = require("./identity/tezos/TezosLedgerWallet");
 FetchSelector_1.default.setFetch(node_fetch_1.default);
-DeviceUtils_1.default.setLedgerUtils(TezosLedgerWallet_1.TezosLedgerWallet);
+DeviceSelector_1.default.setLedgerUtils(TezosLedgerWallet_1.TezosLedgerWallet);
 __export(require("./chain/tezos/TezosNodeQuery"));
 __export(require("./chain/tezos/TezosOperations"));
 __export(require("./identity/tezos/TezosFileWallet"));

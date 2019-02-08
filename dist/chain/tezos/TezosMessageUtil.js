@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bs58check_1 = __importDefault(require("bs58check"));
 const base_n_1 = __importDefault(require("base-n"));
+const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const base128 = base_n_1.default.create({
     characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
 });
@@ -212,5 +213,10 @@ var TezosMessageUtils;
         }
     }
     TezosMessageUtils.writeBufferWithHint = writeBufferWithHint;
+    function computeOperationHash(signedOpGroup) {
+        const hash = CryptoUtils_1.CryptoUtils.simpleHash(signedOpGroup.bytes);
+        return TezosMessageUtils.readBufferWithHint(hash, "op");
+    }
+    TezosMessageUtils.computeOperationHash = computeOperationHash;
 })(TezosMessageUtils = exports.TezosMessageUtils || (exports.TezosMessageUtils = {}));
 //# sourceMappingURL=TezosMessageUtil.js.map

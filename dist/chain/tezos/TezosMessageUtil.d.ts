@@ -1,3 +1,4 @@
+import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 export declare namespace TezosMessageUtils {
     function writeBoolean(value: boolean): string;
     function readBoolean(hex: string): boolean;
@@ -19,4 +20,5 @@ export declare namespace TezosMessageUtils {
     function readSignatureWithHint(b: Buffer | Uint8Array, hint: string): string;
     function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string;
     function writeBufferWithHint(b: string, hint: string): Buffer;
+    function computeOperationHash(signedOpGroup: SignedOperationGroup): string;
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-class DeviceUtils {
+class DeviceSelector {
     static setLedgerUtils(ledger) {
         this.ledgerUtils = ledger;
     }
@@ -8,6 +8,6 @@ class DeviceUtils {
         return this.ledgerUtils;
     }
 }
-DeviceUtils.ledgerUtils = null;
-exports.default = DeviceUtils;
-//# sourceMappingURL=DeviceUtils.js.map
+DeviceSelector.ledgerUtils = null;
+exports.default = DeviceSelector;
+//# sourceMappingURL=DeviceSelector.js.map
