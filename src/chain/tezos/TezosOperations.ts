@@ -1,5 +1,3 @@
-import sodium = require('libsodium-wrappers');
-
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "../../types/tezos/TezosChainTypes";
@@ -36,7 +34,7 @@ export namespace TezosOperations {
                 const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
                 const privateKeyBytes = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
 
-                opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
+                opSignature = CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
         const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();

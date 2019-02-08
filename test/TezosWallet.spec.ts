@@ -10,7 +10,7 @@ import {Error} from "../src/types/wallet/Error";
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
-        fs.unlinkSync("//tmp//test.tezwallet");
+        try { fs.unlinkSync("//tmp//test.tezwallet"); } catch { /* eh */ }
         const result = await TezosFileWallet.createWallet("//tmp//test.tezwallet", "passwordwithentropy");
         expect(result).to.deep.equal({identities: []});
     });
@@ -86,15 +86,11 @@ describe('unlockIdentityWithMnemonic()', () => {
 
 describe('getKeysFromMnemonicAndPassphrase()', () => {
     it('should produce the correct mnemonic-based key pair', () => {
-        const result = <KeyStore> TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
-            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
-            'password',
-            '',
-            false,
-            StoreType.Mnemonic
-        );
+        const result = <KeyStore> TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', '', false, StoreType.Mnemonic);
+
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
+
     it('should be 15 words', () => {
         const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
@@ -103,8 +99,10 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
             true,
             StoreType.Mnemonic
         );
+
         expect(result.error).to.equal("The mnemonic should be 15 words.");
     });
+
     it('should detect invalid mnemonics', () => {
         const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
@@ -113,6 +111,7 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
             true,
             StoreType.Mnemonic
         );
+
         expect(result.error).to.equal("The given mnemonic could not be validated.");
     });
 });

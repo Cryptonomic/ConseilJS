@@ -1,4 +1,5 @@
-import * as sodium from 'libsodium-wrappers-sumo';
+import * as sodium from 'libsodium-wrappers';
+import * as sodiumsumo from 'libsodium-wrappers-sumo';
 import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
 
@@ -11,7 +12,7 @@ export namespace CryptoUtils {
      * @returns {Buffer} Salt
      */
     export function generateSaltForPwHash() {
-        return crypto.randomBytes(sodium.crypto_pwhash_SALTBYTES)
+        return crypto.randomBytes(sodiumsumo.crypto_pwhash_SALTBYTES)
     }
 
     /**
@@ -26,17 +27,17 @@ export namespace CryptoUtils {
         if (passwordStrength < 3) {
             throw new Error('The password strength should not be less than 3.');
         }
-        const messageBytes = sodium.from_string(message);
-        const keyBytes = sodium.crypto_pwhash(
-            sodium.crypto_box_SEEDBYTES,
+        const messageBytes = sodiumsumo.from_string(message);
+        const keyBytes = sodiumsumo.crypto_pwhash(
+            sodiumsumo.crypto_box_SEEDBYTES,
             passphrase,
             salt,
-            sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
-            sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
-            sodium.crypto_pwhash_ALG_DEFAULT
+            sodiumsumo.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_ALG_DEFAULT
         );
-        const nonce = Buffer.from(sodium.randombytes_buf(sodium.crypto_box_NONCEBYTES));
-        const cipherText = Buffer.from(sodium.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
+        const nonce = Buffer.from(sodiumsumo.randombytes_buf(sodiumsumo.crypto_box_NONCEBYTES));
+        const cipherText = Buffer.from(sodiumsumo.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
 
         return Buffer.concat([nonce, cipherText]);
     }
@@ -49,24 +50,24 @@ export namespace CryptoUtils {
      * @returns {any} Decrypted message
      */
     export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
-        const keyBytes = sodium.crypto_pwhash(
-            sodium.crypto_box_SEEDBYTES,
+        const keyBytes = sodiumsumo.crypto_pwhash(
+            sodiumsumo.crypto_box_SEEDBYTES,
             passphrase,
             salt,
-            sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE,
-            sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE,
-            sodium.crypto_pwhash_ALG_DEFAULT
+            sodiumsumo.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_ALG_DEFAULT
         );
-        if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
+        if (nonce_and_ciphertext.length < sodiumsumo.crypto_secretbox_NONCEBYTES + sodiumsumo.crypto_secretbox_MACBYTES) {
             throw new Error("The cipher text is of insufficient length");
         }
-        const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
-        const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
-        return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
+        const nonce = nonce_and_ciphertext.slice(0, sodiumsumo.crypto_secretbox_NONCEBYTES);
+        const ciphertext = nonce_and_ciphertext.slice(sodiumsumo.crypto_secretbox_NONCEBYTES);
+        return sodiumsumo.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
     }
 
     export function simpleHash(payload: Buffer, length: number) : Buffer {
-        return sodium.crypto_generichash(length, payload);
+        return sodiumsumo.crypto_generichash(length, payload);
     }
 
     /**
@@ -79,8 +80,12 @@ export namespace CryptoUtils {
     }
 
     export function generateKeys(seed: string) {
-        const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
+        const key_pair = sodiumsumo.crypto_sign_seed_keypair(seed, '');
 
         return { privateKey: key_pair.privateKey, publicKey: key_pair.publicKey };
+    }
+
+    export function signDetached(payload: Buffer, privateKey: Buffer) : Buffer {
+        return sodium.crypto_sign_detached(payload, privateKey);
     }
 }
