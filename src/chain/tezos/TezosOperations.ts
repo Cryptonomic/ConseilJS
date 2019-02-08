@@ -6,9 +6,9 @@ import * as TezosTypes from "../../types/tezos/TezosChainTypes";
 import { TezosMessageCodec } from "./TezosMessageCodec";
 import {TezosMessageUtils} from './TezosMessageUtil';
 
-import DeviceUtils from '../../utils/DeviceUtils';
+import DeviceSelector from '../../utils/DeviceSelector';
 
-let LedgerUtils = DeviceUtils.getLedgerUtils();
+let LedgerUtils = DeviceSelector.getLedgerUtils();
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -44,17 +44,6 @@ export namespace TezosOperations {
             bytes: signedOpBytes,
             signature: hexSignature.toString()
         };
-    }
-
-    /**
-     * Computes a has of an operation group then encodes it with Base58-check. This value becomes the operation group id.
-     * 
-     * @param {SignedOperationGroup} signedOpGroup Signed operation group
-     * @returns {string} Base58Check hash of signed operation
-     */
-    export function computeOperationHash(signedOpGroup: TezosTypes.SignedOperationGroup): string {
-        const hash: Buffer = sodium.crypto_generichash(32, signedOpGroup.bytes);
-        return TezosMessageUtils.readBufferWithHint(hash, "op");
     }
 
     /**

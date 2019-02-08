@@ -1,10 +1,10 @@
 import fetch from 'node-fetch';
 import FetchSelector from './utils/FetchSelector';
-import DeviceUtils from './utils/DeviceUtils';
+import DeviceSelector from './utils/DeviceSelector';
 import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 
 FetchSelector.setFetch(fetch);
-DeviceUtils.setLedgerUtils(TezosLedgerWallet);
+DeviceSelector.setLedgerUtils(TezosLedgerWallet);
 
 export * from "./chain/tezos/TezosNodeQuery";
 export * from "./chain/tezos/TezosOperations";

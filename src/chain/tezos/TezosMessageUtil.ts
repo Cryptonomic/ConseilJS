@@ -2,6 +2,9 @@
 import base58check from "bs58check";
 import baseN from "base-n";
 
+import {SignedOperationGroup} from '../../types/tezos/TezosChainTypes';
+import {CryptoUtils} from '../../utils/CryptoUtils';
+
 const base128 = baseN.create({
   characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
 });
@@ -268,5 +271,16 @@ export namespace TezosMessageUtils {
     } else {
       throw new Error(`Unsupported hint, '${hint}'`);
     }
+  }
+
+    /**
+     * Computes a has of an operation group then encodes it with Base58-check. This value becomes the operation group id.
+     * 
+     * @param {SignedOperationGroup} signedOpGroup Signed operation group
+     * @returns {string} Base58Check hash of signed operation
+     */
+    export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
+      const hash = CryptoUtils.simpleHash(signedOpGroup.bytes);
+      return TezosMessageUtils.readBufferWithHint(hash, "op");
   }
 }

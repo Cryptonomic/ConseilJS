@@ -2,7 +2,7 @@ import * as fs from "fs";
 
 import {Wallet, EncryptedWalletVersionOne} from "../../types/wallet/Wallet";
 import {KeyStore} from "../../types/wallet/KeyStore";
-import * as CryptoUtils from "../../utils/CryptoUtils";
+import {CryptoUtils} from "../../utils/CryptoUtils";
 import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
 
 /**
