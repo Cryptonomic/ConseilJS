@@ -18,7 +18,8 @@ export enum ConseilOperator {
     GT = 'gt', 
     AFTER = 'after',
     STARTSWITH = 'startsWith',
-    ENDSWITH = 'endsWith'
+    ENDSWITH = 'endsWith',
+    ISNULL = 'isnull'
 }
 
 export interface ConseilOrdering {
