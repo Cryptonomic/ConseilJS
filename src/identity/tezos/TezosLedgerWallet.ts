@@ -32,7 +32,7 @@ export namespace TezosLedgerWallet {
         //We slice off a byte to make sure we have a 64 bits coming in from the ledger package
         const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
         const publicKey = TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
-        const publicKeyHash = TezosMessageUtils.readAddressWithHint(sodium.crypto_generichash(20, publicKeyBytes), 'tz1');
+        const publicKeyHash = TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
 
         return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: StoreType.Hardware };
     }

@@ -274,13 +274,18 @@ export namespace TezosMessageUtils {
   }
 
     /**
-     * Computes a has of an operation group then encodes it with Base58-check. This value becomes the operation group id.
+     * Computes a hash of an operation group then encodes it with Base58-check. This value becomes the operation group id.
      * 
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {string} Base58Check hash of signed operation
      */
     export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
-      const hash = CryptoUtils.simpleHash(signedOpGroup.bytes);
-      return TezosMessageUtils.readBufferWithHint(hash, "op");
-  }
+      const hash = CryptoUtils.simpleHash(signedOpGroup.bytes, 32);
+      return readBufferWithHint(hash, "op");
+    }
+
+    export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
+      const hash = CryptoUtils.simpleHash(key, 20);
+      return readAddressWithHint(hash, prefix);
+    }
 }

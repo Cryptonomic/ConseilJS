@@ -71,8 +71,8 @@ export namespace TezosWalletUtil {
         const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
         const privateKey = TezosMessageUtils.readKeyWithHint(key_pair.privateKey, "edsk");
         const publicKey = TezosMessageUtils.readKeyWithHint(key_pair.publicKey, "edpk");
-        
-        const publicKeyHash = TezosMessageUtils.readAddressWithHint(sodium.crypto_generichash(20, key_pair.publicKey), 'tz1');
+        const publicKeyHash = TezosMessageUtils.computeKeyHash(key_pair.publicKey, 'tz1');
+
         if (checkPKH && publicKeyHash !== pkh) { return {error: "The given mnemonic and passphrase do not correspond to the applied public key hash"}; }
 
         return { publicKey, privateKey, publicKeyHash, seed, storeType };

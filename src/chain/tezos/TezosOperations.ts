@@ -3,8 +3,9 @@ import sodium = require('libsodium-wrappers');
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {TezosNode} from "./TezosNodeQuery";
 import * as TezosTypes from "../../types/tezos/TezosChainTypes";
-import { TezosMessageCodec } from "./TezosMessageCodec";
+import {TezosMessageCodec} from "./TezosMessageCodec";
 import {TezosMessageUtils} from './TezosMessageUtil';
+import {CryptoUtils} from '../../utils/CryptoUtils';
 
 import DeviceSelector from '../../utils/DeviceSelector';
 
@@ -33,8 +34,9 @@ export namespace TezosOperations {
                 break;
             default:
                 const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
-                const hashedWatermarkedOpBytes: Buffer = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
-                const privateKeyBytes: Buffer = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
+                const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(watermarkedForgedOperationBytes, 32);
+                const privateKeyBytes = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
+
                 opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
@@ -52,6 +54,7 @@ export namespace TezosOperations {
      * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
+     * 
      * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
@@ -164,10 +167,7 @@ export namespace TezosOperations {
         checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(network, signedOpGroup);
 
-        return {
-            results: appliedOp[0],
-            operationGroupID: injectedOperation
-        };
+        return { results: appliedOp[0], operationGroupID: injectedOperation };
     }
 
     /**

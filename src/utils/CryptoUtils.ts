@@ -65,8 +65,8 @@ export namespace CryptoUtils {
         return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
     }
 
-    export function simpleHash(payload: Buffer) : Buffer {
-        return sodium.crypto_generichash(32, payload);
+    export function simpleHash(payload: Buffer, length: number) : Buffer {
+        return sodium.crypto_generichash(length, payload);
     }
 
     /**
