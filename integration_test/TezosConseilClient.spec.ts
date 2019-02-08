@@ -6,7 +6,7 @@ import FetchSelector from '../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import {ConseilQueryBuilder} from "../src/reporting/ConseilQueryBuilder";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
+import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
 import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient'
 import {servers} from "./servers";
 
@@ -34,7 +34,9 @@ describe('Tezos date interface test suite', () => {
         expect(result.length).to.equal(1);
     });
 
-    //getOperationGroup
+    //TODO: getOperationGroup
+
+    //TODO: getOperationGroups
 
     it('retrieve some blocks', async () => {
         let q = ConseilQueryBuilder.blankQuery();
@@ -52,23 +54,23 @@ describe('Tezos date interface test suite', () => {
     it('retrieve a single an account', async () => {
         var result = await TezosConseilClient.getAccount({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e');
 
-        //console.log(util.inspect(result, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
+        expect(result.length).to.equal(1);
+        expect(result[0]['account_id']).to.equal('tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'this test may fail based on alphanet state');
     });
 
-    it('retrieve a accounts for a manager address', async () => {
+    it('retrieve accounts for a manager address', async () => {
         let accountsquery = ConseilQueryBuilder.blankQuery();
-        accountsquery = ConseilQueryBuilder.addPredicate(accountsquery, 'manager', ConseilOperator.EQ, ['tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e'], false);
+        accountsquery = ConseilQueryBuilder.addPredicate(accountsquery, 'manager', ConseilOperator.EQ, ['tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2'], false);
+        accountsquery = ConseilQueryBuilder.addPredicate(accountsquery, 'account_id', ConseilOperator.EQ, ['tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2'], true);
         accountsquery = ConseilQueryBuilder.addOrdering(accountsquery, 'block_level', ConseilSortDirection.DESC);
         accountsquery = ConseilQueryBuilder.setLimit(accountsquery, 300);
-        const accounts = await TezosConseilClient.getAccounts({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', accountsquery);
+        const result = await TezosConseilClient.getAccounts({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', accountsquery);
 
-        console.log(accounts.length);
-        console.log(accounts.filter(a => a.account_id !== 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e').length);
-        //console.log(util.inspect(accounts, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
+        expect(result.length).to.equal(1, 'this test may fail based on alphanet state');
+        expect(result[0]['account_id']).to.equal('KT1V3ri4nnNQTsG52ypMQhZsnZpJEDi6gB4J', 'this test may fail based on alphanet state');
+
         //console.log(util.inspect(accountsquery, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
     });
-
-    //getOperationGroups
 
     it('retrieve transactions for an account', async () => {
         let origin = ConseilQueryBuilder.blankQuery();
@@ -86,7 +88,7 @@ describe('Tezos date interface test suite', () => {
         var result = await Promise.all([target, origin].map(q => TezosConseilClient.getOperations({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', q)))
             .then(responses => responses.reduce((result, r) => { r.forEach(rr => result.push(rr)); return result; }));
 
-        expect(result.length).to.equal(9, 'this may vary as the network changes');
+        expect(result.length).to.equal(10, 'this may vary as the network changes');
     });
 
     it('calculate average fees for transaction type operations', async () => {
@@ -102,7 +104,6 @@ describe('Tezos date interface test suite', () => {
         const lowAverageFee = sortedfees.slice(0, 300).reduce((s, c) => s + c) / 300;
         const mediumAverageFee = sortedfees.slice(300, 700).reduce((s, c) => s + c) / 400;
         const highAverageFee = sortedfees.slice(700).reduce((s, c) => s + c) / 300;
-
 
         expect(lowAverageFee).to.lessThan(mediumAverageFee);
         expect(mediumAverageFee).to.lessThan(highAverageFee);

@@ -2,11 +2,11 @@ import 'mocha';
 import {expect} from 'chai';
 import fetch from 'node-fetch';
 
-import FetchSelector from '../../src/utils/FetchSelector';
+import FetchSelector from '../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {ConseilMetadataClient} from '../../src/reporting/ConseilMetadataClient'
-import {servers} from "../servers";
+import {ConseilMetadataClient} from '../src/reporting/ConseilMetadataClient'
+import {servers} from "./servers";
 
 const ConseilV2URL = servers.conseilServer;
 const ConseilV2APIKey = servers.conseilApiKey;
