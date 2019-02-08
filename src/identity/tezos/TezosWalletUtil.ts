@@ -1,9 +1,9 @@
 import * as bip39 from 'bip39';
-import * as sodium  from 'libsodium-wrappers-sumo';
 
 import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 import {Error} from "../../types/wallet/Error";
+import {CryptoUtils} from '../../utils/CryptoUtils'
 
 export namespace TezosWalletUtil {
     /**
@@ -68,7 +68,7 @@ export namespace TezosWalletUtil {
         if (!bip39.validateMnemonic(mnemonic)) { return {error: "The given mnemonic could not be validated."}; }
 
         const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-        const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
+        const key_pair = CryptoUtils.generateKeys(seed);
         const privateKey = TezosMessageUtils.readKeyWithHint(key_pair.privateKey, "edsk");
         const publicKey = TezosMessageUtils.readKeyWithHint(key_pair.publicKey, "edpk");
         const publicKeyHash = TezosMessageUtils.computeKeyHash(key_pair.publicKey, 'tz1');

@@ -33,15 +33,14 @@ export namespace TezosOperations {
                 opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
                 break;
             default:
-                const watermarkedForgedOperationBytes: Buffer = sodium.from_hex(watermarkedForgedOperationBytesHex);
-                const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(watermarkedForgedOperationBytes, 32);
+                const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
                 const privateKeyBytes = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
 
                 opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
         const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
-        const signedOpBytes = Buffer.concat([Buffer.from(sodium.from_hex(forgedOperation)), Buffer.from(opSignature)]);
+        const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
         return {
             bytes: signedOpBytes,
             signature: hexSignature.toString()
@@ -143,8 +142,7 @@ export namespace TezosOperations {
      * @returns {Promise<InjectedOperation>} ID of injected operation
      */
     export function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string> {
-        const payload = sodium.to_hex(signedOpGroup.bytes);
-        return TezosNode.injectOperation(network, payload);
+        return TezosNode.injectOperation(network, signedOpGroup.bytes.toString('hex'));
     }
 
     /**

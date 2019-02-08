@@ -77,4 +77,10 @@ export namespace CryptoUtils {
         const results = zxcvbn(password);
         return results.score;
     }
+
+    export function generateKeys(seed: string) {
+        const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
+
+        return { privateKey: key_pair.privateKey, publicKey: key_pair.publicKey };
+    }
 }

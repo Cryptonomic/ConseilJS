@@ -1,4 +1,3 @@
-import * as sodium from 'libsodium-wrappers-sumo';
 /**
  * These two lines allow us to interface with Ledgerjs and use their transport layer code
  */
@@ -30,7 +29,7 @@ export namespace TezosLedgerWallet {
 
         const hexEncodedPublicKey = await getTezosPublicKey(derivationPath);
         //We slice off a byte to make sure we have a 64 bits coming in from the ledger package
-        const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
+        const publicKeyBytes = Buffer.from(hexEncodedPublicKey).slice(1);
         const publicKey = TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
         const publicKeyHash = TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
 
@@ -62,7 +61,7 @@ export namespace TezosLedgerWallet {
         const xtz = new App(transport);
         const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);
         const hexEncodedSignature = result.signature;
-        const signatureBytes = sodium.from_hex(hexEncodedSignature);
+        const signatureBytes = Buffer.from(hexEncodedSignature);
 
         return signatureBytes;
     }
