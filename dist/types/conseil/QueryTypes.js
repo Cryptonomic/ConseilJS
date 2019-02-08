@@ -17,5 +17,6 @@ var ConseilOperator;
     ConseilOperator["AFTER"] = "after";
     ConseilOperator["STARTSWITH"] = "startsWith";
     ConseilOperator["ENDSWITH"] = "endsWith";
+    ConseilOperator["ISNULL"] = "isnull";
 })(ConseilOperator = exports.ConseilOperator || (exports.ConseilOperator = {}));
 //# sourceMappingURL=QueryTypes.js.map
