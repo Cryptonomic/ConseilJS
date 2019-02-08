@@ -8,4 +8,5 @@ export declare namespace CryptoUtils {
         privateKey: any;
         publicKey: any;
     };
+    function signDetached(payload: Buffer, privateKey: Buffer): Buffer;
 }

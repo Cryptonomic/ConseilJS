@@ -11,7 +11,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const sodium = require("libsodium-wrappers");
 const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
@@ -33,7 +32,7 @@ var TezosOperations;
                 default:
                     const hashedWatermarkedOpBytes = CryptoUtils_1.CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
                     const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
-                    opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
+                    opSignature = CryptoUtils_1.CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
             const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
             const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
