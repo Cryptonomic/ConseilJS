@@ -7,15 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
-    result["default"] = mod;
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const sodium = __importStar(require("libsodium-wrappers-sumo"));
 let Transport = require("@ledgerhq/hw-transport-node-hid").default;
 let App = require("basil-tezos-ledger").default;
 const TezosMessageUtil_1 = require("../../chain/tezos/TezosMessageUtil");
@@ -40,9 +32,9 @@ var TezosLedgerWallet;
                 throw new Error("Unsupported hardware device");
             }
             const hexEncodedPublicKey = yield getTezosPublicKey(derivationPath);
-            const publicKeyBytes = sodium.from_hex(hexEncodedPublicKey).slice(1);
+            const publicKeyBytes = Buffer.from(hexEncodedPublicKey).slice(1);
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
-            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.readAddressWithHint(sodium.crypto_generichash(20, publicKeyBytes), 'tz1');
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
             return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Hardware };
         });
     }
@@ -63,7 +55,7 @@ var TezosLedgerWallet;
             const xtz = new App(transport);
             const result = yield xtz.signOperation(derivationPath, watermarkedOpInHex);
             const hexEncodedSignature = result.signature;
-            const signatureBytes = sodium.from_hex(hexEncodedSignature);
+            const signatureBytes = Buffer.from(hexEncodedSignature);
             return signatureBytes;
         });
     }

@@ -214,9 +214,14 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.writeBufferWithHint = writeBufferWithHint;
     function computeOperationHash(signedOpGroup) {
-        const hash = CryptoUtils_1.CryptoUtils.simpleHash(signedOpGroup.bytes);
-        return TezosMessageUtils.readBufferWithHint(hash, "op");
+        const hash = CryptoUtils_1.CryptoUtils.simpleHash(signedOpGroup.bytes, 32);
+        return readBufferWithHint(hash, "op");
     }
     TezosMessageUtils.computeOperationHash = computeOperationHash;
+    function computeKeyHash(key, prefix = 'tz1') {
+        const hash = CryptoUtils_1.CryptoUtils.simpleHash(key, 20);
+        return readAddressWithHint(hash, prefix);
+    }
+    TezosMessageUtils.computeKeyHash = computeKeyHash;
 })(TezosMessageUtils = exports.TezosMessageUtils || (exports.TezosMessageUtils = {}));
 //# sourceMappingURL=TezosMessageUtil.js.map

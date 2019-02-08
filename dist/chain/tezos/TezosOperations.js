@@ -16,6 +16,7 @@ const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeQuery_1 = require("./TezosNodeQuery");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
+const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const DeviceSelector_1 = __importDefault(require("../../utils/DeviceSelector"));
 let LedgerUtils = DeviceSelector_1.default.getLedgerUtils();
 var TezosOperations;
@@ -30,13 +31,12 @@ var TezosOperations;
                     opSignature = yield LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
                     break;
                 default:
-                    const watermarkedForgedOperationBytes = sodium.from_hex(watermarkedForgedOperationBytesHex);
-                    const hashedWatermarkedOpBytes = sodium.crypto_generichash(32, watermarkedForgedOperationBytes);
+                    const hashedWatermarkedOpBytes = CryptoUtils_1.CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
                     const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
                     opSignature = sodium.crypto_sign_detached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
             const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
-            const signedOpBytes = Buffer.concat([Buffer.from(sodium.from_hex(forgedOperation)), Buffer.from(opSignature)]);
+            const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
             return {
                 bytes: signedOpBytes,
                 signature: hexSignature.toString()
@@ -105,8 +105,7 @@ var TezosOperations;
         }
     }
     function injectOperation(network, signedOpGroup) {
-        const payload = sodium.to_hex(signedOpGroup.bytes);
-        return TezosNodeQuery_1.TezosNode.injectOperation(network, payload);
+        return TezosNodeQuery_1.TezosNode.injectOperation(network, signedOpGroup.bytes.toString('hex'));
     }
     TezosOperations.injectOperation = injectOperation;
     function sendOperation(network, operations, keyStore, derivationPath) {
@@ -117,10 +116,7 @@ var TezosOperations;
             const appliedOp = yield applyOperation(network, blockHead, operations, signedOpGroup);
             checkAppliedOperationResults(appliedOp);
             const injectedOperation = yield injectOperation(network, signedOpGroup);
-            return {
-                results: appliedOp[0],
-                operationGroupID: injectedOperation
-            };
+            return { results: appliedOp[0], operationGroupID: injectedOperation };
         });
     }
     TezosOperations.sendOperation = sendOperation;

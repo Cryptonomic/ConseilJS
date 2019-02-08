@@ -8,9 +8,9 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const bip39 = __importStar(require("bip39"));
+const sodium = __importStar(require("sodium-native"));
 const TezosMessageUtil_1 = require("../../chain/tezos/TezosMessageUtil");
 const KeyStore_1 = require("../../types/wallet/KeyStore");
-const CryptoUtils_1 = require("../../utils/CryptoUtils");
 var TezosWalletUtil;
 (function (TezosWalletUtil) {
     function unlockFundraiserIdentity(mnemonic, email, password, pkh) {
@@ -33,10 +33,12 @@ var TezosWalletUtil;
             return { error: "The given mnemonic could not be validated." };
         }
         const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
-        const key_pair = CryptoUtils_1.CryptoUtils.generateKeys(seed);
-        const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(key_pair.privateKey, "edsk");
-        const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(key_pair.publicKey, "edpk");
-        const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(key_pair.publicKey, 'tz1');
+        let pk = Buffer.alloc(32);
+        let sk = Buffer.alloc(64);
+        const key_pair = sodium.crypto_sign_seed_keypair(pk, sk, seed);
+        const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(sk, "edsk");
+        const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(pk, "edpk");
+        const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(pk, 'tz1');
         if (checkPKH && publicKeyHash !== pkh) {
             return { error: "The given mnemonic and passphrase do not correspond to the applied public key hash" };
         }
@@ -44,4 +46,4 @@ var TezosWalletUtil;
     }
     TezosWalletUtil.getKeysFromMnemonicAndPassphrase = getKeysFromMnemonicAndPassphrase;
 })(TezosWalletUtil = exports.TezosWalletUtil || (exports.TezosWalletUtil = {}));
-//# sourceMappingURL=TezosWalletUtil.js.map
+//# sourceMappingURL=TezosWalletUtil copy.js.map

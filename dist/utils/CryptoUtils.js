@@ -41,8 +41,8 @@ var CryptoUtils;
         return sodium.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
     }
     CryptoUtils.decryptMessage = decryptMessage;
-    function simpleHash(payload) {
-        return sodium.crypto_generichash(32, payload);
+    function simpleHash(payload, length) {
+        return sodium.crypto_generichash(length, payload);
     }
     CryptoUtils.simpleHash = simpleHash;
     function getPasswordStrength(password) {
@@ -50,5 +50,10 @@ var CryptoUtils;
         return results.score;
     }
     CryptoUtils.getPasswordStrength = getPasswordStrength;
+    function generateKeys(seed) {
+        const key_pair = sodium.crypto_sign_seed_keypair(seed, '');
+        return { privateKey: key_pair.privateKey, publicKey: key_pair.publicKey };
+    }
+    CryptoUtils.generateKeys = generateKeys;
 })(CryptoUtils = exports.CryptoUtils || (exports.CryptoUtils = {}));
 //# sourceMappingURL=CryptoUtils.js.map
