@@ -1,6 +1,5 @@
 import "mocha";
 import { expect } from "chai";
-import sodium = require('libsodium-wrappers');
 import nock from 'nock';
 
 import { TezosOperations, TezosWalletUtil, TezosNode } from "../src";
