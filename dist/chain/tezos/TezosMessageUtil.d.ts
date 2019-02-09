@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 export declare namespace TezosMessageUtils {
     function writeBoolean(value: boolean): string;
