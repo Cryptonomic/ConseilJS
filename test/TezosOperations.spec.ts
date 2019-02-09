@@ -145,7 +145,7 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNode.injectOperation test ---', mochaAsync(async () => {
-            const payload = sodium.to_hex(signedOpGroup.bytes);
+            const payload = signedOpGroup.bytes.toString('hex');
             const injectOp = await TezosNode.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
