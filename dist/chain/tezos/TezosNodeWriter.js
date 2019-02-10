@@ -12,14 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const KeyStore_1 = require("../../types/wallet/KeyStore");
-const TezosNodeQuery_1 = require("./TezosNodeQuery");
+const TezosNodeReader_1 = require("./TezosNodeReader");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const DeviceSelector_1 = __importDefault(require("../../utils/DeviceSelector"));
 let LedgerUtils = DeviceSelector_1.default.getLedgerUtils();
-var TezosOperations;
-(function (TezosOperations) {
+var TezosNodeWriter;
+(function (TezosNodeWriter) {
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const watermark = '03';
@@ -42,11 +42,11 @@ var TezosOperations;
             };
         });
     }
-    TezosOperations.signOperationGroup = signOperationGroup;
+    TezosNodeWriter.signOperationGroup = signOperationGroup;
     function forgeOperations(network, blockHead, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = { branch: blockHead.hash, contents: operations };
-            const ops = yield TezosNodeQuery_1.TezosNode.forgeOperation(network, payload);
+            const ops = yield TezosNodeReader_1.TezosNodeReader.forgeOperation(network, payload);
             let optypes = Array.from(operations.map(o => o["kind"]));
             let validate = false;
             for (let t in optypes) {
@@ -80,7 +80,7 @@ var TezosOperations;
             return ops;
         });
     }
-    TezosOperations.forgeOperations = forgeOperations;
+    TezosNodeWriter.forgeOperations = forgeOperations;
     function applyOperation(network, blockHead, operations, signedOpGroup) {
         const payload = [{
                 protocol: blockHead.protocol,
@@ -88,9 +88,9 @@ var TezosOperations;
                 contents: operations,
                 signature: signedOpGroup.signature
             }];
-        return TezosNodeQuery_1.TezosNode.applyOperation(network, payload);
+        return TezosNodeReader_1.TezosNodeReader.applyOperation(network, payload);
     }
-    TezosOperations.applyOperation = applyOperation;
+    TezosNodeWriter.applyOperation = applyOperation;
     function checkAppliedOperationResults(appliedOp) {
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0];
@@ -104,12 +104,12 @@ var TezosOperations;
         }
     }
     function injectOperation(network, signedOpGroup) {
-        return TezosNodeQuery_1.TezosNode.injectOperation(network, signedOpGroup.bytes.toString('hex'));
+        return TezosNodeReader_1.TezosNodeReader.injectOperation(network, signedOpGroup.bytes.toString('hex'));
     }
-    TezosOperations.injectOperation = injectOperation;
+    TezosNodeWriter.injectOperation = injectOperation;
     function sendOperation(network, operations, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const forgedOperationGroup = yield forgeOperations(network, blockHead, operations);
             const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
             const appliedOp = yield applyOperation(network, blockHead, operations, signedOpGroup);
@@ -118,7 +118,7 @@ var TezosOperations;
             return { results: appliedOp[0], operationGroupID: injectedOperation };
         });
     }
-    TezosOperations.sendOperation = sendOperation;
+    TezosNodeWriter.sendOperation = sendOperation;
     function appendRevealOperation(network, keyStore, account, operations) {
         return __awaiter(this, void 0, void 0, function* () {
             const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(network, keyStore);
@@ -140,11 +140,11 @@ var TezosOperations;
             return returnedOperations;
         });
     }
-    TezosOperations.appendRevealOperation = appendRevealOperation;
+    TezosNodeWriter.appendRevealOperation = appendRevealOperation;
     function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const sourceAccount = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
@@ -159,11 +159,11 @@ var TezosOperations;
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
-    TezosOperations.sendTransactionOperation = sendTransactionOperation;
+    TezosNodeWriter.sendTransactionOperation = sendTransactionOperation;
     function sendDelegationOperation(network, keyStore, delegate, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const delegation = {
                 kind: "delegation",
                 source: keyStore.publicKeyHash,
@@ -177,23 +177,23 @@ var TezosOperations;
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
-    TezosOperations.sendDelegationOperation = sendDelegationOperation;
+    TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
     function sendAccountOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
             return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
         });
     }
-    TezosOperations.sendAccountOriginationOperation = sendAccountOriginationOperation;
+    TezosNodeWriter.sendAccountOriginationOperation = sendAccountOriginationOperation;
     function sendContractOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage) {
         return __awaiter(this, void 0, void 0, function* () {
             return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
         });
     }
-    TezosOperations.sendContractOriginationOperation = sendContractOriginationOperation;
+    TezosNodeWriter.sendContractOriginationOperation = sendContractOriginationOperation;
     function sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const origination = {
                 kind: "origination",
                 source: keyStore.publicKeyHash,
@@ -214,8 +214,8 @@ var TezosOperations;
     }
     function sendContractInvocationOperation(network, keyStore, to, amount, fee, derivationPath, storage_limit, gas_limit, parameters) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const sourceAccount = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const sourceAccount = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
@@ -231,29 +231,29 @@ var TezosOperations;
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
-    TezosOperations.sendContractInvocationOperation = sendContractInvocationOperation;
+    TezosNodeWriter.sendContractInvocationOperation = sendContractInvocationOperation;
     function isImplicitAndEmpty(network, accountHash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, accountHash);
             const isImplicit = accountHash.toLowerCase().startsWith("tz");
             const isEmpty = account.balance === 0;
             return (isImplicit && isEmpty);
         });
     }
-    TezosOperations.isImplicitAndEmpty = isImplicitAndEmpty;
+    TezosNodeWriter.isImplicitAndEmpty = isImplicitAndEmpty;
     function isManagerKeyRevealedForAccount(network, keyStore) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const managerKey = yield TezosNodeQuery_1.TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const managerKey = yield TezosNodeReader_1.TezosNodeReader.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             return managerKey.key != null;
         });
     }
-    TezosOperations.isManagerKeyRevealedForAccount = isManagerKeyRevealedForAccount;
+    TezosNodeWriter.isManagerKeyRevealedForAccount = isManagerKeyRevealedForAccount;
     function sendKeyRevealOperation(network, keyStore, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeQuery_1.TezosNode.getBlockHead(network);
-            const account = yield TezosNodeQuery_1.TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
+            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
             const revealOp = {
                 kind: "reveal",
                 source: keyStore.publicKeyHash,
@@ -267,11 +267,11 @@ var TezosOperations;
             return sendOperation(network, operations, keyStore, derivationPath);
         });
     }
-    TezosOperations.sendKeyRevealOperation = sendKeyRevealOperation;
+    TezosNodeWriter.sendKeyRevealOperation = sendKeyRevealOperation;
     function sendIdentityActivationOperation(network, keyStore, activationCode, derivationPath) {
         const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
         return sendOperation(network, [activation], keyStore, derivationPath);
     }
-    TezosOperations.sendIdentityActivationOperation = sendIdentityActivationOperation;
-})(TezosOperations = exports.TezosOperations || (exports.TezosOperations = {}));
-//# sourceMappingURL=TezosOperations.js.map
+    TezosNodeWriter.sendIdentityActivationOperation = sendIdentityActivationOperation;
+})(TezosNodeWriter = exports.TezosNodeWriter || (exports.TezosNodeWriter = {}));
+//# sourceMappingURL=TezosNodeWriter.js.map

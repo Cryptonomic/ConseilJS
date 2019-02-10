@@ -1,5 +1,5 @@
-export * from './chain/tezos/TezosNodeQuery';
-export * from './chain/tezos/TezosOperations';
+export * from './chain/tezos/TezosNodeReader';
+export * from './chain/tezos/TezosNodeWriter';
 export * from './identity/tezos/TezosWalletUtil';
 export * from './identity/tezos/TezosFileWallet';
 export * from './reporting/tezos/TezosConseilClient';

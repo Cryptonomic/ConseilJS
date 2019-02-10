@@ -1,6 +1,6 @@
 import { KeyStore } from "../../types/wallet/KeyStore";
 import * as TezosTypes from "../../types/tezos/TezosChainTypes";
-export declare namespace TezosOperations {
+export declare namespace TezosNodeWriter {
     function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup>;
     function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string>;
     function applyOperation(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[], signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]>;

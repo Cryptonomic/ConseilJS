@@ -17,10 +17,10 @@ export declare namespace TezosMessageUtils {
     function readPublicKey(hex: string): string;
     function writePublicKey(publicKey: string): string;
     function readKeyWithHint(b: Buffer | Uint8Array, hint: string): string;
-    function writeKeyWithHint(b: string, hint: string): Buffer;
+    function writeKeyWithHint(key: string, hint: string): Buffer;
     function readSignatureWithHint(b: Buffer | Uint8Array, hint: string): string;
     function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string;
-    function writeBufferWithHint(b: string, hint: string): Buffer;
+    function writeBufferWithHint(b: string): Buffer;
     function computeOperationHash(signedOpGroup: SignedOperationGroup): string;
     function computeKeyHash(key: Buffer, prefix?: string): string;
 }

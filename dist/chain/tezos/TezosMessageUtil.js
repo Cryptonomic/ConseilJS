@@ -172,9 +172,9 @@ var TezosMessageUtils;
         }
     }
     TezosMessageUtils.readKeyWithHint = readKeyWithHint;
-    function writeKeyWithHint(b, hint) {
+    function writeKeyWithHint(key, hint) {
         if (hint === 'edsk') {
-            return bs58check_1.default.decode(b).slice(4);
+            return bs58check_1.default.decode(key).slice(4);
         }
         else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
@@ -204,13 +204,8 @@ var TezosMessageUtils;
         }
     }
     TezosMessageUtils.readBufferWithHint = readBufferWithHint;
-    function writeBufferWithHint(b, hint) {
-        if (hint === '') {
-            return bs58check_1.default.decode(b);
-        }
-        else {
-            throw new Error(`Unsupported hint, '${hint}'`);
-        }
+    function writeBufferWithHint(b) {
+        return bs58check_1.default.decode(b);
     }
     TezosMessageUtils.writeBufferWithHint = writeBufferWithHint;
     function computeOperationHash(signedOpGroup) {

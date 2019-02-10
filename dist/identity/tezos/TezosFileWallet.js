@@ -61,8 +61,8 @@ var TezosFileWallet;
                         reject(err);
                     }
                     const encryptedWallet = JSON.parse(data.toString());
-                    const encryptedKeys = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext, '');
-                    const salt = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt, '');
+                    const encryptedKeys = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext);
+                    const salt = TezosMessageUtil_1.TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt);
                     try {
                         const keys = JSON.parse(CryptoUtils_1.CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt));
                         resolve({ identities: keys });

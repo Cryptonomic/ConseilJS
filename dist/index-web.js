@@ -8,8 +8,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const FetchSelector_1 = __importDefault(require("./utils/FetchSelector"));
 FetchSelector_1.default.setFetch(window.fetch);
-__export(require("./chain/tezos/TezosNodeQuery"));
-__export(require("./chain/tezos/TezosOperations"));
+__export(require("./chain/tezos/TezosNodeReader"));
+__export(require("./chain/tezos/TezosNodeWriter"));
 __export(require("./identity/tezos/TezosWalletUtil"));
 __export(require("./identity/tezos/TezosFileWallet"));
 __export(require("./reporting/tezos/TezosConseilClient"));
