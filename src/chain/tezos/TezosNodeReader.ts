@@ -1,4 +1,5 @@
 import * as TezosTypes from '../../types/tezos/TezosChainTypes'
+import {ServiceRequestError, ServiceResponseError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../../utils/FetchSelector'
 
 const fetch = FetchSelector.getFetch();
@@ -6,7 +7,7 @@ const fetch = FetchSelector.getFetch();
 /**
  * Utility functions for interacting with a Tezos node.
  */
-export namespace TezosNode {
+export namespace TezosNodeReader {
     /**
      * Send a GET request to a Tezos node.
      * 
@@ -18,8 +19,17 @@ export namespace TezosNode {
         const url = `${server}/${command}`;
 
         return fetch(url, { method: 'get' })
-            .then(response => response.json())
-            .then(json => new Promise<Object>(resolve => resolve(json)));
+            .then(response => {
+                if (!response.ok) { throw new ServiceRequestError(response.status, response.statusText, url, null); }
+                return response;
+            })
+            .then(response => {
+                try {
+                    return response.json();
+                } catch {
+                    throw new ServiceResponseError(response.status, response.statusText, url, null, response);
+                }
+            });
     }
 
     /**
@@ -34,15 +44,12 @@ export namespace TezosNode {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
 
-        return fetch(url, {
-            method: 'post',
-            body: payloadStr,
-            headers: { 'content-type': 'application/json' }
-        });
+        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
 
     /**
-     * Gets a given block.
+     * Gets a block for a given hash.
+     * 
      * @param {string} server Which Tezos node to go against
      * @param {String} hash Hash of the given block
      * @returns {Promise<BlockMetadata>} Block
@@ -53,7 +60,7 @@ export namespace TezosNode {
     }
 
     /**
-     * Gets the block head.
+     * Gets the top block.
      * @param {string} server Which Tezos node to go against
      * @returns {Promise<BlockMetadata>} Block head
      */
@@ -63,7 +70,8 @@ export namespace TezosNode {
 
     /**
      * Fetches a specific account for a given block.
-     * @param {string} server  Which Tezos node to go against
+     * 
+     * @param {string} server Which Tezos node to go against
      * @param {string} blockHash Hash of given block
      * @param {string} accountID Account ID
      * @returns {Promise<Account>} The account
@@ -75,7 +83,8 @@ export namespace TezosNode {
 
     /**
      * Fetches the manager of a specific account for a given block.
-     * @param {string} server  Which Tezos node to go against
+     * 
+     * @param {string} server Which Tezos node to go against
      * @param {string} blockHash Hash of given block
      * @param {string} accountID Account ID
      * @returns {Promise<ManagerKey>} The account
@@ -106,10 +115,11 @@ export namespace TezosNode {
      * @param {object} payload Payload set according to protocol spec
      * @returns {Promise<AppliedOperation>} Applied operation
      */
+    //TODO: move to Writer
     export async function applyOperation(server: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const response  = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
         const json = await response.json();
-        const appliedOperation = <TezosTypes.AlphaOperationsWithMetadata[]> json;
+        const appliedOperation = json as TezosTypes.AlphaOperationsWithMetadata[];
 
         return appliedOperation
     }
@@ -120,6 +130,7 @@ export namespace TezosNode {
      * @param {object} payload Payload set according to protocol spec
      * @returns {Promise<InjectedOperation>} Injected operation
      */
+    //TODO: move to Writer
     export async function injectOperation(server: string, payload: string): Promise<string> {
         const response = await performPostRequest(server, 'injection/operation?chain=main', payload);
         const injectedOperation = await response.text();

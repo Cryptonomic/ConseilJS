@@ -58,8 +58,8 @@ export namespace TezosFileWallet {
             fs.readFile(filename, (err, data) => {
                 if (err) { reject(err); }
                 const encryptedWallet: EncryptedWalletVersionOne = JSON.parse(data.toString()) as EncryptedWalletVersionOne;
-                const encryptedKeys = TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext, '');
-                const salt = TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt, '');
+                const encryptedKeys = TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext);
+                const salt = TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt);
                 try {
                     const keys = JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];
                     resolve({identities: keys});

@@ -94,7 +94,6 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.writeKeyWithHint('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'kkkk')).to.throw('Unrecognized key hint, \'kkkk\'');
     expect(() => TezosMessageUtils.readKeyWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'sssss')).to.throw('Unrecognized key hint, \'sssss\'');
     expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
-    expect(() => TezosMessageUtils.writeBufferWithHint('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'bb')).to.throw('Unsupported hint, \'bb\'');
   });
 });
 

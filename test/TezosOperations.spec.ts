@@ -2,7 +2,7 @@ import "mocha";
 import { expect } from "chai";
 import nock from 'nock';
 
-import { TezosOperations, TezosWalletUtil, TezosNode } from "../src";
+import { TezosNodeReader, TezosWalletUtil, TezosNodeWriter } from "../src";
 import mochaAsync from '../test/mochaTestHelper';
 import {
     blockHead,
@@ -16,7 +16,6 @@ import {
 } from './TezosOperations.responses';
 
 const { unlockFundraiserIdentity } = TezosWalletUtil;
-const { getBlockHead, forgeOperation } = TezosNode;
 const {
     signOperationGroup,
     forgeOperations,
@@ -29,7 +28,7 @@ const {
     sendDelegationOperation,
     isManagerKeyRevealedForAccount,
     isImplicitAndEmpty
-} = TezosOperations;
+} = TezosNodeWriter;
 
 let keyStore;
 let keyStore1;
@@ -100,15 +99,15 @@ describe('Tezos Operations Test', () => {
                 .reply(200, injectOpList[0]);
         });
 
-        it('TezosNode.getBlockHead test ---', mochaAsync(async () => {
-            const block = await TezosNode.getBlockHead('http://conseil.server');
+        it('TezosNodeReader.getBlockHead test ---', mochaAsync(async () => {
+            const block = await TezosNodeReader.getBlockHead('http://conseil.server');
             expect(block).to.be.an('object');
             expect(block.hash).to.exist;
         }));
 
-        it('TezosNode.forgeOperation test ---', mochaAsync(async () => {
+        it('TezosNodeReader.forgeOperation test ---', mochaAsync(async () => {
             const payload = { branch: blockHead.hash, contents: ops };
-            const forgeOp = await TezosNode.forgeOperation('http://conseil.server', payload);
+            const forgeOp = await TezosNodeReader.forgeOperation('http://conseil.server', payload);
             expect(forgeOp).to.be.a('string');
         }));
 
@@ -123,14 +122,14 @@ describe('Tezos Operations Test', () => {
             expect(signedOpGroup.signature).to.exist;
         }));
 
-        it('TezosNode.applyOperation test ---', mochaAsync(async () => {
+        it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
             const payload = [{
                 protocol: blockHead.protocol,
                 branch: blockHead.hash,
                 contents: ops,
                 signature: signedOpGroup.signature
             }];
-            const appliedOp = await TezosNode.applyOperation('http://conseil.server', payload);
+            const appliedOp = await TezosNodeReader.applyOperation('http://conseil.server', payload);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
@@ -145,7 +144,7 @@ describe('Tezos Operations Test', () => {
 
         it('TezosNode.injectOperation test ---', mochaAsync(async () => {
             const payload = signedOpGroup.bytes.toString('hex');
-            const injectOp = await TezosNode.injectOperation('http://conseil.server', payload);
+            const injectOp = await TezosNodeReader.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
 
@@ -155,13 +154,13 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNode.getAccountForBlock', mochaAsync(async () => {
-            const account = await TezosNode.getAccountForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
+            const account = await TezosNodeReader.getAccountForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
             expect(account).to.be.an('object');
             expect(account.manager).to.be.a('string');
         }));
 
         it('TezosNode.getAccountManagerForBlock', mochaAsync(async () => {
-            const managerKey = await TezosNode.getAccountManagerForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
+            const managerKey = await TezosNodeReader.getAccountManagerForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
             expect(managerKey).to.be.an('object');
             expect(managerKey.manager).to.be.a('string');
         }));

@@ -1,5 +1,5 @@
 import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
-import {TezosNode} from "./TezosNodeQuery";
+import {TezosNodeReader} from "./TezosNodeReader";
 import * as TezosTypes from "../../types/tezos/TezosChainTypes";
 import {TezosMessageCodec} from "./TezosMessageCodec";
 import {TezosMessageUtils} from './TezosMessageUtil';
@@ -12,7 +12,7 @@ let LedgerUtils = DeviceSelector.getLedgerUtils();
 /**
  *  Functions for sending operations on the Tezos network.
  */
-export namespace TezosOperations {
+export namespace TezosNodeWriter {
     /**
      * Signs a forged operation
      * @param {string} forgedOperation Forged operation group returned by the Tezos client (as a hex string)
@@ -56,7 +56,7 @@ export namespace TezosOperations {
      */
     export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
         const payload = { branch: blockHead.hash, contents: operations };
-        const ops = await TezosNode.forgeOperation(network, payload);
+        const ops = await TezosNodeReader.forgeOperation(network, payload);
 
         let optypes = Array.from(operations.map(o => o["kind"]));
         let validate: boolean = false;
@@ -111,7 +111,7 @@ export namespace TezosOperations {
             signature: signedOpGroup.signature
         }];
 
-        return TezosNode.applyOperation(network, payload);
+        return TezosNodeReader.applyOperation(network, payload);
     }
 
     /**
@@ -140,7 +140,7 @@ export namespace TezosOperations {
      * @returns {Promise<InjectedOperation>} ID of injected operation
      */
     export function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string> {
-        return TezosNode.injectOperation(network, signedOpGroup.bytes.toString('hex'));
+        return TezosNodeReader.injectOperation(network, signedOpGroup.bytes.toString('hex'));
     }
 
     /**
@@ -156,7 +156,7 @@ export namespace TezosOperations {
         operations: object[],
         keyStore: KeyStore,
         derivationPath): Promise<TezosTypes.OperationResult> {
-        const blockHead = await TezosNode.getBlockHead(network);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
         const appliedOp = await applyOperation(network, blockHead, operations, signedOpGroup);
@@ -221,8 +221,8 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string
     ) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const sourceAccount = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
 
         const transaction: TezosTypes.Operation = {
             destination: to,
@@ -256,8 +256,8 @@ export namespace TezosOperations {
         fee: number,
         derivationPath: string
     ) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const delegation: TezosTypes.Operation = {
             kind: "delegation",
             source: keyStore.publicKeyHash,
@@ -363,8 +363,8 @@ export namespace TezosOperations {
         code?: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
         storage?: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const origination: TezosTypes.Operation = {
             kind: "origination",
             source: keyStore.publicKeyHash,
@@ -409,8 +409,8 @@ export namespace TezosOperations {
         gas_limit: string,
         parameters: object
     ) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const sourceAccount = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const sourceAccount = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
 
         const transaction: TezosTypes.ContractInvocationOperation = {
             destination: to,
@@ -435,8 +435,8 @@ export namespace TezosOperations {
      * @returns {Promise<boolean>} Result
      */
     export async function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean> {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, accountHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith("tz");
         const isEmpty = account.balance === 0;
@@ -452,8 +452,8 @@ export namespace TezosOperations {
      * @returns {Promise<boolean>} Result
      */
     export async function isManagerKeyRevealedForAccount(network: string, keyStore: KeyStore): Promise<boolean> {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const managerKey = await TezosNode.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const managerKey = await TezosNodeReader.getAccountManagerForBlock(network, blockHead.hash, keyStore.publicKeyHash);
 
         return managerKey.key != null;
     }
@@ -472,8 +472,8 @@ export namespace TezosOperations {
         keyStore: KeyStore,
         fee: number,
         derivationPath: string) {
-        const blockHead = await TezosNode.getBlockHead(network);
-        const account = await TezosNode.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
+        const blockHead = await TezosNodeReader.getBlockHead(network);
+        const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
         const revealOp: TezosTypes.Operation = {
             kind: "reveal",
             source: keyStore.publicKeyHash,

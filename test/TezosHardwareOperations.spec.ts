@@ -2,7 +2,7 @@ import {expect} from "chai";
 import {TezosWalletUtil, TezosLedgerWallet} from "../src";
 import {HardwareDeviceType} from "../src/types/wallet/HardwareDeviceType";
 
-import {TezosOperations} from "../src";
+import {TezosNodeWriter} from "../src";
 
 import {
     blockHead,
@@ -22,7 +22,7 @@ const {
     sendTransactionOperation,
     sendAccountOriginationOperation,
     sendDelegationOperation,
-} = TezosOperations;
+} = TezosNodeWriter;
 
 const tezosURL = 'http://conseil.server';
 const derivationPathIndex = 0;
@@ -38,11 +38,9 @@ let testCondition = true;
 
 describe('Ledger Test', () => {
     before(async () => {
-        keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath)
-        .catch(() => false);
-        if (!keyStore) {
-            testCondition = false;
-        }
+        keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath).catch(() => false);
+
+        if (!keyStore) { testCondition = false; }
         const info1 = walletInfoLists[1];
 
         keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
@@ -101,12 +99,7 @@ describe('Ledger Test', () => {
     });
     
     it('sendKeyRevealOperation', mochaAsync(async () => {
-        const revealResult = await sendKeyRevealOperation(
-            tezosURL,
-            keyStore,
-            0,
-            derivationPath
-        );
+        const revealResult = await sendKeyRevealOperation(tezosURL, keyStore, 0, derivationPath);
         expect(revealResult).to.exist;
         expect(revealResult.operationGroupID).to.be.a('string');
     }));
@@ -115,14 +108,8 @@ describe('Ledger Test', () => {
         const toAddress = 'tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa';
         const amount = 10000000;
         const fee = 100000;
-        const sendResult = await sendTransactionOperation(
-            tezosURL,
-            keyStore,
-            toAddress,
-            amount,
-            fee,
-            derivationPath
-        );
+        const sendResult = await sendTransactionOperation(tezosURL, keyStore, toAddress, amount, fee, derivationPath);
+
         expect(sendResult).to.exist;
         expect(sendResult.operationGroupID).to.be.a('string');
     }));
@@ -131,16 +118,7 @@ describe('Ledger Test', () => {
         const bakerAddress = 'tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G';
         const amount = 10000000;
         const fee = 100000;
-        const originationResult = await sendAccountOriginationOperation(
-            tezosURL,
-            keyStore,
-            amount,
-            bakerAddress,
-            true,
-            true, 
-            fee, 
-            derivationPath
-        );
+        const originationResult = await sendAccountOriginationOperation(tezosURL, keyStore, amount, bakerAddress, true, true, fee, derivationPath);
         expect(originationResult).to.exist;
         expect(originationResult.operationGroupID).to.be.a('string');
     }));
@@ -149,16 +127,9 @@ describe('Ledger Test', () => {
         keyStore.publicKeyHash = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
         const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
         const fee = 300000;
-        const delegationResult = await sendDelegationOperation(
-            tezosURL,
-            keyStore,
-            bakerAddress,
-            fee, 
-            derivationPath
-        );
+        const delegationResult = await sendDelegationOperation(tezosURL, keyStore, bakerAddress, fee, derivationPath);
+
         expect(delegationResult).to.exist;
         expect(delegationResult.operationGroupID).to.be.a('string');
     }));
-
 });
-

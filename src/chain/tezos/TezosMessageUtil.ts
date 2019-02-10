@@ -170,7 +170,7 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Reads the public key from the provided, bounded hex string.
+   * Reads the public key from the provided, bounded hex string into a Base58-check string.
    * 
    * @param {string} hex Encoded message part.
    * @returns {string} Key.
@@ -191,7 +191,7 @@ export namespace TezosMessageUtils {
   }
 
   /**
-   * Encodes a public key
+   * Encodes a public key in Base58-check into a hex string.
    */
   export function writePublicKey(publicKey: string): string {
     if (publicKey.startsWith("edpk")) { // ed25519
@@ -223,9 +223,15 @@ export namespace TezosMessageUtils {
     }
   }
 
-  export function writeKeyWithHint(b: string, hint: string): Buffer {
+  /**
+   * Writes a Base58-check key into hex.
+   * 
+   * @param key Key to encode.
+   * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
+   */
+  export function writeKeyWithHint(key: string, hint: string): Buffer {
     if (hint === 'edsk') {
-      return base58check.decode(b).slice(4);
+      return base58check.decode(key).slice(4);
     } else {
       throw new Error(`Unrecognized key hint, '${hint}'`);
     }
@@ -265,12 +271,13 @@ export namespace TezosMessageUtils {
     }
   }
 
-  export function writeBufferWithHint(b: string, hint: string): Buffer {
-    if (hint === '') {
-      return base58check.decode(b);
-    } else {
-      throw new Error(`Unsupported hint, '${hint}'`);
-    }
+  /**
+   * Writes an arbitrary Base58-check string into hex.
+   * 
+   * @param b String to convert.
+   */
+  export function writeBufferWithHint(b: string): Buffer {
+    return base58check.decode(b);
   }
 
     /**
