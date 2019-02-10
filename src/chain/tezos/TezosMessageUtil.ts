@@ -291,6 +291,13 @@ export namespace TezosMessageUtils {
       return readBufferWithHint(hash, "op");
     }
 
+    /**
+     * Consumes a Base58-check key and produces a 20 byte key hash, often referred to as address.
+     * 
+     * @param key Base58-check encoded key
+     * @param prefix A key hint, eg: 'tz1', 'tz2', etc.
+     * @returns Base58-check encoded key hash.
+     */
     export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
       const hash = CryptoUtils.simpleHash(key, 20);
       return readAddressWithHint(hash, prefix);
