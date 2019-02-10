@@ -33,26 +33,24 @@ You can find some tutorials in our [wiki](https://github.com/Cryptonomic/Conseil
 
 Below is the list of namespaces you can import to your project and start building immediately:
 
-`TezosNodeQuery` - Utility functions for interacting with the Tezos node.
-
 `TezosConseilClient` - Functions for querying the Conseil backend REST API v2
-
-`TezosConseilQuery` - Functions for querying the Conseil backend REST API v1
 
 `TezosHardwareWallet` - Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
 
 `TezosMessageCodec` - A collection of functions to encode and decode various Tezos P2P message components
 
-`TezosOperations` - Functions for sending operations on the Tezos network.
+`TezosNodeReader` - Utility functions for interacting with the Tezos node.
 
-`TezosWallet` - Functions for Tezos wallet functionality.
+`TezosNodeWriter` - Functions for sending operations on the Tezos network.
+
+`TezosFileWallet` - Functions for Tezos wallet functionality.
 
 `TezosTypes` - Types used to process data returned from Conseil server.
 
 Example import:
 
 ```javascript
-import { TezosOperations } from 'conseiljs';
+import { TezosNodeWriter } from 'conseiljs';
 ```
 
 ## Run Tests

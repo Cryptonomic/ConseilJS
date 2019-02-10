@@ -6,15 +6,14 @@ import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 FetchSelector.setFetch(fetch);
 DeviceSelector.setLedgerUtils(TezosLedgerWallet);
 
-export * from "./chain/tezos/TezosNodeQuery";
-export * from "./chain/tezos/TezosOperations";
+export * from "./chain/tezos/TezosNodeReader";
+export * from "./chain/tezos/TezosNodeWriter";
 
 export * from "./identity/tezos/TezosFileWallet";
 export * from "./identity/tezos/TezosLedgerWallet";
 export * from "./identity/tezos/TezosWalletUtil";
 
 export * from "./reporting/tezos/TezosConseilClient";
-export * from "./reporting/tezos/TezosConseilQuery";
 
 export * from './reporting/ConseilDataClient';
 export * from './reporting/ConseilMetadataClient';
