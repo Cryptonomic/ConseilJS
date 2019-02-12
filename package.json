@@ -65,8 +65,9 @@
     "bip39": "^2.5.0",
     "bs58check": "^2.1.2",
     "https": "^1.0.0",
+    "libsodium-wrappers": "0.5.4",
+    "libsodium-wrappers-sumo": "0.5.4",
     "node-fetch": "^2.3.0",
-    "sodium-native": "^2.2.6",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {

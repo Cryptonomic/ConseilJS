@@ -1,4 +1,6 @@
-import * as sodium from 'sodium-native';
+import * as sodium from 'libsodium-wrappers';
+import * as sodiumsumo from 'libsodium-wrappers-sumo';
+import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
 
 /**
@@ -7,70 +9,65 @@ import zxcvbn from 'zxcvbn';
 export namespace CryptoUtils {
     /**
      * Generates a salt for key derivation.
-     * 
      * @returns {Buffer} Salt
      */
     export function generateSaltForPwHash() {
-        let rand = Buffer.alloc(sodium.crypto_pwhash_SALTBYTES);
-        sodium.randombytes_buf(rand);
-
-        return rand;
+        return crypto.randomBytes(sodiumsumo.crypto_pwhash_SALTBYTES)
     }
 
     /**
      * Encrypts a given message using a passphrase
-     * 
      * @param {string} message Message to encrypt
      * @param {string} passphrase User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
      * @returns {Buffer} Concatenated bytes of nonce and cipher text
      */
-    export function encryptMessage(message: string, passphrase: string, salt: Buffer) : Buffer {
+    export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
         const passwordStrength = getPasswordStrength(passphrase);
-        if (passwordStrength < 3) { throw new Error('The password strength should not be less than 3.'); }
+        if (passwordStrength < 3) {
+            throw new Error('The password strength should not be less than 3.');
+        }
+        const messageBytes = sodiumsumo.from_string(message);
+        const keyBytes = sodiumsumo.crypto_pwhash(
+            sodiumsumo.crypto_box_SEEDBYTES,
+            passphrase,
+            salt,
+            sodiumsumo.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_ALG_DEFAULT
+        );
+        const nonce = Buffer.from(sodiumsumo.randombytes_buf(sodiumsumo.crypto_box_NONCEBYTES));
+        const cipherText = Buffer.from(sodiumsumo.crypto_secretbox_easy(messageBytes, nonce, keyBytes));
 
-        const pwhash = Buffer.alloc(sodium.crypto_box_SEEDBYTES);
-        sodium.crypto_pwhash(pwhash, Buffer.from(passphrase), salt, sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE, sodium.crypto_pwhash_ALG_DEFAULT);
-
-        let nonce = Buffer.alloc(sodium.crypto_box_NONCEBYTES);
-        sodium.randombytes_buf(nonce);
-
-        let ciphertext = Buffer.alloc(message.length + sodium.crypto_secretbox_MACBYTES);
-        sodium.crypto_secretbox_easy(ciphertext, Buffer.from(message), nonce, pwhash);
-
-        return Buffer.concat([nonce, ciphertext]);
+        return Buffer.concat([nonce, cipherText]);
     }
 
     /**
      * Decrypts a given message using a passphrase
-     * 
      * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
-     * @param {string} passphrase User-supplied passphrase
+     * @param {string} passphrase   User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
-     * @returns {string} Decrypted message
+     * @returns {any} Decrypted message
      */
-    export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer) : string{
-        if (nonce_and_ciphertext.length < sodium.crypto_secretbox_NONCEBYTES + sodium.crypto_secretbox_MACBYTES) {
+    export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
+        const keyBytes = sodiumsumo.crypto_pwhash(
+            sodiumsumo.crypto_box_SEEDBYTES,
+            passphrase,
+            salt,
+            sodiumsumo.crypto_pwhash_OPSLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_MEMLIMIT_INTERACTIVE,
+            sodiumsumo.crypto_pwhash_ALG_DEFAULT
+        );
+        if (nonce_and_ciphertext.length < sodiumsumo.crypto_secretbox_NONCEBYTES + sodiumsumo.crypto_secretbox_MACBYTES) {
             throw new Error("The cipher text is of insufficient length");
         }
-
-        const pwhash = Buffer.alloc(sodium.crypto_box_SEEDBYTES);
-        sodium.crypto_pwhash(pwhash, Buffer.from(passphrase), salt, sodium.crypto_pwhash_OPSLIMIT_INTERACTIVE, sodium.crypto_pwhash_MEMLIMIT_INTERACTIVE, sodium.crypto_pwhash_ALG_DEFAULT);
-
-        const nonce = nonce_and_ciphertext.slice(0, sodium.crypto_secretbox_NONCEBYTES);
-        const ciphertext = nonce_and_ciphertext.slice(sodium.crypto_secretbox_NONCEBYTES);
-
-        let message = Buffer.alloc(ciphertext.length - sodium.crypto_secretbox_MACBYTES);
-        sodium.crypto_secretbox_open_easy(message, ciphertext, nonce, pwhash);
-
-        return message.toString();
+        const nonce = nonce_and_ciphertext.slice(0, sodiumsumo.crypto_secretbox_NONCEBYTES);
+        const ciphertext = nonce_and_ciphertext.slice(sodiumsumo.crypto_secretbox_NONCEBYTES);
+        return sodiumsumo.crypto_secretbox_open_easy(ciphertext, nonce, keyBytes, 'text');
     }
 
     export function simpleHash(payload: Buffer, length: number) : Buffer {
-        let hash = Buffer.alloc(length);
-        sodium.crypto_generichash(hash, payload);
-
-        return hash;
+        return sodiumsumo.crypto_generichash(length, payload);
     }
 
     /**
@@ -83,17 +80,12 @@ export namespace CryptoUtils {
     }
 
     export function generateKeys(seed: string) {
-        let secretKey = Buffer.alloc(sodium.crypto_sign_SECRETKEYBYTES);
-        let publicKey = Buffer.alloc(sodium.crypto_sign_PUBLICKEYBYTES);
-        sodium.crypto_sign_seed_keypair(publicKey, secretKey, seed);
+        const key_pair = sodiumsumo.crypto_sign_seed_keypair(seed, '');
 
-        return { privateKey: secretKey, publicKey: publicKey };
+        return { privateKey: key_pair.privateKey, publicKey: key_pair.publicKey };
     }
 
-    export function signDetached(payload: Buffer, secretKey: Buffer) : Buffer {
-        let sig = Buffer.alloc(sodium.crypto_sign_BYTES);
-        sodium.crypto_sign_detached(sig, payload, secretKey);
-
-        return sig;
+    export function signDetached(payload: Buffer, privateKey: Buffer) : Buffer {
+        return sodium.crypto_sign_detached(payload, privateKey);
     }
 }
