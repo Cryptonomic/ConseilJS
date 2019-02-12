@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { TezosMessageCodec } from "../src/tezos/TezosMessageCodec";
-import { Operation } from "../src/tezos/TezosTypes";
+import { TezosMessageCodec } from "../src/chain/tezos/TezosMessageCodec";
+import { Operation } from "../src/types/tezos/TezosChainTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -78,7 +78,7 @@ describe("Tezos P2P message decoder test suite", () => {
 
   it("correctly parse an origination", () => {
     let forgedOrigination = "c98677a5ad30a181889ad0325b5ce4b32d288e2d0397eac9391e20de1ec816f20900009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dd078b04f9502009fcc83e722c9d9f7a150555e632e6e0f97bfc29b8080897affffff006e747386822673001b03dca0eff6cebf7c9cd6e400";
-    const result = TezosMessageCodec.parseOrigination(forgedOrigination);
+    const result = TezosMessageCodec.parseOperation(forgedOrigination, 'origination');
     expect(result.operation.kind).to.equal("origination");
     expect(result.operation.source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
     expect(result.operation.managerPubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
@@ -144,6 +144,7 @@ describe("Tezos P2P message decoder test suite", () => {
 
   it("fail unsupported operation types", () => {
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "endorsement", true)).to.throw("Unsupported operation type: endorsement");
+    expect(() => TezosMessageCodec.parseOperation("c0ffee", "seedNonceRevelation", true)).to.throw("Unsupported operation type: seedNonceRevelation");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleEndorsementEvidence", true)).to.throw("Unsupported operation type: doubleEndorsementEvidence");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleBakingEvidence", true)).to.throw("Unsupported operation type: doubleBakingEvidence");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "accountActivation", true)).to.throw("Unsupported operation type: accountActivation");

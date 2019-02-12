@@ -1,12 +1,12 @@
 // Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import { expect } from "chai";
-import { TezosOperations } from "../src";
-import * as TezosMessageCodec from "../src/tezos/TezosMessageCodec";
+import { TezosNodeWriter } from "../src";
+import * as TezosMessageCodec from "../src/chain/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "./servers";
-import { TezosWallet } from "../src";
-import { KeyStore } from "../src/types/KeyStore";
+import { TezosWalletUtil } from "../src";
+import { KeyStore } from "../src/types/wallet/KeyStore";
 
 const tezosURL = servers.tezosServer;
 
@@ -33,7 +33,7 @@ const invalidDerivationPath = "ighiehgieh";
 
 /*describe('sendTransactionOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
-        const result = await TezosOperations.sendTransactionOperation(
+        const result = await TezosNodeWriter.sendTransactionOperation(
             tezosURL,
             keys,
             'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45',
@@ -52,7 +52,7 @@ const invalidDerivationPath = "ighiehgieh";
         publicKeyHash: 'TZ1qcvfsY6Wi2zDk7rjaiSiRY2B9Bax7Zm45'
     };
     it('successfully send a Tezos transaction from a child account', async () => {
-        const result = await TezosOperations.sendTransactionOperation(
+        const result = await TezosNodeWriter.sendTransactionOperation(
             tezosURL,
             childKeyStore,
             keys.publicKeyHash,
@@ -87,7 +87,7 @@ const invalidDerivationPath = "ighiehgieh";
 
 /*describe('sendAccountOriginationOperation()', () => {
     it('originate an account', async () => {
-        const result = await TezosOperations.sendAccountOriginationOperation(
+        const result = await TezosNodeWriter.sendAccountOriginationOperation(
             tezosURL,
             keys,
             100,
@@ -104,7 +104,7 @@ const invalidDerivationPath = "ighiehgieh";
 
 /*describe('sendKeyRevealOperation()', () => {
     it('successfully send a Tezos transaction', async () => {
-        const result = await TezosOperations.sendKeyRevealOperation(
+        const result = await TezosNodeWriter.sendKeyRevealOperation(
             tezosURL,
             keys,
             50000,
@@ -122,7 +122,7 @@ const invalidDerivationPath = "ighiehgieh";
         //    'byixpeyi.dofdqvwn@tezos.example.org',
         //    'SU0j4HSgbd'
         //)
-        const result = await TezosOperations.sendIdentityActivationOperation(
+        const result = await TezosNodeWriter.sendIdentityActivationOperation(
             tezosURL,
              keys,
             '7e47a409f9baf132ef8c03460aa9eb1fe1878248',
@@ -140,7 +140,7 @@ const invalidDerivationPath = "ighiehgieh";
             mnemonic,
             ''
         );
-        const result = await TezosOperations.sendTransactionOperation(
+        const result = await TezosNodeWriter.sendTransactionOperation(
             tezosURL,
             keys,
             newKeys.publicKeyHash,
@@ -149,7 +149,7 @@ const invalidDerivationPath = "ighiehgieh";
             invalidDerivationPath
         );
         expect(result.operationGroupID).to.exist;
-        const result2 = await TezosOperations.sendAccountOriginationOperation(
+        const result2 = await TezosNodeWriter.sendAccountOriginationOperation(
             tezosURL,
             newKeys,
             100,
@@ -160,7 +160,7 @@ const invalidDerivationPath = "ighiehgieh";
             invalidDerivationPath
         );
         expect(result2.operationGroupID).to.exist;
-        const result3 = await TezosOperations.sendDelegationOperation(
+        const result3 = await TezosNodeWriter.sendDelegationOperation(
             tezosURL,
             newKeys,
             keys.publicKeyHash,
@@ -177,7 +177,7 @@ const invalidDerivationPath = "ighiehgieh";
             privateKey: '',
             publicKeyHash: 'tz1XxQPg1wtWHovbiJqAY1NwxYQJPxjJCzCp'
         }
-        const result = await TezosOperations.isManagerKeyRevealedForAccount(
+        const result = await TezosNodeWriter.isManagerKeyRevealedForAccount(
             tezosURL,
             ks
         );
@@ -194,7 +194,7 @@ function sleep(seconds) {
 describe("Tezos operation functions", () => {
   it("successfully perform operations on a new identity", async () => {
     const fundraiserKeys = <KeyStore>(
-      await TezosWallet.unlockFundraiserIdentity(
+      await TezosWalletUtil.unlockFundraiserIdentity(
         "major cannon mistake disorder bachelor depart jazz pudding worry attract scrap element uncover tide jump",
         "vttufpvh.xgbzugwn@tezos.example.org",
         "Wz41fjtUHJ",
@@ -204,9 +204,9 @@ describe("Tezos operation functions", () => {
 
     const fundraiserKeySecret = "6da483843eba2526ea6d2c08aa39dd00efa99521";
 
-    const mnemonic = await TezosWallet.generateMnemonic();
+    const mnemonic = await TezosWalletUtil.generateMnemonic();
     const randomKeys = <KeyStore>(
-      await TezosWallet.unlockIdentityWithMnemonic(mnemonic, "")
+      await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, "")
     );
     const inactiveImplicitAddress = randomKeys.publicKeyHash;
     const anActiveImplicitAddress = "tz1is75whxxkVvw2cF2FuRo5ANxZwwJ5nEbc";
@@ -219,7 +219,7 @@ describe("Tezos operation functions", () => {
         //Activate this section in FIRST run to activate the fundraiser account
         //Comment this section out in SECOND round.
         console.log("+++++Activating account");
-        const activationResult = await TezosOperations.sendIdentityActivationOperation(
+        const activationResult = await TezosNodeWriter.sendIdentityActivationOperation(
             tezosURL,
             fundraiserKeys,
             fundraiserKeySecret,
@@ -230,7 +230,7 @@ describe("Tezos operation functions", () => {
 //*/
 
     // console.log("+++++Sending 1 tez to an inactive implicit account");
-    // const inactiveImplicitResult = await TezosOperations.sendTransactionOperation(
+    // const inactiveImplicitResult = await TezosNodeWriter.sendTransactionOperation(
     //   tezosURL,
     //   fundraiserKeys,
     //   inactiveImplicitAddress,
@@ -243,7 +243,7 @@ describe("Tezos operation functions", () => {
     // sleep(33);
 
     // console.log("+++++Sending 1 tez to an active implicit address");
-    // const activeImplicitResult = await TezosOperations.sendTransactionOperation(
+    // const activeImplicitResult = await TezosNodeWriter.sendTransactionOperation(
     //   tezosURL,
     //   fundraiserKeys,
     //   "KT1Dcv5sfBrLWybqNY6gz7TxjQ6UmDbpKMim",
@@ -256,8 +256,7 @@ describe("Tezos operation functions", () => {
 
     // sleep(33);
 
-    console.log('+++++Sending 1 tez to a random delegated address');
-    const delegatedAccountResult = await TezosOperations.sendTransactionOperation(
+    const delegatedAccountResult = await TezosNodeWriter.sendTransactionOperation(
       tezosURL,
       fundraiserKeys,
       randomDelegatedAddress,
@@ -270,7 +269,7 @@ describe("Tezos operation functions", () => {
     sleep(33);
 
     // console.log('+++++Originating a contract from manager address');
-    // const contractOriginationResult = await TezosOperations.sendContractOriginationOperation(
+    // const contractOriginationResult = await TezosNodeWriter.sendContractOriginationOperation(
     //   [
     //     {
     //       prim: 'parameter',
@@ -332,8 +331,7 @@ describe("Tezos operation functions", () => {
     //     .errors
     // );
 
-  console.log("+++++Invoke a contract from manager address");
-    const contractInvocationResult = await TezosOperations.sendContractInvocationOperation(
+    const contractInvocationResult = await TezosNodeWriter.sendContractInvocationOperation(
       tezosURL,
       fundraiserKeys,
       "KT1Wb4LE19jCNDuhp8Md7YpEDYmW9rhLTHsW",
@@ -347,7 +345,7 @@ describe("Tezos operation functions", () => {
     expect(contractInvocationResult["operationGroupID"]).to.exist;
 
     //     console.log('+++++Originating an account with 1 tez');
-    //     const originationResult = await TezosOperations.sendAccountOriginationOperation(
+    //     const originationResult = await TezosNodeWriter.sendAccountOriginationOperation(
     //       tezosURL,
     //       fundraiserKeys,
     //       20000000,
@@ -371,7 +369,7 @@ describe("Tezos operation functions", () => {
     //     //delegatedKeyStore.publicKeyHash = 'KT1RiR3A1nkcZuHEXSUb97SwEMxMGF39GTZq';
 
     //     console.log('+++++Sending delegation operation');
-    //     const delegationResult = await TezosOperations.sendDelegationOperation(
+    //     const delegationResult = await TezosNodeWriter.sendDelegationOperation(
     //       tezosURL,
     //       delegatedKeyStore,
     //       randomBakerAddress2,
