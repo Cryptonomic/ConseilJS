@@ -87,7 +87,7 @@
     "eslint-plugin-typescript": "^0.14.0",
     "mocha": "^5.2.0",
     "nock": "^10.0.6",
-    "nyc": "^13.2.0",
+    "nyc": "13.1.0",
     "source-map-loader": "^0.2.4",
     "source-map-support": "^0.5.10",
     "terser-webpack-plugin": "^1.2.2",
