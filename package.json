@@ -14,7 +14,7 @@
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
     "build": "webpack && rm -rf ./build/dist",
-    "coverage": "nyc mocha test/*.spec.ts || nyc report | coveralls",
+    "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
     "doc": "rm -rf ./doc && typedoc --out ./doc ./src"
   },
   "repository": {
@@ -49,7 +49,6 @@
       "ts-node/register"
     ],
     "reporter": [
-      "text-summary",
       "text-lcov"
     ],
     "sourceMap": true,
