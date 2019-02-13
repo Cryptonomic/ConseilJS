@@ -10,6 +10,13 @@ function id(x) { return x[0]; }
         return "{ prim: " + s + " }"
     }
 
+  const int_rule = d =>
+    {
+        const s = d[0] + d[1]
+        return "{ prim: " + s + " }"
+
+    }  
+
   const p_constant_rule_endp = d =>  
     {
         const s = d[2]
@@ -85,6 +92,17 @@ var grammar = {
     {"name": "main", "symbols": ["data"], "postprocess": id},
     {"name": "main", "symbols": ["comparableType"], "postprocess": id},
     {"name": "main", "symbols": ["type"], "postprocess": id},
+    {"name": "main", "symbols": ["parameter"], "postprocess": id},
+    {"name": "main", "symbols": ["storage"], "postprocess": id},
+    {"name": "main", "symbols": ["code"], "postprocess": id},
+    {"name": "parameter$string$1", "symbols": [{"literal":"p"}, {"literal":"a"}, {"literal":"r"}, {"literal":"a"}, {"literal":"m"}, {"literal":"e"}, {"literal":"t"}, {"literal":"e"}, {"literal":"r"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "parameter", "symbols": ["parameter$string$1", "_", "type", {"literal":";"}], "postprocess": string_rule},
+    {"name": "storage$string$1", "symbols": [{"literal":"s"}, {"literal":"t"}, {"literal":"o"}, {"literal":"r"}, {"literal":"a"}, {"literal":"g"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "storage", "symbols": ["storage$string$1", "_", "type", {"literal":";"}], "postprocess": string_rule},
+    {"name": "code$string$1", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"d"}, {"literal":"e"}, {"literal":" "}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "code", "symbols": ["code$string$1", "subInstruction"]},
+    {"name": "code$string$2", "symbols": [{"literal":"c"}, {"literal":"o"}, {"literal":"d"}, {"literal":"e"}, {"literal":" "}, {"literal":"{"}, {"literal":"}"}, {"literal":";"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "code", "symbols": ["code$string$2"], "postprocess": d => "code {}"},
     {"name": "comparableType$string$1", "symbols": [{"literal":"i"}, {"literal":"n"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "comparableType", "symbols": ["comparableType$string$1"], "postprocess": constant_rule},
     {"name": "comparableType$string$2", "symbols": [{"literal":"n"}, {"literal":"a"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -101,6 +119,8 @@ var grammar = {
     {"name": "comparableType", "symbols": ["comparableType$string$7"], "postprocess": constant_rule},
     {"name": "comparableType$string$8", "symbols": [{"literal":"t"}, {"literal":"i"}, {"literal":"m"}, {"literal":"e"}, {"literal":"s"}, {"literal":"t"}, {"literal":"a"}, {"literal":"m"}, {"literal":"p"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "comparableType", "symbols": ["comparableType$string$8"], "postprocess": constant_rule},
+    {"name": "comparableType$string$9", "symbols": [{"literal":"t"}, {"literal":"e"}, {"literal":"z"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "comparableType", "symbols": ["comparableType$string$9"], "postprocess": constant_rule},
     {"name": "type", "symbols": ["comparableType"], "postprocess": id},
     {"name": "type$string$1", "symbols": [{"literal":"k"}, {"literal":"e"}, {"literal":"y"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$1"], "postprocess": constant_rule},
@@ -111,7 +131,7 @@ var grammar = {
     {"name": "type$string$4", "symbols": [{"literal":"o"}, {"literal":"p"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$4", "_", "type"], "postprocess": string_rule},
     {"name": "type$string$5", "symbols": [{"literal":"o"}, {"literal":"p"}, {"literal":"t"}, {"literal":"i"}, {"literal":"o"}, {"literal":"n"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "type", "symbols": [{"literal":"("}, "_", "type$string$5", "_", "type", "_", {"literal":")"}], "postprocess": p_string_rule_endp }"},
+    {"name": "type", "symbols": [{"literal":"("}, "_", "type$string$5", "_", "type", "_", {"literal":")"}], "postprocess": p_string_rule_endp},
     {"name": "type$string$6", "symbols": [{"literal":"l"}, {"literal":"i"}, {"literal":"s"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": ["type$string$6", "_", "type"], "postprocess": string_rule},
     {"name": "type$string$7", "symbols": [{"literal":"l"}, {"literal":"i"}, {"literal":"s"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -148,18 +168,20 @@ var grammar = {
     {"name": "type", "symbols": ["type$string$22", "_", "comparableType", "_", "type"], "postprocess": string_rule_rule},
     {"name": "type$string$23", "symbols": [{"literal":"b"}, {"literal":"i"}, {"literal":"g"}, {"literal":"_"}, {"literal":"m"}, {"literal":"a"}, {"literal":"p"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "type", "symbols": [{"literal":"("}, "_", "type$string$23", "_", "comparableType", "_", "type", "_", {"literal":")"}], "postprocess": string_rule_rule},
-    {"name": "subInstruction$ebnf$1$subexpression$1", "symbols": ["instruction", "_", {"literal":";"}, "_"]},
+    {"name": "subInstruction$ebnf$1$subexpression$1", "symbols": ["instruction", "_", "semicolons", "_"]},
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1$subexpression$1"]},
-    {"name": "subInstruction$ebnf$1$subexpression$2", "symbols": ["instruction", "_", {"literal":";"}, "_"]},
+    {"name": "subInstruction$ebnf$1$subexpression$2", "symbols": ["instruction", "_", "semicolons", "_"]},
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1", "subInstruction$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "subInstruction", "symbols": [{"literal":"{"}, "_", "subInstruction$ebnf$1", {"literal":"}"}], "postprocess": code_rule},
+    {"name": "subInstruction$string$1", "symbols": [{"literal":"{"}, {"literal":"}"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "subInstruction", "symbols": ["subInstruction$string$1"], "postprocess": id},
     {"name": "instruction", "symbols": ["subInstruction"], "postprocess": id},
     {"name": "instruction$string$1", "symbols": [{"literal":"D"}, {"literal":"R"}, {"literal":"O"}, {"literal":"P"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "instruction", "symbols": ["instruction$string$1"], "postprocess": constant_rule},
     {"name": "instruction$string$2", "symbols": [{"literal":"D"}, {"literal":"U"}, {"literal":"P"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "instruction", "symbols": ["instruction$string$2"], "postprocess": constant_rule},
     {"name": "instruction$string$3", "symbols": [{"literal":"S"}, {"literal":"W"}, {"literal":"A"}, {"literal":"P"}], "postprocess": function joiner(d) {return d.join('');}},
-    {"name": "instruction", "symbols": ["instruction$string$3", "constant_rule"]},
+    {"name": "instruction", "symbols": ["instruction$string$3"], "postprocess": constant_rule},
     {"name": "instruction$string$4", "symbols": [{"literal":"P"}, {"literal":"U"}, {"literal":"S"}, {"literal":"H"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "instruction", "symbols": ["instruction$string$4", "_", "type", "_", "data"], "postprocess": string_rule_rule},
     {"name": "instruction$string$5", "symbols": [{"literal":"S"}, {"literal":"O"}, {"literal":"M"}, {"literal":"E"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -310,8 +332,14 @@ var grammar = {
     {"name": "instruction", "symbols": ["instruction$string$77"], "postprocess": constant_rule},
     {"name": "instruction$string$78", "symbols": [{"literal":"A"}, {"literal":"D"}, {"literal":"D"}, {"literal":"R"}, {"literal":"E"}, {"literal":"S"}, {"literal":"S"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "instruction", "symbols": ["instruction$string$78"], "postprocess": constant_rule},
+    {"name": "instruction$string$79", "symbols": [{"literal":"D"}, {"literal":"E"}, {"literal":"F"}, {"literal":"A"}, {"literal":"U"}, {"literal":"L"}, {"literal":"T"}, {"literal":"_"}, {"literal":"A"}, {"literal":"C"}, {"literal":"C"}, {"literal":"O"}, {"literal":"U"}, {"literal":"N"}, {"literal":"T"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "instruction", "symbols": ["instruction$string$79"], "postprocess": constant_rule},
+    {"name": "instruction$string$80", "symbols": [{"literal":"F"}, {"literal":"A"}, {"literal":"I"}, {"literal":"L"}, {"literal":"W"}, {"literal":"I"}, {"literal":"T"}, {"literal":"H"}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "instruction", "symbols": ["instruction$string$80"], "postprocess": constant_rule},
     {"name": "data", "symbols": ["int"], "postprocess": id},
     {"name": "data", "symbols": ["nat"], "postprocess": id},
+    {"name": "data", "symbols": ["string"], "postprocess": id},
+    {"name": "data", "symbols": ["dqstring"], "postprocess": id},
     {"name": "data$string$1", "symbols": [{"literal":"U"}, {"literal":"n"}, {"literal":"i"}, {"literal":"t"}], "postprocess": function joiner(d) {return d.join('');}},
     {"name": "data", "symbols": ["data$string$1"], "postprocess": constant_rule},
     {"name": "data$string$2", "symbols": [{"literal":"T"}, {"literal":"r"}, {"literal":"u"}, {"literal":"e"}], "postprocess": function joiner(d) {return d.join('');}},
@@ -356,19 +384,25 @@ var grammar = {
     {"name": "elt", "symbols": ["elt$string$1", "_", "data", "_", "data"], "postprocess": string_rule_rule},
     {"name": "nat$ebnf$1", "symbols": [/[0-9]/]},
     {"name": "nat$ebnf$1", "symbols": ["nat$ebnf$1", /[0-9]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "nat", "symbols": ["nat$ebnf$1"], "postprocess": id},
-    {"name": "int$subexpression$1", "symbols": []},
-    {"name": "int$subexpression$1", "symbols": [{"literal":"-"}]},
-    {"name": "int", "symbols": ["int$subexpression$1", "nat"]},
+    {"name": "nat", "symbols": ["nat$ebnf$1"], "postprocess": constant_rule},
+    {"name": "int", "symbols": [{"literal":"-"}, "nat"], "postprocess": constant_rule},
     {"name": "char$ebnf$1", "symbols": [/[a-z]/]},
     {"name": "char$ebnf$1", "symbols": ["char$ebnf$1", /[a-z]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "char", "symbols": ["char$ebnf$1"], "postprocess": id},
+    {"name": "char", "symbols": ["char$ebnf$1"], "postprocess": constant_rule},
     {"name": "string$ebnf$1", "symbols": [/[0-9|a-z]/]},
     {"name": "string$ebnf$1", "symbols": ["string$ebnf$1", /[0-9|a-z]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "string", "symbols": ["string$ebnf$1"], "postprocess": id},
+    {"name": "string", "symbols": ["string$ebnf$1"], "postprocess": d => d[0].join('')},
+    {"name": "dqstring$ebnf$1", "symbols": []},
+    {"name": "dqstring$ebnf$1", "symbols": ["dqstring$ebnf$1", "dstrchar"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "dqstring", "symbols": [{"literal":"\""}, "dqstring$ebnf$1", {"literal":"\""}], "postprocess": d => d[1].join('')},
+    {"name": "dstrchar", "symbols": [/[^"]/], "postprocess": id},
+    {"name": "dstrchar$string$1", "symbols": [{"literal":"\\"}, {"literal":"\""}], "postprocess": function joiner(d) {return d.join('');}},
+    {"name": "dstrchar", "symbols": ["dstrchar$string$1"], "postprocess": d => '"'},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "_", "symbols": ["_$ebnf$1"]}
+    {"name": "_", "symbols": ["_$ebnf$1"]},
+    {"name": "semicolons", "symbols": []},
+    {"name": "semicolons", "symbols": ["semicolons", {"literal":";"}]}
 ]
   , ParserStart: "main"
 }

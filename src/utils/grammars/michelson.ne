@@ -1,6 +1,9 @@
-main -> instruction {% id %} | data {% id %} | comparableType {% id %} | type {% id %}
+main -> instruction {% id %} | data {% id %} | comparableType {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %}
+parameter -> "parameter" _ type ";" {% string_rule %}
+storage -> "storage" _ type ";" {% string_rule %}
+code -> "code " subInstruction | "code {};" {% d => "code {}" %}
 comparableType -> 
-    "int" {% constant_rule %}  
+    "int" {% constant_rule %} 
   | "nat" {% constant_rule %}
   | "string" {% constant_rule %}
   | "bytes" {% constant_rule %}
@@ -8,13 +11,14 @@ comparableType ->
   | "bool" {% constant_rule %}
   | "key_hash" {% constant_rule %}
   | "timestamp" {% constant_rule %}
+  | "tez" {% constant_rule %}
 type -> 
     comparableType {% id %} 
   | "key" {% constant_rule %}
   | "unit" {% constant_rule %}
   | "signature" {% constant_rule %}
   | "option" _ type {% string_rule %}
-  | "(" _  "option" _ type _ ")" {% p_string_rule_endp }" %}
+  | "(" _  "option" _ type _ ")" {% p_string_rule_endp %}
   | "list" _ type {% string_rule %}
   | "(" _  "list" _ type _ ")" {% p_string_rule_endp %}
   | "set" _ comparableType {% string_rule %}
@@ -33,12 +37,13 @@ type ->
   | "(" _ "map" _ comparableType _ type _ ")" {% p_string_rule_rule_endp %}
   | "big_map" _ comparableType _ type {% string_rule_rule %}
   | "(" _ "big_map" _ comparableType _ type _ ")" {% string_rule_rule %}
-subInstruction -> "{" _ (instruction _ ";" _):+ "}" {% code_rule %}
+subInstruction -> "{" _ (instruction _ semicolons _):+ "}" {% code_rule %} 
+  | "{}" {% id %}
 instruction ->
   subInstruction {% id %}
   | "DROP" {% constant_rule %}
   | "DUP" {% constant_rule %}
-  | "SWAP" constant_rule
+  | "SWAP" {% constant_rule %}
   | "PUSH" _ type _ data {% string_rule_rule %}
   | "SOME" {% constant_rule %}
   | "NONE" _ type {% string_rule %}
@@ -114,10 +119,13 @@ instruction ->
   | "SOURCE" {% constant_rule %}
   | "SENDER" {% constant_rule %}
   | "ADDRESS" {% constant_rule %}
+  | "DEFAULT_ACCOUNT" {% constant_rule %}
+  | "FAILWITH" {% constant_rule %}
 data ->
   int {% id %}
   | nat {% id %}
-  #| string {% id %}
+  | string {% id %}
+  | dqstring {% id %}
   | "Unit" {% constant_rule %}
   | "True" {% constant_rule %}
   | "False" {% constant_rule %}
@@ -136,11 +144,17 @@ subElt ->
     "{" _ (elt ";" _):+ "}" {% code_rule %}
   | "(" _ (elt ";" _):+ ")" {% code_rule %}
 elt -> "Elt" _ data _ data {% string_rule_rule  %}
-nat -> [0-9]:+ {% id %}
-int -> (null | "-") nat 
-char -> [a-z]:+ {% id %}
-string -> [0-9|a-z]:+ {% id %}
+nat -> [0-9]:+ {% constant_rule %}
+int -> "-" nat  {% constant_rule %}
+char -> [a-z]:+ {% constant_rule %}
+string -> [0-9|a-z]:+ {% d => d[0].join('') %}
+dqstring ->
+  "\"" dstrchar:* "\"" {% d => d[1].join('') %}
+dstrchar ->
+    [^"] {% id %}
+  | "\\\"" {% d => '"' %}
 _ -> [\s]:*
+semicolons -> null | semicolons ";"
 
 @{%
 
@@ -149,6 +163,13 @@ _ -> [\s]:*
         const s = d[0]
         return "{ prim: " + s + " }"
     }
+
+  const int_rule = d =>
+    {
+        const s = d[0] + d[1]
+        return "{ prim: " + s + " }"
+
+    }  
 
   const p_constant_rule_endp = d =>  
     {
