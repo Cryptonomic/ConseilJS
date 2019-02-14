@@ -13,7 +13,7 @@
     "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc",
-    "build": "webpack && rm -rf ./build/dist",
+    "package-web": "webpack && rm -rf ./dist-web/dist",
     "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
     "doc": "rm -rf ./doc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./doc ./src"
   },
@@ -108,7 +108,9 @@
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],
+    "plugins": [
+      "@typescript-eslint"
+    ],
     "env": {
       "mocha": true,
       "node": true
