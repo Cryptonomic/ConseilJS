@@ -15,7 +15,7 @@
     "package": "rm -rf ./dist && tsc",
     "package-web": "webpack && rm -rf ./dist-web/dist",
     "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
-    "doc": "rm -rf ./doc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./doc ./src"
+    "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src"
   },
   "repository": {
     "type": "git",
