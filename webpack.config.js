@@ -8,7 +8,7 @@ const webConfig = {
     entry: './src/index-web.ts',
     target: 'web',
     output: {
-        path: path.resolve(__dirname, './build'),
+        path: path.resolve(__dirname, './dist-web'),
         filename: 'conseiljs.min.js',
         library: 'conseiljs',
         libraryTarget: 'umd'

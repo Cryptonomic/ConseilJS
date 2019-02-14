@@ -14,7 +14,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const ErrorTypes_1 = require("../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../utils/FetchSelector"));
 const fetch = FetchSelector_1.default.getFetch();
-const util = require('util');
 var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
@@ -27,7 +26,6 @@ var ConseilDataClient;
             })
                 .then(response => {
                 if (!response.ok) {
-                    console.log(`Request Error: ${response.status}, ${response.statusText}, ${url}, ${util.inspect(query, false, null, false)}`);
                     throw new ErrorTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
                 }
                 return response;
@@ -37,7 +35,6 @@ var ConseilDataClient;
                     return response.json();
                 }
                 catch (_a) {
-                    console.log(`Response Error: ${response.status}, ${response.statusText}, ${url}, ${util.inspect(response, false, null, false)}`);
                     throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
                 }
             });

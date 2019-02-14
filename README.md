@@ -12,7 +12,7 @@ ConseilJS connects to [Conseil](https://github.com/Cryptonomic/Conseil) for cach
 
 ## Use
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: `https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js`.
 
 ```bash
 $ npm i conseiljs
