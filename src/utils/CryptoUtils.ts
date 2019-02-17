@@ -1,6 +1,4 @@
-import * as sodium from 'libsodium-wrappers';
 import * as sodiumsumo from 'libsodium-wrappers-sumo';
-import * as crypto from 'crypto';
 import zxcvbn from 'zxcvbn';
 
 /**
@@ -12,7 +10,7 @@ export namespace CryptoUtils {
      * @returns {Buffer} Salt
      */
     export function generateSaltForPwHash() {
-        return crypto.randomBytes(sodiumsumo.crypto_pwhash_SALTBYTES)
+        return sodiumsumo.randombytes_buf(sodiumsumo.crypto_pwhash_SALTBYTES)
     }
 
     /**
@@ -22,7 +20,7 @@ export namespace CryptoUtils {
      * @param {Buffer} salt Salt for key derivation
      * @returns {Buffer} Concatenated bytes of nonce and cipher text
      */
-    export function encryptMessage(message: string, passphrase: string, salt: Buffer) {
+    export function encryptMessage(message: string, passphrase: string, salt: Buffer) : Buffer {
         const passwordStrength = getPasswordStrength(passphrase);
         if (passwordStrength < 3) {
             throw new Error('The password strength should not be less than 3.');
@@ -45,11 +43,11 @@ export namespace CryptoUtils {
     /**
      * Decrypts a given message using a passphrase
      * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
-     * @param {string} passphrase   User-supplied passphrase
+     * @param {string} passphrase User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
-     * @returns {any} Decrypted message
+     * @returns {string} Decrypted message
      */
-    export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer ) {
+    export function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer) : string {
         const keyBytes = sodiumsumo.crypto_pwhash(
             sodiumsumo.crypto_box_SEEDBYTES,
             passphrase,
@@ -74,7 +72,7 @@ export namespace CryptoUtils {
      * Checking the password strength using zxcvbn
      * @returns {number} Password score
      */
-    export function getPasswordStrength(password: string): number {
+    export function getPasswordStrength(password: string) : number {
         const results = zxcvbn(password);
         return results.score;
     }
@@ -86,6 +84,6 @@ export namespace CryptoUtils {
     }
 
     export function signDetached(payload: Buffer, privateKey: Buffer) : Buffer {
-        return sodium.crypto_sign_detached(payload, privateKey);
+        return sodiumsumo.crypto_sign_detached(payload, privateKey);
     }
 }
