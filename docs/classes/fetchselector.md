@@ -31,7 +31,7 @@ nodejs and web-based applications building on ConseilJS will likely have differe
 
 **● fetch**: *`any`* =  null
 
-*Defined in [utils/FetchSelector.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/FetchSelector.ts#L8)*
+*Defined in [utils/FetchSelector.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/FetchSelector.ts#L8)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **getFetch**(): `any`
 
-*Defined in [utils/FetchSelector.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/FetchSelector.ts#L14)*
+*Defined in [utils/FetchSelector.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/FetchSelector.ts#L14)*
 
 **Returns:** `any`
 
@@ -54,7 +54,7 @@ ___
 
 ▸ **setFetch**(fetch: *`any`*): `void`
 
-*Defined in [utils/FetchSelector.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/FetchSelector.ts#L10)*
+*Defined in [utils/FetchSelector.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/FetchSelector.ts#L10)*
 
 **Parameters:**
 

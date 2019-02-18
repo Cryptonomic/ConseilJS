@@ -21,7 +21,7 @@
 
 ▸ **getTezosPublicKey**(derivationPath: *`string`*): `Promise`<`string`>
 
-*Defined in [identity/tezos/TezosLedgerWallet.ts:44](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosLedgerWallet.ts#L44)*
+*Defined in [identity/tezos/TezosLedgerWallet.ts:44](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosLedgerWallet.ts#L44)*
 
 Given a BIP44 derivation path for Tezos, get the Tezos Public Key
 
@@ -40,7 +40,7 @@ ___
 
 ▸ **initLedgerTransport**(): `void`
 
-*Defined in [identity/tezos/TezosLedgerWallet.ts:69](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosLedgerWallet.ts#L69)*
+*Defined in [identity/tezos/TezosLedgerWallet.ts:69](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosLedgerWallet.ts#L69)*
 
 **Returns:** `void`
 
@@ -51,7 +51,7 @@ ___
 
 ▸ **signTezosOperation**(derivationPath: *`string`*, watermarkedOpInHex: *`string`*): `Promise`<`Buffer`>
 
-*Defined in [identity/tezos/TezosLedgerWallet.ts:59](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosLedgerWallet.ts#L59)*
+*Defined in [identity/tezos/TezosLedgerWallet.ts:59](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosLedgerWallet.ts#L59)*
 
 Given a BIP44 derivation path for Tezos, and the hex encoded, watermarked Tezos Operation, sign using the ledger
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **unlockAddress**(deviceType: *[HardwareDeviceType](../enums/hardwaredevicetype.md)*, derivationPath: *`string`*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosLedgerWallet.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosLedgerWallet.ts#L25)*
+*Defined in [identity/tezos/TezosLedgerWallet.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosLedgerWallet.ts#L25)*
 
 **Parameters:**
 

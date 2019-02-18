@@ -34,7 +34,7 @@ Types used to process data returned from the Tezos node.
 
 **● context**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L13)*
+*Defined in [types/tezos/TezosChainTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L13)*
 
 ___
 <a id="fitness"></a>
@@ -43,7 +43,7 @@ ___
 
 **● fitness**: *`string`[]*
 
-*Defined in [types/tezos/TezosChainTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L12)*
+*Defined in [types/tezos/TezosChainTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L12)*
 
 ___
 <a id="level"></a>
@@ -52,7 +52,7 @@ ___
 
 **● level**: *`number`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L6)*
+*Defined in [types/tezos/TezosChainTypes.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L6)*
 
 ___
 <a id="operations_hash"></a>
@@ -61,7 +61,7 @@ ___
 
 **● operations_hash**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L11)*
+*Defined in [types/tezos/TezosChainTypes.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L11)*
 
 ___
 <a id="predecessor"></a>
@@ -70,7 +70,7 @@ ___
 
 **● predecessor**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L8)*
+*Defined in [types/tezos/TezosChainTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L8)*
 
 ___
 <a id="priority"></a>
@@ -79,7 +79,7 @@ ___
 
 **● priority**: *`number`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L14)*
+*Defined in [types/tezos/TezosChainTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L14)*
 
 ___
 <a id="proof_of_work_nonce"></a>
@@ -88,7 +88,7 @@ ___
 
 **● proof_of_work_nonce**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L15)*
+*Defined in [types/tezos/TezosChainTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L15)*
 
 ___
 <a id="proto"></a>
@@ -97,7 +97,7 @@ ___
 
 **● proto**: *`number`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L7)*
+*Defined in [types/tezos/TezosChainTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L7)*
 
 ___
 <a id="signature"></a>
@@ -106,7 +106,7 @@ ___
 
 **● signature**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L16)*
+*Defined in [types/tezos/TezosChainTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L16)*
 
 ___
 <a id="timestamp"></a>
@@ -115,7 +115,7 @@ ___
 
 **● timestamp**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L9)*
+*Defined in [types/tezos/TezosChainTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L9)*
 
 ___
 <a id="validation_pass"></a>
@@ -124,7 +124,7 @@ ___
 
 **● validation_pass**: *`number`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L10)*
+*Defined in [types/tezos/TezosChainTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L10)*
 
 ___
 
