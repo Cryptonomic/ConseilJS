@@ -34,7 +34,7 @@ export namespace TezosNodeWriter {
                 const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
                 const privateKeyBytes = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
 
-                opSignature = CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
+                opSignature = await CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
         const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
