@@ -39,7 +39,7 @@ const [info0, info1] = walletInfoLists;
 const ktAddress = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
 
 describe('Tezos Operations Test', () => {
-    before(async () => {
+    before(mochaAsync(async () => {
         keyStore = await unlockFundraiserIdentity(info0.seed, info0.email, info0.password, info0.pkh);
         keyStore.storeType = 'Fundraiser';
 
@@ -78,7 +78,7 @@ describe('Tezos Operations Test', () => {
             .get(ktAccountMangerUrl)
             .reply(200, managerKeyMockList[0]);
 
-    });
+    }));
     describe('Some Base Operations Test', () => {
         before(async () => {
             const activation = {
