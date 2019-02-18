@@ -19,38 +19,38 @@ var ConseilMetadataClient;
         return __awaiter(this, void 0, void 0, function* () {
             return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
                 method: 'GET',
-                headers: { "apiKey": serverInfo.apiKey },
+                headers: { 'apiKey': serverInfo.apiKey },
             }).then(response => response.json());
         });
     }
     ConseilMetadataClient.executeMetadataQuery = executeMetadataQuery;
-    function getPlatforms(server, apiKey) {
+    function getPlatforms(serverInfo) {
         return __awaiter(this, void 0, void 0, function* () {
-            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, 'platforms');
+            return executeMetadataQuery(serverInfo, 'platforms');
         });
     }
     ConseilMetadataClient.getPlatforms = getPlatforms;
-    function getNetworks(server, apiKey, platform) {
+    function getNetworks(serverInfo, platform) {
         return __awaiter(this, void 0, void 0, function* () {
-            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/networks`);
+            return executeMetadataQuery(serverInfo, `${platform}/networks`);
         });
     }
     ConseilMetadataClient.getNetworks = getNetworks;
-    function getEntities(server, apiKey, platform, network) {
+    function getEntities(serverInfo, platform, network) {
         return __awaiter(this, void 0, void 0, function* () {
-            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/entities`);
+            return executeMetadataQuery(serverInfo, `${platform}/${network}/entities`);
         });
     }
     ConseilMetadataClient.getEntities = getEntities;
-    function getAttributes(server, apiKey, platform, network, entity) {
+    function getAttributes(serverInfo, platform, network, entity) {
         return __awaiter(this, void 0, void 0, function* () {
-            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/attributes`);
+            return executeMetadataQuery(serverInfo, `${platform}/${network}/${entity}/attributes`);
         });
     }
     ConseilMetadataClient.getAttributes = getAttributes;
-    function getAttributeValues(server, apiKey, platform, network, entity, attribute) {
+    function getAttributeValues(serverInfo, platform, network, entity, attribute) {
         return __awaiter(this, void 0, void 0, function* () {
-            return executeMetadataQuery({ "url": server, "apiKey": apiKey }, `${platform}/${network}/${entity}/${attribute}`);
+            return executeMetadataQuery(serverInfo, `${platform}/${network}/${entity}/${attribute}`);
         });
     }
     ConseilMetadataClient.getAttributeValues = getAttributeValues;
