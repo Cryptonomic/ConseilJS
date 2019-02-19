@@ -180,7 +180,7 @@ var TezosNodeWriter;
     TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
     function sendAccountOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
+            return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
         });
     }
     TezosNodeWriter.sendAccountOriginationOperation = sendAccountOriginationOperation;
