@@ -295,7 +295,7 @@ export namespace TezosNodeWriter {
         fee: number,
         derivationPath: string
     ) {
-        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
+        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
     }
 
     /**
