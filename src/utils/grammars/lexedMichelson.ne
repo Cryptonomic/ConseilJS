@@ -9,14 +9,20 @@ const lexer = moo.compile({
     ws: /[ \t]+/,
     semicolon: ";",
     comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'tez'],
+    constantType: ['key', 'unit', 'signature', 'operation', 'address'],
+    singleArgType: ['option', 'list', 'set', 'contract'],
+    doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     type: ['key', 'unit', 'signature', 'option', 'list', 'set', 'operation', 'address', 'contract', 'pair', 'or', 'lambda', 'map', 'big_map' ],
     instruction: ['DROP', 'DUP', 'SWAP', 'PUSH', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
     'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
     'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
-    'SET_DELEGATE', 'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
+    'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'DEFAULT_ACCOUNT', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE'],
+    constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
+    singleArgData: ['Left', 'Right', 'Some'],
+    doubleArgData: ['Pair'],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     parameter: ["parameter", "Parameter"],
     storage: ["Storage", "storage"],
@@ -31,20 +37,18 @@ const lexer = moo.compile({
 # Pass your lexer object using the @lexer option:
 @lexer lexer
 
-main -> instruction {% id %} | data {% id %} | comparableType {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %}
+main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %}
 parameter -> %parameter _ type ";" {% singleArgKeywordToJson %}
 storage -> %storage _ type ";" {% singleArgKeywordToJson %}
-code -> %code _ subInstruction {% d => d[2] %} | %code _ "{};" {% d => "code {}" %}
-
-comparableType -> %comparableType {% keywordToJson %}
+code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}  | %code _ "{};" {% d => "code {}" %}
 
 type -> 
-    comparableType {% id %} 
-  | %type {% keywordToJson %} 
-  | %type _ type {% singleArgKeywordToJson %}
-  | %lparen _ %type _ type %rparen {% singleArgKeywordWithParenToJson %}
-  | %type _ type _ type {% doubleArgKeywordToJson %}
-  | %lparen _ %type _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
+    %comparableType {% keywordToJson %} 
+  | %constantType {% keywordToJson %} 
+  | %singleArgType _ type {% singleArgKeywordToJson %}
+  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
+  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
+  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
 subInstruction -> %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %}
