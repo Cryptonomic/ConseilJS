@@ -110,6 +110,7 @@ export namespace TezosNodeWriter {
             contents: operations,
             signature: signedOpGroup.signature
         }];
+        console.log('signature----', signedOpGroup.signature);
 
         return TezosNodeReader.applyOperation(network, payload);
     }
