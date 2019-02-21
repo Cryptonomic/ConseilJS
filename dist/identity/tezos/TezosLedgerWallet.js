@@ -34,7 +34,7 @@ var TezosLedgerWallet;
             const hexEncodedPublicKey = yield getTezosPublicKey(derivationPath);
             const publicKeyBytes = Buffer.from(hexEncodedPublicKey, 'hex').slice(1);
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
-            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(publicKeyBytes, 'tz1');
             return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Hardware };
         });
     }

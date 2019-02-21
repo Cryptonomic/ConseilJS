@@ -39,8 +39,10 @@ describe('Tezos operation functions', () => {
         // const randomBakerAddress1 = 'tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ';
         // const randomBakerAddress2 = 'tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u';
 
+        const newAddress = 'tz1bYDK6m4RhCjMmCUTfUeuZ1WaiZZcHQZHN';
+
         const ledgerKeys = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
-        console.log('ledgerKeys', ledgerKeys);
+        console.log('ledgerKeys----', ledgerKeys);
 
         /*
         Uncomment this section if the fundraiser account is inactive
@@ -69,21 +71,15 @@ describe('Tezos operation functions', () => {
 
         // sleep(33);
 
-        const newAddress = 'tz1bYDK6m4RhCjMmCUTfUeuZ1WaiZZcHQZHN';
-
-        const sendResult = await TezosNodeWriter.sendTransactionOperation(
-            tezosURL,
-            ledgerKeys,
-            newAddress,
-            1000000,
-            300000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
-            derivationPath
-        ).catch((err) => {
-            console.error('errr---', err);
-            return {operationGroupID: 'aaaa'};
-        });
-        console.error('sendResult---', sendResult);
-        expect(sendResult.operationGroupID).to.exist;
+        // const inactiveImplicitResult = await TezosNodeWriter.sendTransactionOperation(
+        //     tezosURL,
+        //     ledgerKeys,
+        //     newAddress,
+        //     1000000,
+        //     300000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
+        //     derivationPath
+        // );
+        // expect(inactiveImplicitResult.operationGroupID).to.exist;
 
         // sleep(33);
 

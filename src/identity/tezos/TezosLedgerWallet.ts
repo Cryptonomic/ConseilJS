@@ -30,9 +30,8 @@ export namespace TezosLedgerWallet {
         const hexEncodedPublicKey = await getTezosPublicKey(derivationPath);
         //We slice off a byte to make sure we have a 64 bits coming in from the ledger package
         const publicKeyBytes = Buffer.from(hexEncodedPublicKey, 'hex').slice(1);
-        console.log('publicKeyBytes----', publicKeyBytes);
         const publicKey = TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
-        const publicKeyHash = TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
+        const publicKeyHash = TezosMessageUtils.computeKeyHash(publicKeyBytes, 'tz1');
 
         return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: StoreType.Hardware };
     }
