@@ -237,7 +237,7 @@ var TezosNodeWriter;
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, accountHash);
             const isImplicit = accountHash.toLowerCase().startsWith("tz");
-            const isEmpty = account.balance === 0;
+            const isEmpty = Number(account.balance) === 0;
             return (isImplicit && isEmpty);
         });
     }
