@@ -52,7 +52,6 @@ export namespace TezosWalletUtil {
 
         const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
         const keys = await CryptoUtils.generateKeys(seed);
-        console.log(`keys: ${keys}`);
         const privateKey = TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
