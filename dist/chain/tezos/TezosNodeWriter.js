@@ -180,7 +180,7 @@ var TezosNodeWriter;
     TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
     function sendAccountOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
-            return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
+            return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
         });
     }
     TezosNodeWriter.sendAccountOriginationOperation = sendAccountOriginationOperation;
@@ -237,7 +237,7 @@ var TezosNodeWriter;
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, accountHash);
             const isImplicit = accountHash.toLowerCase().startsWith("tz");
-            const isEmpty = account.balance === 0;
+            const isEmpty = Number(account.balance) === 0;
             return (isImplicit && isEmpty);
         });
     }

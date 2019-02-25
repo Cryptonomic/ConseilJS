@@ -47,11 +47,11 @@ export namespace TezosNodeWriter {
 
     /**
      * Forge an operation group using the Tezos RPC client.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
-     * 
+     *
      * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
@@ -92,7 +92,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Applies an operation using the Tezos RPC client.
-     * 
+     *
      * @param {string} network  Which Tezos network to go against
      * @param {BlockMetadata} blockHead Block head
      * @param {object[]} operations The operations to create and send
@@ -116,7 +116,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Ensures the results of operation application do not contain errors. Throws if there are errors.
-     * 
+     *
      * @param appliedOp Results of operation application.
      */
     function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void {
@@ -134,7 +134,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Injects an opertion using the Tezos RPC client.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<InjectedOperation>} ID of injected operation
@@ -170,7 +170,7 @@ export namespace TezosNodeWriter {
      * Helper function for sending Delegations, Transactions, and Originations.
      * Checks if manager's public key has been revealed for operation. If yes,
      * do nothing, else, bundle a reveal operation before the input operation.
-     * 
+     *
      * @param network Which Tezos network to go against
      * @param keyStore  Key pair along with public key hash
      * @param fee Fee to use
@@ -274,7 +274,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Sends an account origination operation.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
@@ -295,12 +295,12 @@ export namespace TezosNodeWriter {
         fee: number,
         derivationPath: string
     ) {
-        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '10160', '277');
+        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
     }
 
     /**
      * Sends a contract origination operation.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
@@ -333,7 +333,7 @@ export namespace TezosNodeWriter {
 
     /**
      * General purpose function for origination.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
@@ -346,7 +346,7 @@ export namespace TezosNodeWriter {
      * @param {string} gas_limit Gas limit.
      * @param {Array<object>} code Contract code.
      * @param {object} storage Initial storage value.
-     * 
+     *
      * @returns {Promise<OperationResult>} Result of the operation
      */
     async function sendOriginationOperation(
@@ -387,16 +387,16 @@ export namespace TezosNodeWriter {
 
     /**
      * Invokes a contract with desired parameters
-     * 
-     * @param network 
-     * @param keyStore 
-     * @param to 
-     * @param amount 
-     * @param fee 
-     * @param derivationPath 
-     * @param storage_limit 
-     * @param gas_limit 
-     * @param parameters 
+     *
+     * @param network
+     * @param keyStore
+     * @param to
+     * @param amount
+     * @param fee
+     * @param derivationPath
+     * @param storage_limit
+     * @param gas_limit
+     * @param parameters
      */
     export async function sendContractInvocationOperation(
         network: string,
@@ -439,14 +439,14 @@ export namespace TezosNodeWriter {
         const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith("tz");
-        const isEmpty = account.balance === 0;
+        const isEmpty = Number(account.balance) === 0
 
         return (isImplicit && isEmpty)
     }
 
     /**
      * Indicates whether a reveal operation has already been done for a given account.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @returns {Promise<boolean>} Result
@@ -460,7 +460,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Creates and sends a reveal operation.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} fee  Fee to pay
@@ -490,7 +490,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Creates and sends an activation operation.
-     * 
+     *
      * @param {string} network Which Tezos network to go against
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} activationCode Activation code provided by fundraiser process

@@ -32,9 +32,9 @@ var TezosLedgerWallet;
                 throw new Error("Unsupported hardware device");
             }
             const hexEncodedPublicKey = yield getTezosPublicKey(derivationPath);
-            const publicKeyBytes = Buffer.from(hexEncodedPublicKey).slice(1);
+            const publicKeyBytes = Buffer.from(hexEncodedPublicKey, 'hex').slice(1);
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
-            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(Buffer.from(publicKey, 'hex'), 'tz1');
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(publicKeyBytes, 'tz1');
             return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Hardware };
         });
     }
@@ -55,7 +55,7 @@ var TezosLedgerWallet;
             const xtz = new App(transport);
             const result = yield xtz.signOperation(derivationPath, watermarkedOpInHex);
             const hexEncodedSignature = result.signature;
-            const signatureBytes = Buffer.from(hexEncodedSignature);
+            const signatureBytes = Buffer.from(hexEncodedSignature, 'hex');
             return signatureBytes;
         });
     }
