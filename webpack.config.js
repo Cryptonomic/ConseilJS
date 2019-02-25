@@ -1,38 +1,41 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
-const path = require('path')
-const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin')
+const TerserPlugin = require('terser-webpack-plugin');
+const path = require('path');
+const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+const { CheckerPlugin } = require('awesome-typescript-loader');
 
-module.exports = {
-    mode: "development",
-    devtool: "inline-source-map",
-    entry: "./src/index.ts",
+const webConfig = {
+    mode: 'production',
+    entry: './src/index-web.ts',
+    target: 'web',
     output: {
-        // filename: "bundle.js"
-        path: path.resolve(__dirname, './build'),
-        filename: 'bundle.js',
+        path: path.resolve(__dirname, './dist-web'),
+        filename: 'conseiljs.min.js',
         library: 'conseiljs',
         libraryTarget: 'umd'
     },
     resolve: {
-        // Add `.ts` and `.tsx` as a resolvable extension.
-        extensions: [".ts", ".tsx", ".js"],
+        extensions: ['.ts', '.tsx', '.js'],
         plugins: [
             new TsConfigPathsPlugin({
-                configFile: './tsconfig.json',
-            }),
-        ],
+                configFile: './tsconfig.json'
+            })
+        ]
     },
     module: {
         rules: [
-            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
             { test: /\.tsx?$/, loader: 'awesome-typescript-loader' }
         ]
     },
     node: {
-        // handle "Can't resolve 'fs'" issue
-        fs: 'empty', child_process: 'empty'
+        child_process: 'empty',
+        fs: 'empty',
+        net: 'empty',
+        tls: 'empty'
     },
-    plugins: [
-        new UglifyJsPlugin()
-    ]
+    plugins: [new CheckerPlugin()],
+    optimization: {
+        minimizer: [new TerserPlugin()]
+    }
 };
+
+module.exports = [webConfig];

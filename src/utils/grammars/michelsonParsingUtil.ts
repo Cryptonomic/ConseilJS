@@ -14,4 +14,4 @@ export function michelsonToJson(michelson: string): string {
 //For debugging purposes
 //console.log(util.inspect(parser.results, false, null, true));
 
-console.log(michelsonToJson("world"))
+//console.log(michelsonToJson("world"))

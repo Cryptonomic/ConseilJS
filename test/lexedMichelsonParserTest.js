@@ -1,9 +1,11 @@
-const nearley = require("nearley");
-const grammar = require("./../src/utils/grammars/lexedMichelson.js");
+//const nearley = require("nearley");
+//const grammar = require("./../src/utils/grammars/lexedMichelson.js");
 //const grammar = require("./test.js");
-const util = require('util');
+//const util = require('util');
 
-const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+//const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
+const util =  require('../src/utils/grammars/michelsonParsingUtil')
+//import { michelsonToJson } from '../src/utils/grammars/michelsonParsingUtil';
 
 const script_one = "{ CAR; NIL operation; PAIR;}"
 const storage_one = "\"world\""
@@ -393,6 +395,30 @@ const code_six = `code {DROP;
 const ctsix = code_six.replace(/[\n\r\t]/g,'')
 
 //BUG, ambiguous parsing between LE and LEFT
-parser.feed (ctsix)
+//parser.feed (ctsix)
 
-console.log(util.inspect(parser.results, false, null, true));
+//console.log(util.inspect(parser.results, false, null, true));
+const caml_one = `code {DROP;
+  PUSH string "Hello Tezos!";
+  NIL operation; PAIR;};
+`
+
+const caml_two = `code { DUP;
+  DUP;
+  CDR;
+  CONTRACT string;
+  IF_NONE {DROP; NIL operation; }
+          {SWAP;
+           CAR;
+           DIP {PUSH mutez 0};
+           TRANSFER_TOKENS;
+           DIP {NIL operation;};
+           CONS;
+          };
+  DIP { CDR };
+  PAIR;
+};
+
+`
+
+console.log(util.michelsonToJson(caml_two))
