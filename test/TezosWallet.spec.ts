@@ -1,11 +1,14 @@
-import {expect} from 'chai';
+import { expect, use} from "chai";
+import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
-import * as fs from 'fs'
+import * as fs from 'fs';
 
 import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
 import {Wallet} from "../src/types/wallet/Wallet";
 import {TezosFileWallet} from "../src";
 import {TezosWalletUtil} from "../src/identity/tezos/TezosWalletUtil";
+
+use(chaiAsPromised);
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
@@ -58,12 +61,12 @@ describe('unlockFundraiserIdentity()', () => {
     });
 
     it('should fail mnemonic/passphrase validation', async () => {
-        expect(await TezosWalletUtil.unlockFundraiserIdentity(
+        await expect(TezosWalletUtil.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
             'SU0j4HSgbd',
             'tz2aj32NRPg49jtvSDhkpruQAFevjaewaLew'
-        )).to.throw('The given mnemonic and passphrase do not correspond to the applied public key hash');
+        )).be.rejectedWith('The given mnemonic and passphrase do not correspond to the applied public key hash');
     });
 });
 
@@ -92,22 +95,22 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
     });
 
     it('should be 15 words', async () => {
-        expect(await TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
             'password',
             'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
             true,
             StoreType.Mnemonic
-        )).to.throw("The mnemonic should be 15 words.");
+        )).be.rejectedWith("The mnemonic should be 15 words.");
     });
 
     it('should detect invalid mnemonics', async () => {
-        const f = async () => await TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
             'password',
             'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
             true,
-            StoreType.Mnemonic);
-        await expect(f).to.throw("The given mnemonic could not be validated.");
+            StoreType.Mnemonic
+        )).be.rejectedWith("The given mnemonic could not be validated.");
     });
 });
