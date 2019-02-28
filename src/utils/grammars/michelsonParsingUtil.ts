@@ -10,8 +10,3 @@ export function michelsonToJson(michelson: string): string {
     parser.feed(fixedString)
     return util.inspect(parser.results, false, null, true)
 }
-
-//For debugging purposes
-//console.log(util.inspect(parser.results, false, null, true));
-
-//console.log(michelsonToJson("world"))

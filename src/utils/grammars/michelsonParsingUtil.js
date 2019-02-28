@@ -11,6 +11,3 @@ function michelsonToJson(michelson) {
     return util.inspect(parser.results, false, null, true);
 }
 exports.michelsonToJson = michelsonToJson;
-//For debugging purposes
-//console.log(util.inspect(parser.results, false, null, true));
-//console.log(michelsonToJson("world"))
