@@ -1,6 +1,25 @@
 @{%
 const moo = require("moo");
 
+/*
+  Assumptions:
+  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
+  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
+  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
+    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
+  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
+    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
+  - Issue: Some keywords were found after trial and error that were not in the grammar. Will update list accordingly.
+  - Issue: There is an ambiguous parsing between commands LE and LEFT.
+  - Issue: Michelson comments are not parsed.
+  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested, 
+    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
+    last instruction in a code block not have a semicolon.
+*/
+
+/*
+  Lexer to parse keywords more efficiently.
+*/
 const lexer = moo.compile({
     lparen: '(',
     rparen: ')',
@@ -20,10 +39,10 @@ const lexer = moo.compile({
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'DEFAULT_ACCOUNT', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE'],
+    data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
-    data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     parameter: ["parameter", "Parameter"],
     storage: ["Storage", "storage"],
     code: ["Code", "code"],
@@ -37,11 +56,13 @@ const lexer = moo.compile({
 # Pass your lexer object using the @lexer option:
 @lexer lexer
 
+# Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %}
 parameter -> %parameter _ type ";" {% singleArgKeywordToJson %}
 storage -> %storage _ type ";" {% singleArgKeywordToJson %}
 code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}  | %code _ "{};" {% d => "code {}" %}
 
+# Grammar of a Michelson type
 type -> 
     %comparableType {% keywordToJson %} 
   | %constantType {% keywordToJson %} 
@@ -50,10 +71,12 @@ type ->
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
+# Helper pattern for lists of michelson instructions
 subInstruction -> %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
- #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %}
+ #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% id %}
+# Grammar for michelson instruction.   
 instruction ->
     subInstruction {% id %}
   | %instruction {% keywordToJson %}
@@ -65,6 +88,7 @@ instruction ->
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
   | %instruction _ type _ data {% doubleArgKeywordToJson %}
 
+# Grammar for michelson data.
 data ->
     %data {% keywordToJson %}
   | %data _ data {% singleArgKeywordToJson %}
@@ -73,25 +97,35 @@ data ->
   | subElt {% id %}
   | %number {% keywordToJson %}
   | %string {% keywordToJson %}
+# Helper grammar for list of michelson data types.
 subData -> 
     "{" _ (data ";" _):+ "}" {% instructionSetToJson %}
   | "(" _ (data ";" _):+ ")" {% instructionSetToJson %}
+# Helper grammar for list of pairs of michelson data types.
 subElt -> 
     "{" _ (elt ";" _):+ "}" {% instructionSetToJson %}
   | "(" _ (elt ";" _):+ ")" {% instructionSetToJson %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson  %}
 
+# Helper grammar for whitespace.
 _ -> [\s]:*
+# Helper grammar for semicolons.
 semicolons -> null | semicolons ";"
 
 @{%
 
+  /* Given a keyword, convert it to JSON.
+     Example: "int" -> "{ prim: int }"
+  */
   const keywordToJson = d => 
     {
         const s = d[0]
         return "{ prim: " + s + " }"
     }
 
+  /* Given a keyword with one argument, convert it to JSON.
+     Example: "option int" -> "{ prim: option, args: [int] }"
+  */
   const singleArgKeywordToJson = d => 
     { 
       const s = d[0]
@@ -99,6 +133,9 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule + "] }"
     }  
 
+  /* Given a keyword with one argument and parentheses, convert it to JSON.
+     Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
+  */
   const singleArgKeywordWithParenToJson = d =>
     {
       const s = d[2]
@@ -106,6 +143,9 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule + "] }"
     }
 
+  /* Given a keyword with two arguments, convert it into JSON.
+     Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+  */
   const doubleArgKeywordToJson = d => 
     {
       const s = d[0]
@@ -114,6 +154,9 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
     }  
 
+  /* Given a keyword with two arguments and parentheses, convert it into JSON.
+     Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+  */
   const doubleArgKeywordWithParenToJson = d =>  
     {
       const s = d[2]
@@ -122,6 +165,9 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
     }
 
+  /* Given a keyword with three arguments, convert it into JSON.
+     Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+  */
   const tripleArgKeyWordToJson = d => 
     {
       const s = d[0]
@@ -131,6 +177,9 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
+  /* Given a keyword with three arguments and parentheses, convert it into JSON.
+      Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+  */
   const tripleArgKeyWordWithParenToJson = d =>  
     {
       const s = d[2]
@@ -139,6 +188,12 @@ semicolons -> null | semicolons ";"
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
+  /* Given a list of michelson instructions, convert it into JSON.
+     Example: "{CAR; NIL operation; PAIR;}" -> 
+     [ '{ prim: CAR }',
+       '{ prim: NIL, args: [{ prim: operation }] }',
+       '{ prim: PAIR }' ]
+  */
   const instructionSetToJson = d =>
     {
       const instructions = d[2]
@@ -146,6 +201,10 @@ semicolons -> null | semicolons ";"
       return instructionsList
     }
 
+  /* Unused right now, may be helpful in arbitrary semicolons in 
+     list of instructions case. Will update description or delete
+     if used.
+  */
   const altInstructionSetToJson = d =>
     {
       const instruction = d[2]

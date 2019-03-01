@@ -5,6 +5,25 @@ function id(x) { return x[0]; }
 
 const moo = require("moo");
 
+/*
+  Assumptions:
+  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
+  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
+  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
+    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
+  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
+    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
+  - Issue: Some keywords were found after trial and error that were not in the grammar. Will update list accordingly.
+  - Issue: There is an ambiguous parsing between commands LE and LEFT.
+  - Issue: Michelson comments are not parsed.
+  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested, 
+    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
+    last instruction in a code block not have a semicolon.
+*/
+
+/*
+  Lexer to parse keywords more efficiently.
+*/
 const lexer = moo.compile({
     lparen: '(',
     rparen: ')',
@@ -24,10 +43,10 @@ const lexer = moo.compile({
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'DEFAULT_ACCOUNT', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE'],
+    data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
-    data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     parameter: ["parameter", "Parameter"],
     storage: ["Storage", "storage"],
     code: ["Code", "code"],
@@ -39,12 +58,18 @@ const lexer = moo.compile({
 
 
 
+  /* Given a keyword, convert it to JSON.
+     Example: "int" -> "{ prim: int }"
+  */
   const keywordToJson = d => 
     {
         const s = d[0]
         return "{ prim: " + s + " }"
     }
 
+  /* Given a keyword with one argument, convert it to JSON.
+     Example: "option int" -> "{ prim: option, args: [int] }"
+  */
   const singleArgKeywordToJson = d => 
     { 
       const s = d[0]
@@ -52,6 +77,9 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule + "] }"
     }  
 
+  /* Given a keyword with one argument and parentheses, convert it to JSON.
+     Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
+  */
   const singleArgKeywordWithParenToJson = d =>
     {
       const s = d[2]
@@ -59,6 +87,9 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule + "] }"
     }
 
+  /* Given a keyword with two arguments, convert it into JSON.
+     Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+  */
   const doubleArgKeywordToJson = d => 
     {
       const s = d[0]
@@ -67,6 +98,9 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
     }  
 
+  /* Given a keyword with two arguments and parentheses, convert it into JSON.
+     Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+  */
   const doubleArgKeywordWithParenToJson = d =>  
     {
       const s = d[2]
@@ -75,6 +109,9 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
     }
 
+  /* Given a keyword with three arguments, convert it into JSON.
+     Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+  */
   const tripleArgKeyWordToJson = d => 
     {
       const s = d[0]
@@ -84,6 +121,9 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
+  /* Given a keyword with three arguments and parentheses, convert it into JSON.
+      Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+  */
   const tripleArgKeyWordWithParenToJson = d =>  
     {
       const s = d[2]
@@ -92,6 +132,12 @@ const lexer = moo.compile({
       return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
+  /* Given a list of michelson instructions, convert it into JSON.
+     Example: "{CAR; NIL operation; PAIR;}" -> 
+     [ '{ prim: CAR }',
+       '{ prim: NIL, args: [{ prim: operation }] }',
+       '{ prim: PAIR }' ]
+  */
   const instructionSetToJson = d =>
     {
       const instructions = d[2]
@@ -99,6 +145,10 @@ const lexer = moo.compile({
       return instructionsList
     }
 
+  /* Unused right now, may be helpful in arbitrary semicolons in 
+     list of instructions case. Will update description or delete
+     if used.
+  */
   const altInstructionSetToJson = d =>
     {
       const instruction = d[2]

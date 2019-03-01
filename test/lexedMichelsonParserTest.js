@@ -421,4 +421,4 @@ const caml_two = `code { DUP;
 
 `
 
-console.log(util.michelsonToJson(ctfive))
+console.log(util.michelsonToJson(script_one))
