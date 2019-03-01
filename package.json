@@ -15,7 +15,8 @@
     "package": "rm -rf ./dist && tsc",
     "package-web": "webpack && rm -rf ./dist-web/dist",
     "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
-    "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src"
+    "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src",
+    "compile-michelson-parser": "nearleyc src/utils/grammars/lexedMichelson.ne -o src/utils/grammars/lexedMichelson.js"
   },
   "repository": {
     "type": "git",
