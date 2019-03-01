@@ -18,32 +18,25 @@ export namespace TezosFileWallet {
      * @returns {Promise<Wallet>} Wallet object loaded from disk
      */
     export async function saveWallet(filename: string, wallet: Wallet, passphrase: string): Promise<Wallet> {
-        return new Promise<Wallet>(((resolve, reject) => {
-            const keys = JSON.stringify(wallet.identities);
-            const salt = CryptoUtils.generateSaltForPwHash();
-            let encryptedKeys;
-            try {
-                encryptedKeys = CryptoUtils.encryptMessage(keys, passphrase, salt);
-            } catch (err) {
-                reject(err);
-            }
-            
-            const encryptedWallet: EncryptedWalletVersionOne = {
-                version: '1',
-                salt: TezosMessageUtils.readBufferWithHint(salt, ''),
-                ciphertext: TezosMessageUtils.readBufferWithHint(encryptedKeys, ''),
-                kdf: 'Argon2'
-            };
+        const keys = JSON.stringify(wallet.identities);
+        const salt = await CryptoUtils.generateSaltForPwHash();
+        const encryptedKeys = await CryptoUtils.encryptMessage(keys, passphrase, salt);
 
-            try {
-                fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
-                    if (err) { reject(err); }
-                    resolve(loadWallet(filename, passphrase));
-                });
-            } catch (err) {
-                reject(err);
-            }
-        }));
+        const encryptedWallet: EncryptedWalletVersionOne = {
+            version: '1',
+            salt: TezosMessageUtils.readBufferWithHint(salt, ''),
+            ciphertext: TezosMessageUtils.readBufferWithHint(encryptedKeys, ''),
+            kdf: 'Argon2'
+        };
+
+        const p = new Promise((resolve, reject) => {
+            fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
+                if (err) { reject(err); }
+                else resolve();
+            });
+        });
+        await p;
+        return loadWallet(filename, passphrase);
     }
 
     /**
@@ -54,20 +47,20 @@ export namespace TezosFileWallet {
      * @returns {Promise<Wallet>} Loaded wallet
      */
     export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
-        return new Promise<Wallet>((resolve, reject) => {
+        const p = new Promise<EncryptedWalletVersionOne>((resolve, reject) => {
             fs.readFile(filename, (err, data) => {
                 if (err) { reject(err); }
                 const encryptedWallet: EncryptedWalletVersionOne = JSON.parse(data.toString()) as EncryptedWalletVersionOne;
-                const encryptedKeys = TezosMessageUtils.writeBufferWithHint(encryptedWallet.ciphertext);
-                const salt = TezosMessageUtils.writeBufferWithHint(encryptedWallet.salt);
-                try {
-                    const keys = JSON.parse(CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];
-                    resolve({identities: keys});
-                } catch(e) {
-                    reject(e);
-                }
+                resolve(encryptedWallet);
             });
         });
+
+        const ew = await p;
+        const encryptedKeys = TezosMessageUtils.writeBufferWithHint(ew.ciphertext);
+        const salt = TezosMessageUtils.writeBufferWithHint(ew.salt);
+        const keys = JSON.parse(await CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];
+
+        return { identities: keys };
     }
 
     /**
@@ -79,6 +72,7 @@ export namespace TezosFileWallet {
     export async function createWallet(filename: string, password: string): Promise<any> {
         const wallet: Wallet = { identities: [] };
         await saveWallet(filename, wallet, password);
+
         return wallet
     }
 }

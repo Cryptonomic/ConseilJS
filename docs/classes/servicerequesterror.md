@@ -39,7 +39,7 @@ Object to store details of an HTTP request failure. This would describe an error
 
 ⊕ **new ServiceRequestError**(httpStatus: *`number`*, httpMessage: *`string`*, conseilURL: *`string`*, data: *`string` \| `null`*): [ServiceRequestError](servicerequesterror.md)
 
-*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ErrorTypes.ts#L10)*
+*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L10)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ ___
 
 **● conseilURL**: *`string`*
 
-*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ErrorTypes.ts#L9)*
+*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L9)*
 
 ___
 <a id="data"></a>
@@ -71,7 +71,7 @@ ___
 
 **● data**: *`string` \| `null`*
 
-*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ErrorTypes.ts#L10)*
+*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L10)*
 
 ___
 <a id="httpmessage"></a>
@@ -80,7 +80,7 @@ ___
 
 **● httpMessage**: *`string`*
 
-*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ErrorTypes.ts#L8)*
+*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L8)*
 
 ___
 <a id="httpstatus"></a>
@@ -89,7 +89,7 @@ ___
 
 **● httpStatus**: *`number`*
 
-*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ErrorTypes.ts#L7)*
+*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L7)*
 
 ___
 <a id="message"></a>

@@ -23,7 +23,7 @@
 
 **● kind**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:52](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L52)*
+*Defined in [types/tezos/TezosChainTypes.ts:52](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L52)*
 
 ___
 <a id="metadata"></a>
@@ -32,7 +32,7 @@ ___
 
 **● metadata**: *[AlphaOperationResult](alphaoperationresult.md)*
 
-*Defined in [types/tezos/TezosChainTypes.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L53)*
+*Defined in [types/tezos/TezosChainTypes.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L53)*
 
 ___
 

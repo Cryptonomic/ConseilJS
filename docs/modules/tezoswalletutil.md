@@ -21,7 +21,7 @@
 
 ▸ **generateMnemonic**(): `string`
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:30](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosWalletUtil.ts#L30)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosWalletUtil.ts#L24)*
 
 Generates a fifteen word mnemonic phrase using the BIP39 standard.
 
@@ -32,9 +32,9 @@ ___
 
 ###  getKeysFromMnemonicAndPassphrase
 
-▸ **getKeysFromMnemonicAndPassphrase**(mnemonic: *`string`*, passphrase: *`string`*, pkh?: *`string`*, checkPKH?: *`boolean`*, storeType: *[StoreType](../enums/storetype.md)*): [Error](../interfaces/error.md) \| [KeyStore](../interfaces/keystore.md)
+▸ **getKeysFromMnemonicAndPassphrase**(mnemonic: *`string`*, passphrase: *`string`*, pkh?: *`string`*, checkPKH?: *`boolean`*, storeType: *[StoreType](../enums/storetype.md)*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosWalletUtil.ts#L60)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosWalletUtil.ts#L49)*
 
 Generates keys from a user-supplied mnemonic and passphrase.
 
@@ -48,7 +48,7 @@ Generates keys from a user-supplied mnemonic and passphrase.
 | `Default value` checkPKH | `boolean` | true |  Check whether presumed public key hash matches the actual public key hash |
 | storeType | [StoreType](../enums/storetype.md) | - |  Type of the generated key store |
 
-**Returns:** [Error](../interfaces/error.md) \| [KeyStore](../interfaces/keystore.md)
+**Returns:** `Promise`<[KeyStore](../interfaces/keystore.md)>
 Generated keys
 
 ___
@@ -56,9 +56,9 @@ ___
 
 ###  unlockFundraiserIdentity
 
-▸ **unlockFundraiserIdentity**(mnemonic: *`string`*, email: *`string`*, password: *`string`*, pkh: *`string`*): [KeyStore](../interfaces/keystore.md) \| [Error](../interfaces/error.md)
+▸ **unlockFundraiserIdentity**(mnemonic: *`string`*, email: *`string`*, password: *`string`*, pkh: *`string`*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:18](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosWalletUtil.ts#L18)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosWalletUtil.ts#L17)*
 
 Unlocks an identity supplied during the 2017 Tezos fundraiser.
 
@@ -71,7 +71,7 @@ Unlocks an identity supplied during the 2017 Tezos fundraiser.
 | password | `string` |  Password from fundraiser PDF. |
 | pkh | `string` |  The public key hash supposedly produced by the given mnemonic and passphrase |
 
-**Returns:** [KeyStore](../interfaces/keystore.md) \| [Error](../interfaces/error.md)
+**Returns:** `Promise`<[KeyStore](../interfaces/keystore.md)>
 Wallet file
 
 ___
@@ -79,9 +79,9 @@ ___
 
 ###  unlockIdentityWithMnemonic
 
-▸ **unlockIdentityWithMnemonic**(mnemonic: *`string`*, passphrase: *`string`*): [KeyStore](../interfaces/keystore.md) \| [Error](../interfaces/error.md)
+▸ **unlockIdentityWithMnemonic**(mnemonic: *`string`*, passphrase: *`string`*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/identity/tezos/TezosWalletUtil.ts#L41)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:35](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/identity/tezos/TezosWalletUtil.ts#L35)*
 
 Generates a key pair based on a mnemonic.
 
@@ -92,7 +92,7 @@ Generates a key pair based on a mnemonic.
 | mnemonic | `string` |  Fifteen word memonic phrase |
 | passphrase | `string` |  User-supplied passphrase |
 
-**Returns:** [KeyStore](../interfaces/keystore.md) \| [Error](../interfaces/error.md)
+**Returns:** `Promise`<[KeyStore](../interfaces/keystore.md)>
 Unlocked key pair
 
 ___

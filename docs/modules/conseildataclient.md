@@ -21,7 +21,7 @@ Utility functions for querying backend Conseil v2 API for metadata
 
 ▸ **executeComplexQuery**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/ConseilDataClient.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilDataClient.ts#L49)*
+*Defined in [reporting/ConseilDataClient.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilDataClient.ts#L49)*
 
 Requests data that may return result set composed of attributes of multiple entities.
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **executeEntityQuery**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, entity: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/ConseilDataClient.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilDataClient.ts#L20)*
+*Defined in [reporting/ConseilDataClient.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilDataClient.ts#L20)*
 
 Requests data for a specific entity for a given platform/network combination, for example a block or an operation.
 

@@ -1,5 +1,6 @@
 .DS_Store
 .nyc_output
+.coveralls.yml
 node_modules/
 
 **/servers.ts
