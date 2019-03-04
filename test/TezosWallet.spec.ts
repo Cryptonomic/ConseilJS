@@ -1,12 +1,14 @@
-import {expect} from 'chai';
+import { expect, use} from "chai";
+import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
-import * as fs from 'fs'
+import * as fs from 'fs';
 
 import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
 import {Wallet} from "../src/types/wallet/Wallet";
 import {TezosFileWallet} from "../src";
 import {TezosWalletUtil} from "../src/identity/tezos/TezosWalletUtil";
-import {Error} from "../src/types/wallet/Error";
+
+use(chaiAsPromised);
 
 describe('createWallet()', () => {
     it('should create an empty wallet', async () => {
@@ -47,8 +49,8 @@ describe('loadWallet()', () => {
 });
 
 describe('unlockFundraiserIdentity()', () => {
-    it('should produce the correct fundraiser key pair', () => {
-        const result = TezosWalletUtil.unlockFundraiserIdentity(
+    it('should produce the correct fundraiser key pair', async () => {
+        const result = await TezosWalletUtil.unlockFundraiserIdentity(
             "woman chaos mammal brain huge race weasel vintage doll pulse spot mansion lawsuit fat target",
             "psgtnfuc.vjppumbu@tezos.example.org",
             "A0mEUNNzP7",
@@ -56,14 +58,15 @@ describe('unlockFundraiserIdentity()', () => {
         expect(result["publicKey"]).to.equal("edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa");
         expect(result["privateKey"]).to.equal("edskRpjW6egVEyFwQAttuHy8S5WLYqkpichsW2MzDpAQHWvunrr4ZVWRRQ6dx5y4G9S2s8Y4MDevmpavPVVYDN6egrbypcbWAc");
         expect(result["publicKeyHash"]).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    });
 
-        const result2 = <Error> TezosWalletUtil.unlockFundraiserIdentity(
+    it('should fail mnemonic/passphrase validation', async () => {
+        await expect(TezosWalletUtil.unlockFundraiserIdentity(
             'vendor excite awake enroll essay gather mention knife inmate insect agent become alpha desert menu',
             'byixpeyi.dofdqvwn@tezos.example.org',
             'SU0j4HSgbd',
             'tz2aj32NRPg49jtvSDhkpruQAFevjaewaLew'
-        );
-        expect(result2.error).to.equal('The given mnemonic and passphrase do not correspond to the applied public key hash');
+        )).be.rejectedWith('The given mnemonic and passphrase do not correspond to the applied public key hash');
     });
 });
 
@@ -75,8 +78,8 @@ describe('generateMnemonic()', () => {
 });
 
 describe('unlockIdentityWithMnemonic()', () => {
-    it('should produce the correct mnemonic-based key pair', () => {
-        const result: any = TezosWalletUtil.unlockIdentityWithMnemonic(
+    it('should produce the correct mnemonic-based key pair', async () => {
+        const result = await TezosWalletUtil.unlockIdentityWithMnemonic(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant',
             'password'
         );
@@ -85,33 +88,29 @@ describe('unlockIdentityWithMnemonic()', () => {
 });
 
 describe('getKeysFromMnemonicAndPassphrase()', () => {
-    it('should produce the correct mnemonic-based key pair', () => {
-        const result = <KeyStore> TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', '', false, StoreType.Mnemonic);
+    it('should produce the correct mnemonic-based key pair', async () => {
+        const result = await TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', '', false, StoreType.Mnemonic);
 
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
 
-    it('should be 15 words', () => {
-        const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+    it('should be 15 words', async () => {
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
             'password',
             'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
             true,
             StoreType.Mnemonic
-        );
-
-        expect(result.error).to.equal("The mnemonic should be 15 words.");
+        )).be.rejectedWith("The mnemonic should be 15 words.");
     });
 
-    it('should detect invalid mnemonics', () => {
-        const result: any = TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
+    it('should detect invalid mnemonics', async () => {
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
             'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
             'password',
             'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
             true,
             StoreType.Mnemonic
-        );
-
-        expect(result.error).to.equal("The given mnemonic could not be validated.");
+        )).be.rejectedWith("The given mnemonic could not be validated.");
     });
 });

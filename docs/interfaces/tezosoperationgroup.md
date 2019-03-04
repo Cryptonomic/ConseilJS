@@ -27,7 +27,7 @@
 
 **● blockId**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L38)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L38)*
 
 ___
 <a id="branch"></a>
@@ -36,7 +36,7 @@ ___
 
 **● branch**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L36)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L36)*
 
 ___
 <a id="chainid"></a>
@@ -45,7 +45,7 @@ ___
 
 **● chainId**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:34](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L34)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:34](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L34)*
 
 ___
 <a id="hash"></a>
@@ -54,7 +54,7 @@ ___
 
 **● hash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:35](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L35)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:35](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L35)*
 
 ___
 <a id="protocol"></a>
@@ -63,7 +63,7 @@ ___
 
 **● protocol**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L33)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L33)*
 
 ___
 <a id="signature"></a>
@@ -72,7 +72,7 @@ ___
 
 **● signature**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/ConseilTezosTypes.ts#L37)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L37)*
 
 ___
 

@@ -23,7 +23,7 @@
 
 **● key**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L42)*
+*Defined in [types/tezos/TezosChainTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L42)*
 
 ___
 <a id="manager"></a>
@@ -32,7 +32,7 @@ ___
 
 **● manager**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/tezos/TezosChainTypes.ts#L41)*
+*Defined in [types/tezos/TezosChainTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosChainTypes.ts#L41)*
 
 ___
 

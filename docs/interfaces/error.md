@@ -24,7 +24,7 @@ A generic Error container
 
 **● error**: *`string`*
 
-*Defined in [types/wallet/Error.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/wallet/Error.ts#L5)*
+*Defined in [types/wallet/Error.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/Error.ts#L5)*
 
 ___
 

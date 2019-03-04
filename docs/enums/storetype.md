@@ -22,7 +22,7 @@ Type of key store, i.e. whether it was generated from a fundraiser PDF or from a
 
 **Fundraiser**: 
 
-*Defined in [types/wallet/KeyStore.ts:18](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/wallet/KeyStore.ts#L18)*
+*Defined in [types/wallet/KeyStore.ts:18](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L18)*
 
 ___
 <a id="hardware"></a>
@@ -31,7 +31,7 @@ ___
 
 **Hardware**: 
 
-*Defined in [types/wallet/KeyStore.ts:19](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/wallet/KeyStore.ts#L19)*
+*Defined in [types/wallet/KeyStore.ts:19](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L19)*
 
 ___
 <a id="mnemonic"></a>
@@ -40,7 +40,7 @@ ___
 
 **Mnemonic**: 
 
-*Defined in [types/wallet/KeyStore.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/wallet/KeyStore.ts#L17)*
+*Defined in [types/wallet/KeyStore.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L17)*
 
 ___
 

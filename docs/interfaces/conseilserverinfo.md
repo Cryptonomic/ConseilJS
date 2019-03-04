@@ -23,7 +23,7 @@
 
 **● apiKey**: *`string`*
 
-*Defined in [types/conseil/QueryTypes.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/QueryTypes.ts#L3)*
+*Defined in [types/conseil/QueryTypes.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/QueryTypes.ts#L3)*
 
 ___
 <a id="url"></a>
@@ -32,7 +32,7 @@ ___
 
 **● url**: *`string`*
 
-*Defined in [types/conseil/QueryTypes.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/types/conseil/QueryTypes.ts#L2)*
+*Defined in [types/conseil/QueryTypes.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/QueryTypes.ts#L2)*
 
 ___
 

@@ -24,9 +24,9 @@ Cryptography helpers
 
 ###  decryptMessage
 
-▸ **decryptMessage**(nonce_and_ciphertext: *`Buffer`*, passphrase: *`string`*, salt: *`Buffer`*): `any`
+▸ **decryptMessage**(nonce_and_ciphertext: *`Buffer`*, passphrase: *`string`*, salt: *`Buffer`*): `Promise`<`string`>
 
-*Defined in [utils/CryptoUtils.ts:52](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L52)*
+*Defined in [utils/CryptoUtils.ts:46](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L46)*
 
 Decrypts a given message using a passphrase
 
@@ -38,7 +38,7 @@ Decrypts a given message using a passphrase
 | passphrase | `string` |  User-supplied passphrase |
 | salt | `Buffer` |  Salt for key derivation |
 
-**Returns:** `any`
+**Returns:** `Promise`<`string`>
 Decrypted message
 
 ___
@@ -46,9 +46,9 @@ ___
 
 ###  encryptMessage
 
-▸ **encryptMessage**(message: *`string`*, passphrase: *`string`*, salt: *`Buffer`*): `Buffer`
+▸ **encryptMessage**(message: *`string`*, passphrase: *`string`*, salt: *`Buffer`*): `Promise`<`Buffer`>
 
-*Defined in [utils/CryptoUtils.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L25)*
+*Defined in [utils/CryptoUtils.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L25)*
 
 Encrypts a given message using a passphrase
 
@@ -60,7 +60,7 @@ Encrypts a given message using a passphrase
 | passphrase | `string` |  User-supplied passphrase |
 | salt | `Buffer` |  Salt for key derivation |
 
-**Returns:** `Buffer`
+**Returns:** `Promise`<`Buffer`>
 Concatenated bytes of nonce and cipher text
 
 ___
@@ -68,9 +68,9 @@ ___
 
 ###  generateKeys
 
-▸ **generateKeys**(seed: *`string`*): `object`
+▸ **generateKeys**(seed: *`string`*): `Promise`<`object`>
 
-*Defined in [utils/CryptoUtils.ts:82](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L82)*
+*Defined in [utils/CryptoUtils.ts:68](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L68)*
 
 **Parameters:**
 
@@ -78,20 +78,20 @@ ___
 | ------ | ------ |
 | seed | `string` |
 
-**Returns:** `object`
+**Returns:** `Promise`<`object`>
 
 ___
 <a id="generatesaltforpwhash"></a>
 
 ###  generateSaltForPwHash
 
-▸ **generateSaltForPwHash**(): `Buffer`
+▸ **generateSaltForPwHash**(): `Promise`<`Buffer`>
 
-*Defined in [utils/CryptoUtils.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L14)*
+*Defined in [utils/CryptoUtils.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L13)*
 
 Generates a salt for key derivation.
 
-**Returns:** `Buffer`
+**Returns:** `Promise`<`Buffer`>
 Salt
 
 ___
@@ -101,7 +101,7 @@ ___
 
 ▸ **getPasswordStrength**(password: *`string`*): `number`
 
-*Defined in [utils/CryptoUtils.ts:77](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L77)*
+*Defined in [utils/CryptoUtils.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L63)*
 
 Checking the password strength using zxcvbn
 
@@ -119,18 +119,18 @@ ___
 
 ###  signDetached
 
-▸ **signDetached**(payload: *`Buffer`*, privateKey: *`Buffer`*): `Buffer`
+▸ **signDetached**(payload: *`Buffer`*, secretKey: *`Buffer`*): `Promise`<`Buffer`>
 
-*Defined in [utils/CryptoUtils.ts:88](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L88)*
+*Defined in [utils/CryptoUtils.ts:74](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L74)*
 
 **Parameters:**
 
 | Name | Type |
 | ------ | ------ |
 | payload | `Buffer` |
-| privateKey | `Buffer` |
+| secretKey | `Buffer` |
 
-**Returns:** `Buffer`
+**Returns:** `Promise`<`Buffer`>
 
 ___
 <a id="simplehash"></a>
@@ -139,7 +139,9 @@ ___
 
 ▸ **simpleHash**(payload: *`Buffer`*, length: *`number`*): `Buffer`
 
-*Defined in [utils/CryptoUtils.ts:69](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/utils/CryptoUtils.ts#L69)*
+*Defined in [utils/CryptoUtils.ts:55](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/CryptoUtils.ts#L55)*
+
+Computes a BLAKE2b message hash of the requested length.
 
 **Parameters:**
 

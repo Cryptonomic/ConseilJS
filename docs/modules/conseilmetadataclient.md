@@ -25,7 +25,7 @@ Utility functions for querying backend Conseil v2 API for metadata
 
 ▸ **executeMetadataQuery**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, route: *`string`*): `Promise`<`any`>
 
-*Defined in [reporting/ConseilMetadataClient.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L11)*
+*Defined in [reporting/ConseilMetadataClient.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L11)*
 
 **Parameters:**
 
@@ -41,9 +41,9 @@ ___
 
 ###  getAttributeValues
 
-▸ **getAttributeValues**(server: *`string`*, apiKey: *`string`*, platform: *`string`*, network: *`string`*, entity: *`string`*, attribute: *`string`*): `Promise`<`string`[]>
+▸ **getAttributeValues**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, entity: *`string`*, attribute: *`string`*): `Promise`<`string`[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:82](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L82)*
+*Defined in [reporting/ConseilMetadataClient.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L78)*
 
 Retrieves a list of distinct values for a specific attribute of an entity. This would work on low-cardinality, generally non-date and non-numeric data. The intended use-case for this result set is type-ahead auto-complete.
 
@@ -53,8 +53,7 @@ Retrieves a list of distinct values for a specific attribute of an entity. This 
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| server | `string` |  A fully qualified base URL for a Conseil server instance |
-| apiKey | `string` |  Conseil API key |
+| serverInfo | [ConseilServerInfo](../interfaces/conseilserverinfo.md) |  Conseil server connection definition. |
 | platform | `string` |  A platform |
 | network | `string` |  A network |
 | entity | `string` |  An entity |
@@ -67,9 +66,9 @@ ___
 
 ###  getAttributes
 
-▸ **getAttributes**(server: *`string`*, apiKey: *`string`*, platform: *`string`*, network: *`string`*, entity: *`string`*): `Promise`<[AttributeDefinition](../interfaces/attributedefinition.md)[]>
+▸ **getAttributes**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, entity: *`string`*): `Promise`<[AttributeDefinition](../interfaces/attributedefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:66](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L66)*
+*Defined in [reporting/ConseilMetadataClient.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L63)*
 
 Retrieves a list of attributes for an entity.
 
@@ -79,8 +78,7 @@ Retrieves a list of attributes for an entity.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| server | `string` |  A fully qualified base URL for a Conseil server instance |
-| apiKey | `string` |  Conseil API key |
+| serverInfo | [ConseilServerInfo](../interfaces/conseilserverinfo.md) |  Conseil server connection definition. |
 | platform | `string` |  A platform |
 | network | `string` |  A network |
 | entity | `string` |  Entity of interest |
@@ -92,9 +90,9 @@ ___
 
 ###  getEntities
 
-▸ **getEntities**(server: *`string`*, apiKey: *`string`*, platform: *`string`*, network: *`string`*): `Promise`<[EntityDefinition](../interfaces/entitydefinition.md)[]>
+▸ **getEntities**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*): `Promise`<[EntityDefinition](../interfaces/entitydefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:51](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L51)*
+*Defined in [reporting/ConseilMetadataClient.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L49)*
 
 Retrieves a list of entities given a network, for example: 'block', 'operation', 'account'.
 
@@ -104,8 +102,7 @@ Retrieves a list of entities given a network, for example: 'block', 'operation',
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| server | `string` |  A fully qualified base URL for a Conseil server instance |
-| apiKey | `string` |  Conseil API key |
+| serverInfo | [ConseilServerInfo](../interfaces/conseilserverinfo.md) |  Conseil server connection definition. |
 | platform | `string` |  A platform |
 | network | `string` |  Network of interest |
 
@@ -116,9 +113,9 @@ ___
 
 ###  getNetworks
 
-▸ **getNetworks**(server: *`string`*, apiKey: *`string`*, platform: *`string`*): `Promise`<[NetworkDefinition](../interfaces/networkdefinition.md)[]>
+▸ **getNetworks**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*): `Promise`<[NetworkDefinition](../interfaces/networkdefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L37)*
+*Defined in [reporting/ConseilMetadataClient.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L36)*
 
 Retrieves the list of available networks given a platform, for example: 'mainnet', 'alphanet', as is the case with tezos.
 
@@ -128,8 +125,7 @@ Retrieves the list of available networks given a platform, for example: 'mainnet
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| server | `string` |  A fully qualified base URL for a Conseil server instance |
-| apiKey | `string` |  Conseil API key |
+| serverInfo | [ConseilServerInfo](../interfaces/conseilserverinfo.md) |  Conseil server connection definition. |
 | platform | `string` |  Platform of interest |
 
 **Returns:** `Promise`<[NetworkDefinition](../interfaces/networkdefinition.md)[]>
@@ -139,18 +135,17 @@ ___
 
 ###  getPlatforms
 
-▸ **getPlatforms**(server: *`string`*, apiKey: *`string`*): `Promise`<[PlatformDefinition](../interfaces/platformdefinition.md)[]>
+▸ **getPlatforms**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*): `Promise`<[PlatformDefinition](../interfaces/platformdefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/688e74f/src/reporting/ConseilMetadataClient.ts#L24)*
+*Defined in [reporting/ConseilMetadataClient.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/reporting/ConseilMetadataClient.ts#L24)*
 
 Retrieves the list of available platforms, for example: 'tezos'.
 
 **Parameters:**
 
-| Name | Type | Description |
-| ------ | ------ | ------ |
-| server | `string` |  A fully qualified base URL for a Conseil server instance |
-| apiKey | `string` |  Conseil API key |
+| Name | Type |
+| ------ | ------ |
+| serverInfo | [ConseilServerInfo](../interfaces/conseilserverinfo.md) |
 
 **Returns:** `Promise`<[PlatformDefinition](../interfaces/platformdefinition.md)[]>
 

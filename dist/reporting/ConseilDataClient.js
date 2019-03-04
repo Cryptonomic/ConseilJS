@@ -21,7 +21,7 @@ var ConseilDataClient;
             const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
             return fetch(url, {
                 method: 'post',
-                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
+                headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
                 body: JSON.stringify(query)
             })
                 .then(response => {
@@ -46,7 +46,7 @@ var ConseilDataClient;
             const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
             return fetch(url, {
                 method: 'post',
-                headers: { "apiKey": serverInfo.apiKey, "Content-Type": 'application/json' },
+                headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
                 body: JSON.stringify(query)
             })
                 .then(response => {
