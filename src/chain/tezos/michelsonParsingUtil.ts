@@ -1,6 +1,5 @@
 const nearley = require("nearley");
-const grammar = require("./lexedMichelson.js");
-//const grammar = require("./test.js");
+const grammar = require("../../utils/grammars/lexedMichelson.js");
 const util = require('util');
 
 const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));

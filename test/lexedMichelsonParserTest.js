@@ -1,11 +1,4 @@
-//const nearley = require("nearley");
-//const grammar = require("./../src/utils/grammars/lexedMichelson.js");
-//const grammar = require("./test.js");
-//const util = require('util');
-
-//const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
-const util =  require('../src/utils/grammars/michelsonParsingUtil')
-//import { michelsonToJson } from '../src/utils/grammars/michelsonParsingUtil';
+const util =  require('../src/chain/tezos/michelsonParsingUtil')
 
 const script_one = "{ CAR; NIL operation; PAIR;}"
 const storage_one = "\"world\""
