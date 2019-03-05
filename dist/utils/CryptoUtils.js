@@ -20,12 +20,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const blakejs = __importStar(require("blakejs"));
 const zxcvbn_1 = __importDefault(require("zxcvbn"));
-const wrapper = require('./WrapperWrapper');
+const WrapperWrapper_1 = require("./WrapperWrapper");
 var CryptoUtils;
 (function (CryptoUtils) {
     function generateSaltForPwHash() {
         return __awaiter(this, void 0, void 0, function* () {
-            const s = yield wrapper.salt();
+            const s = yield WrapperWrapper_1.SodiumWrapper.salt();
             return s;
         });
     }
@@ -37,10 +37,10 @@ var CryptoUtils;
                 throw new Error('The password strength should not be less than 3.');
             }
             const messageBytes = Buffer.from(message);
-            const keyBytes = yield wrapper.pwhash(passphrase, salt);
-            const n = yield wrapper.nonce();
+            const keyBytes = yield WrapperWrapper_1.SodiumWrapper.pwhash(passphrase, salt);
+            const n = yield WrapperWrapper_1.SodiumWrapper.nonce();
             const nonce = Buffer.from(n);
-            const s = yield wrapper.close(messageBytes, nonce, keyBytes);
+            const s = yield WrapperWrapper_1.SodiumWrapper.close(messageBytes, nonce, keyBytes);
             const cipherText = Buffer.from(s);
             return Buffer.concat([nonce, cipherText]);
         });
@@ -48,8 +48,8 @@ var CryptoUtils;
     CryptoUtils.encryptMessage = encryptMessage;
     function decryptMessage(nonce_and_ciphertext, passphrase, salt) {
         return __awaiter(this, void 0, void 0, function* () {
-            const keyBytes = yield wrapper.pwhash(passphrase, salt);
-            const m = yield wrapper.open(nonce_and_ciphertext, keyBytes);
+            const keyBytes = yield WrapperWrapper_1.SodiumWrapper.pwhash(passphrase, salt);
+            const m = yield WrapperWrapper_1.SodiumWrapper.open(nonce_and_ciphertext, keyBytes);
             return Buffer.from(m).toString();
         });
     }
@@ -65,14 +65,14 @@ var CryptoUtils;
     CryptoUtils.getPasswordStrength = getPasswordStrength;
     function generateKeys(seed) {
         return __awaiter(this, void 0, void 0, function* () {
-            const k = yield wrapper.keys(seed);
+            const k = yield WrapperWrapper_1.SodiumWrapper.keys(seed);
             return { privateKey: k.privateKey, publicKey: k.publicKey };
         });
     }
     CryptoUtils.generateKeys = generateKeys;
     function signDetached(payload, secretKey) {
         return __awaiter(this, void 0, void 0, function* () {
-            const b = yield wrapper.sign(payload, secretKey);
+            const b = yield WrapperWrapper_1.SodiumWrapper.sign(payload, secretKey);
             return Buffer.from(b);
         });
     }
