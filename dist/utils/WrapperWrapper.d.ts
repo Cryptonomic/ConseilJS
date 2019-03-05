@@ -1,6 +1,7 @@
+/// <reference types="node" />
 export declare namespace SodiumWrapper {
     const rand: (length: any) => Promise<any>;
-    const salt: () => Promise<any>;
+    const salt: () => Promise<Buffer>;
     const nonce: () => Promise<any>;
     const keys: (seed: any) => Promise<any>;
     const pwhash: (passphrase: any, salt: any) => Promise<any>;

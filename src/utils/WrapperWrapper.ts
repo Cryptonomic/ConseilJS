@@ -1,4 +1,5 @@
 const sodiumsumo = require('libsodium-wrappers-sumo');
+import * as crypto from 'crypto';
 
 export namespace SodiumWrapper {
     export const rand = async (length) => {
@@ -7,7 +8,8 @@ export namespace SodiumWrapper {
     }
 
     export const salt = async () => {
-        return rand(sodiumsumo.crypto_pwhash_SALTBYTES);
+        return crypto.randomBytes(sodiumsumo.crypto_pwhash_SALTBYTES);
+        // return rand(sodiumsumo.crypto_pwhash_SALTBYTES);
     }
 
     export const nonce = async () => {
