@@ -1,4 +1,4 @@
-import * as sodiumsumo from 'libsodium-wrappers-sumo';
+const sodiumsumo = require('libsodium-wrappers-sumo');
 
 export namespace SodiumWrapper {
     export const rand = async (length) => {
