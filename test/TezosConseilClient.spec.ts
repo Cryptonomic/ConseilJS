@@ -9,11 +9,12 @@ FetchSelector.setFetch(fetch);
 import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient';
 import {ConseilQueryBuilder} from '../src/reporting/ConseilQueryBuilder';
 import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
+import {OperationKindType} from "../src/types/tezos/TezosChainTypes";
 
 import mochaAsync from '../test/mochaTestHelper';
 
 import {
-    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations
+    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees
 } from './TezosConseilClient.responses';
 
 describe('TezosConseilClient tests', () => {
@@ -103,4 +104,14 @@ describe('TezosConseilClient tests', () => {
         expect(result.length).to.equal(5);
         expect(result[1]['timestamp']).to.be.greaterThan(result[2]['timestamp']);
     }));
+
+    it('TezosConseilClient.getFeeStatistics', async () => {
+        const nockedserver = nock('http://conseil.server');
+        nockedserver.post('/v2/data/tezos/alphanet/fees').reply(200, transactionfees);
+
+        const fees = await TezosConseilClient.getFeeStatistics({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', OperationKindType.Transaction);
+
+        expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
+        expect(fees[0]['medium']).to.lessThan(fees[0]['high']);
+    });    
 });

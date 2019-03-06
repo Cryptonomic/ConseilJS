@@ -108,3 +108,13 @@ export interface OperationResult {
     results: AlphaOperationsWithMetadata;
     operationGroupID: string;
 }
+
+export enum OperationKindType {
+    SeedNonceRevelation = 'seed_nonce_revelation',
+    Delegation = "delegation",
+    Transaction = "transaction",
+    AccountActivation = "activate_account",
+    Origination = "origination",
+    Reveal = "reveal",
+    Endorsement = "endorsement"
+}

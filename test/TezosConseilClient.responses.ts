@@ -283,3 +283,11 @@ export const operations = [{
     "fee": 1274,
     "level": null
 }];
+
+export const transactionfees = [{
+    "timestamp": 1551887768000,
+    "medium": 900261,
+    "low": 0,
+    "kind": "transaction",
+    "high": 3668825
+}];
