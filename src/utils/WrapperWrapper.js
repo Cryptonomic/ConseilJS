@@ -44,5 +44,4 @@ const sign = async (message, key) => {
     return sodiumsumo.crypto_sign_detached(message, key);
 }
 
-
 module.exports = {salt, nonce, keys, pwhash, close, open, sign};
