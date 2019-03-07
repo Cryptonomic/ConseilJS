@@ -1,5 +1,5 @@
 import "mocha";
-import { expect, use} from "chai";
+import { expect, use } from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 
@@ -125,5 +125,5 @@ describe('TezosConseilClient tests', () => {
         await expect(TezosConseilClient.getBlock({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', 'BL5zoNBN17j2AcUrs8mqSKSMcEiuBKkd9RB6uZ6CgYE2Xyb2ybV'))
         .be.rejected;
     });
-    
+
 });
