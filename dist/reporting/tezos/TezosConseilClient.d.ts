@@ -1,4 +1,5 @@
 import { ConseilQuery, ConseilServerInfo } from "../../types/conseil/QueryTypes";
+import { OperationKindType } from "../../types/tezos/TezosChainTypes";
 export declare namespace TezosConseilClient {
     function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<any[]>;
     function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]>;
@@ -9,4 +10,5 @@ export declare namespace TezosConseilClient {
     function getAccounts(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
+    function getFeeStatistics(serverInfo: ConseilServerInfo, network: string, operationType: OperationKindType): Promise<any[]>;
 }
