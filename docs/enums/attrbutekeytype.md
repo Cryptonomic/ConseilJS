@@ -20,7 +20,7 @@
 
 **NONKEY**:  = "NonKey"
 
-*Defined in [types/conseil/MetadataTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/MetadataTypes.ts#L39)*
+*Defined in [types/conseil/MetadataTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/MetadataTypes.ts#L39)*
 
 ___
 <a id="primarykey"></a>
@@ -29,7 +29,7 @@ ___
 
 **PRIMARYKEY**:  = "PrimaryKey"
 
-*Defined in [types/conseil/MetadataTypes.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/MetadataTypes.ts#L37)*
+*Defined in [types/conseil/MetadataTypes.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/MetadataTypes.ts#L37)*
 
 ___
 <a id="uniquekey"></a>
@@ -38,7 +38,7 @@ ___
 
 **UNIQUEKEY**:  = "UniqueKey"
 
-*Defined in [types/conseil/MetadataTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/MetadataTypes.ts#L38)*
+*Defined in [types/conseil/MetadataTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/MetadataTypes.ts#L38)*
 
 ___
 

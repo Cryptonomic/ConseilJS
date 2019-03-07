@@ -28,7 +28,7 @@ Represents a generic cryptocurrency key store. The seed is only used for HD wall
 
 **● privateKey**: *`string`*
 
-*Defined in [types/wallet/KeyStore.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L7)*
+*Defined in [types/wallet/KeyStore.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/KeyStore.ts#L7)*
 
 ___
 <a id="publickey"></a>
@@ -37,7 +37,7 @@ ___
 
 **● publicKey**: *`string`*
 
-*Defined in [types/wallet/KeyStore.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L6)*
+*Defined in [types/wallet/KeyStore.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/KeyStore.ts#L6)*
 
 ___
 <a id="publickeyhash"></a>
@@ -46,7 +46,7 @@ ___
 
 **● publicKeyHash**: *`string`*
 
-*Defined in [types/wallet/KeyStore.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L8)*
+*Defined in [types/wallet/KeyStore.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/KeyStore.ts#L8)*
 
 ___
 <a id="seed"></a>
@@ -55,7 +55,7 @@ ___
 
 **● seed**: *`string`*
 
-*Defined in [types/wallet/KeyStore.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L9)*
+*Defined in [types/wallet/KeyStore.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/KeyStore.ts#L9)*
 
 ___
 <a id="storetype"></a>
@@ -64,7 +64,7 @@ ___
 
 **● storeType**: *[StoreType](../enums/storetype.md)*
 
-*Defined in [types/wallet/KeyStore.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/KeyStore.ts#L10)*
+*Defined in [types/wallet/KeyStore.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/KeyStore.ts#L10)*
 
 ___
 

@@ -27,7 +27,7 @@
 
 **● balance_updates**: *[AppliedOperationBalanceUpdates](appliedoperationbalanceupdates.md)[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:98](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L98)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:98](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L98)*
 
 ___
 <a id="errors"></a>
@@ -36,7 +36,7 @@ ___
 
 **● errors**: *[AppliedOperationError](appliedoperationerror.md)[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:100](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L100)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:100](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L100)*
 
 ___
 <a id="operation"></a>
@@ -45,7 +45,7 @@ ___
 
 **● operation**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:95](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L95)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:95](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L95)*
 
 ___
 <a id="operation_kind"></a>
@@ -54,7 +54,7 @@ ___
 
 **● operation_kind**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:97](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L97)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:97](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L97)*
 
 ___
 <a id="originated_contracts"></a>
@@ -63,7 +63,7 @@ ___
 
 **● originated_contracts**: *`string`[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:99](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L99)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:99](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L99)*
 
 ___
 <a id="status"></a>
@@ -72,7 +72,7 @@ ___
 
 **● status**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:96](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L96)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:96](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L96)*
 
 ___
 

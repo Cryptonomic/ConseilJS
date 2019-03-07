@@ -30,7 +30,7 @@
 
 **● accountId**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L21)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L21)*
 
 ___
 <a id="balance"></a>
@@ -39,7 +39,7 @@ ___
 
 **● balance**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:29](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L29)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:29](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L29)*
 
 ___
 <a id="blockid"></a>
@@ -48,7 +48,7 @@ ___
 
 **● blockId**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L22)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L22)*
 
 ___
 <a id="counter"></a>
@@ -57,7 +57,7 @@ ___
 
 **● counter**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L27)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L27)*
 
 ___
 <a id="delegatesetable"></a>
@@ -66,7 +66,7 @@ ___
 
 **● delegateSetable**: *`boolean`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L25)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:25](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L25)*
 
 ___
 <a id="delegatevalue"></a>
@@ -75,7 +75,7 @@ ___
 
 **● delegateValue**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L26)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L26)*
 
 ___
 <a id="manager"></a>
@@ -84,7 +84,7 @@ ___
 
 **● manager**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L23)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L23)*
 
 ___
 <a id="script"></a>
@@ -93,7 +93,7 @@ ___
 
 **● script**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L28)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L28)*
 
 ___
 <a id="spendable"></a>
@@ -102,7 +102,7 @@ ___
 
 **● spendable**: *`boolean`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ConseilTezosTypes.ts#L24)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L24)*
 
 ___
 

@@ -24,7 +24,7 @@ Represents a generic cryptocurrency wallet.
 
 **● identities**: *[KeyStore](keystore.md)[]*
 
-*Defined in [types/wallet/Wallet.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/Wallet.ts#L7)*
+*Defined in [types/wallet/Wallet.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/Wallet.ts#L7)*
 
 ___
 
