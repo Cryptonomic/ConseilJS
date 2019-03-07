@@ -17,6 +17,7 @@ var TezosConseilClient;
     const ACCOUNTS = 'accounts';
     const OPERATION_GROUPS = 'operation_groups';
     const OPERATIONS = 'operations';
+    const FEES = 'fees';
     function getTezosEntityData(serverInfo, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             return ConseilDataClient_1.ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', network, entity, query);
@@ -75,5 +76,15 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.getOperations = getOperations;
+    function getFeeStatistics(serverInfo, network, operationType) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let query = ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery();
+            query = ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(query, 'kind', QueryTypes_1.ConseilOperator.EQ, [operationType]);
+            query = ConseilQueryBuilder_1.ConseilQueryBuilder.addOrdering(query, 'timestamp', QueryTypes_1.ConseilSortDirection.DESC);
+            query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(query, 1);
+            return getTezosEntityData(serverInfo, network, FEES, query);
+        });
+    }
+    TezosConseilClient.getFeeStatistics = getFeeStatistics;
 })(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map

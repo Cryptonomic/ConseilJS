@@ -1,6 +1,6 @@
 import * as blakejs from 'blakejs';
 import zxcvbn from 'zxcvbn';
-const wrapper = require('./WrapperWrapper');
+import { SodiumWrapper } from './WrapperWrapper';
 
 /**
  * Cryptography helpers
@@ -11,7 +11,7 @@ export namespace CryptoUtils {
      * @returns {Promise<Buffer>} Salt
      */
     export async function generateSaltForPwHash() : Promise<Buffer> {
-        const s = await wrapper.salt();
+        const s = await SodiumWrapper.salt();
         return s;
     }
 
@@ -27,10 +27,10 @@ export namespace CryptoUtils {
         if (passwordStrength < 3) { throw new Error('The password strength should not be less than 3.'); }
 
         const messageBytes = Buffer.from(message);
-        const keyBytes = await wrapper.pwhash(passphrase, salt)
-        const n = await wrapper.nonce();
+        const keyBytes = await SodiumWrapper.pwhash(passphrase, salt)
+        const n = await SodiumWrapper.nonce();
         const nonce = Buffer.from(n);
-        const s = await wrapper.close(messageBytes, nonce, keyBytes);
+        const s = await SodiumWrapper.close(messageBytes, nonce, keyBytes);
         const cipherText = Buffer.from(s);
 
         return Buffer.concat([nonce, cipherText]);
@@ -44,8 +44,8 @@ export namespace CryptoUtils {
      * @returns {string} Decrypted message
      */
     export async function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer) : Promise<string> {
-        const keyBytes = await wrapper.pwhash(passphrase, salt)
-        const m = await wrapper.open(nonce_and_ciphertext, keyBytes);
+        const keyBytes = await SodiumWrapper.pwhash(passphrase, salt)
+        const m = await SodiumWrapper.open(nonce_and_ciphertext, keyBytes);
         return Buffer.from(m).toString();
     }
 
@@ -66,13 +66,13 @@ export namespace CryptoUtils {
     }
 
     export async function generateKeys(seed: string) {
-        const k = await wrapper.keys(seed);
+        const k = await SodiumWrapper.keys(seed);
 
         return { privateKey: k.privateKey, publicKey: k.publicKey };
     }
 
     export async function signDetached(payload: Buffer, secretKey: Buffer) : Promise<Buffer> {
-        const b = await wrapper.sign(payload, secretKey)
+        const b = await SodiumWrapper.sign(payload, secretKey)
         return Buffer.from(b);
     }
 }
