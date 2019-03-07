@@ -291,3 +291,5 @@ export const transactionfees = [{
     "kind": "transaction",
     "high": 3668825
 }];
+
+export const badJSON = '{[;';

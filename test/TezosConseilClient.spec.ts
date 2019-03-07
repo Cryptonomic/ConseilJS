@@ -1,5 +1,6 @@
 import "mocha";
-import { expect } from "chai";
+import { expect, use} from "chai";
+import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 
 import fetch from 'node-fetch';
@@ -14,8 +15,10 @@ import {OperationKindType} from "../src/types/tezos/TezosChainTypes";
 import mochaAsync from '../test/mochaTestHelper';
 
 import {
-    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees
+    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees, badJSON
 } from './TezosConseilClient.responses';
+
+use(chaiAsPromised);
 
 describe('TezosConseilClient tests', () => {
     it('TezosConseilClient.getBlockHead', mochaAsync(async () => {
@@ -113,5 +116,14 @@ describe('TezosConseilClient tests', () => {
 
         expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
         expect(fees[0]['medium']).to.lessThan(fees[0]['high']);
-    });    
+    });
+
+    it('TezosConseilClient.getBlock error', async () => {
+        const nockedserver = nock('http://conseil.server');
+        nockedserver.post('/v2/data/tezos/alphanet/blocks').reply(200, badJSON);
+
+        await expect(TezosConseilClient.getBlock({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', 'BL5zoNBN17j2AcUrs8mqSKSMcEiuBKkd9RB6uZ6CgYE2Xyb2ybV'))
+        .be.rejected;
+    });
+    
 });
