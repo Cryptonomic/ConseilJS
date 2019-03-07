@@ -20,7 +20,7 @@ const keys = async (seed) => {
 
 const pwhash = async (passphrase, salt) => {
     await sodiumsumo.ready;
-    return sodiumsumo.crypto_pwhash(sodiumsumo.crypto_box_SEEDBYTES, passphrase, salt, sodiumsumo.crypto_pwhash_OPSLIMIT_INTERACTIVE, sodiumsumo.crypto_pwhash_MEMLIMIT_INTERACTIVE, sodiumsumo.crypto_pwhash_ALG_DEFAULT);
+    return sodiumsumo.crypto_pwhash(sodiumsumo.crypto_box_SEEDBYTES, passphrase, salt, 4, 33554432, sodiumsumo.crypto_pwhash_ALG_ARGON2I13);
 }
 
 const close = async (message, nonce, key) => {
