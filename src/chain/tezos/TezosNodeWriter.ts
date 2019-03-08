@@ -325,7 +325,7 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code: object, // TODO: may have to change this type depending on how parser (from JS to michelson) works
         storage: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
@@ -360,7 +360,7 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code?: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code?: object, // TODO: may have to change this type depending on how parser (from JS to michelson) works
         storage?: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);

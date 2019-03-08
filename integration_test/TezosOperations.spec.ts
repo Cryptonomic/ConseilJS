@@ -268,62 +268,27 @@ describe("Tezos operation functions", () => {
 
     sleep(33);
 
-    // console.log('+++++Originating a contract from manager address');
-    // const contractOriginationResult = await TezosNodeWriter.sendContractOriginationOperation(
-    //   [
-    //     {
-    //       prim: 'parameter',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'storage',
-    //       args: [
-    //         {
-    //           prim: 'string'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       prim: 'code',
-    //       args: [
-    //         [
-    //           {
-    //             prim: 'CAR'
-    //           },
-    //           {
-    //             prim: 'NIL',
-    //             args: [
-    //               {
-    //                 prim: 'operation'
-    //               }
-    //             ]
-    //           },
-    //           {
-    //             prim: 'PAIR'
-    //           }
-    //         ]
-    //       ]
-    //     }
-    //   ],
-    //   {
-    //     string: 'hello'
-    //   },
-    //   tezosURL,
-    //   fundraiserKeys,
-    //   2000000,
-    //   randomBakerAddress3,
-    //   true,
-    //   true,
-    //   200000, // Protocol 003 minimum fee is 1377 for originations
-    //   invalidDerivationPath,
-    //   '10160',
-    //   '27777' // "consumed_gas":"11262"
-    // );
-    // expect(contractOriginationResult['operationGroupID']).to.exist;
+    const contractCode = "parameter string; storage string; code {CAR; NIL operation; PAIR;};"
+    const contractStorage = `"hello"`
+    //const codeJSON = michelsonScriptToJson(contractCode);
+    //const storageJSON = michelsonToJson(contractStorage);
+
+    console.log('+++++Originating a contract from manager address');
+    const contractOriginationResult = await TezosNodeWriter.sendContractOriginationOperation(
+      tezosURL,
+      fundraiserKeys,
+      2000000,
+      randomBakerAddress3,
+      true,
+      true,
+      200000, // Protocol 003 minimum fee is 1377 for originations
+      invalidDerivationPath,
+      '10160',
+      '27777',
+        {},  // Change to code: codeJSON
+        {} // Change to storage: storageJSON
+    );
+    expect(contractOriginationResult['operationGroupID']).to.exist;
 
     // **** THIS WILL SHOW THE ERRORS RETURNED FROM THE BLOCKCHAIN
     // console.log(
