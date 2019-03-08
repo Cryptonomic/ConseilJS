@@ -8,6 +8,7 @@ FetchSelector.setFetch(fetch);
 import {ConseilQueryBuilder} from "../src/reporting/ConseilQueryBuilder";
 import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
 import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient'
+import {OperationKindType} from "../src/types/tezos/TezosChainTypes";
 import {servers} from "./servers";
 
 const util = require('util');
@@ -117,6 +118,19 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1);
 
         const fees = await TezosConseilClient.getTezosEntityData({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'fees', operationFeesQuery);
+
+        expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
+        expect(fees[0]['medium']).to.lessThan(fees[0]['high']);
+    });
+
+    it('retrieve fee statistics for transaction type operations', async () => {
+        let operationFeesQuery = ConseilQueryBuilder.blankQuery();
+        operationFeesQuery = ConseilQueryBuilder.addFields(operationFeesQuery, 'low', 'medium', 'high');
+        operationFeesQuery = ConseilQueryBuilder.addPredicate(operationFeesQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
+        operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'timestamp', ConseilSortDirection.DESC);
+        operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1);
+
+        const fees = await TezosConseilClient.getFeeStatistics({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', OperationKindType.Transaction);
 
         expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
         expect(fees[0]['medium']).to.lessThan(fees[0]['high']);

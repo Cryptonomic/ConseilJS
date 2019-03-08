@@ -47,7 +47,6 @@ var TezosWalletUtil;
             }
             const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
             const keys = yield CryptoUtils_1.CryptoUtils.generateKeys(seed);
-            console.log(`keys: ${keys}`);
             const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
             const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');

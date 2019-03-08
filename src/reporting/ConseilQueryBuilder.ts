@@ -57,7 +57,7 @@ export namespace ConseilQueryBuilder {
      * 
      * @param query Source query.
      * @param field Field name to order by.
-     * @param direction Sort direction.
+     * @param direction Sort direction, default is ASC.
      */
     export function addOrdering(query: ConseilQuery, field: string, direction: ConseilSortDirection = ConseilSortDirection.ASC): ConseilQuery {
         // TODO: validate field uniqueness
