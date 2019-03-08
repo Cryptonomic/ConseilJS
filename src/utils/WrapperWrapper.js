@@ -1,3 +1,6 @@
+/**
+ * This file is not meant for public use. It hides libsodium-wrappers from the Typescript transpiler.
+ */
 const sodiumsumo = require('libsodium-wrappers-sumo');
 
 const rand = async (length) => {
