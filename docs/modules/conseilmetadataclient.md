@@ -25,7 +25,7 @@ Utility functions for querying backend Conseil v2 API for metadata
 
 ▸ **executeMetadataQuery**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, route: *`string`*): `Promise`<`any`>
 
-*Defined in [reporting/ConseilMetadataClient.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L11)*
+*Defined in [reporting/ConseilMetadataClient.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L11)*
 
 **Parameters:**
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **getAttributeValues**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, entity: *`string`*, attribute: *`string`*): `Promise`<`string`[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L78)*
+*Defined in [reporting/ConseilMetadataClient.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L78)*
 
 Retrieves a list of distinct values for a specific attribute of an entity. This would work on low-cardinality, generally non-date and non-numeric data. The intended use-case for this result set is type-ahead auto-complete.
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **getAttributes**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*, entity: *`string`*): `Promise`<[AttributeDefinition](../interfaces/attributedefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L63)*
+*Defined in [reporting/ConseilMetadataClient.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L63)*
 
 Retrieves a list of attributes for an entity.
 
@@ -92,7 +92,7 @@ ___
 
 ▸ **getEntities**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*, network: *`string`*): `Promise`<[EntityDefinition](../interfaces/entitydefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L49)*
+*Defined in [reporting/ConseilMetadataClient.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L49)*
 
 Retrieves a list of entities given a network, for example: 'block', 'operation', 'account'.
 
@@ -115,7 +115,7 @@ ___
 
 ▸ **getNetworks**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, platform: *`string`*): `Promise`<[NetworkDefinition](../interfaces/networkdefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L36)*
+*Defined in [reporting/ConseilMetadataClient.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L36)*
 
 Retrieves the list of available networks given a platform, for example: 'mainnet', 'alphanet', as is the case with tezos.
 
@@ -137,7 +137,7 @@ ___
 
 ▸ **getPlatforms**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*): `Promise`<[PlatformDefinition](../interfaces/platformdefinition.md)[]>
 
-*Defined in [reporting/ConseilMetadataClient.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/reporting/ConseilMetadataClient.ts#L24)*
+*Defined in [reporting/ConseilMetadataClient.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilMetadataClient.ts#L24)*
 
 Retrieves the list of available platforms, for example: 'tezos'.
 

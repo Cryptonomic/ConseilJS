@@ -24,7 +24,7 @@
 
 **● high**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L78)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L78)*
 
 ___
 <a id="low"></a>
@@ -33,7 +33,7 @@ ___
 
 **● low**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L76)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L76)*
 
 ___
 <a id="medium"></a>
@@ -42,7 +42,7 @@ ___
 
 **● medium**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:77](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L77)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:77](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L77)*
 
 ___
 

@@ -26,7 +26,7 @@ Utility functions for interacting with a Tezos node.
 
 ▸ **applyOperation**(server: *`string`*, payload: *`object`*): `Promise`<[AlphaOperationsWithMetadata](../interfaces/alphaoperationswithmetadata.md)[]>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:119](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L119)*
+*Defined in [chain/tezos/TezosNodeReader.ts:119](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L119)*
 
 Applies an operation using the Tezos RPC client.
 
@@ -47,7 +47,7 @@ ___
 
 ▸ **forgeOperation**(server: *`string`*, opGroup: *`object`*): `Promise`<`string`>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L104)*
+*Defined in [chain/tezos/TezosNodeReader.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L104)*
 
 Forge an operation group using the Tezos RPC client.
 
@@ -68,7 +68,7 @@ ___
 
 ▸ **getAccountForBlock**(server: *`string`*, blockHash: *`string`*, accountID: *`string`*): `Promise`<[Account](../interfaces/account.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:79](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L79)*
+*Defined in [chain/tezos/TezosNodeReader.ts:79](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L79)*
 
 Fetches a specific account for a given block.
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **getAccountManagerForBlock**(server: *`string`*, blockHash: *`string`*, accountID: *`string`*): `Promise`<[ManagerKey](../interfaces/managerkey.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:92](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L92)*
+*Defined in [chain/tezos/TezosNodeReader.ts:92](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L92)*
 
 Fetches the manager of a specific account for a given block.
 
@@ -112,7 +112,7 @@ ___
 
 ▸ **getBlock**(server: *`string`*, hash: *`string`*): `Promise`<[BlockMetadata](../interfaces/blockmetadata.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L57)*
+*Defined in [chain/tezos/TezosNodeReader.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L57)*
 
 Gets a block for a given hash.
 
@@ -133,7 +133,7 @@ ___
 
 ▸ **getBlockHead**(server: *`string`*): `Promise`<[BlockMetadata](../interfaces/blockmetadata.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L67)*
+*Defined in [chain/tezos/TezosNodeReader.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L67)*
 
 Gets the top block.
 
@@ -153,7 +153,7 @@ ___
 
 ▸ **injectOperation**(server: *`string`*, payload: *`string`*): `Promise`<`string`>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:134](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/chain/tezos/TezosNodeReader.ts#L134)*
+*Defined in [chain/tezos/TezosNodeReader.ts:134](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeReader.ts#L134)*
 
 **Parameters:**
 

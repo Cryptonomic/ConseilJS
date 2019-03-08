@@ -27,7 +27,7 @@ Represents the first version of an encrypted wallet.
 
 **● ciphertext**: *`string`*
 
-*Defined in [types/wallet/Wallet.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/Wallet.ts#L16)*
+*Defined in [types/wallet/Wallet.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/Wallet.ts#L16)*
 
 ___
 <a id="kdf"></a>
@@ -36,7 +36,7 @@ ___
 
 **● kdf**: *`string`*
 
-*Defined in [types/wallet/Wallet.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/Wallet.ts#L20)*
+*Defined in [types/wallet/Wallet.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/Wallet.ts#L20)*
 
 Key derivation function
 
@@ -47,7 +47,7 @@ ___
 
 **● salt**: *`string`*
 
-*Defined in [types/wallet/Wallet.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/Wallet.ts#L15)*
+*Defined in [types/wallet/Wallet.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/Wallet.ts#L15)*
 
 ___
 <a id="version"></a>
@@ -56,7 +56,7 @@ ___
 
 **● version**: *`string`*
 
-*Defined in [types/wallet/Wallet.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/wallet/Wallet.ts#L14)*
+*Defined in [types/wallet/Wallet.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/Wallet.ts#L14)*
 
 ___
 

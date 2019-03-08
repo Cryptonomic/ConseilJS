@@ -26,7 +26,7 @@
 
 **● balance_updates**: *[AppliedOperationBalanceUpdates](appliedoperationbalanceupdates.md)[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:105](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L105)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:105](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L105)*
 
 ___
 <a id="contract"></a>
@@ -35,7 +35,7 @@ ___
 
 **● contract**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:108](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L108)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:108](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L108)*
 
 ___
 <a id="id"></a>
@@ -44,7 +44,7 @@ ___
 
 **● id**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:107](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L107)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:107](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L107)*
 
 ___
 <a id="kind"></a>
@@ -53,7 +53,7 @@ ___
 
 **● kind**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L104)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L104)*
 
 ___
 <a id="operation_results"></a>
@@ -62,7 +62,7 @@ ___
 
 **● operation_results**: *[AppliedOperationResult](appliedoperationresult.md)[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:106](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L106)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:106](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L106)*
 
 ___
 

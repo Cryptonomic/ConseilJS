@@ -35,7 +35,7 @@ Types used for parsing data returned by Conseil backend API.
 
 **● chainId**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L15)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L15)*
 
 ___
 <a id="context"></a>
@@ -44,7 +44,7 @@ ___
 
 **● context**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L12)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L12)*
 
 ___
 <a id="fitness"></a>
@@ -53,7 +53,7 @@ ___
 
 **● fitness**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L11)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L11)*
 
 ___
 <a id="hash"></a>
@@ -62,7 +62,7 @@ ___
 
 **● hash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L16)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L16)*
 
 ___
 <a id="level"></a>
@@ -71,7 +71,7 @@ ___
 
 **● level**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L6)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L6)*
 
 ___
 <a id="operationshash"></a>
@@ -80,7 +80,7 @@ ___
 
 **● operationsHash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L17)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L17)*
 
 ___
 <a id="predecessor"></a>
@@ -89,7 +89,7 @@ ___
 
 **● predecessor**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L8)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L8)*
 
 ___
 <a id="proto"></a>
@@ -98,7 +98,7 @@ ___
 
 **● proto**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L7)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L7)*
 
 ___
 <a id="protocol"></a>
@@ -107,7 +107,7 @@ ___
 
 **● protocol**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L14)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L14)*
 
 ___
 <a id="signature"></a>
@@ -116,7 +116,7 @@ ___
 
 **● signature**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L13)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L13)*
 
 ___
 <a id="timestamp"></a>
@@ -125,7 +125,7 @@ ___
 
 **● timestamp**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L9)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L9)*
 
 ___
 <a id="validationpass"></a>
@@ -134,7 +134,7 @@ ___
 
 **● validationPass**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9f42371/src/types/conseil/ConseilTezosTypes.ts#L10)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ConseilTezosTypes.ts#L10)*
 
 ___
 
