@@ -23,7 +23,7 @@
 
 **● direction**: *[ConseilSortDirection](../enums/conseilsortdirection.md)*
 
-*Defined in [types/conseil/QueryTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/QueryTypes.ts#L27)*
+*Defined in [types/conseil/QueryTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L27)*
 
 ___
 <a id="field"></a>
@@ -32,7 +32,7 @@ ___
 
 **● field**: *`string`*
 
-*Defined in [types/conseil/QueryTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/QueryTypes.ts#L26)*
+*Defined in [types/conseil/QueryTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L26)*
 
 ___
 

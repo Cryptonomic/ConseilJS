@@ -31,7 +31,7 @@ Rather than importing the ledger library directly the code that needs it will lo
 
 **● ledgerUtils**: *`any`* =  null
 
-*Defined in [utils/DeviceSelector.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/DeviceSelector.ts#L10)*
+*Defined in [utils/DeviceSelector.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/utils/DeviceSelector.ts#L10)*
 
 ___
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **getLedgerUtils**(): `any`
 
-*Defined in [utils/DeviceSelector.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/DeviceSelector.ts#L15)*
+*Defined in [utils/DeviceSelector.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/utils/DeviceSelector.ts#L15)*
 
 **Returns:** `any`
 
@@ -54,7 +54,7 @@ ___
 
 ▸ **setLedgerUtils**(ledger: *`any`*): `void`
 
-*Defined in [utils/DeviceSelector.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/utils/DeviceSelector.ts#L11)*
+*Defined in [utils/DeviceSelector.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/utils/DeviceSelector.ts#L11)*
 
 **Parameters:**
 

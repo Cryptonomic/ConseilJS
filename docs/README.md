@@ -25,6 +25,7 @@
 * [ConseilOperator](enums/conseiloperator.md)
 * [ConseilSortDirection](enums/conseilsortdirection.md)
 * [HardwareDeviceType](enums/hardwaredevicetype.md)
+* [OperationKindType](enums/operationkindtype.md)
 * [StoreType](enums/storetype.md)
 
 ### Classes

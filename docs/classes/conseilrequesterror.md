@@ -39,7 +39,7 @@ A specialization of ServiceRequestError for Conseil service requests.
 
 *Overrides [ServiceRequestError](servicerequesterror.md).[constructor](servicerequesterror.md#constructor)*
 
-*Defined in [types/conseil/ErrorTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L26)*
+*Defined in [types/conseil/ErrorTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L26)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ ___
 
 **● conseilQuery**: *[ConseilQuery](../interfaces/conseilquery.md) \| `null`*
 
-*Defined in [types/conseil/ErrorTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L26)*
+*Defined in [types/conseil/ErrorTypes.ts:26](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L26)*
 
 ___
 <a id="conseilurl"></a>
@@ -73,7 +73,7 @@ ___
 
 *Inherited from [ServiceRequestError](servicerequesterror.md).[conseilURL](servicerequesterror.md#conseilurl)*
 
-*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L9)*
+*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L9)*
 
 ___
 <a id="data"></a>
@@ -84,7 +84,7 @@ ___
 
 *Inherited from [ServiceRequestError](servicerequesterror.md).[data](servicerequesterror.md#data)*
 
-*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L10)*
+*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L10)*
 
 ___
 <a id="httpmessage"></a>
@@ -95,7 +95,7 @@ ___
 
 *Inherited from [ServiceRequestError](servicerequesterror.md).[httpMessage](servicerequesterror.md#httpmessage)*
 
-*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L8)*
+*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L8)*
 
 ___
 <a id="httpstatus"></a>
@@ -106,7 +106,7 @@ ___
 
 *Inherited from [ServiceRequestError](servicerequesterror.md).[httpStatus](servicerequesterror.md#httpstatus)*
 
-*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/conseil/ErrorTypes.ts#L7)*
+*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L7)*
 
 ___
 <a id="message"></a>

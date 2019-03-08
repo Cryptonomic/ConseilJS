@@ -34,7 +34,7 @@
 
 **● account_delegate**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L14)*
+*Defined in [types/tezos/TezosFilterType.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L14)*
 
 ___
 <a id="account_id"></a>
@@ -43,7 +43,7 @@ ___
 
 **● account_id**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L12)*
+*Defined in [types/tezos/TezosFilterType.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L12)*
 
 ___
 <a id="account_manager"></a>
@@ -52,7 +52,7 @@ ___
 
 **● account_manager**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L13)*
+*Defined in [types/tezos/TezosFilterType.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L13)*
 
 ___
 <a id="block_id"></a>
@@ -61,7 +61,7 @@ ___
 
 **● block_id**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L3)*
+*Defined in [types/tezos/TezosFilterType.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L3)*
 
 ___
 <a id="block_level"></a>
@@ -70,7 +70,7 @@ ___
 
 **● block_level**: *`number`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:4](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L4)*
+*Defined in [types/tezos/TezosFilterType.ts:4](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L4)*
 
 ___
 <a id="block_netid"></a>
@@ -79,7 +79,7 @@ ___
 
 **● block_netid**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L5)*
+*Defined in [types/tezos/TezosFilterType.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L5)*
 
 ___
 <a id="block_protocol"></a>
@@ -88,7 +88,7 @@ ___
 
 **● block_protocol**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L6)*
+*Defined in [types/tezos/TezosFilterType.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L6)*
 
 ___
 <a id="limit"></a>
@@ -97,7 +97,7 @@ ___
 
 **● limit**: *`number`*
 
-*Defined in [types/tezos/TezosFilterType.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L2)*
+*Defined in [types/tezos/TezosFilterType.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L2)*
 
 ___
 <a id="operation_destination"></a>
@@ -106,7 +106,7 @@ ___
 
 **● operation_destination**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L9)*
+*Defined in [types/tezos/TezosFilterType.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L9)*
 
 ___
 <a id="operation_id"></a>
@@ -115,7 +115,7 @@ ___
 
 **● operation_id**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L7)*
+*Defined in [types/tezos/TezosFilterType.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L7)*
 
 ___
 <a id="operation_kind"></a>
@@ -124,7 +124,7 @@ ___
 
 **● operation_kind**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L11)*
+*Defined in [types/tezos/TezosFilterType.ts:11](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L11)*
 
 ___
 <a id="operation_participant"></a>
@@ -133,7 +133,7 @@ ___
 
 **● operation_participant**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L10)*
+*Defined in [types/tezos/TezosFilterType.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L10)*
 
 ___
 <a id="operation_source"></a>
@@ -142,7 +142,7 @@ ___
 
 **● operation_source**: *`string`[]*
 
-*Defined in [types/tezos/TezosFilterType.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/tezos/TezosFilterType.ts#L8)*
+*Defined in [types/tezos/TezosFilterType.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosFilterType.ts#L8)*
 
 ___
 

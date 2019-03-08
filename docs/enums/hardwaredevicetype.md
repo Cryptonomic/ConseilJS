@@ -21,7 +21,7 @@ Enum describing the hardware device a Tezos Operation is acting upon
 
 **LedgerNanoS**:  = 0
 
-*Defined in [types/wallet/HardwareDeviceType.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/HardwareDeviceType.ts#L5)*
+*Defined in [types/wallet/HardwareDeviceType.ts:5](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/HardwareDeviceType.ts#L5)*
 
 ___
 <a id="trezort"></a>
@@ -30,7 +30,7 @@ ___
 
 **TrezorT**:  = 1
 
-*Defined in [types/wallet/HardwareDeviceType.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/9d6b05b/src/types/wallet/HardwareDeviceType.ts#L6)*
+*Defined in [types/wallet/HardwareDeviceType.ts:6](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/wallet/HardwareDeviceType.ts#L6)*
 
 ___
 

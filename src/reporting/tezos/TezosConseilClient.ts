@@ -1,6 +1,7 @@
 import {ConseilQueryBuilder} from "../ConseilQueryBuilder";
 import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../types/conseil/QueryTypes"
 import {ConseilDataClient} from "../ConseilDataClient";
+import {OperationKindType} from "../../types/tezos/TezosChainTypes";
 
 /**
  * Functions for querying the Conseil backend REST API v2 for Tezos chain data.
@@ -10,6 +11,7 @@ export namespace TezosConseilClient {
     const ACCOUNTS = 'accounts';
     const OPERATION_GROUPS = 'operation_groups';
     const OPERATIONS = 'operations';
+    const FEES = 'fees';
 
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
@@ -124,5 +126,21 @@ export namespace TezosConseilClient {
      */
     export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATIONS, query)
+    }
+
+    /**
+     * Request pre-computed fee statistics for operation fees by operation kind. The query returns the latest record.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param operationType Tezos operation kind
+     */
+    export async function getFeeStatistics(serverInfo: ConseilServerInfo, network: string, operationType: OperationKindType) {
+        let query = ConseilQueryBuilder.blankQuery();
+        query = ConseilQueryBuilder.addPredicate(query, 'kind', ConseilOperator.EQ, [operationType]);
+        query = ConseilQueryBuilder.addOrdering(query, 'timestamp', ConseilSortDirection.DESC);
+        query = ConseilQueryBuilder.setLimit(query, 1);
+
+        return getTezosEntityData(serverInfo, network, FEES, query);
     }
 }
