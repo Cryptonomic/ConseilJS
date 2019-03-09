@@ -145,4 +145,6 @@ export const blockAttributeResponse = [
         "keyType": "NonKey",
         "entity": "blocks"
     }
-]
+];
+
+export const accountAttributeValueResponse = [ "f", "t" ];
