@@ -3,6 +3,7 @@ import { expect } from "chai";
 import nock from 'nock';
 
 import { TezosNodeReader, TezosWalletUtil, TezosNodeWriter } from "../src";
+import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
 import mochaAsync from '../test/mochaTestHelper';
 import {
     blockHead,
@@ -120,6 +121,9 @@ describe('Tezos Operations Test', () => {
             const signedOpGroup = await signOperationGroup(forgedOpGroupList[0], keyStore, '');
             expect(signedOpGroup).to.be.an('object');
             expect(signedOpGroup.signature).to.exist;
+
+            const opGroupHash = TezosMessageUtils.computeOperationHash(signedOpGroup);
+            expect(opGroupHash).to.equal('01341bd793a426a45541eb29fc4aea9c04509f884e511674ea10b56766404be9d07f');
         }));
 
         it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
