@@ -168,5 +168,17 @@ describe("Tezos P2P message decoder test suite", () => {
     reveal.kind = 'reveal';
     reveal.public_key = undefined;
     expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Missing public key.');
+
+    let incorrectForgedReveal = '97648f6470b21f904cb8d11eaf097f245eb42f5193fa51404d969cdfd4a4579e09000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6';
+    expect(() => TezosMessageCodec.parseReveal(incorrectForgedReveal, true)).to.throw('Provided operation is not a reveal.');
+
+    let incorrectForgedTransaction = 'e36fb667c53c97102a0c9ecd55f5222b347bc843bbaf419daf0d990426cd53650901e0820a36f5e26fcd952f1acc08b2b1c974c23b1e00c0843d03bc50ac0280897a000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400'
+    expect(() => TezosMessageCodec.parseTransaction(incorrectForgedTransaction, true)).to.throw('Provided operation is not a transaction.');
+
+    let incorrectForgedOrigination = 'c98677a5ad30a181889ad0325b5ce4b32d288e2d0397eac9391e20de1ec816f20100009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dd078b04f9502009fcc83e722c9d9f7a150555e632e6e0f97bfc29b8080897affffff006e747386822673001b03dca0eff6cebf7c9cd6e400';
+    expect(() => TezosMessageCodec.parseOrigination(incorrectForgedOrigination, true)).to.throw('Provided operation is not an origination.');
+
+    let incorrectForgedDelegation = 'a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c010180be2031715ea183848c08e2ff59d62e7d255ae500a0c21e03904e00ff00b15b7a2484464ed3228c0ae23d0391f8269de3da';
+    expect(() => TezosMessageCodec.parseDelegation(incorrectForgedDelegation, true)).to.throw('Provided operation is not a delegation.');
   });
 });
