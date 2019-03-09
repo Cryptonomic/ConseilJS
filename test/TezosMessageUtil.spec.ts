@@ -88,6 +88,14 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result.length).to.equal(8);
   });
 
+  it('test branch functions', () => {
+    let result = TezosMessageUtils.writeBranch('KvYXNzrdzoLoigtavtZ9uhm4U7JqUumZwkUuhyiVnKZr91Axwj');
+    expect(result).to.equal('01341bd793a426a45541eb29fc4aea9c04509f884e511674ea10b56766404be9d07f');
+
+    result = TezosMessageUtils.readBranch('8ed2aea5289f290444a0abafc51a0a52bce793dbbf3c2eb2ff8d8bd6c48689d2');
+    expect(result).to.equal('BLoBZFawGRjGwk53VW76xBDhxKKMpnk3k3FWdkYZhcusd3aVwUM');
+  });
+
   it("test various parsing and encoding failures", () => {
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse an address');

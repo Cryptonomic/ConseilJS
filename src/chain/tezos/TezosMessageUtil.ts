@@ -156,7 +156,7 @@ export namespace TezosMessageUtils {
    */
   export function readBranch(hex: string): string {
     if (hex.length !== 64) { throw new Error('Incorrect hex length to parse a branch hash'); }
-    return base58check.encode(Buffer.from(hex, 'hex'));
+    return base58check.encode(Buffer.from('0134' + hex, 'hex'));
   }
 
   /**
@@ -166,7 +166,7 @@ export namespace TezosMessageUtils {
    * @returns {string} Hex represntaton of the Base58-check branch hash.
    */
   export function writeBranch(branch: string): string {
-    return base58check.decode(branch).toString("hex");
+    return base58check.decode('B' + branch).toString("hex");
   }
 
   /**
