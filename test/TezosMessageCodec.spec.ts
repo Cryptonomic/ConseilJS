@@ -41,7 +41,7 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly encode a reveal operation", () => {
-    let reveal: Operation = {
+    const reveal: Operation = {
       kind: "reveal",
       source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
       fee: "0",
@@ -151,5 +151,22 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "proposal", true)).to.throw("Unsupported operation type: proposal");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "ballot", true)).to.throw("Unsupported operation type: ballot");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "invalid", true)).to.throw("Unsupported operation type: invalid");
+  });
+
+  it("fail other errors", () => {
+    let reveal: Operation = {
+      kind: "c0ffee",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "0",
+      counter: "425748",
+      storage_limit: "0",
+      gas_limit: "10000",
+      public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
+    };
+    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw;
+
+    reveal.kind = 'reveal';
+    reveal.public_key = undefined;
+    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw;
   });
 });
