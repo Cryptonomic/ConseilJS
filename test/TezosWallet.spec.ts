@@ -114,3 +114,9 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
         )).be.rejectedWith("The given mnemonic could not be validated.");
     });
 });
+
+describe('Error paths', () => {
+    it('test error conditions', async () => {
+        await expect(TezosFileWallet.loadWallet("//tmp//missing.tezwallet", "passwordwithentropy")).be.throw;
+    });
+});
