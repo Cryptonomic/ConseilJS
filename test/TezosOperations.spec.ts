@@ -123,7 +123,7 @@ describe('Tezos Operations Test', () => {
             expect(signedOpGroup.signature).to.exist;
 
             const opGroupHash = TezosMessageUtils.computeOperationHash(signedOpGroup);
-            expect(opGroupHash).to.equal('01341bd793a426a45541eb29fc4aea9c04509f884e511674ea10b56766404be9d07f');
+            expect(opGroupHash).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
 
         it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
