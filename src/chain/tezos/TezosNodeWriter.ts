@@ -405,8 +405,8 @@ export namespace TezosNodeWriter {
         amount: number,
         fee: number,
         derivationPath: string,
-        storage_limit: string,
-        gas_limit: string,
+        storageLimit: number,
+        gasLimit: number,
         parameters: object
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
@@ -415,8 +415,8 @@ export namespace TezosNodeWriter {
         const transaction: TezosTypes.ContractInvocationOperation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit,
-            gas_limit,
+            storage_limit: storageLimit.toString(),
+            gas_limit: gasLimit.toString(),
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,

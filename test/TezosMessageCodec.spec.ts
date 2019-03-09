@@ -163,10 +163,10 @@ describe("Tezos P2P message decoder test suite", () => {
       gas_limit: "10000",
       public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
     };
-    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw;
+    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Incorrect operation type.');
 
     reveal.kind = 'reveal';
     reveal.public_key = undefined;
-    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw;
+    expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Missing public key.');
   });
 });

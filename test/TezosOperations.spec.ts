@@ -1,5 +1,6 @@
 import "mocha";
-import { expect } from "chai";
+import { expect, use } from "chai";
+import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 
 import { TezosNodeReader, TezosWalletUtil, TezosNodeWriter } from "../src";
@@ -16,6 +17,8 @@ import {
     walletInfoLists
 } from './TezosOperations.responses';
 
+use(chaiAsPromised);
+
 const { unlockFundraiserIdentity } = TezosWalletUtil;
 const {
     signOperationGroup,
@@ -28,7 +31,8 @@ const {
     sendAccountOriginationOperation,
     sendDelegationOperation,
     isManagerKeyRevealedForAccount,
-    isImplicitAndEmpty
+    isImplicitAndEmpty,
+    sendContractInvocationOperation
 } = TezosNodeWriter;
 
 let keyStore;
@@ -259,15 +263,14 @@ describe('Tezos Operations Test', () => {
             keyStore.publicKeyHash = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
             const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
             const fee = 300000;
-            const delegationResult = await sendDelegationOperation(
-                'http://conseil.server',
-                keyStore,
-                bakerAddress,
-                fee, 
-                ''
-            );
+            const delegationResult = await sendDelegationOperation('http://conseil.server', keyStore, bakerAddress, fee, '');
             expect(delegationResult).to.exist;
             expect(delegationResult.operationGroupID).to.be.a('string');
+        }));
+
+        it('sendContractInvocationOperation', mochaAsync(async () => {
+            const result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, {});
+            expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
     });
 
