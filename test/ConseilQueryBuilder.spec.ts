@@ -13,7 +13,7 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
     });
 
     it('make empty query with a sort condition', async () => {
-        const query = ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.blankQuery(), 'level', ConseilSortDirection.DESC);
+        const query = ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.blankQuery(), 'level', ConseilSortDirection.DESC), 'signature');
 
         expect(query.orderBy[0].direction).to.equals(ConseilSortDirection.DESC);
         expect(query.orderBy[0].field).to.equals('level');
@@ -47,5 +47,6 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
         expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.BETWEEN, ['a', 'b', 'c'])).to.throw("BETWEEN operation requires a list of two values.");
         expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.IN, ['a'])).to.throw("IN operation requires a list of two or more values.");
         expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.EQ, ['a', 'b'])).to.throw("invalid values list for eq.");
+        expect(() => ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 0)).to.throw('Limit cannot be less than one.');
     });
 });

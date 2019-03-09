@@ -12,7 +12,8 @@ import {
     injectOpList,
     accountMockList,
     managerKeyMockList,
-    walletInfoLists
+    walletInfoLists,
+    badJSON
 } from './TezosOperations.responses';
 
 const { unlockFundraiserIdentity } = TezosWalletUtil;
@@ -184,7 +185,6 @@ describe('Tezos Operations Test', () => {
             const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
             expect(isImplicit).to.be.false;
         }));
-
     });
 
     describe('Main Operations Test', () => {
@@ -265,6 +265,16 @@ describe('Tezos Operations Test', () => {
             );
             expect(delegationResult).to.exist;
             expect(delegationResult.operationGroupID).to.be.a('string');
+        }));
+    });
+
+    describe('Errors Test', () => {
+        it('test error paths', mochaAsync(async () => {
+            const nockedserver = nock('http://conseil.server');
+            nock.cleanAll();
+
+            nockedserver.get(`/chains/main/blocks/head`).reply(404, blockHead);
+            await expect(TezosNodeReader.getBlockHead('http://conseil.server')).to.be.rejected;
         }));
     });
 });
