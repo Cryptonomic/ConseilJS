@@ -385,7 +385,7 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
-  /**
+   /**
    * Parse an operation group
    * @param {string} hex Encoded message stream.
    */
@@ -394,8 +394,10 @@ export namespace TezosMessageCodec {
     let envelope = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore
     operations.push(envelope.operation);
+    let groupOffset = 0;
     while (envelope.next) {
-      envelope = parseOperation(hex.substring(envelope.nextoffset), envelope.next, false);
+      groupOffset += envelope.nextoffset;
+      envelope = parseOperation(hex.substring(groupOffset), envelope.next, false);
       //@ts-ignore
       operations.push(envelope.operation);
     }

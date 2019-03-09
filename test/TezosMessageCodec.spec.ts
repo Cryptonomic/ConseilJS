@@ -142,6 +142,11 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result[1].counter).to.equal('2');
   });
 
+  it("correctly parse a 3-message OperationGroup", () => {
+    const result = TezosMessageCodec.parseOperationGroup('1ee2414a88e8d64f087464c2706a4031b32f55ee5e52178b9cc39dce3c436d080701e0820a36f5e26fcd952f1acc08b2b1c974c23b1e000001904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0a01e0820a36f5e26fcd952f1acc08b2b1c974c23b1e00c0843d02904e00ff026fde46af0356a0476dae4e4600172dc9309b3aa4' + '0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dcf78bc50ac0280897a00006e747386822673001b03dca0eff6cebf7c9cd6e400');
+    expect(result.length).to.equal(3);
+  });
+
   it("fail unsupported operation types", () => {
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "endorsement", true)).to.throw("Unsupported operation type: endorsement");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "seedNonceRevelation", true)).to.throw("Unsupported operation type: seedNonceRevelation");
