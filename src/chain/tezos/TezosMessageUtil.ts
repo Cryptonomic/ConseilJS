@@ -89,7 +89,7 @@ export namespace TezosMessageUtils {
    * @param {string} hex Encoded message part.
    */
   export function readAddress(hex: string): string {
-    if (hex.length !== 44 && hex.length !== 42) { throw new Error("Incorrect hex length to parse an address."); }
+    if (hex.length !== 44 && hex.length !== 42) { throw new Error("Incorrect hex length to parse an address"); }
 
     let implicitHint = hex.length === 44 ? hex.substring(0, 4) : "00" + hex.substring(0, 2);
     let implicitPrefixLength = hex.length === 44 ? 4 : 2;
@@ -146,7 +146,7 @@ export namespace TezosMessageUtils {
     } else if (address.startsWith("KT1")) {
       return "01" + hex + "00";
     } else {
-      throw new Error("Unrecognized address type.")
+      throw new Error("Unrecognized address type");
     }
   }
 
@@ -155,8 +155,8 @@ export namespace TezosMessageUtils {
    * @param {string} hex Encoded message part.
    */
   export function readBranch(hex: string): string {
-    if (hex.length !== 64) { throw new Error("Incorrect hex length to parse a branch hash."); }
-    return base58check.encode(Buffer.from(hex, "hex"));
+    if (hex.length !== 64) { throw new Error('Incorrect hex length to parse a branch hash'); }
+    return base58check.encode(Buffer.from(hex, 'hex'));
   }
 
   /**
@@ -176,7 +176,7 @@ export namespace TezosMessageUtils {
    * @returns {string} Key.
    */
   export function readPublicKey(hex: string): string {
-    if (hex.length !== 66 && hex.length !== 68) { throw new Error(`Incorrect hex length, ${hex.length} to parse a key.`); }
+    if (hex.length !== 66 && hex.length !== 68) { throw new Error(`Incorrect hex length, ${hex.length} to parse a key`); }
 
     let hint = hex.substring(0, 2);
     if (hint === "00") { // ed25519

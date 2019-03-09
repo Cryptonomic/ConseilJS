@@ -31,8 +31,8 @@ export namespace TezosFileWallet {
 
         const p = new Promise((resolve, reject) => {
             fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
-                if (err) { reject(err); }
-                else resolve();
+                if (err) { reject(err); return; }
+                resolve();
             });
         });
         await p;
