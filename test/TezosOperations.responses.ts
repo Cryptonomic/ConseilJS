@@ -317,5 +317,3 @@ export const walletInfoLists = [
     "email": "zvhmwpxp.oyknmtkh@tezos.example.org"
   }
 ];
-
-

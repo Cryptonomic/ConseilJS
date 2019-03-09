@@ -12,8 +12,7 @@ import {
     injectOpList,
     accountMockList,
     managerKeyMockList,
-    walletInfoLists,
-    badJSON
+    walletInfoLists
 } from './TezosOperations.responses';
 
 const { unlockFundraiserIdentity } = TezosWalletUtil;

@@ -49,7 +49,7 @@ export namespace TezosFileWallet {
     export async function loadWallet(filename: string, passphrase: string): Promise<Wallet> {
         const p = new Promise<EncryptedWalletVersionOne>((resolve, reject) => {
             fs.readFile(filename, (err, data) => {
-                if (err) { reject(err); }
+                if (err) { reject(err); return; }
                 const encryptedWallet: EncryptedWalletVersionOne = JSON.parse(data.toString()) as EncryptedWalletVersionOne;
                 resolve(encryptedWallet);
             });

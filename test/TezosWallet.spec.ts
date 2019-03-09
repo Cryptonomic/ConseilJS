@@ -117,6 +117,6 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
 
 describe('Error paths', () => {
     it('test error conditions', async () => {
-        await expect(TezosFileWallet.loadWallet("//tmp//missing.tezwallet", "passwordwithentropy")).be.throw;
+        await expect(TezosFileWallet.loadWallet("//tmp//missing.tezwallet", "passwordwithentropy")).to.be.rejected;
     });
 });
