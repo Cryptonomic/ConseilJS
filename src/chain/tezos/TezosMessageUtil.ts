@@ -257,13 +257,15 @@ export namespace TezosMessageUtils {
    * Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
    * 
    * @param {Buffer | Uint8Array} b Bytes to encode
-   * @param hint One of: 'op' (operation encoding helper), '' (blank)
+   * @param hint One of: 'op' (operation encoding helper), 'p' (proposal), '' (blank)
    */
   export function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string {
     const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
     if (hint === 'op') {
       return base58check.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
+    } else if (hint === 'p') {
+      return base58check.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
     } else if (hint === '') {
       return base58check.encode(buffer);
     } else {

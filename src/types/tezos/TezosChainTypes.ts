@@ -85,6 +85,13 @@ export interface Operation {
     script?: string | object;
 }
 
+export interface Ballot {
+    source: string,
+    period: number,
+    proposal: string,
+    vote: BallotVote
+}
+
 export interface ContractOriginationOperation extends Operation {
     script: object;
 }
@@ -111,10 +118,17 @@ export interface OperationResult {
 
 export enum OperationKindType {
     SeedNonceRevelation = 'seed_nonce_revelation',
-    Delegation = "delegation",
-    Transaction = "transaction",
-    AccountActivation = "activate_account",
-    Origination = "origination",
-    Reveal = "reveal",
-    Endorsement = "endorsement"
+    Delegation = 'delegation',
+    Transaction = 'transaction',
+    AccountActivation = 'activate_account',
+    Origination = 'origination',
+    Reveal = 'reveal',
+    Endorsement = "endorsement",
+    Ballot = ''
+}
+
+export enum BallotVote {
+    Yay = 0,
+    Nay = 1,
+    Pass = 2
 }

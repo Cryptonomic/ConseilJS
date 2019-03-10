@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../src/chain/tezos/TezosMessageCodec";
-import { Operation } from "../src/types/tezos/TezosChainTypes";
+import { Operation, Ballot, BallotVote } from "../src/types/tezos/TezosChainTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -145,6 +145,27 @@ describe("Tezos P2P message decoder test suite", () => {
   it("correctly parse a 3-message OperationGroup", () => {
     const result = TezosMessageCodec.parseOperationGroup('1ee2414a88e8d64f087464c2706a4031b32f55ee5e52178b9cc39dce3c436d080701e0820a36f5e26fcd952f1acc08b2b1c974c23b1e000001904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0a01e0820a36f5e26fcd952f1acc08b2b1c974c23b1e00c0843d02904e00ff026fde46af0356a0476dae4e4600172dc9309b3aa4' + '0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dcf78bc50ac0280897a00006e747386822673001b03dca0eff6cebf7c9cd6e400');
     expect(result.length).to.equal(3);
+  });
+
+  it("correctly encode a ballot operation", () => {
+    const ballot: Ballot = {
+      source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
+      period: 10,
+      proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',
+      vote: BallotVote.Nay
+    };
+
+    const result = TezosMessageCodec.encodeBallot(ballot);
+    expect(result).to.equal("060069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f801");
+  });
+
+  it("correctly parse a ballot message", () => {
+    const result = TezosMessageCodec.parseBallot('06026fde46af0356a0476dae4e4600172dc9309b3aa40000000a76cd995a324193bbe09ac2d5c53f69f93778f8d608f1fea885f9b53e0abdb6e400', false);
+
+    expect(result.operation.source).to.equal('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
+    expect(result.operation.proposal).to.equal('Psd1ynUBhMZAeajwcZJAeq5NrxorM6UCU4GJqxZ7Bx2e9vUWB6z');
+    expect(result.operation.period).to.equal(10);
+    expect(result.next).to.be.undefined;
   });
 
   it("fail unsupported operation types", () => {

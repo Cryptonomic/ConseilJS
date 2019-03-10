@@ -1,5 +1,5 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
-import { Operation } from "../../types/tezos/TezosChainTypes";
+import { Operation, Ballot, BallotVote } from "../../types/tezos/TezosChainTypes";
 
 const operationTypes: Array<string> = [
   "endorsement",
@@ -67,6 +67,67 @@ export namespace TezosMessageCodec {
     }
   }
 
+  export function encodeBallot(ballot: Ballot): string {
+    if (ballot.source === undefined) { throw new Error('Missing public key.'); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('ballot'));
+    hex += TezosMessageUtils.writeAddress(ballot.source).slice(2);
+    hex += ('00000000' + ballot.period.toString(16)).slice(-8);
+    hex += TezosMessageUtils.writeBufferWithHint(ballot.proposal).toString('hex').slice(4);
+    hex += ('00' + ballot.vote.toString(16)).slice(-2);
+
+    return hex;
+  }
+
+  export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
+    let hexOperationType = isFirst ? ballotMessage.substring(64, 66) : ballotMessage.substring(0, 2);
+    if (getOperationType(hexOperationType) !== 'ballot') {
+        throw new Error('Provided operation is not a ballot.');
+    }
+
+    let fieldoffset = 0;
+    let branch = '';
+    if (isFirst) {
+      branch = TezosMessageUtils.readBranch(ballotMessage.substring(fieldoffset, fieldoffset + 64));
+      fieldoffset += 64 + 2; // branch + type
+    } else {
+      fieldoffset += 2; // type
+    }
+
+    const source = TezosMessageUtils.readAddress(ballotMessage.substring(fieldoffset, fieldoffset + 42));
+    fieldoffset += 42;
+
+    const period = parseInt(ballotMessage.substring(fieldoffset, fieldoffset + 8), 16);
+    fieldoffset += 8;
+
+    const proposal = TezosMessageUtils.readBufferWithHint(Buffer.from(ballotMessage.substring(fieldoffset, fieldoffset + 64), 'hex'), 'p');
+    fieldoffset += 64;
+
+    const vote = parseInt(ballotMessage.substring(fieldoffset, fieldoffset + 1), 16) as BallotVote;
+    fieldoffset += 2;
+
+    let next;
+    if (ballotMessage.length > fieldoffset) {
+        next = getOperationType(ballotMessage.substring(fieldoffset, fieldoffset + 2));
+    }
+
+    const ballot: Ballot = {
+        source: source,
+        period: period,
+        proposal: proposal,
+        vote: vote
+    };
+
+    const envelope: OperationEnvelope = {
+      operation: ballot,
+      branch: branch,
+      next: next,
+      nextoffset: next ? fieldoffset : -1
+    }
+
+    return envelope;
+  }
+
   /**
    * Parse a reveal message possibly containing siblings.
    * @param {string} revealMessage Encoded reveal-type message
@@ -74,12 +135,12 @@ export namespace TezosMessageCodec {
    */
   export function parseReveal(revealMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? revealMessage.substring(64, 66) : revealMessage.substring(0, 2);
-    if (getOperationType(hexOperationType) !== "reveal") {
-      throw new Error("Provided operation is not a reveal.");
+    if (getOperationType(hexOperationType) !== 'reveal') {
+      throw new Error('Provided operation is not a reveal.');
     }
 
     let fieldoffset = 0;
-    let branch = "";
+    let branch = '';
     if (isFirst) {
       branch = TezosMessageUtils.readBranch(revealMessage.substring(fieldoffset, fieldoffset + 64));
       fieldoffset += 64 + 2; // branch + type
@@ -135,10 +196,10 @@ export namespace TezosMessageCodec {
    * @param {string} reveal A reveal operation to be encoded.
    */
   export function encodeReveal(reveal: Operation): string {
-    if (reveal.kind !== "reveal") {throw new Error("Incorrect operation type."); }
-    if (reveal.public_key === undefined) {throw new Error("Missing public key."); }
+    if (reveal.kind !== 'reveal') { throw new Error('Incorrect operation type.'); }
+    if (reveal.public_key === undefined) { throw new Error('Missing public key.'); }
 
-    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf("reveal"));
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('reveal'));
     hex += TezosMessageUtils.writeAddress(reveal.source);
     hex += TezosMessageUtils.writeInt(parseInt(reveal.fee));
     hex += TezosMessageUtils.writeInt(parseInt(reveal.counter));
@@ -157,7 +218,7 @@ export namespace TezosMessageCodec {
   export function parseTransaction(transactionMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? transactionMessage.substring(64, 66) : transactionMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== "transaction") {
-      throw new Error("Provided operation is not a transaction.");
+        throw new Error("Provided operation is not a transaction.");
     }
 
     let fieldoffset = 0;
@@ -385,7 +446,7 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
-   /**
+  /**
    * Parse an operation group
    * @param {string} hex Encoded message stream.
    */
@@ -406,7 +467,7 @@ export namespace TezosMessageCodec {
   }
 
   interface OperationEnvelope {
-    operation: Operation,
+    operation: any,
     branch: string,
     next?: string,
     nextoffset: number
