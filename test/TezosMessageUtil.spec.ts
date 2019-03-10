@@ -24,6 +24,10 @@ describe('Tezos P2P message codec helper tests', () => {
 
     result = TezosMessageUtils.readAddressWithHint(Buffer.from('193b2b3f6b8f8e1e6b39b4d442fc2b432f6427a8', 'hex'), 'tz3');
     expect(result).to.equal('tz3NdTPb3Ax2rVW2Kq9QEdzfYFkRwhrQRPhX');
+
+    const key = TezosMessageUtils.writeKeyWithHint('edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa', 'edpk');
+    result = TezosMessageUtils.computeKeyHash(key);
+    expect(result).to.equal('tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2');
   });
 
   it('test address write functions', () => {

@@ -53,7 +53,7 @@ export namespace TezosMessageCodec {
       case "proposal":
         throw new Error(`Unsupported operation type: ${opType}`);
       case "ballot":
-        throw new Error(`Unsupported operation type: ${opType}`);
+        return parseBallot(hex, isFirst);
       case "reveal":
         return parseReveal(hex, isFirst);
       case "transaction":
@@ -82,7 +82,7 @@ export namespace TezosMessageCodec {
   export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? ballotMessage.substring(64, 66) : ballotMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== 'ballot') {
-        throw new Error('Provided operation is not a ballot.');
+        throw new Error('Provided operation is not a ballot');
     }
 
     let fieldoffset = 0;

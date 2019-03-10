@@ -230,7 +230,7 @@ export namespace TezosMessageUtils {
    * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
    */
   export function writeKeyWithHint(key: string, hint: string): Buffer {
-    if (hint === 'edsk') {
+    if (hint === 'edsk' || hint === 'edpk') {
       return base58check.decode(key).slice(4);
     } else {
       throw new Error(`Unrecognized key hint, '${hint}'`);

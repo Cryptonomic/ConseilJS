@@ -175,7 +175,6 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "doubleBakingEvidence", true)).to.throw("Unsupported operation type: doubleBakingEvidence");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "accountActivation", true)).to.throw("Unsupported operation type: accountActivation");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "proposal", true)).to.throw("Unsupported operation type: proposal");
-    expect(() => TezosMessageCodec.parseOperation("c0ffee", "ballot", true)).to.throw("Unsupported operation type: ballot");
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "invalid", true)).to.throw("Unsupported operation type: invalid");
   });
 
