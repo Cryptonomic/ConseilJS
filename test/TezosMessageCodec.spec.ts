@@ -206,5 +206,8 @@ describe("Tezos P2P message decoder test suite", () => {
 
     let incorrectForgedDelegation = 'a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c010180be2031715ea183848c08e2ff59d62e7d255ae500a0c21e03904e00ff00b15b7a2484464ed3228c0ae23d0391f8269de3da';
     expect(() => TezosMessageCodec.parseDelegation(incorrectForgedDelegation, true)).to.throw('Provided operation is not a delegation.');
+
+    let incorrectForgedBallot = 'a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c070069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f801';
+    expect(() => TezosMessageCodec.parseBallot(incorrectForgedBallot)).to.throw('Provided operation is not a ballot');
   });
 });
