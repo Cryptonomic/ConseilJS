@@ -127,7 +127,7 @@ export enum OperationKindType {
     Origination = 'origination',
     Reveal = 'reveal',
     Endorsement = "endorsement",
-    Ballot = ''
+    Ballot = 'ballot'
 }
 
 export enum BallotVote {

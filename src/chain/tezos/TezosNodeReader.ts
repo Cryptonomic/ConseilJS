@@ -1,4 +1,5 @@
 import * as TezosTypes from '../../types/tezos/TezosChainTypes'
+import {KeyStore} from "../../types/wallet/KeyStore";
 import {ServiceRequestError, ServiceResponseError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../../utils/FetchSelector'
 
@@ -77,5 +78,36 @@ export namespace TezosNodeReader {
     export function getAccountManagerForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
         return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
             .then(json => <TezosTypes.ManagerKey> json);
+    }
+
+    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {string} accountHash Account address
+     * @returns {Promise<boolean>} Result
+     */
+    export async function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean> {
+        const blockHead = await TezosNodeReader.getBlockHead(server);
+        const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
+
+        const isImplicit = accountHash.toLowerCase().startsWith("tz");
+        const isEmpty = Number(account.balance) === 0
+
+        return (isImplicit && isEmpty)
+    }
+
+    /**
+     * Indicates whether a reveal operation has already been done for a given account.
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @returns {Promise<boolean>} Result
+     */
+    export async function isManagerKeyRevealedForAccount(server: string, keyStore: KeyStore): Promise<boolean> {
+        const blockHead = await TezosNodeReader.getBlockHead(server);
+        const managerKey = await TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+
+        return managerKey.key != null;
     }
 }

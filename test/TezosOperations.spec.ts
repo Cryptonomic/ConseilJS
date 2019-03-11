@@ -31,8 +31,6 @@ const {
     sendTransactionOperation,
     sendAccountOriginationOperation,
     sendDelegationOperation,
-    isManagerKeyRevealedForAccount,
-    isImplicitAndEmpty,
     sendContractInvocationOperation
 } = TezosNodeWriter;
 
@@ -220,22 +218,22 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
-            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
             expect(isManagerRevealed).to.be.true;
         }));
 
         it('isManagerKeyRevealedForAccount should be false', mochaAsync(async () => {
-            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
             expect(isManagerRevealed).to.be.false;
         }));
 
         it('isImplicitAndEmpty should be true', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
+            const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
             expect(isImplicit).to.be.true;
         }));
         
         it('isImplicitAndEmpty should be false', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
+            const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
             expect(isImplicit).to.be.false;
         }));
     });

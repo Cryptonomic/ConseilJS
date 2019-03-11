@@ -111,7 +111,7 @@ export namespace TezosMessageCodec {
   /**
    * Parse a Ballot, tag 6, message possibly containing siblings.
    * 
-   * @param {string} revealMessage Encoded ballot message
+   * @param {string} ballotMessage Encoded ballot message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
   export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
