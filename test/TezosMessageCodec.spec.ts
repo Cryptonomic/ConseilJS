@@ -32,14 +32,14 @@ describe("Tezos P2P message decoder test suite", () => {
 
   it("correctly encode a transaction operation", () => {
     const transaction: Operation = {
-      "kind": "transaction",
-      "source": "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
-      "fee": "10000",
-      "counter": "9",
-      "storage_limit": "10001",
-      "gas_limit": "10002",
-      "amount": "10000000",
-      "destination": "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
+      kind: "transaction",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      amount: "10000000",
+      destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
     };
 
     const result = TezosMessageCodec.encodeTransaction(transaction);
@@ -228,7 +228,7 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(() => TezosMessageCodec.parseOperation("c0ffee", "invalid", true)).to.throw("Unsupported operation type: invalid");
   });
 
-  it("fail other errors", () => {
+  it("fail reveal encoding errors", () => {
     let reveal: Operation = {
       kind: "c0ffee",
       source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
@@ -243,7 +243,56 @@ describe("Tezos P2P message decoder test suite", () => {
     reveal.kind = 'reveal';
     reveal.public_key = undefined;
     expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Missing public key.');
+  });
 
+  it("fail transaction encoding errors", () => {
+    let transaction: Operation = {
+      kind: "c0ff33",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      amount: "10000000",
+      destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
+    };
+    expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Incorrect operation type');
+
+    transaction.kind = 'transaction';
+    transaction.amount = undefined;
+    expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Missing amount');
+
+    transaction.amount = '1000000';
+    transaction.destination = undefined;
+    expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Missing destination');
+  });
+
+  it("fail origination encoding errors", () => {
+    let origination: Operation = {
+      kind: "c0ff33",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      balance: "10003",
+      spendable: true,
+      delegatable: true,
+      delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
+    };
+    expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Incorrect operation type');
+
+    origination.kind = 'origination';
+    origination.managerPubkey = undefined
+    expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing manager address');
+
+    origination.managerPubkey = 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX'
+    origination.balance = undefined
+    expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing balance');
+  });
+
+  it("fail parsing errors", () => {
     let incorrectForgedReveal = '09000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6';
     expect(() => TezosMessageCodec.parseReveal(incorrectForgedReveal, false)).to.throw('Provided operation is not a reveal.');
 
