@@ -93,8 +93,8 @@ describe('Tezos P2P message codec helper tests', () => {
   });
 
   it('test branch functions', () => {
-    let result = TezosMessageUtils.writeBranch('KvYXNzrdzoLoigtavtZ9uhm4U7JqUumZwkUuhyiVnKZr91Axwj');
-    expect(result).to.equal('01341bd793a426a45541eb29fc4aea9c04509f884e511674ea10b56766404be9d07f');
+    let result = TezosMessageUtils.writeBranch('BLNB68pLiAgXiJHXNUK7CDKRnCx1TqzaNGsRXsASg38wNueb8bx');
+    expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f');
 
     result = TezosMessageUtils.readBranch('8ed2aea5289f290444a0abafc51a0a52bce793dbbf3c2eb2ff8d8bd6c48689d2');
     expect(result).to.equal('BLoBZFawGRjGwk53VW76xBDhxKKMpnk3k3FWdkYZhcusd3aVwUM');

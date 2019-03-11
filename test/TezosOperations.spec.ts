@@ -2,6 +2,7 @@ import "mocha";
 import { expect, use } from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
+import { Operation, Ballot } from "../src/types/tezos/TezosChainTypes";
 
 import { TezosNodeReader, TezosWalletUtil, TezosNodeWriter } from "../src";
 import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
@@ -116,10 +117,67 @@ describe('Tezos Operations Test', () => {
             expect(forgeOp).to.be.a('string');
         }));
 
-        it('forgeOperations test ----', mochaAsync(async () => {
-            const forgedOperationGroup = await forgeOperations('http://conseil.server', blockHead, ops);
-            expect(forgedOperationGroup).to.be.a('string');
-        }));
+        it("correctly encode operations locally", () => {
+            let messages: any = [];
+            messages.push({
+                kind: "reveal",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "0",
+                counter: "425748",
+                storage_limit: "0",
+                gas_limit: "10000",
+                public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
+            } as Operation);
+            messages.push({
+                kind: "transaction",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                amount: "10000000",
+                destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
+            } as Operation);
+            messages.push({
+                kind: "origination",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                balance: "10003",
+                spendable: true,
+                delegatable: true,
+                delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
+            } as Operation);
+            messages.push({
+                kind: "delegation",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
+            } as Operation);
+
+            const result = forgeOperations(blockHead, messages);
+
+            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c608000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b40009000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce89000a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4');
+        });
+
+        it("correctly encode ballot locally", () => {
+            const message: Ballot = {
+                source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
+                period: 10,
+                proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',
+                vote: 0
+            };
+
+            const result = forgeOperations(blockHead, [message]);
+
+            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f060069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f800');
+        });
 
         it('signOperationGroup test ---', mochaAsync(async () => {
             const signedOpGroup = await signOperationGroup(forgedOpGroupList[0], keyStore, '');

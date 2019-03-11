@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../src/chain/tezos/TezosMessageCodec";
-import { Operation, Ballot, BallotVote } from "../src/types/tezos/TezosChainTypes";
+import { Activation, Ballot, BallotVote, Operation } from "../src/types/tezos/TezosChainTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -226,6 +226,16 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.proposal).to.equal('Psd1ynUBhMZAeajwcZJAeq5NrxorM6UCU4GJqxZ7Bx2e9vUWB6z');
     expect(result.operation.period).to.equal(10);
     expect(result.next).to.be.undefined;
+  });
+
+  it("correctly encode an activation operation", () => {
+    const activation: Activation = {
+      pkh: "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
+      secret: "9b7f631e52f877a1d363474404da8130b0b940ee"
+    };
+
+    const result = TezosMessageCodec.encodeActivation(activation);
+    expect(result).to.equal("040cb9f9da085607c05cac1ca4c62a3f3cfb8146aa9b7f631e52f877a1d363474404da8130b0b940ee");
   });
 
   it("fail unsupported operation types", () => {
