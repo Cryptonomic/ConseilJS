@@ -34,9 +34,10 @@ export namespace TezosMessageCodec {
 
   /**
    * Parse an operation of unknown length, possibly containing siblings.
-   * @param {string} hex Encoded message.
-   * @param {string} opType Operation type to parse.
-   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
+   * 
+   * @param {string} hex Encoded message
+   * @param {string} opType Operation type to parse
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group
    */
   export function parseOperation(hex: string, opType: string, isFirst: boolean = true): OperationEnvelope {
     switch (opType) {
@@ -67,6 +68,13 @@ export namespace TezosMessageCodec {
     }
   }
 
+  /**
+   * "Forges" Tezos P2P messages.
+   * 
+   * @param {any} hex Message to encode
+   * 
+   * @returns {string} Hex string of the message content
+   */
   export function encodeOperation(message: any): string {
     if (message.hasOwnProperty('pkh') && message.hasOwnProperty('secret')) {
       return encodeActivation(message as Activation);
@@ -87,6 +95,11 @@ export namespace TezosMessageCodec {
     throw new Error('Unsupported message type');
   }
 
+  /**
+   * "Forges" Tezos P2P Activation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * 
+   * @param activation Message to encode
+   */
   export function encodeActivation(activation: Activation): string {
     let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('accountActivation'));
     hex += TezosMessageUtils.writeAddress(activation.pkh).slice(4);
@@ -95,6 +108,12 @@ export namespace TezosMessageCodec {
     return hex;
   }
 
+  /**
+   * Parse a Ballot, tag 6, message possibly containing siblings.
+   * 
+   * @param {string} revealMessage Encoded ballot message
+   * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
+   */
   export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? ballotMessage.substring(64, 66) : ballotMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== 'ballot') {
@@ -144,6 +163,11 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
+  /**
+   * "Forges" Tezos P2P Ballot message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * 
+   * @param ballot Message to encode
+   */
   export function encodeBallot(ballot: Ballot): string {
     let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('ballot'));
     hex += TezosMessageUtils.writeAddress(ballot.source).slice(2);
@@ -155,7 +179,8 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse a reveal message possibly containing siblings.
+   * Parse a Reveal, tag 7, message possibly containing siblings.
+   * 
    * @param {string} revealMessage Encoded reveal-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
@@ -218,7 +243,8 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Creates a hex string for the provided reveal operation.
+   * Creates a hex string for the provided reveal operation. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * 
    * @param {string} reveal A reveal operation to be encoded.
    */
   export function encodeReveal(reveal: Operation): string {
@@ -237,7 +263,8 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse a transaction message possibly containing siblings.
+   * Parse a Transaction, tag 8, message possibly containing siblings.
+   * 
    * @param {string} transactionMessage Encoded transaction-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
@@ -338,7 +365,7 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse an origination message possibly containing siblings.
+   * Parse an Origination, tag 9, message possibly containing siblings.
    * 
    * @param {string} originationMessage Encoded origination-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
@@ -399,6 +426,8 @@ export namespace TezosMessageCodec {
     fieldoffset += 2;
     if (hasScript) {
       // TODO
+    } else {
+      throw new Error('');
     }
 
     let next; // TODO
@@ -431,6 +460,11 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
+  /**
+   * "Forges" Tezos P2P Origination message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * 
+   * @param origination Message to encode
+   */
   export function encodeOrigination(origination: Operation): string {
     if (origination.kind !== 'origination') { throw new Error('Incorrect operation type'); }
     if (origination.managerPubkey === undefined) { throw new Error('Missing manager address'); }
@@ -459,7 +493,7 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse an delegation message possibly containing siblings.
+   * Parse an Delegation, tag 10, message possibly containing siblings.
    * 
    * @param {string} delegationMessage Encoded delegation-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
@@ -528,6 +562,11 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
+  /**
+   * "Forges" Tezos P2P Delegation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * 
+   * @param delegation Message to encode
+   */
   export function encodeDelegation(delegation: Operation): string {
     if (delegation.kind !== 'delegation') { throw new Error('Incorrect operation type'); }
 
@@ -549,8 +588,9 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * Parse an operation group
-   * @param {string} hex Encoded message stream.
+   * Parse an operation group.
+   * 
+   * @param {string} hex Encoded message stream
    */
   export function parseOperationGroup(hex: string): Array<Operation> {
     let operations = [];
