@@ -55,6 +55,25 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result).to.equal("07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6");
   });
 
+  it("correctly encode an origination operation", () => {
+    const origination: Operation = {
+      kind: "origination",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      balance: "10003",
+      spendable: true,
+      delegatable: true,
+      delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
+    };
+
+    const result = TezosMessageCodec.encodeOrigination(origination);
+    expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce8900");
+  });
+
   it("correctly parse a reveal/transaction operation group", () => {
     const result = TezosMessageCodec.parseOperationGroup("7571d2132243697e5bf1d869f4393ec7f45748fc2ba837ffe610c7687b393df10700009fcc83e722c9d9f7a150555e632e6e0f97bfc29b00cd78904e0000e209ae552a19919430ee0e348de437e820bb86fc4c59a5743eb4a7f21e037b3c0800009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dce78bc50ac0280897a0106bca459c3521c6b2e25f1a2143035d28faade8d0000");
 
@@ -140,6 +159,21 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result[1].gas_limit).to.equal('10000'); // microtez
     expect(result[1].storage_limit).to.equal('0'); // microtez
     expect(result[1].counter).to.equal('2');
+  });
+
+  it("correctly encode a delegation operation", () => {
+    const delegation: Operation = {
+      kind: "delegation",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
+    };
+
+    const result = TezosMessageCodec.encodeDelegation(delegation);
+    expect(result).to.equal("0a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4");
   });
 
   it("correctly parse a 3-message OperationGroup", () => {

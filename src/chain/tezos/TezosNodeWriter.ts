@@ -39,10 +39,8 @@ export namespace TezosNodeWriter {
 
         const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
         const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
-        return {
-            bytes: signedOpBytes,
-            signature: hexSignature.toString()
-        };
+
+        return { bytes: signedOpBytes, signature: hexSignature.toString()};
     }
 
     /**
@@ -177,12 +175,7 @@ export namespace TezosNodeWriter {
      * @param account Which account to use
      * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    export async function appendRevealOperation (
-        network: string,
-        keyStore: KeyStore,
-        account: TezosTypes.Account,
-        operations: TezosTypes.Operation[]
-    ) {
+    export async function appendRevealOperation (network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]) {
         const isManagerKeyRevealed = await isManagerKeyRevealedForAccount(network, keyStore)
         let returnedOperations: TezosTypes.Operation[] = operations;
         if (!isManagerKeyRevealed) {

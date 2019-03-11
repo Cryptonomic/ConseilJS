@@ -67,18 +67,6 @@ export namespace TezosMessageCodec {
     }
   }
 
-  export function encodeBallot(ballot: Ballot): string {
-    if (ballot.source === undefined) { throw new Error('Missing public key.'); }
-
-    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('ballot'));
-    hex += TezosMessageUtils.writeAddress(ballot.source).slice(2);
-    hex += ('00000000' + ballot.period.toString(16)).slice(-8);
-    hex += TezosMessageUtils.writeBufferWithHint(ballot.proposal).toString('hex').slice(4);
-    hex += ('00' + ballot.vote.toString(16)).slice(-2);
-
-    return hex;
-  }
-
   export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
     let hexOperationType = isFirst ? ballotMessage.substring(64, 66) : ballotMessage.substring(0, 2);
     if (getOperationType(hexOperationType) !== 'ballot') {
@@ -126,6 +114,16 @@ export namespace TezosMessageCodec {
     }
 
     return envelope;
+  }
+
+  export function encodeBallot(ballot: Ballot): string {
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('ballot'));
+    hex += TezosMessageUtils.writeAddress(ballot.source).slice(2);
+    hex += ('00000000' + ballot.period.toString(16)).slice(-8);
+    hex += TezosMessageUtils.writeBufferWithHint(ballot.proposal).toString('hex').slice(4);
+    hex += ('00' + ballot.vote.toString(16)).slice(-2);
+
+    return hex;
   }
 
   /**
@@ -285,7 +283,35 @@ export namespace TezosMessageCodec {
   }
 
   /**
+   * Encodes a Transaction operation.
+   * 
+   * @param {Operation} transaction 
+   * @returns {string}
+   * 
+   * @todo parameters field is not yet supported
+   * @see {@link https://tezos.gitlab.io/mainnet/api/p2p.html#transaction-tag-8|Tezos P2P message format}
+   */
+  export function encodeTransaction(transaction: Operation): string {
+    if (transaction.kind !== 'transaction') { throw new Error('Incorrect operation type'); }
+    if (transaction.amount === undefined) { throw new Error('Missing amount'); }
+    if (transaction.destination === undefined) { throw new Error('Missing destination'); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('transaction'));
+    hex += TezosMessageUtils.writeAddress(transaction.source);
+    hex += TezosMessageUtils.writeInt(parseInt(transaction.fee));
+    hex += TezosMessageUtils.writeInt(parseInt(transaction.counter));
+    hex += TezosMessageUtils.writeInt(parseInt(transaction.gas_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(transaction.storage_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(transaction.amount));
+    hex += TezosMessageUtils.writeAddress(transaction.destination);
+    hex += '00'; // no parameters
+
+    return hex;
+  }
+
+  /**
    * Parse an origination message possibly containing siblings.
+   * 
    * @param {string} originationMessage Encoded origination-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
@@ -377,8 +403,36 @@ export namespace TezosMessageCodec {
     return envelope;
   }
 
+  export function encodeOrigination(origination: Operation): string {
+    if (origination.kind !== 'origination') { throw new Error('Incorrect operation type'); }
+    if (origination.managerPubkey === undefined) { throw new Error('Missing manager address'); }
+    if (origination.balance === undefined) { throw new Error('Missing balance'); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('origination'));
+    hex += TezosMessageUtils.writeAddress(origination.source);
+    hex += TezosMessageUtils.writeInt(parseInt(origination.fee));
+    hex += TezosMessageUtils.writeInt(parseInt(origination.counter));
+    hex += TezosMessageUtils.writeInt(parseInt(origination.gas_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(origination.storage_limit));
+    hex += TezosMessageUtils.writeAddress(origination.managerPubkey).slice(2);
+    hex += TezosMessageUtils.writeInt(parseInt(origination.balance));
+    hex += origination.spendable !== undefined ? TezosMessageUtils.writeBoolean(origination.spendable) : '00';
+    hex += origination.delegatable !== undefined ? TezosMessageUtils.writeBoolean(origination.delegatable) : '00';
+
+    if (origination.delegate !== undefined) {
+      hex += TezosMessageUtils.writeBoolean(true);
+      hex += TezosMessageUtils.writeAddress(origination.delegate).slice(2);
+    } else {
+      hex += TezosMessageUtils.writeBoolean(false);
+    }
+    hex += '00'; // no script
+
+    return hex;
+  }
+
   /**
    * Parse an delegation message possibly containing siblings.
+   * 
    * @param {string} delegationMessage Encoded delegation-type message
    * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
    */
@@ -444,6 +498,26 @@ export namespace TezosMessageCodec {
     }
 
     return envelope;
+  }
+
+  export function encodeDelegation(delegation: Operation): string {
+    if (delegation.kind !== 'delegation') { throw new Error('Incorrect operation type'); }
+
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('delegation'));
+    hex += TezosMessageUtils.writeAddress(delegation.source);
+    hex += TezosMessageUtils.writeInt(parseInt(delegation.fee));
+    hex += TezosMessageUtils.writeInt(parseInt(delegation.counter));
+    hex += TezosMessageUtils.writeInt(parseInt(delegation.gas_limit));
+    hex += TezosMessageUtils.writeInt(parseInt(delegation.storage_limit));
+
+    if (delegation.delegate !== undefined) {
+      hex += TezosMessageUtils.writeBoolean(true);
+      hex += TezosMessageUtils.writeAddress(delegation.delegate).slice(2);
+    } else {
+      hex += TezosMessageUtils.writeBoolean(false);
+    }
+
+    return hex;
   }
 
   /**
