@@ -89,8 +89,8 @@ describe("Tezos P2P message decoder test suite", () => {
     let result = TezosMessageCodec.encodeOrigination(origination);
     expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce8900");
 
-    origination.spendable = false;
-    origination.delegatable = false;
+    origination.spendable = undefined;
+    origination.delegatable = undefined;
     origination.delegate = undefined;
     result = TezosMessageCodec.encodeOrigination(origination);
     expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e00000000");
@@ -220,12 +220,12 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly parse a ballot message", () => {
-    const result = TezosMessageCodec.parseBallot('97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e06026fde46af0356a0476dae4e4600172dc9309b3aa40000000a76cd995a324193bbe09ac2d5c53f69f93778f8d608f1fea885f9b53e0abdb6e400');
+    const result = TezosMessageCodec.parseOperationGroup('97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e06026fde46af0356a0476dae4e4600172dc9309b3aa40000000a76cd995a324193bbe09ac2d5c53f69f93778f8d608f1fea885f9b53e0abdb6e400060069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f801');
 
-    expect(result.operation.source).to.equal('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
-    expect(result.operation.proposal).to.equal('Psd1ynUBhMZAeajwcZJAeq5NrxorM6UCU4GJqxZ7Bx2e9vUWB6z');
-    expect(result.operation.period).to.equal(10);
-    expect(result.next).to.be.undefined;
+    expect(result[0].source).to.equal('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
+    expect(result[0].proposal).to.equal('Psd1ynUBhMZAeajwcZJAeq5NrxorM6UCU4GJqxZ7Bx2e9vUWB6z');
+    expect(result[0].period).to.equal(10);
+    expect(result[1].next).to.be.undefined;
   });
 
   it("correctly encode an activation operation", () => {

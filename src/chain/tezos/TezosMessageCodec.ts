@@ -590,7 +590,7 @@ export namespace TezosMessageCodec {
    * 
    * @param {string} hex Encoded message stream
    */
-  export function parseOperationGroup(hex: string): Array<Operation> {
+  export function parseOperationGroup(hex: string): Array<any> {
     let operations = [];
     let envelope = parseOperation(hex, idFirstOperation(hex));
     //@ts-ignore

@@ -32,7 +32,6 @@ export namespace TezosNodeReader {
             });
     }
 
-
     /**
      * Gets a block for a given hash.
      * 
