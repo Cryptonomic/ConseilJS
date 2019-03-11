@@ -30,6 +30,22 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result[0].counter).to.equal('3');
   });
 
+  it("correctly encode a transaction operation", () => {
+    const transaction: Operation = {
+      "kind": "transaction",
+      "source": "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      "fee": "10000",
+      "counter": "9",
+      "storage_limit": "10001",
+      "gas_limit": "10002",
+      "amount": "10000000",
+      "destination": "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
+    };
+
+    const result = TezosMessageCodec.encodeTransaction(transaction);
+    expect(result).to.equal("08000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+  });
+
   it("correctly parse a reveal", () => {
     let forgedReveal = "97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6";
     const result = TezosMessageCodec.parseReveal(forgedReveal);
