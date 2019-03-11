@@ -55,10 +55,12 @@ export namespace TezosNodeWriter {
         let encoded = TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
-        let optypes = Array.from(operations.map(o => o["kind"]));
-        let validate: boolean = false;
-        for (let t in optypes) {
+        const optypes = Array.from(operations.map(o => o["kind"]));
+
+        let validate = false;
+        for (let t of optypes) {
             validate = ["reveal", "transaction", "delegation", "origination"].includes(t);
+
             if (validate) { break; }
         }
 

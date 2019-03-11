@@ -65,7 +65,7 @@ export interface InjectedOperation {
     injectedOperation: string
 }
 
-// abstracts Transaction, Delegations, and Originations
+// abstracts Transaction, Delegation, Reveal, and Origination operations
 export interface Operation {
     kind: string,
     source: string,
@@ -85,6 +85,9 @@ export interface Operation {
     script?: string | object;
 }
 
+/**
+ * This object does not match the RPC entity by the same name.
+ */
 export interface Ballot {
     source: string,
     period: number,
@@ -133,6 +136,9 @@ export enum BallotVote {
     Pass = 2
 }
 
+/**
+ * This object does not match the RPC entity by the same name.
+ */
 export interface Activation {
     pkh: string,
     secret: string
