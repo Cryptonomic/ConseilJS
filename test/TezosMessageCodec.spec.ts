@@ -72,7 +72,7 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly encode an origination operation", () => {
-    const origination: Operation = {
+    let origination: Operation = {
       kind: "origination",
       source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
       fee: "10000",
@@ -86,8 +86,14 @@ describe("Tezos P2P message decoder test suite", () => {
       delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
     };
 
-    const result = TezosMessageCodec.encodeOrigination(origination);
+    let result = TezosMessageCodec.encodeOrigination(origination);
     expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce8900");
+
+    origination.spendable = false;
+    origination.delegatable = false;
+    origination.delegate = undefined;
+    result = TezosMessageCodec.encodeOrigination(origination);
+    expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e00000000");
   });
 
   it("correctly parse a reveal/transaction operation group", () => {
@@ -178,7 +184,7 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly encode a delegation operation", () => {
-    const delegation: Operation = {
+    let delegation: Operation = {
       kind: "delegation",
       source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
       fee: "10000",
@@ -188,8 +194,12 @@ describe("Tezos P2P message decoder test suite", () => {
       delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
     };
 
-    const result = TezosMessageCodec.encodeDelegation(delegation);
+    let result = TezosMessageCodec.encodeDelegation(delegation);
     expect(result).to.equal("0a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4");
+
+    delegation.delegate = undefined;
+    result = TezosMessageCodec.encodeDelegation(delegation);
+    expect(result).to.equal("0a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e00");
   });
 
   it("correctly parse a 3-message OperationGroup", () => {
@@ -290,6 +300,19 @@ describe("Tezos P2P message decoder test suite", () => {
     origination.managerPubkey = 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX'
     origination.balance = undefined
     expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing balance');
+  });
+
+  it("fail delegation encoding errors", () => {
+    const delegation: Operation = {
+      kind: "c0ff33",
+      source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+      fee: "10000",
+      counter: "9",
+      storage_limit: "10001",
+      gas_limit: "10002",
+      delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
+    };
+    expect(() => TezosMessageCodec.encodeDelegation(delegation)).to.throw('Incorrect operation type');
   });
 
   it("fail parsing errors", () => {
