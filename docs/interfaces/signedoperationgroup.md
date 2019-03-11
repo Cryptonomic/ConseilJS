@@ -25,7 +25,7 @@ Output of operation signing.
 
 **● bytes**: *`Buffer`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:100](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L100)*
+*Defined in [types/tezos/TezosChainTypes.ts:110](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L110)*
 
 ___
 <a id="signature"></a>
@@ -34,7 +34,7 @@ ___
 
 **● signature**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:101](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L101)*
+*Defined in [types/tezos/TezosChainTypes.ts:111](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L111)*
 
 ___
 

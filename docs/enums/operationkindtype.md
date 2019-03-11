@@ -7,6 +7,7 @@
 ### Enumeration members
 
 * [AccountActivation](operationkindtype.md#accountactivation)
+* [Ballot](operationkindtype.md#ballot)
 * [Delegation](operationkindtype.md#delegation)
 * [Endorsement](operationkindtype.md#endorsement)
 * [Origination](operationkindtype.md#origination)
@@ -24,7 +25,16 @@
 
 **AccountActivation**:  = "activate_account"
 
-*Defined in [types/tezos/TezosChainTypes.ts:116](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L116)*
+*Defined in [types/tezos/TezosChainTypes.ts:126](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L126)*
+
+___
+<a id="ballot"></a>
+
+###  Ballot
+
+**Ballot**:  = ""
+
+*Defined in [types/tezos/TezosChainTypes.ts:130](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L130)*
 
 ___
 <a id="delegation"></a>
@@ -33,7 +43,7 @@ ___
 
 **Delegation**:  = "delegation"
 
-*Defined in [types/tezos/TezosChainTypes.ts:114](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L114)*
+*Defined in [types/tezos/TezosChainTypes.ts:124](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L124)*
 
 ___
 <a id="endorsement"></a>
@@ -42,7 +52,7 @@ ___
 
 **Endorsement**:  = "endorsement"
 
-*Defined in [types/tezos/TezosChainTypes.ts:119](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L119)*
+*Defined in [types/tezos/TezosChainTypes.ts:129](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L129)*
 
 ___
 <a id="origination"></a>
@@ -51,7 +61,7 @@ ___
 
 **Origination**:  = "origination"
 
-*Defined in [types/tezos/TezosChainTypes.ts:117](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L117)*
+*Defined in [types/tezos/TezosChainTypes.ts:127](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L127)*
 
 ___
 <a id="reveal"></a>
@@ -60,7 +70,7 @@ ___
 
 **Reveal**:  = "reveal"
 
-*Defined in [types/tezos/TezosChainTypes.ts:118](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L118)*
+*Defined in [types/tezos/TezosChainTypes.ts:128](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L128)*
 
 ___
 <a id="seednoncerevelation"></a>
@@ -69,7 +79,7 @@ ___
 
 **SeedNonceRevelation**:  = "seed_nonce_revelation"
 
-*Defined in [types/tezos/TezosChainTypes.ts:113](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L113)*
+*Defined in [types/tezos/TezosChainTypes.ts:123](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L123)*
 
 ___
 <a id="transaction"></a>
@@ -78,7 +88,7 @@ ___
 
 **Transaction**:  = "transaction"
 
-*Defined in [types/tezos/TezosChainTypes.ts:115](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/tezos/TezosChainTypes.ts#L115)*
+*Defined in [types/tezos/TezosChainTypes.ts:125](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L125)*
 
 ___
 

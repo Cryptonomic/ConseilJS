@@ -39,7 +39,7 @@ Object to store details of an HTTP request failure. This would describe an error
 
 ⊕ **new ServiceRequestError**(httpStatus: *`number`*, httpMessage: *`string`*, conseilURL: *`string`*, data: *`string` \| `null`*): [ServiceRequestError](servicerequesterror.md)
 
-*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L10)*
+*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ErrorTypes.ts#L10)*
 
 **Parameters:**
 
@@ -62,7 +62,7 @@ ___
 
 **● conseilURL**: *`string`*
 
-*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L9)*
+*Defined in [types/conseil/ErrorTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ErrorTypes.ts#L9)*
 
 ___
 <a id="data"></a>
@@ -71,7 +71,7 @@ ___
 
 **● data**: *`string` \| `null`*
 
-*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L10)*
+*Defined in [types/conseil/ErrorTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ErrorTypes.ts#L10)*
 
 ___
 <a id="httpmessage"></a>
@@ -80,7 +80,7 @@ ___
 
 **● httpMessage**: *`string`*
 
-*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L8)*
+*Defined in [types/conseil/ErrorTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ErrorTypes.ts#L8)*
 
 ___
 <a id="httpstatus"></a>
@@ -89,7 +89,7 @@ ___
 
 **● httpStatus**: *`number`*
 
-*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/ErrorTypes.ts#L7)*
+*Defined in [types/conseil/ErrorTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ErrorTypes.ts#L7)*
 
 ___
 <a id="message"></a>
@@ -100,7 +100,7 @@ ___
 
 *Inherited from Error.message*
 
-*Defined in /Users/cryptomike/Work/ConseilJS/docs/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:964*
+*Defined in /Users/cryptomike/Work/ConseilJS/governance/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:964*
 
 ___
 <a id="name"></a>
@@ -111,7 +111,7 @@ ___
 
 *Inherited from Error.name*
 
-*Defined in /Users/cryptomike/Work/ConseilJS/docs/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:963*
+*Defined in /Users/cryptomike/Work/ConseilJS/governance/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:963*
 
 ___
 <a id="stack"></a>
@@ -124,7 +124,7 @@ ___
 
 *Overrides Error.stack*
 
-*Defined in /Users/cryptomike/Work/ConseilJS/docs/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:965*
+*Defined in /Users/cryptomike/Work/ConseilJS/governance/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:965*
 
 ___
 <a id="error"></a>
@@ -133,7 +133,7 @@ ___
 
 **● Error**: *`ErrorConstructor`*
 
-*Defined in /Users/cryptomike/Work/ConseilJS/docs/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974*
+*Defined in /Users/cryptomike/Work/ConseilJS/governance/node_modules/typedoc/node_modules/typescript/lib/lib.es5.d.ts:974*
 
 ___
 

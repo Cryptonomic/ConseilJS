@@ -32,9 +32,9 @@ Functions for sending operations on the Tezos network.
 
 ###  appendRevealOperation
 
-▸ **appendRevealOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, account: *[Account](../interfaces/account.md)*, operations: *[Operation](../interfaces/operation.md)[]*): `Promise`<[Operation](../interfaces/operation.md)[]>
+▸ **appendRevealOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, account: *[Account](../interfaces/account.md)*, operations: *[Operation](../interfaces/operation.md)[]*): `Promise`<[Operation](../interfaces/operation.md)[]>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:180](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L180)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:193](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L193)*
 
 Helper function for sending Delegations, Transactions, and Originations. Checks if manager's public key has been revealed for operation. If yes, do nothing, else, bundle a reveal operation before the input operation.
 
@@ -42,7 +42,7 @@ Helper function for sending Delegations, Transactions, and Originations. Checks 
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | account | [Account](../interfaces/account.md) |  Which account to use |
 | operations | [Operation](../interfaces/operation.md)[] |  Delegation, Transaction, or Origination to possibly bundle with a reveal |
@@ -54,9 +54,9 @@ ___
 
 ###  applyOperation
 
-▸ **applyOperation**(network: *`string`*, blockHead: *[BlockMetadata](../interfaces/blockmetadata.md)*, operations: *`object`[]*, signedOpGroup: *[SignedOperationGroup](../interfaces/signedoperationgroup.md)*): `Promise`<[AlphaOperationsWithMetadata](../interfaces/alphaoperationswithmetadata.md)[]>
+▸ **applyOperation**(server: *`string`*, blockHead: *[BlockMetadata](../interfaces/blockmetadata.md)*, operations: *`object`[]*, signedOpGroup: *[SignedOperationGroup](../interfaces/signedoperationgroup.md)*): `Promise`<[AlphaOperationsWithMetadata](../interfaces/alphaoperationswithmetadata.md)[]>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:102](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L102)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:118](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L118)*
 
 Applies an operation using the Tezos RPC client.
 
@@ -64,7 +64,7 @@ Applies an operation using the Tezos RPC client.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | blockHead | [BlockMetadata](../interfaces/blockmetadata.md) |  Block head |
 | operations | `object`[] |  The operations to create and send |
 | signedOpGroup | [SignedOperationGroup](../interfaces/signedoperationgroup.md) |  Signed operation group |
@@ -77,21 +77,20 @@ ___
 
 ###  forgeOperations
 
-▸ **forgeOperations**(network: *`string`*, blockHead: *[BlockMetadata](../interfaces/blockmetadata.md)*, operations: *`object`[]*): `Promise`<`string`>
+▸ **forgeOperations**(blockHead: *[BlockMetadata](../interfaces/blockmetadata.md)*, operations: *`object`[]*): `string`
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L57)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:71](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L71)*
 
-Forge an operation group using the Tezos RPC client.
+Forge an operation group.
 
 **Parameters:**
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
 | blockHead | [BlockMetadata](../interfaces/blockmetadata.md) |  The block head |
 | operations | `object`[] |  The operations being forged as part of this operation group |
 
-**Returns:** `Promise`<`string`>
+**Returns:** `string`
 Forged operation bytes (as a hex string)
 
 ___
@@ -99,17 +98,17 @@ ___
 
 ###  injectOperation
 
-▸ **injectOperation**(network: *`string`*, signedOpGroup: *[SignedOperationGroup](../interfaces/signedoperationgroup.md)*): `Promise`<`string`>
+▸ **injectOperation**(server: *`string`*, signedOpGroup: *[SignedOperationGroup](../interfaces/signedoperationgroup.md)*): `Promise`<`string`>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:142](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L142)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:157](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L157)*
 
-Injects an opertion using the Tezos RPC client.
+Injects an operation using the Tezos RPC client.
 
 **Parameters:**
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | signedOpGroup | [SignedOperationGroup](../interfaces/signedoperationgroup.md) |  Signed operation group |
 
 **Returns:** `Promise`<`string`>
@@ -120,9 +119,9 @@ ___
 
 ###  isImplicitAndEmpty
 
-▸ **isImplicitAndEmpty**(network: *`string`*, accountHash: *`string`*): `Promise`<`boolean`>
+▸ **isImplicitAndEmpty**(server: *`string`*, accountHash: *`string`*): `Promise`<`boolean`>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:437](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L437)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:448](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L448)*
 
 Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
 
@@ -130,7 +129,7 @@ Indicates whether an account is implicit and empty. If true, transaction will bu
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | accountHash | `string` |
 
 **Returns:** `Promise`<`boolean`>
@@ -141,9 +140,9 @@ ___
 
 ###  isManagerKeyRevealedForAccount
 
-▸ **isManagerKeyRevealedForAccount**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*): `Promise`<`boolean`>
+▸ **isManagerKeyRevealedForAccount**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*): `Promise`<`boolean`>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:454](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L454)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:465](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L465)*
 
 Indicates whether a reveal operation has already been done for a given account.
 
@@ -151,7 +150,7 @@ Indicates whether a reveal operation has already been done for a given account.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 
 **Returns:** `Promise`<`boolean`>
@@ -162,9 +161,9 @@ ___
 
 ###  sendAccountOriginationOperation
 
-▸ **sendAccountOriginationOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, amount: *`number`*, delegate: *`string`*, spendable: *`boolean`*, delegatable: *`boolean`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendAccountOriginationOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, amount: *`number`*, delegate: *`string`*, spendable: *`boolean`*, delegatable: *`boolean`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:288](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L288)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:298](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L298)*
 
 Sends an account origination operation.
 
@@ -172,7 +171,7 @@ Sends an account origination operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | amount | `number` |  Initial funding amount of new account |
 | delegate | `string` |  Account ID to delegate to, blank if none |
@@ -189,9 +188,9 @@ ___
 
 ###  sendContractInvocationOperation
 
-▸ **sendContractInvocationOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, to: *`string`*, amount: *`number`*, fee: *`number`*, derivationPath: *`string`*, storage_limit: *`string`*, gas_limit: *`string`*, parameters: *`object`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendContractInvocationOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, to: *`string`*, amount: *`number`*, fee: *`number`*, derivationPath: *`string`*, storageLimit: *`number`*, gasLimit: *`number`*, parameters: *`object`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:401](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L401)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:411](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L411)*
 
 Invokes a contract with desired parameters
 
@@ -199,14 +198,14 @@ Invokes a contract with desired parameters
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  \- |
+| server | `string` |  \- |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  \- |
 | to | `string` |  \- |
 | amount | `number` |  \- |
 | fee | `number` |  \- |
 | derivationPath | `string` |  \- |
-| storage_limit | `string` |  \- |
-| gas_limit | `string` |  \- |
+| storageLimit | `number` |
+| gasLimit | `number` |
 | parameters | `object` |   |
 
 **Returns:** `Promise`<[OperationResult](../interfaces/operationresult.md)>
@@ -216,9 +215,9 @@ ___
 
 ###  sendContractOriginationOperation
 
-▸ **sendContractOriginationOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, amount: *`number`*, delegate: *`string`*, spendable: *`boolean`*, delegatable: *`boolean`*, fee: *`number`*, derivationPath: *`string`*, storage_limit: *`string`*, gas_limit: *`string`*, code: *`Array`<`object`>*, storage: *`object`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendContractOriginationOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, amount: *`number`*, delegate: *`string`*, spendable: *`boolean`*, delegatable: *`boolean`*, fee: *`number`*, derivationPath: *`string`*, storage_limit: *`string`*, gas_limit: *`string`*, code: *`Array`<`object`>*, storage: *`object`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:317](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L317)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:327](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L327)*
 
 Sends a contract origination operation.
 
@@ -226,7 +225,7 @@ Sends a contract origination operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | amount | `number` |  Initial funding amount of new account |
 | delegate | `string` |  Account ID to delegate to, blank if none |
@@ -246,9 +245,9 @@ ___
 
 ###  sendDelegationOperation
 
-▸ **sendDelegationOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, delegate: *`string`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendDelegationOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, delegate: *`string`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:252](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L252)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:262](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L262)*
 
 Creates and sends a delegation operation.
 
@@ -256,7 +255,7 @@ Creates and sends a delegation operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | delegate | `string` |  Account ID to delegate to |
 | fee | `number` |  Operation fee |
@@ -270,9 +269,9 @@ ___
 
 ###  sendIdentityActivationOperation
 
-▸ **sendIdentityActivationOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, activationCode: *`string`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendIdentityActivationOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, activationCode: *`string`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:500](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L500)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:511](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L511)*
 
 Creates and sends an activation operation.
 
@@ -280,7 +279,7 @@ Creates and sends an activation operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | activationCode | `string` |  Activation code provided by fundraiser process |
 | derivationPath | `string` |  BIP44 Derivation Path if signed with hardware, empty if signed with software |
@@ -293,9 +292,9 @@ ___
 
 ###  sendKeyRevealOperation
 
-▸ **sendKeyRevealOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendKeyRevealOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:470](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L470)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:481](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L481)*
 
 Creates and sends a reveal operation.
 
@@ -303,7 +302,7 @@ Creates and sends a reveal operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | fee | `number` |  Fee to pay |
 | derivationPath | `string` |  BIP44 Derivation Path if signed with hardware, empty if signed with software |
@@ -316,9 +315,9 @@ ___
 
 ###  sendOperation
 
-▸ **sendOperation**(network: *`string`*, operations: *`object`[]*, keyStore: *[KeyStore](../interfaces/keystore.md)*, derivationPath: *`any`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendOperation**(server: *`string`*, operations: *`object`[]*, keyStore: *[KeyStore](../interfaces/keystore.md)*, derivationPath: *`any`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:154](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L154)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:173](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L173)*
 
 Master function for creating and sending all supported types of operations.
 
@@ -326,7 +325,7 @@ Master function for creating and sending all supported types of operations.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | operations | `object`[] |  The operations to create and send |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | derivationPath | `any` |  BIP44 Derivation Path if signed with hardware, empty if signed with software |
@@ -339,9 +338,9 @@ ___
 
 ###  sendTransactionOperation
 
-▸ **sendTransactionOperation**(network: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, to: *`string`*, amount: *`number`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
+▸ **sendTransactionOperation**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, to: *`string`*, amount: *`number`*, fee: *`number`*, derivationPath: *`string`*): `Promise`<[OperationResult](../interfaces/operationresult.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:216](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L216)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:225](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L225)*
 
 Creates and sends a transaction operation.
 
@@ -349,7 +348,7 @@ Creates and sends a transaction operation.
 
 | Name | Type | Description |
 | ------ | ------ | ------ |
-| network | `string` |  Which Tezos network to go against |
+| server | `string` |  Tezos node to connect to |
 | keyStore | [KeyStore](../interfaces/keystore.md) |  Key pair along with public key hash |
 | to | `string` |  Destination public key hash |
 | amount | `number` |  Amount to send |
@@ -366,7 +365,7 @@ ___
 
 ▸ **signOperationGroup**(forgedOperation: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*, derivationPath: *`string`*): `Promise`<[SignedOperationGroup](../interfaces/signedoperationgroup.md)>
 
-*Defined in [chain/tezos/TezosNodeWriter.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosNodeWriter.ts#L24)*
+*Defined in [chain/tezos/TezosNodeWriter.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosNodeWriter.ts#L41)*
 
 Signs a forged operation
 

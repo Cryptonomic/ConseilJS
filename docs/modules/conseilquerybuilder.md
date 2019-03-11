@@ -22,7 +22,7 @@
 
 ▸ **addFields**(query: *[ConseilQuery](../interfaces/conseilquery.md)*, ...fields: *`string`[]*): [ConseilQuery](../interfaces/conseilquery.md)
 
-*Defined in [reporting/ConseilQueryBuilder.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilQueryBuilder.ts#L22)*
+*Defined in [reporting/ConseilQueryBuilder.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/ConseilQueryBuilder.ts#L22)*
 
 Appends one or more fields to the query. A new query object is returned.
 
@@ -42,7 +42,7 @@ ___
 
 ▸ **addOrdering**(query: *[ConseilQuery](../interfaces/conseilquery.md)*, field: *`string`*, direction?: *[ConseilSortDirection](../enums/conseilsortdirection.md)*): [ConseilQuery](../interfaces/conseilquery.md)
 
-*Defined in [reporting/ConseilQueryBuilder.ts:62](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilQueryBuilder.ts#L62)*
+*Defined in [reporting/ConseilQueryBuilder.ts:62](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/ConseilQueryBuilder.ts#L62)*
 
 Appends an ordering instructionc to the query. Ordering is possible on fields that are not part of the result set. A new query object is returned.
 
@@ -63,7 +63,7 @@ ___
 
 ▸ **addPredicate**(query: *[ConseilQuery](../interfaces/conseilquery.md)*, field: *`string`*, operation: *[ConseilOperator](../enums/conseiloperator.md)*, values: *`any`[]*, invert?: *`boolean`*): [ConseilQuery](../interfaces/conseilquery.md)
 
-*Defined in [reporting/ConseilQueryBuilder.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilQueryBuilder.ts#L40)*
+*Defined in [reporting/ConseilQueryBuilder.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/ConseilQueryBuilder.ts#L40)*
 
 Appends a predicate to the query. A new query object is returned.
 
@@ -86,7 +86,7 @@ ___
 
 ▸ **blankQuery**(): [ConseilQuery](../interfaces/conseilquery.md)
 
-*Defined in [reporting/ConseilQueryBuilder.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilQueryBuilder.ts#L7)*
+*Defined in [reporting/ConseilQueryBuilder.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/ConseilQueryBuilder.ts#L7)*
 
 Creates an empty ConseilQuery object with limit set to 100.
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **setLimit**(query: *[ConseilQuery](../interfaces/conseilquery.md)*, limit: *`number`*): [ConseilQuery](../interfaces/conseilquery.md)
 
-*Defined in [reporting/ConseilQueryBuilder.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/reporting/ConseilQueryBuilder.ts#L76)*
+*Defined in [reporting/ConseilQueryBuilder.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/ConseilQueryBuilder.ts#L76)*
 
 Sets a maximum result set size on a query. A new query object is returned.
 

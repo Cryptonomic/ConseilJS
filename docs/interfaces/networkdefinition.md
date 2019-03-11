@@ -25,7 +25,7 @@
 
 **● displayName**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/MetadataTypes.ts#L8)*
+*Defined in [types/conseil/MetadataTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L8)*
 
 ___
 <a id="name"></a>
@@ -34,7 +34,7 @@ ___
 
 **● name**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/MetadataTypes.ts#L7)*
+*Defined in [types/conseil/MetadataTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L7)*
 
 ___
 <a id="network"></a>
@@ -43,7 +43,7 @@ ___
 
 **● network**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/MetadataTypes.ts#L10)*
+*Defined in [types/conseil/MetadataTypes.ts:10](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L10)*
 
 ___
 <a id="platform"></a>
@@ -52,7 +52,7 @@ ___
 
 **● platform**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/MetadataTypes.ts#L9)*
+*Defined in [types/conseil/MetadataTypes.ts:9](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L9)*
 
 ___
 

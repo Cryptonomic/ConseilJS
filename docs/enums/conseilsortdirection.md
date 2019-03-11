@@ -19,7 +19,7 @@
 
 **ASC**:  = "asc"
 
-*Defined in [types/conseil/QueryTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L7)*
+*Defined in [types/conseil/QueryTypes.ts:7](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L7)*
 
 ___
 <a id="desc"></a>
@@ -28,7 +28,7 @@ ___
 
 **DESC**:  = "desc"
 
-*Defined in [types/conseil/QueryTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L8)*
+*Defined in [types/conseil/QueryTypes.ts:8](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L8)*
 
 ___
 

@@ -38,7 +38,7 @@ A collection of functions to encode and decode various Tezos P2P message compone
 
 ▸ **computeKeyHash**(key: *`Buffer`*, prefix?: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:301](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L301)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:303](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L303)*
 
 Consumes a Base58-check key and produces a 20 byte key hash, often referred to as address.
 
@@ -59,7 +59,7 @@ ___
 
 ▸ **computeOperationHash**(signedOpGroup: *[SignedOperationGroup](../interfaces/signedoperationgroup.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:289](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L289)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:291](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L291)*
 
 Computes a hash of an operation group then encodes it with Base58-check. This value becomes the operation group id.
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **findInt**(hex: *`string`*, offset: *`number`*): `object`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L67)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L67)*
 
 Takes a hex string and reads a hex-encoded Zarith-formatted number starting at provided offset. Returns the number itself and the number of characters that were used to decode it.
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **readAddress**(hex: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L91)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L91)*
 
 Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1. An address is a public key hash of the account.
 
@@ -118,7 +118,7 @@ ___
 
 ▸ **readAddressWithHint**(b: *`Buffer` \| `Uint8Array`*, hint: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:116](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L116)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:116](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L116)*
 
 Reads an address value from binary and decodes it into a Base58-check address without a prefix.
 
@@ -138,7 +138,7 @@ ___
 
 ▸ **readBoolean**(hex: *`string`*): `boolean`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L28)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L28)*
 
 Takes a bounded hex string that is known to contain a boolean and decodes it as int.
 
@@ -157,7 +157,7 @@ ___
 
 ▸ **readBranch**(hex: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:157](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L157)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:157](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L157)*
 
 Reads the branch hash from the provided, bounded hex string.
 
@@ -176,7 +176,7 @@ ___
 
 ▸ **readBufferWithHint**(b: *`Buffer` \| `Uint8Array`*, hint: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:262](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L262)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:262](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L262)*
 
 Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
 
@@ -185,7 +185,7 @@ Reads a binary buffer and decodes it into a Base58-check string subject to a hin
 | Name | Type | Description |
 | ------ | ------ | ------ |
 | b | `Buffer` \| `Uint8Array` |  Bytes to encode |
-| hint | `string` |  One of: 'op' (operation encoding helper), '' (blank) |
+| hint | `string` |  One of: 'op' (operation encoding helper), 'p' (proposal), '' (blank) |
 
 **Returns:** `string`
 
@@ -196,7 +196,7 @@ ___
 
 ▸ **readInt**(hex: *`string`*): `number`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L50)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L50)*
 
 Takes a bounded hex string that is known to contain a number and decodes the int.
 
@@ -215,7 +215,7 @@ ___
 
 ▸ **readKeyWithHint**(b: *`Buffer` \| `Uint8Array`*, hint: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:214](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L214)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:214](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L214)*
 
 Reads a key without a prefix from binary and decodes it into a Base58-check representation.
 
@@ -235,7 +235,7 @@ ___
 
 ▸ **readPublicKey**(hex: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:178](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L178)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:178](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L178)*
 
 Reads the public key from the provided, bounded hex string into a Base58-check string.
 
@@ -255,7 +255,7 @@ ___
 
 ▸ **readSignatureWithHint**(b: *`Buffer` \| `Uint8Array`*, hint: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:246](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L246)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:246](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L246)*
 
 Reads a signature value without a prefix from binary and decodes it into a Base58-check representation.
 
@@ -275,7 +275,7 @@ ___
 
 ▸ **writeAddress**(address: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:138](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L138)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:138](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L138)*
 
 Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1', 'tz2', 'tz3' or 'kt1'. Message format contains hints on address type.
 
@@ -295,7 +295,7 @@ ___
 
 ▸ **writeBoolean**(value: *`boolean`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L20)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L20)*
 
 Encodes a boolean as 0 or 255 by calling writeInt.
 
@@ -314,7 +314,7 @@ ___
 
 ▸ **writeBranch**(branch: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:168](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L168)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:168](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L168)*
 
 Encodes the branch hash to hex.
 
@@ -334,7 +334,7 @@ ___
 
 ▸ **writeBufferWithHint**(b: *`string`*): `Buffer`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:279](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L279)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:281](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L281)*
 
 Writes an arbitrary Base58-check string into hex.
 
@@ -353,7 +353,7 @@ ___
 
 ▸ **writeInt**(value: *`number`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L36)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:36](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L36)*
 
 Encodes an integer into hex after converting it to Zarith format.
 
@@ -372,7 +372,7 @@ ___
 
 ▸ **writeKeyWithHint**(key: *`string`*, hint: *`string`*): `Buffer`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:232](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L232)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:232](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L232)*
 
 Writes a Base58-check key into hex.
 
@@ -392,7 +392,7 @@ ___
 
 ▸ **writePublicKey**(publicKey: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageUtil.ts:196](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/chain/tezos/TezosMessageUtil.ts#L196)*
+*Defined in [chain/tezos/TezosMessageUtil.ts:196](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageUtil.ts#L196)*
 
 Encodes a public key in Base58-check into a hex string.
 

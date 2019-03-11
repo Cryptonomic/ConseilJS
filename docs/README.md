@@ -22,6 +22,7 @@
 
 * [AttrbuteDataType](enums/attrbutedatatype.md)
 * [AttrbuteKeyType](enums/attrbutekeytype.md)
+* [BallotVote](enums/ballotvote.md)
 * [ConseilOperator](enums/conseiloperator.md)
 * [ConseilSortDirection](enums/conseilsortdirection.md)
 * [HardwareDeviceType](enums/hardwaredevicetype.md)
@@ -41,6 +42,7 @@
 
 * [Account](interfaces/account.md)
 * [AccountDelegate](interfaces/accountdelegate.md)
+* [Activation](interfaces/activation.md)
 * [AlphaOperationContentsAndResult](interfaces/alphaoperationcontentsandresult.md)
 * [AlphaOperationResult](interfaces/alphaoperationresult.md)
 * [AlphaOperationsWithMetadata](interfaces/alphaoperationswithmetadata.md)
@@ -49,6 +51,7 @@
 * [AppliedOperationError](interfaces/appliedoperationerror.md)
 * [AppliedOperationResult](interfaces/appliedoperationresult.md)
 * [AttributeDefinition](interfaces/attributedefinition.md)
+* [Ballot](interfaces/ballot.md)
 * [BlockHeader](interfaces/blockheader.md)
 * [BlockMetadata](interfaces/blockmetadata.md)
 * [ConseilOrdering](interfaces/conseilordering.md)
@@ -73,7 +76,6 @@
 * [TezosAccountWithOperationGroups](interfaces/tezosaccountwithoperationgroups.md)
 * [TezosBlock](interfaces/tezosblock.md)
 * [TezosBlockWithOperationGroups](interfaces/tezosblockwithoperationgroups.md)
-* [TezosFilter](interfaces/tezosfilter.md)
 * [TezosOperation](interfaces/tezosoperation.md)
 * [TezosOperationGroup](interfaces/tezosoperationgroup.md)
 * [TezosOperationGroupWithOperations](interfaces/tezosoperationgroupwithoperations.md)

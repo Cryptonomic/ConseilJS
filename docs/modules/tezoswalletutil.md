@@ -21,7 +21,7 @@
 
 ▸ **generateMnemonic**(): `string`
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/identity/tezos/TezosWalletUtil.ts#L24)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:24](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/identity/tezos/TezosWalletUtil.ts#L24)*
 
 Generates a fifteen word mnemonic phrase using the BIP39 standard.
 
@@ -34,7 +34,7 @@ ___
 
 ▸ **getKeysFromMnemonicAndPassphrase**(mnemonic: *`string`*, passphrase: *`string`*, pkh?: *`string`*, checkPKH?: *`boolean`*, storeType: *[StoreType](../enums/storetype.md)*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/identity/tezos/TezosWalletUtil.ts#L49)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/identity/tezos/TezosWalletUtil.ts#L49)*
 
 Generates keys from a user-supplied mnemonic and passphrase.
 
@@ -58,7 +58,7 @@ ___
 
 ▸ **unlockFundraiserIdentity**(mnemonic: *`string`*, email: *`string`*, password: *`string`*, pkh: *`string`*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/identity/tezos/TezosWalletUtil.ts#L17)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/identity/tezos/TezosWalletUtil.ts#L17)*
 
 Unlocks an identity supplied during the 2017 Tezos fundraiser.
 
@@ -81,7 +81,7 @@ ___
 
 ▸ **unlockIdentityWithMnemonic**(mnemonic: *`string`*, passphrase: *`string`*): `Promise`<[KeyStore](../interfaces/keystore.md)>
 
-*Defined in [identity/tezos/TezosWalletUtil.ts:35](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/identity/tezos/TezosWalletUtil.ts#L35)*
+*Defined in [identity/tezos/TezosWalletUtil.ts:35](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/identity/tezos/TezosWalletUtil.ts#L35)*
 
 Generates a key pair based on a mnemonic.
 

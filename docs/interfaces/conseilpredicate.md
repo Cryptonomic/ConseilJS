@@ -25,7 +25,7 @@
 
 **● field**: *`string`*
 
-*Defined in [types/conseil/QueryTypes.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L31)*
+*Defined in [types/conseil/QueryTypes.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L31)*
 
 ___
 <a id="inverse"></a>
@@ -34,7 +34,7 @@ ___
 
 **● inverse**: *`boolean`*
 
-*Defined in [types/conseil/QueryTypes.ts:34](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L34)*
+*Defined in [types/conseil/QueryTypes.ts:34](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L34)*
 
 ___
 <a id="operation"></a>
@@ -43,7 +43,7 @@ ___
 
 **● operation**: *[ConseilOperator](../enums/conseiloperator.md)*
 
-*Defined in [types/conseil/QueryTypes.ts:32](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L32)*
+*Defined in [types/conseil/QueryTypes.ts:32](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L32)*
 
 ___
 <a id="set"></a>
@@ -52,7 +52,7 @@ ___
 
 **● set**: *`any`[]*
 
-*Defined in [types/conseil/QueryTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/e4b4aa7/src/types/conseil/QueryTypes.ts#L33)*
+*Defined in [types/conseil/QueryTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/QueryTypes.ts#L33)*
 
 ___
 
