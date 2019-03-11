@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -34,11 +26,6 @@ var TezosNodeReader;
             }
         });
     }
-    function performPostRequest(server, command, payload = {}) {
-        const url = `${server}/${command}`;
-        const payloadStr = JSON.stringify(payload);
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
-    }
     function getBlock(server, hash) {
         return performGetRequest(server, `chains/main/blocks/${hash}`)
             .then(json => { return json; });
@@ -58,30 +45,5 @@ var TezosNodeReader;
             .then(json => json);
     }
     TezosNodeReader.getAccountManagerForBlock = getAccountManagerForBlock;
-    function forgeOperation(server, opGroup) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, "chains/main/blocks/head/helpers/forge/operations", opGroup);
-            const forgedOperation = yield response.text();
-            return forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
-        });
-    }
-    TezosNodeReader.forgeOperation = forgeOperation;
-    function applyOperation(server, payload) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
-            const json = yield response.json();
-            const appliedOperation = json;
-            return appliedOperation;
-        });
-    }
-    TezosNodeReader.applyOperation = applyOperation;
-    function injectOperation(server, payload) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, 'injection/operation?chain=main', payload);
-            const injectedOperation = yield response.text();
-            return injectedOperation;
-        });
-    }
-    TezosNodeReader.injectOperation = injectOperation;
 })(TezosNodeReader = exports.TezosNodeReader || (exports.TezosNodeReader = {}));
 //# sourceMappingURL=TezosNodeReader.js.map

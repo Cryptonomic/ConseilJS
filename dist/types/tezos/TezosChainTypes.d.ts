@@ -70,6 +70,12 @@ export interface Operation {
     amount?: string;
     script?: string | object;
 }
+export interface Ballot {
+    source: string;
+    period: number;
+    proposal: string;
+    vote: BallotVote;
+}
 export interface ContractOriginationOperation extends Operation {
     script: object;
 }
@@ -91,5 +97,15 @@ export declare enum OperationKindType {
     AccountActivation = "activate_account",
     Origination = "origination",
     Reveal = "reveal",
-    Endorsement = "endorsement"
+    Endorsement = "endorsement",
+    Ballot = ""
+}
+export declare enum BallotVote {
+    Yay = 0,
+    Nay = 1,
+    Pass = 2
+}
+export interface Activation {
+    pkh: string;
+    secret: string;
 }

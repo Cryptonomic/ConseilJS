@@ -55,7 +55,7 @@ var TezosMessageUtils;
     TezosMessageUtils.findInt = findInt;
     function readAddress(hex) {
         if (hex.length !== 44 && hex.length !== 42) {
-            throw new Error("Incorrect hex length to parse an address.");
+            throw new Error("Incorrect hex length to parse an address");
         }
         let implicitHint = hex.length === 44 ? hex.substring(0, 4) : "00" + hex.substring(0, 2);
         let implicitPrefixLength = hex.length === 44 ? 4 : 2;
@@ -110,24 +110,24 @@ var TezosMessageUtils;
             return "01" + hex + "00";
         }
         else {
-            throw new Error("Unrecognized address type.");
+            throw new Error("Unrecognized address type");
         }
     }
     TezosMessageUtils.writeAddress = writeAddress;
     function readBranch(hex) {
         if (hex.length !== 64) {
-            throw new Error("Incorrect hex length to parse a branch hash.");
+            throw new Error('Incorrect hex length to parse a branch hash');
         }
-        return bs58check_1.default.encode(Buffer.from(hex, "hex"));
+        return bs58check_1.default.encode(Buffer.from('0134' + hex, 'hex'));
     }
     TezosMessageUtils.readBranch = readBranch;
     function writeBranch(branch) {
-        return bs58check_1.default.decode(branch).toString("hex");
+        return bs58check_1.default.decode(branch).toString("hex").slice(4);
     }
     TezosMessageUtils.writeBranch = writeBranch;
     function readPublicKey(hex) {
         if (hex.length !== 66 && hex.length !== 68) {
-            throw new Error(`Incorrect hex length, ${hex.length} to parse a key.`);
+            throw new Error(`Incorrect hex length, ${hex.length} to parse a key`);
         }
         let hint = hex.substring(0, 2);
         if (hint === "00") {
@@ -173,7 +173,7 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readKeyWithHint = readKeyWithHint;
     function writeKeyWithHint(key, hint) {
-        if (hint === 'edsk') {
+        if (hint === 'edsk' || hint === 'edpk') {
             return bs58check_1.default.decode(key).slice(4);
         }
         else {
@@ -195,6 +195,9 @@ var TezosMessageUtils;
         const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
         if (hint === 'op') {
             return bs58check_1.default.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
+        }
+        else if (hint === 'p') {
+            return bs58check_1.default.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
         }
         else if (hint === '') {
             return bs58check_1.default.encode(buffer);

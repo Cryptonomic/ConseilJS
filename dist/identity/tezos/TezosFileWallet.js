@@ -35,9 +35,9 @@ var TezosFileWallet;
                 fs.writeFile(filename, JSON.stringify(encryptedWallet), err => {
                     if (err) {
                         reject(err);
+                        return;
                     }
-                    else
-                        resolve();
+                    resolve();
                 });
             });
             yield p;
@@ -51,6 +51,7 @@ var TezosFileWallet;
                 fs.readFile(filename, (err, data) => {
                     if (err) {
                         reject(err);
+                        return;
                     }
                     const encryptedWallet = JSON.parse(data.toString());
                     resolve(encryptedWallet);
