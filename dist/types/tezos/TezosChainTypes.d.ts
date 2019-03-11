@@ -98,7 +98,7 @@ export declare enum OperationKindType {
     Origination = "origination",
     Reveal = "reveal",
     Endorsement = "endorsement",
-    Ballot = ""
+    Ballot = "ballot"
 }
 export declare enum BallotVote {
     Yay = 0,

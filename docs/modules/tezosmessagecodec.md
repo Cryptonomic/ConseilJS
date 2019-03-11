@@ -33,7 +33,7 @@
 
 ▸ **encodeActivation**(activation: *[Activation](../interfaces/activation.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:103](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L103)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:103](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L103)*
 
 "Forges" Tezos P2P Activation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
 
@@ -52,7 +52,7 @@ ___
 
 ▸ **encodeBallot**(ballot: *[Ballot](../interfaces/ballot.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:171](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L171)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:171](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L171)*
 
 "Forges" Tezos P2P Ballot message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
 
@@ -71,7 +71,7 @@ ___
 
 ▸ **encodeDelegation**(delegation: *[Operation](../interfaces/operation.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:568](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L568)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:568](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L568)*
 
 "Forges" Tezos P2P Delegation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **encodeOperation**(message: *`any`*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L78)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L78)*
 
 "Forges" Tezos P2P messages.
 
@@ -110,7 +110,7 @@ ___
 
 ▸ **encodeOrigination**(origination: *[Operation](../interfaces/operation.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:466](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L466)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:466](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L466)*
 
 "Forges" Tezos P2P Origination message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
 
@@ -129,7 +129,7 @@ ___
 
 ▸ **encodeReveal**(reveal: *[Operation](../interfaces/operation.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:250](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L250)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:250](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L250)*
 
 Creates a hex string for the provided reveal operation. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
 
@@ -148,7 +148,7 @@ ___
 
 ▸ **encodeTransaction**(transaction: *[Operation](../interfaces/operation.md)*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:349](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L349)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:349](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L349)*
 
 Encodes a Transaction operation.
 
@@ -171,7 +171,7 @@ ___
 
 ▸ **getOperationType**(hex: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L23)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L23)*
 
 Parse operation type from a bounded hex string and translate to enum.
 
@@ -190,7 +190,7 @@ ___
 
 ▸ **idFirstOperation**(hex: *`string`*): `string`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L31)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L31)*
 
 Get OperationType of the first operation in the OperationGroup.
 
@@ -209,7 +209,7 @@ ___
 
 ▸ **parseBallot**(ballotMessage: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:117](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L117)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:117](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L117)*
 
 Parse a Ballot, tag 6, message possibly containing siblings.
 
@@ -217,7 +217,7 @@ Parse a Ballot, tag 6, message possibly containing siblings.
 
 | Name | Type | Default value | Description |
 | ------ | ------ | ------ | ------ |
-| ballotMessage | `string` | - |
+| ballotMessage | `string` | - |  Encoded ballot message |
 | `Default value` isFirst | `boolean` | true |  Flag to indicate first operation of Operation Group. |
 
 **Returns:** `OperationEnvelope`
@@ -229,7 +229,7 @@ ___
 
 ▸ **parseDelegation**(delegationMessage: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:499](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L499)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:499](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L499)*
 
 Parse an Delegation, tag 10, message possibly containing siblings.
 
@@ -249,7 +249,7 @@ ___
 
 ▸ **parseOperation**(hex: *`string`*, opType: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L42)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L42)*
 
 Parse an operation of unknown length, possibly containing siblings.
 
@@ -270,7 +270,7 @@ ___
 
 ▸ **parseOperationGroup**(hex: *`string`*): `Array`<`any`>
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:593](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L593)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:593](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L593)*
 
 Parse an operation group.
 
@@ -289,7 +289,7 @@ ___
 
 ▸ **parseOrigination**(originationMessage: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:373](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L373)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:373](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L373)*
 
 Parse an Origination, tag 9, message possibly containing siblings.
 
@@ -309,7 +309,7 @@ ___
 
 ▸ **parseReveal**(revealMessage: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:187](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L187)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:187](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L187)*
 
 Parse a Reveal, tag 7, message possibly containing siblings.
 
@@ -329,7 +329,7 @@ ___
 
 ▸ **parseTransaction**(transactionMessage: *`string`*, isFirst?: *`boolean`*): `OperationEnvelope`
 
-*Defined in [chain/tezos/TezosMessageCodec.ts:271](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/chain/tezos/TezosMessageCodec.ts#L271)*
+*Defined in [chain/tezos/TezosMessageCodec.ts:271](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosMessageCodec.ts#L271)*
 
 Parse a Transaction, tag 8, message possibly containing siblings.
 

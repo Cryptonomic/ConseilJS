@@ -23,7 +23,7 @@
 
 **● displayName**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L3)*
+*Defined in [types/conseil/MetadataTypes.ts:3](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L3)*
 
 ___
 <a id="name"></a>
@@ -32,7 +32,7 @@ ___
 
 **● name**: *`string`*
 
-*Defined in [types/conseil/MetadataTypes.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/MetadataTypes.ts#L2)*
+*Defined in [types/conseil/MetadataTypes.ts:2](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L2)*
 
 ___
 

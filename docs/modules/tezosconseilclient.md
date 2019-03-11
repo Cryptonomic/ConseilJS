@@ -32,7 +32,7 @@ Functions for querying the Conseil backend REST API v2 for Tezos chain data.
 
 ▸ **getAccount**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, accountID: *`string`*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L63)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:63](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L63)*
 
 Get an account from the Tezos platform given a network by account id.
 
@@ -53,7 +53,7 @@ ___
 
 ▸ **getAccounts**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L104)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:104](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L104)*
 
 Request account-entity data for a given network. Rather than simply requesting an account by hash, this function allows modification of the response to contain a subset of account attributes subject to a filter on some of them.
 
@@ -76,7 +76,7 @@ ___
 
 ▸ **getBakers**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:154](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L154)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:154](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L154)*
 
 **Parameters:**
 
@@ -95,7 +95,7 @@ ___
 
 ▸ **getBallots**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:158](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L158)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:158](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L158)*
 
 **Parameters:**
 
@@ -114,7 +114,7 @@ ___
 
 ▸ **getBlock**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, hash: *`string`*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L50)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L50)*
 
 Get a block by hash from the Tezos platform given a network.
 
@@ -135,7 +135,7 @@ ___
 
 ▸ **getBlockHead**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L37)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:37](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L37)*
 
 Get the head block from the Tezos platform given a network.
 
@@ -155,7 +155,7 @@ ___
 
 ▸ **getBlocks**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L91)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L91)*
 
 Request block-entity data for a given network. Rather than simply requesting a block by hash, this function allows modification of the response to contain a subset of block attributes subject to a filter on some of them.
 
@@ -178,7 +178,7 @@ ___
 
 ▸ **getFeeStatistics**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, operationType: *[OperationKindType](../enums/operationkindtype.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:141](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L141)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:141](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L141)*
 
 Request pre-computed fee statistics for operation fees by operation kind. The query returns the latest record.
 
@@ -199,7 +199,7 @@ ___
 
 ▸ **getOperationGroup**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, operationGroupID: *`string`*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L76)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L76)*
 
 Get an operation group from the Tezos platform given a network by id.
 
@@ -220,7 +220,7 @@ ___
 
 ▸ **getOperationGroups**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:117](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L117)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:117](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L117)*
 
 Request operation group-entity data for a given network. Rather than simply requesting an operation group by hash, this function allows modification of the response to contain a subset of operation group attributes subject to a filter on some of them.
 
@@ -243,7 +243,7 @@ ___
 
 ▸ **getOperations**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:130](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L130)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:130](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L130)*
 
 Request operation-entity data for a given network. This function allows modification of the response to contain a subset of operation attributes subject to a filter on some of them.
 
@@ -266,7 +266,7 @@ ___
 
 ▸ **getProposals**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:150](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L150)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:150](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L150)*
 
 **Parameters:**
 
@@ -285,7 +285,7 @@ ___
 
 ▸ **getTezosEntityData**(serverInfo: *[ConseilServerInfo](../interfaces/conseilserverinfo.md)*, network: *`string`*, entity: *`string`*, query: *[ConseilQuery](../interfaces/conseilquery.md)*): `Promise`<`any`[]>
 
-*Defined in [reporting/tezos/TezosConseilClient.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/reporting/tezos/TezosConseilClient.ts#L27)*
+*Defined in [reporting/tezos/TezosConseilClient.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/reporting/tezos/TezosConseilClient.ts#L27)*
 
 Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
 

@@ -9,7 +9,7 @@ var OperationKindType;
     OperationKindType["Origination"] = "origination";
     OperationKindType["Reveal"] = "reveal";
     OperationKindType["Endorsement"] = "endorsement";
-    OperationKindType["Ballot"] = "";
+    OperationKindType["Ballot"] = "ballot";
 })(OperationKindType = exports.OperationKindType || (exports.OperationKindType = {}));
 var BallotVote;
 (function (BallotVote) {

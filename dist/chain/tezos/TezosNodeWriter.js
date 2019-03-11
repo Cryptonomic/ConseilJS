@@ -38,7 +38,7 @@ var TezosNodeWriter;
                     break;
                 default:
                     const hashedWatermarkedOpBytes = CryptoUtils_1.CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);
-                    const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, "edsk");
+                    const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
                     opSignature = yield CryptoUtils_1.CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
             const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
@@ -131,7 +131,7 @@ var TezosNodeWriter;
     TezosNodeWriter.sendOperation = sendOperation;
     function appendRevealOperation(server, keyStore, account, operations) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isManagerKeyRevealed = yield isManagerKeyRevealedForAccount(server, keyStore);
+            const isManagerKeyRevealed = yield TezosNodeReader_1.TezosNodeReader.isManagerKeyRevealedForAccount(server, keyStore);
             let returnedOperations = operations;
             if (!isManagerKeyRevealed) {
                 const revealOp = {
@@ -242,24 +242,6 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendContractInvocationOperation = sendContractInvocationOperation;
-    function isImplicitAndEmpty(server, accountHash) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
-            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
-            const isImplicit = accountHash.toLowerCase().startsWith("tz");
-            const isEmpty = Number(account.balance) === 0;
-            return (isImplicit && isEmpty);
-        });
-    }
-    TezosNodeWriter.isImplicitAndEmpty = isImplicitAndEmpty;
-    function isManagerKeyRevealedForAccount(server, keyStore) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
-            const managerKey = yield TezosNodeReader_1.TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
-            return managerKey.key != null;
-        });
-    }
-    TezosNodeWriter.isManagerKeyRevealedForAccount = isManagerKeyRevealedForAccount;
     function sendKeyRevealOperation(server, keyStore, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);

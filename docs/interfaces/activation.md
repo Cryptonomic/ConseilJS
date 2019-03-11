@@ -25,7 +25,7 @@ This object does not match the RPC entity by the same name.
 
 **● pkh**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:143](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L143)*
+*Defined in [types/tezos/TezosChainTypes.ts:143](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L143)*
 
 ___
 <a id="secret"></a>
@@ -34,7 +34,7 @@ ___
 
 **● secret**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:144](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L144)*
+*Defined in [types/tezos/TezosChainTypes.ts:144](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L144)*
 
 ___
 

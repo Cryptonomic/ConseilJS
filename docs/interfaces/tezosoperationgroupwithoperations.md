@@ -23,7 +23,7 @@
 
 **● operation_group**: *[TezosOperationGroup](tezosoperationgroup.md)*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:66](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L66)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:66](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L66)*
 
 ___
 <a id="operations"></a>
@@ -32,7 +32,7 @@ ___
 
 **● operations**: *[TezosOperation](tezosoperation.md)[]*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L67)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:67](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L67)*
 
 ___
 

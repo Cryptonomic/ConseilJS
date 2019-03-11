@@ -1,5 +1,5 @@
-import { KeyStore } from "../../types/wallet/KeyStore";
-import * as TezosTypes from "../../types/tezos/TezosChainTypes";
+import { KeyStore } from '../../types/wallet/KeyStore';
+import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 export declare namespace TezosNodeWriter {
     function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup>;
     function forgeOperations(blockHead: TezosTypes.BlockMetadata, operations: object[]): string;
@@ -12,8 +12,6 @@ export declare namespace TezosNodeWriter {
     function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
     function sendContractOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, code: Array<object>, storage: object): Promise<TezosTypes.OperationResult>;
     function sendContractInvocationOperation(server: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string, storageLimit: number, gasLimit: number, parameters: object): Promise<TezosTypes.OperationResult>;
-    function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean>;
-    function isManagerKeyRevealedForAccount(server: string, keyStore: KeyStore): Promise<boolean>;
     function sendKeyRevealOperation(server: string, keyStore: KeyStore, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
     function sendIdentityActivationOperation(server: string, keyStore: KeyStore, activationCode: string, derivationPath: string): Promise<TezosTypes.OperationResult>;
 }

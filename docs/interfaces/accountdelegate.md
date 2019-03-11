@@ -23,7 +23,7 @@
 
 **● setable**: *`boolean`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L27)*
+*Defined in [types/tezos/TezosChainTypes.ts:27](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L27)*
 
 ___
 <a id="value"></a>
@@ -32,7 +32,7 @@ ___
 
 **● value**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L28)*
+*Defined in [types/tezos/TezosChainTypes.ts:28](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L28)*
 
 ___
 

@@ -27,7 +27,7 @@ This object does not match the RPC entity by the same name.
 
 **● period**: *`number`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:93](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L93)*
+*Defined in [types/tezos/TezosChainTypes.ts:93](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L93)*
 
 ___
 <a id="proposal"></a>
@@ -36,7 +36,7 @@ ___
 
 **● proposal**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:94](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L94)*
+*Defined in [types/tezos/TezosChainTypes.ts:94](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L94)*
 
 ___
 <a id="source"></a>
@@ -45,7 +45,7 @@ ___
 
 **● source**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:92](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L92)*
+*Defined in [types/tezos/TezosChainTypes.ts:92](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L92)*
 
 ___
 <a id="vote"></a>
@@ -54,7 +54,7 @@ ___
 
 **● vote**: *[BallotVote](../enums/ballotvote.md)*
 
-*Defined in [types/tezos/TezosChainTypes.ts:95](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L95)*
+*Defined in [types/tezos/TezosChainTypes.ts:95](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L95)*
 
 ___
 

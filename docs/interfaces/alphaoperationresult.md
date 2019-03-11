@@ -24,7 +24,7 @@
 
 **● errors**: *`string`[]*
 
-*Defined in [types/tezos/TezosChainTypes.ts:48](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L48)*
+*Defined in [types/tezos/TezosChainTypes.ts:48](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L48)*
 
 ___
 <a id="originated_contracts"></a>
@@ -33,7 +33,7 @@ ___
 
 **● originated_contracts**: *`string`[]*
 
-*Defined in [types/tezos/TezosChainTypes.ts:47](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L47)*
+*Defined in [types/tezos/TezosChainTypes.ts:47](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L47)*
 
 ___
 <a id="status"></a>
@@ -42,7 +42,7 @@ ___
 
 **● status**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:46](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/tezos/TezosChainTypes.ts#L46)*
+*Defined in [types/tezos/TezosChainTypes.ts:46](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L46)*
 
 ___
 

@@ -36,7 +36,7 @@
 
 **● amount**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:44](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L44)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:44](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L44)*
 
 ___
 <a id="balance"></a>
@@ -45,7 +45,7 @@ ___
 
 **● balance**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:48](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L48)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:48](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L48)*
 
 ___
 <a id="blockhash"></a>
@@ -54,7 +54,7 @@ ___
 
 **● blockHash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:55](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L55)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:55](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L55)*
 
 ___
 <a id="blocklevel"></a>
@@ -63,7 +63,7 @@ ___
 
 **● blockLevel**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L57)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L57)*
 
 ___
 <a id="delegate"></a>
@@ -72,7 +72,7 @@ ___
 
 **● delegate**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L49)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L49)*
 
 ___
 <a id="destination"></a>
@@ -81,7 +81,7 @@ ___
 
 **● destination**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:45](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L45)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:45](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L45)*
 
 ___
 <a id="fee"></a>
@@ -90,7 +90,7 @@ ___
 
 **● fee**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:52](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L52)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:52](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L52)*
 
 ___
 <a id="gaslimit"></a>
@@ -99,7 +99,7 @@ ___
 
 **● gasLimit**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:54](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L54)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:54](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L54)*
 
 ___
 <a id="kind"></a>
@@ -108,7 +108,7 @@ ___
 
 **● kind**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L42)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L42)*
 
 ___
 <a id="managerpubkey"></a>
@@ -117,7 +117,7 @@ ___
 
 **● managerPubkey**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:46](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L46)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:46](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L46)*
 
 ___
 <a id="operationgrouphash"></a>
@@ -126,7 +126,7 @@ ___
 
 **● operationGroupHash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L50)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:50](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L50)*
 
 ___
 <a id="operationid"></a>
@@ -135,7 +135,7 @@ ___
 
 **● operationId**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:51](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L51)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:51](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L51)*
 
 ___
 <a id="source"></a>
@@ -144,7 +144,7 @@ ___
 
 **● source**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L43)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L43)*
 
 ___
 <a id="storagelimit"></a>
@@ -153,7 +153,7 @@ ___
 
 **● storageLimit**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L53)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L53)*
 
 ___
 <a id="timestamp"></a>
@@ -162,7 +162,7 @@ ___
 
 **● timestamp**: *`number`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:56](https://github.com/Cryptonomic/ConseilJS/blob/9065a8e/src/types/conseil/ConseilTezosTypes.ts#L56)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:56](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L56)*
 
 ___
 
