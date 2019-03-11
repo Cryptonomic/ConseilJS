@@ -402,9 +402,9 @@ export namespace TezosMessageCodec {
     }
 
     let next; // TODO
-    //if (originationMessage.length > fieldoffset) {
-    //  next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
-    //}
+    if (originationMessage.length > fieldoffset && !hasScript) {
+      next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
+    }
 
     const origination: Operation = {
       kind: "origination",
