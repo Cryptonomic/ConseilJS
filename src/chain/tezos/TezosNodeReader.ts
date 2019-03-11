@@ -32,20 +32,6 @@ export namespace TezosNodeReader {
             });
     }
 
-    /**
-     * Send a POST request to a Tezos node.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {string} command RPC route to invoke
-     * @param {object} payload Payload to submit
-     * @returns {Promise<object>} JSON-encoded response
-     */
-    function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
-        const url = `${server}/${command}`;
-        const payloadStr = JSON.stringify(payload);
-
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
-    }
 
     /**
      * Gets a block for a given hash.
@@ -92,49 +78,5 @@ export namespace TezosNodeReader {
     export function getAccountManagerForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
         return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
             .then(json => <TezosTypes.ManagerKey> json);
-    }
-
-    /**
-     * Forge an operation group using the Tezos RPC client.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {object} opGroup Operation group payload
-     * @returns {Promise<string>} Forged operation
-     */
-    export async function forgeOperation(server: string, opGroup: object): Promise<string> {
-        const response = await performPostRequest(server, "chains/main/blocks/head/helpers/forge/operations", opGroup);
-        const forgedOperation = await response.text();
-
-        return forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
-    }
-
-    /**
-     * Applies an operation using the Tezos RPC client.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {object} payload Payload set according to protocol spec
-     * @returns {Promise<AppliedOperation>} Applied operation
-     */
-    //TODO: move to Writer
-    export async function applyOperation(server: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
-        const response  = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
-        const json = await response.json();
-        const appliedOperation = json as TezosTypes.AlphaOperationsWithMetadata[];
-
-        return appliedOperation
-    }
-
-    /**
-     *
-     * @param {string} server Which Tezos node to go against
-     * @param {object} payload Payload set according to protocol spec
-     * @returns {Promise<InjectedOperation>} Injected operation
-     */
-    //TODO: move to Writer
-    export async function injectOperation(server: string, payload: string): Promise<string> {
-        const response = await performPostRequest(server, 'injection/operation?chain=main', payload);
-        const injectedOperation = await response.text();
-
-        return injectedOperation
     }
 }

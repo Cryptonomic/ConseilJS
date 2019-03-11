@@ -425,9 +425,7 @@ export namespace TezosMessageCodec {
 
     fieldoffset += 2;
     if (hasScript) {
-      // TODO
-    } else {
-      throw new Error('');
+      throw new Error('Unsupported message content');
     }
 
     let next; // TODO

@@ -111,12 +111,6 @@ describe('Tezos Operations Test', () => {
             expect(block.hash).to.exist;
         }));
 
-        it('TezosNodeReader.forgeOperation test ---', mochaAsync(async () => {
-            const payload = { branch: blockHead.hash, contents: ops };
-            const forgeOp = await TezosNodeReader.forgeOperation('http://conseil.server', payload);
-            expect(forgeOp).to.be.a('string');
-        }));
-
         it("correctly encode operations locally", () => {
             let messages: any = [];
             messages.push({
@@ -189,13 +183,7 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
-            const payload = [{
-                protocol: blockHead.protocol,
-                branch: blockHead.hash,
-                contents: ops,
-                signature: signedOpGroup.signature
-            }];
-            const appliedOp = await TezosNodeReader.applyOperation('http://conseil.server', payload);
+            const appliedOp = await TezosNodeWriter.applyOperation('http://conseil.server', blockHead, [ops], signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
@@ -209,8 +197,8 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNode.injectOperation test ---', mochaAsync(async () => {
-            const payload = signedOpGroup.bytes.toString('hex');
-            const injectOp = await TezosNodeReader.injectOperation('http://conseil.server', payload);
+            const payload = signedOpGroup;
+            const injectOp = await TezosNodeWriter.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
 
