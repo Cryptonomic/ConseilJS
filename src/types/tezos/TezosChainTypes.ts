@@ -132,3 +132,8 @@ export enum BallotVote {
     Nay = 1,
     Pass = 2
 }
+
+export interface Activation {
+    pkh: string,
+    secret: string
+}

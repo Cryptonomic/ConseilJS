@@ -1,5 +1,5 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
-import { Operation, Ballot, BallotVote } from "../../types/tezos/TezosChainTypes";
+import { Activation, Ballot, BallotVote, Operation} from "../../types/tezos/TezosChainTypes";
 
 const operationTypes: Array<string> = [
   "endorsement",
@@ -65,6 +65,34 @@ export namespace TezosMessageCodec {
       default:
         throw new Error(`Unsupported operation type: ${opType}`);
     }
+  }
+
+  export function encodeOperation(message: any): string {
+    if (message.hasOwnProperty('pkh') && message.hasOwnProperty('secret')) {
+      return encodeActivation(message as Activation);
+    }
+
+    if (message.hasOwnProperty('kind')) {
+      const operation = message as Operation;
+      if (operation.kind === 'reveal') { return encodeReveal(operation); }
+      if (operation.kind === 'transaction') { return encodeTransaction(operation); }
+      if (operation.kind === 'origination') { return encodeOrigination(operation); }
+      if (operation.kind === 'delegation') { return encodeDelegation(operation); }
+    }
+
+    if (message.hasOwnProperty('vote')) {
+      return encodeBallot(message as Ballot);
+    }
+
+    throw new Error('Unsupported message type');
+  }
+
+  export function encodeActivation(activation: Activation): string {
+    let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('accountActivation'));
+    hex += TezosMessageUtils.writeAddress(activation.pkh).slice(4);
+    hex += activation.secret;
+
+    return hex;
   }
 
   export function parseBallot(ballotMessage: string, isFirst: boolean = true): OperationEnvelope {
