@@ -44,17 +44,16 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Forge an operation group using the Tezos RPC client.
+     * Forge an operation group.
      *
-     * @param {string} network Which Tezos network to go against
      * @param {BlockMetadata} blockHead The block head
      * @param {object[]} operations The operations being forged as part of this operation group
      *
-     * @returns {Promise<string>} Forged operation bytes (as a hex string)
+     * @returns {string} Forged operation bytes (as a hex string)
      */
-    export async function forgeOperations(network: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
-        const payload = { branch: blockHead.hash, contents: operations };
-        const ops = await TezosNodeReader.forgeOperation(network, payload);
+    export function forgeOperations(blockHead: TezosTypes.BlockMetadata, operations: object[]): string {
+        let encoded = TezosMessageUtils.writeBranch(blockHead.hash);
+        operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
         let optypes = Array.from(operations.map(o => o["kind"]));
         let validate: boolean = false;
@@ -64,7 +63,7 @@ export namespace TezosNodeWriter {
         }
 
         if (validate) {
-            let decoded = TezosMessageCodec.parseOperationGroup(ops);
+            let decoded = TezosMessageCodec.parseOperationGroup(encoded);
 
             for (let i = 0; i < operations.length; i++) {
                 const clientop = operations[i];
@@ -85,7 +84,7 @@ export namespace TezosNodeWriter {
             }
         }
 
-        return ops;
+        return encoded;
     }
 
     /**
@@ -149,13 +148,9 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(
-        network: string,
-        operations: object[],
-        keyStore: KeyStore,
-        derivationPath): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(network: string, operations: object[], keyStore: KeyStore, derivationPath): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockHead(network);
-        const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
+        const forgedOperationGroup = forgeOperations(blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
         const appliedOp = await applyOperation(network, blockHead, operations, signedOpGroup);
         checkAppliedOperationResults(appliedOp);
