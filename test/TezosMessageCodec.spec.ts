@@ -220,7 +220,7 @@ describe("Tezos P2P message decoder test suite", () => {
   });
 
   it("correctly parse a ballot message", () => {
-    const result = TezosMessageCodec.parseBallot('06026fde46af0356a0476dae4e4600172dc9309b3aa40000000a76cd995a324193bbe09ac2d5c53f69f93778f8d608f1fea885f9b53e0abdb6e400', false);
+    const result = TezosMessageCodec.parseBallot('97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e06026fde46af0356a0476dae4e4600172dc9309b3aa40000000a76cd995a324193bbe09ac2d5c53f69f93778f8d608f1fea885f9b53e0abdb6e400');
 
     expect(result.operation.source).to.equal('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
     expect(result.operation.proposal).to.equal('Psd1ynUBhMZAeajwcZJAeq5NrxorM6UCU4GJqxZ7Bx2e9vUWB6z');
