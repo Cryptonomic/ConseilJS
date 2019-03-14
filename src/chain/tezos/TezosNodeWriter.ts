@@ -407,7 +407,7 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        parameters: object
+        parameters?: object
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const sourceAccount = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
