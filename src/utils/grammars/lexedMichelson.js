@@ -58,13 +58,33 @@ const lexer = moo.compile({
 
 
 
+  /* Given a int, convert it to JSON.
+     Example: "3" -> "{ int: 3 }"
+  */
+  const intToJson =  d => 
+    {
+        const s = d[0]
+        const doubleQuotedS = '"' + s + '"'
+        return "{ \"string\": " + doubleQuotedS + " }"
+    }
+
+  /* Given a string, convert it to JSON.
+     Example: "int" -> "{ string: int }"
+  */
+  const stringToJson =  d => 
+    {
+        const s = d[0]
+        return "{ \"string\": " + s + " }"
+    }
+
   /* Given a keyword, convert it to JSON.
      Example: "int" -> "{ prim: int }"
   */
   const keywordToJson = d => 
     {
         const s = d[0]
-        return "{ prim: " + s + " }"
+        const doubleQuotedS = '"' + s + '"'
+        return "{ \"prim\": " + doubleQuotedS + " }"
     }
 
   /* Given a keyword with one argument, convert it to JSON.
@@ -73,8 +93,9 @@ const lexer = moo.compile({
   const singleArgKeywordToJson = d => 
     { 
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'      
       const rule = d[2]
-      return "{ prim: " + s + ", args: [" + rule + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
     }  
 
   /* Given a keyword with one argument and parentheses, convert it to JSON.
@@ -83,8 +104,9 @@ const lexer = moo.compile({
   const singleArgKeywordWithParenToJson = d =>
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule = d[4]
-      return "{ prim: " + s + ", args: [" + rule + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
     }
 
   /* Given a keyword with two arguments, convert it into JSON.
@@ -93,9 +115,10 @@ const lexer = moo.compile({
   const doubleArgKeywordToJson = d => 
     {
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[2]
       const rule_two = d[4]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + "] }"
     }  
 
   /* Given a keyword with two arguments and parentheses, convert it into JSON.
@@ -104,9 +127,10 @@ const lexer = moo.compile({
   const doubleArgKeywordWithParenToJson = d =>  
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[4]
       const rule_two = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + "] }"
     }
 
   /* Given a keyword with three arguments, convert it into JSON.
@@ -115,10 +139,11 @@ const lexer = moo.compile({
   const tripleArgKeyWordToJson = d => 
     {
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[2]
       const rule_two = d[4]
       const rule_three = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
   /* Given a keyword with three arguments and parentheses, convert it into JSON.
@@ -127,9 +152,10 @@ const lexer = moo.compile({
   const tripleArgKeyWordWithParenToJson = d =>  
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[4]
       const rule_two = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
   /* Given a list of michelson instructions, convert it into JSON.
@@ -158,6 +184,15 @@ const lexer = moo.compile({
       return instructionsList
     }  
 
+    const scriptToJson = d =>
+      {
+        const parameterJson = d[0]
+        const storageJson = d[2]
+        const code = d[4] 
+        const codeJson = "{ \"prim\": \"code\", \"args\": " + "[" + code + "]}"
+        return [parameterJson, storageJson, codeJson]
+      }
+
 var grammar = {
     Lexer: lexer,
     ParserRules: [
@@ -167,6 +202,8 @@ var grammar = {
     {"name": "main", "symbols": ["parameter"], "postprocess": id},
     {"name": "main", "symbols": ["storage"], "postprocess": id},
     {"name": "main", "symbols": ["code"], "postprocess": id},
+    {"name": "main", "symbols": ["script"], "postprocess": id},
+    {"name": "script", "symbols": ["parameter", "_", "storage", "_", "code"], "postprocess": scriptToJson},
     {"name": "parameter", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter), "_", "type", {"literal":";"}], "postprocess": singleArgKeywordToJson},
     {"name": "storage", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage), "_", "type", {"literal":";"}], "postprocess": singleArgKeywordToJson},
     {"name": "code", "symbols": [(lexer.has("code") ? {type: "code"} : code), "_", "subInstruction", "_", "semicolons", "_"], "postprocess": d => d[2]},
@@ -183,7 +220,7 @@ var grammar = {
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1", "subInstruction$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "subInstruction$ebnf$1", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": instructionSetToJson},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instruction", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => d[2]},
-    {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": id},
+    {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "{}"},
     {"name": "instruction", "symbols": ["subInstruction"], "postprocess": id},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction)], "postprocess": keywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction"], "postprocess": singleArgKeywordToJson},
@@ -198,8 +235,8 @@ var grammar = {
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "data", "_", "data"], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "data", "symbols": ["subData"], "postprocess": id},
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
-    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": keywordToJson},
-    {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": keywordToJson},
+    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
+    {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
     {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},

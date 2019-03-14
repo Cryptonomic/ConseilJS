@@ -57,7 +57,8 @@ const lexer = moo.compile({
 @lexer lexer
 
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
-main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %}
+main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %}
+script -> parameter _ storage _ code {% scriptToJson %} 
 parameter -> %parameter _ type ";" {% singleArgKeywordToJson %}
 storage -> %storage _ type ";" {% singleArgKeywordToJson %}
 code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}  | %code _ "{};" {% d => "code {}" %}
@@ -75,7 +76,7 @@ type ->
 subInstruction -> %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
-  | %lbrace _ %rbrace {% id %}
+  | %lbrace _ %rbrace {% d => "{}" %}
 # Grammar for michelson instruction.   
 instruction ->
     subInstruction {% id %}
@@ -95,8 +96,8 @@ data ->
   | %data _ data _ data {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
-  | %number {% keywordToJson %}
-  | %string {% keywordToJson %}
+  | %number {% intToJson %}
+  | %string {% stringToJson %}
 # Helper grammar for list of michelson data types.
 subData -> 
     "{" _ (data ";" _):+ "}" {% instructionSetToJson %}
@@ -114,13 +115,33 @@ semicolons -> null | semicolons ";"
 
 @{%
 
+  /* Given a int, convert it to JSON.
+     Example: "3" -> "{ int: 3 }"
+  */
+  const intToJson =  d => 
+    {
+        const s = d[0]
+        const doubleQuotedS = '"' + s + '"'
+        return "{ \"string\": " + doubleQuotedS + " }"
+    }
+
+  /* Given a string, convert it to JSON.
+     Example: "int" -> "{ string: int }"
+  */
+  const stringToJson =  d => 
+    {
+        const s = d[0]
+        return "{ \"string\": " + s + " }"
+    }
+
   /* Given a keyword, convert it to JSON.
      Example: "int" -> "{ prim: int }"
   */
   const keywordToJson = d => 
     {
         const s = d[0]
-        return "{ prim: " + s + " }"
+        const doubleQuotedS = '"' + s + '"'
+        return "{ \"prim\": " + doubleQuotedS + " }"
     }
 
   /* Given a keyword with one argument, convert it to JSON.
@@ -129,8 +150,9 @@ semicolons -> null | semicolons ";"
   const singleArgKeywordToJson = d => 
     { 
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'      
       const rule = d[2]
-      return "{ prim: " + s + ", args: [" + rule + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
     }  
 
   /* Given a keyword with one argument and parentheses, convert it to JSON.
@@ -139,8 +161,9 @@ semicolons -> null | semicolons ";"
   const singleArgKeywordWithParenToJson = d =>
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule = d[4]
-      return "{ prim: " + s + ", args: [" + rule + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
     }
 
   /* Given a keyword with two arguments, convert it into JSON.
@@ -149,9 +172,10 @@ semicolons -> null | semicolons ";"
   const doubleArgKeywordToJson = d => 
     {
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[2]
       const rule_two = d[4]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + "] }"
     }  
 
   /* Given a keyword with two arguments and parentheses, convert it into JSON.
@@ -160,9 +184,10 @@ semicolons -> null | semicolons ";"
   const doubleArgKeywordWithParenToJson = d =>  
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[4]
       const rule_two = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + "] }"
     }
 
   /* Given a keyword with three arguments, convert it into JSON.
@@ -171,10 +196,11 @@ semicolons -> null | semicolons ";"
   const tripleArgKeyWordToJson = d => 
     {
       const s = d[0]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[2]
       const rule_two = d[4]
       const rule_three = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
   /* Given a keyword with three arguments and parentheses, convert it into JSON.
@@ -183,9 +209,10 @@ semicolons -> null | semicolons ";"
   const tripleArgKeyWordWithParenToJson = d =>  
     {
       const s = d[2]
+      const doubleQuotedS = '"' + s + '"'
       const rule_one = d[4]
       const rule_two = d[6]
-      return "{ prim: " + s + ", args: [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
+      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + ", " + rule_three + "] }"
     }  
 
   /* Given a list of michelson instructions, convert it into JSON.
@@ -213,5 +240,14 @@ semicolons -> null | semicolons ";"
       const instructionsList = instructions.map(x => x[0])
       return instructionsList
     }  
+
+    const scriptToJson = d =>
+      {
+        const parameterJson = d[0]
+        const storageJson = d[2]
+        const code = d[4] 
+        const codeJson = "{ \"prim\": \"code\", \"args\": " + "[" + code + "]}"
+        return [parameterJson, storageJson, codeJson]
+      }
 
 %}

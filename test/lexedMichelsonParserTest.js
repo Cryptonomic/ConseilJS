@@ -414,4 +414,32 @@ const caml_two = `code { DUP;
 
 `
 
-console.log(util.michelsonToJson(script_one))
+const r = new RegExp("storage")
+const c = new RegExp("code")
+const str = `
+parameter unit;
+storage string;
+code {DROP; 
+      PUSH string "Hello Tezos!"; 
+      NIL operation; PAIR;};
+`
+const n = str.search(r)
+const m = str.search(c)
+const par = str.substring(0, n).replace(/[\n\r\t]/g,'');
+const stor = str.substring(n, m).replace(/[\n\r\t]/g,'');
+const cod = str.substring(m).replace(/[\n\r\t]/g,'');
+
+//console.log(cod)
+console.log(util.michelsonScriptToJson(str))
+//console.log(util.michelsonScriptToJson(par))
+//console.log(util.michelsonScriptToJson(stor))
+//console.log(util.michelsonScriptToJson(cod))
+
+//console.log(par)
+//console.log(stor)
+//console.log(cod)
+//console.log(util.oldMichelsonToJson(parameter_four))
+//console.log(util.oldMichelsonToJson(storage_four))
+//console.log(util.codeToJson(code_test_two))
+//console.log(util.storageToJson(storage_four))
+//console.log(util.parameterToJson(parameter_four))
