@@ -309,6 +309,26 @@ describe("Tezos operation functions", () => {
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;
 
+    console.log('+++++Originating an account with contract');
+    const originationResult = await TezosNodeWriter.sendContractOriginationOperation(
+           tezosURL,
+           fundraiserKeys,
+           20000000,
+           randomBakerAddress1,
+           true,
+           true,
+           2000000, // Protocol 003 minimum fee is 1377 for originations
+           invalidDerivationPath,
+           "500000",
+           "500000",
+           `parameter string;
+           storage string;
+           code {CAR; NIL operation; PAIR;};`,
+           "storage: before;"
+         );
+    console.log('ORIGINATION RESULT', originationResult);
+    expect(originationResult.operationGroupID).to.exist;
+
     //     console.log('+++++Originating an account with 1 tez');
     //     const originationResult = await TezosNodeWriter.sendAccountOriginationOperation(
     //       tezosURL,

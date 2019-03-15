@@ -1,5 +1,4 @@
-const util =  require('../src/chain/tezos/michelsonParsingUtil')
-const myUtil = util.michelsonParsingUtil
+import {michelsonParsingUtil} from "../src/chain/tezos/michelsonParsingUtil"
 
 const script_one = "{ CAR; NIL operation; PAIR;}"
 const storage_one = "\"world\""
@@ -431,8 +430,7 @@ const stor = str.substring(n, m).replace(/[\n\r\t]/g,'');
 const cod = str.substring(m).replace(/[\n\r\t]/g,'');
 
 //console.log(cod)
-console.log(myUtil.michelsonScriptToJson(str))
-console.log(myUtil.storageToJson(storage_test))
+console.log(michelsonParsingUtil.michelsonScriptToJson(str))
 //console.log(util.michelsonScriptToJson(par))
 //console.log(util.michelsonScriptToJson(stor))
 //console.log(util.michelsonScriptToJson(cod))

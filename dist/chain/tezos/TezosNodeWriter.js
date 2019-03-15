@@ -16,6 +16,7 @@ const TezosNodeReader_1 = require("./TezosNodeReader");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
+const michelsonParsingUtil_1 = require("./michelsonParsingUtil");
 const DeviceSelector_1 = __importDefault(require("../../utils/DeviceSelector"));
 let LedgerUtils = DeviceSelector_1.default.getLedgerUtils();
 var TezosNodeWriter;
@@ -206,7 +207,10 @@ var TezosNodeWriter;
                 spendable: spendable,
                 delegatable: delegatable,
                 delegate: delegate,
-                script: code ? { code: code, storage: storage } : undefined
+                script: code && storage ? {
+                    code: michelsonParsingUtil_1.michelsonParsingUtil.michelsonScriptToJson(code),
+                    storage: michelsonParsingUtil_1.michelsonParsingUtil.storageToJson(storage)
+                } : undefined
             };
             const operations = yield appendRevealOperation(network, keyStore, account, [origination]);
             return sendOperation(network, operations, keyStore, derivationPath);

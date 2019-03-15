@@ -4,6 +4,7 @@ import * as TezosTypes from "../../types/tezos/TezosChainTypes";
 import {TezosMessageCodec} from "./TezosMessageCodec";
 import {TezosMessageUtils} from './TezosMessageUtil';
 import {CryptoUtils} from '../../utils/CryptoUtils';
+import {michelsonParsingUtil} from "./michelsonParsingUtil"
 
 import DeviceSelector from '../../utils/DeviceSelector';
 
@@ -325,8 +326,8 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code: object, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code: string, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage: string // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
     }
@@ -360,8 +361,8 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code?: object, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage?: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code?: string, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage?: string // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -378,7 +379,9 @@ export namespace TezosNodeWriter {
             spendable: spendable,
             delegatable: delegatable,
             delegate: delegate,
-            script: code ? { code: code, storage: storage } : undefined
+            script: code && storage ? { 
+                code: michelsonParsingUtil.michelsonScriptToJson(code), 
+                storage: michelsonParsingUtil.storageToJson(storage) } : undefined
         };
         const operations = await appendRevealOperation(network, keyStore, account, [origination]);
 
