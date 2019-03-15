@@ -216,7 +216,7 @@ var TezosNodeWriter;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const sourceAccount = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
-            const transaction = {
+            let transaction = {
                 destination: to,
                 amount: amount.toString(),
                 storage_limit,
@@ -224,9 +224,11 @@ var TezosNodeWriter;
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind: "transaction",
-                parameters: parameters,
+                kind: "transaction"
             };
+            if (parameters !== undefined) {
+                transaction.parameters = parameters;
+            }
             const operations = yield appendRevealOperation(network, keyStore, sourceAccount, [transaction]);
             return sendOperation(network, operations, keyStore, derivationPath);
         });

@@ -74,7 +74,7 @@ export interface ContractOriginationOperation extends Operation {
     script: object;
 }
 export interface ContractInvocationOperation extends Operation {
-    parameters?: object;
+    parameters: object;
 }
 export interface SignedOperationGroup {
     bytes: Buffer;

@@ -407,12 +407,12 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        parameters?: object
+        parameters?: any
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const sourceAccount = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
 
-        const transaction: TezosTypes.ContractInvocationOperation = {
+        let transaction: TezosTypes.Operation = {
             destination: to,
             amount: amount.toString(),
             storage_limit,
@@ -420,9 +420,12 @@ export namespace TezosNodeWriter {
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
-            kind: "transaction",
-            parameters: parameters,
+            kind: "transaction"
         };
+
+        if (parameters !== undefined) {
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = parameters;
+        }
 
         const operations = await appendRevealOperation(network, keyStore, sourceAccount, [transaction]);
         return sendOperation(network, operations, keyStore, derivationPath);

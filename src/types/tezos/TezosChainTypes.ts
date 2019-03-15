@@ -90,7 +90,7 @@ export interface ContractOriginationOperation extends Operation {
 }
 
 export interface ContractInvocationOperation extends Operation {
-    parameters?: object;
+    parameters: object;
 }
 
 /**
