@@ -226,7 +226,7 @@ var TezosNodeWriter;
                 source: keyStore.publicKeyHash,
                 kind: "transaction"
             };
-            if (parameters !== undefined) {
+            if (!!parameters) {
                 transaction.parameters = parameters;
             }
             const operations = yield appendRevealOperation(network, keyStore, sourceAccount, [transaction]);

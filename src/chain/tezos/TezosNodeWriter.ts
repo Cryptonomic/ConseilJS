@@ -423,7 +423,7 @@ export namespace TezosNodeWriter {
             kind: "transaction"
         };
 
-        if (parameters !== undefined) {
+        if (!!parameters) {
             (<TezosTypes.ContractInvocationOperation> transaction).parameters = parameters;
         }
 
