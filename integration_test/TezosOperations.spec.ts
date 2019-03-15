@@ -338,8 +338,8 @@ describe("Tezos operation functions", () => {
       100000, // Amount sent
       100000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
       invalidDerivationPath,
-      "1000", // Storage Limit
-      "100000", // Gas Limit
+      1000, // Storage Limit
+      100000, // Gas Limit
       { string: "Cryptonomicon" }
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;
