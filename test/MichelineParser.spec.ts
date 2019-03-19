@@ -3,7 +3,6 @@ import { expect } from 'chai';
 
 import * as Micheline from '../src/chain/tezos/lexer/Micheline';
 import * as nearley from 'nearley';
-const util = require('util');
 
 function michelsonToJson(code: string): string {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));

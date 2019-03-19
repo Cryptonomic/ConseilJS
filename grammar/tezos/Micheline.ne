@@ -114,7 +114,8 @@ const primAnnToHex = d => {
 
 /**
  * Encodes a single primitive with one or more arguments.
- * { "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] } => 063d036d0000000440636261
+ * { "prim": "NIL", "args": [ { "prim": "operation" } ] } => 053d036d
+ * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] } => 073d036d036d
  */
 const primArgToHex = d => {
     let prefix = '05';
@@ -134,7 +135,9 @@ const primArgToHex = d => {
 
 /**
  * Encodes a primitive with arguments and annotations
+ * { "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] } => 063d036d0000000440636261
  * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] } => 083d036d036d0000000440636261
+ * 
  */
 const primArgAnnToHex = d => {
     let prefix = '06';
@@ -146,13 +149,13 @@ const primArgAnnToHex = d => {
 
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
     const args = d[15].map(v => v[0]).join('');
-    const ann = d[26].map(v => { // TODO: multiple annotations
+    let ann = d[26].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
-            t = t.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-            t = ('0000000' + (t.length/2).toString(16)).slice(-8).toString(16) + t; // prepend length
             return t;
-        });
+        }).join(' ');
+    ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
+    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
 
     return prefix + prim + args + ann;
 }
