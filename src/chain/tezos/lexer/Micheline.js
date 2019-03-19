@@ -53,8 +53,8 @@ const staticStringToHex = d => {
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
     const len = ('0000000' + text.length.toString(16)).slice(-8);
-    
-    text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+
+    text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
 
     return prefix + len + text;
 };
@@ -90,13 +90,13 @@ const primBareToHex = d => {
 const primAnnToHex = d => {
     const prefix = '04';
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
-    const ann = d[15].map(v => {
+    let ann = d[15].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
-            t = t.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-            t = ('0000000' + (t.length/2).toString(16)).slice(-8).toString(16) + t; // prepend length
             return t;
-        });
+        }).join(' ');
+    ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
+    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
 
     return prefix + prim + ann;
 }
@@ -106,8 +106,8 @@ const primAnnToHex = d => {
  * { "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] } => 063d036d0000000440636261
  */
 const primArgToHex = d => {
-    const prefix = '05';
-    if (d[15].length == 2)
+    let prefix = '05';
+    if (d[15].length == 2) {
         prefix = '07';
     } else if (d[15].length > 2) {
         prefix = '09';
@@ -126,7 +126,7 @@ const primArgToHex = d => {
  * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] } => 083d036d036d0000000440636261
  */
 const primArgAnnToHex = d => {
-    const prefix = '06';
+    let prefix = '06';
     if (d[15].length == 2) {
         prefix = '08';
     } else if (d[15].length > 2) {

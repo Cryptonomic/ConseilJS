@@ -42,14 +42,17 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('04430000000440636261');
     });
 
-    // TODO: multi annotation
+    it('parse primitive with multiple annotations', () => {
+        const result = michelsonToJson('{ "prim": "PUSH", "annots": [ "@abc", "@def" ] }');
+        expect(result).to.equal('044300000009406162632040646566');
+    });
 
     it('parse primitive with single argument', () => {
         const result = michelsonToJson('{ "prim": "NIL", "args": [ { "prim": "operation" } ] }');
         expect(result).to.equal('053d036d');
     });
 
-    it('parse primitive with argument array', () => {
+    it('parse primitive with two arguments', () => {
         const result = michelsonToJson('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] }');
         expect(result).to.equal('073d036d036d');
     });
@@ -59,8 +62,12 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('063d036d0000000440636261');
     });
 
-    it('parse primitive with argument array and annotation', () => {
+    it('parse primitive with two arguments and an annotation', () => {
         const result = michelsonToJson('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
         expect(result).to.equal('083d036d036d0000000440636261');
+    });
+
+    it('parse primitive with an argument array and an annotation', () => {
+        //09
     });
 });
