@@ -49,8 +49,13 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('073d036d036d');
     });
 
-    it('parse primitive with argument array and annotation', () => {
+    it('parse primitive with single argument and annotation', () => {
         const result = michelsonToJson('{ "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] }');
         expect(result).to.equal('063d036d0000000440636261');
+    });
+
+    it('parse primitive with argument array and annotation', () => {
+        const result = michelsonToJson('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
+        expect(result).to.equal('083d036d036d0000000440636261');
     });
 });

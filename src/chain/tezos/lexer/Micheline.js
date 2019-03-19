@@ -60,12 +60,14 @@ const primAnnToHex = d => {
 }
 
 const primArgToHex = d => {
-    return (d[15].length == 1 ? '05' : '07') + MichelineKeywords.indexOf(d[6].toString()).toString(16) + d[15].map(v => v[0]).join('');
+    const prefix = (d[15].length == 1 ? '05' : '07');
+    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const args =  d[15].map(v => v[0]).join('')
+    return prefix + prim + args;
 }
 
 const primArgAnnToHex = d => {
-    console.log(`'${util.inspect(d[26], false, null, false)}'`)
-    const prefix = '06';
+    const prefix = (d[15].length == 1 ? '06' : '08')
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
     const args = d[15].map(v => v[0]).join('');
     const ann = d[26].map(v => {
