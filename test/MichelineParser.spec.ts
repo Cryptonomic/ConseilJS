@@ -28,7 +28,7 @@ describe('Micheline binary encoding tests', () => {
 
     it('parse a static array', () => {
         const result = michelsonToJson('[ { "int" : "42" }, { "string": "abc" }, { "string": "def" } ]');
-        expect(result).to.equal('0200000003002a01000000036162630100000003646566');
+        expect(result).to.equal('0200000012002a01000000036162630100000003646566');
     });
 
     it('parse stand-alone primitive', () => {
@@ -74,6 +74,6 @@ describe('Micheline binary encoding tests', () => {
 describe('Micheline binary encoding complex tests', () => {
     it('test 0', () => {
         const result = michelsonToJson('[ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ]');
-        expect(result).to.equal('02000000030500035b0501035b0502020000000503160743035b00010312053d036d0342');
+        expect(result).to.equal('020000001f0500035b0501035b0502020000001003160743035b00010312053d036d0342');
     });
 });

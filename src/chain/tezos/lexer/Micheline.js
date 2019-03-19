@@ -20,8 +20,6 @@ const lexer = moo.compile({
     colon: ":",
     comma: ",",
     _: /[ \t]+/,
-    //number: /\"-?[0-9]+\"/,
-    //text: /\"[\S\s]*?\"/,
     quotedValue: /\"[\S\s]*?\"/
 });
 
@@ -68,9 +66,10 @@ const staticStringToHex = d => {
 const staticArrayToHex = d => {
     const matchedArray = d[2]; // data array starts at position 2 after the opening bracket "[ "
     const prefix = '02';
-    const len = encodeLength(matchedArray.length);
+    const content = matchedArray.map(a => a[0]).join('');
+    const len = encodeLength(content.length / 2);
 
-    return prefix + len + matchedArray.map(a => a[0]).join('');
+    return prefix + len + content;
 };
 
 /**
