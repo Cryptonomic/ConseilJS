@@ -114,35 +114,20 @@ _ -> [\s]:*
 semicolons -> null | semicolons ";"
 
 @{%
-
   /* Given a int, convert it to JSON.
-     Example: "3" -> "{ int: 3 }"
+     Example: "3" -> { "int": "3" }
   */
-  const intToJson =  d => 
-    {
-        const s = d[0]
-        const doubleQuotedS = '"' + s + '"'
-        return "{ \"string\": " + doubleQuotedS + " }"
-    }
+  const intToJson = d => { return `{ "int": "${parseInt(d[0])}" }`; }
 
   /* Given a string, convert it to JSON.
-     Example: "int" -> "{ string: int }"
+     Example: "string" -> "{ "string": "blah" }"
   */
-  const stringToJson =  d => 
-    {
-        const s = d[0]
-        return "{ \"string\": " + s + " }"
-    }
+  const stringToJson =  d => { return `{ "string": "${d[0]}" }`; }
 
   /* Given a keyword, convert it to JSON.
-     Example: "int" -> "{ prim: int }"
+     Example: "int" -> "{ "prim" : "int" }"
   */
-  const keywordToJson = d => 
-    {
-        const s = d[0]
-        const doubleQuotedS = '"' + s + '"'
-        return "{ \"prim\": " + doubleQuotedS + " }"
-    }
+  const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
 
   /* Given a keyword with one argument, convert it to JSON.
      Example: "option int" -> "{ prim: option, args: [int] }"
