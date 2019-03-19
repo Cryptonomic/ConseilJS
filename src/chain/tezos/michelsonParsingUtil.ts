@@ -16,16 +16,13 @@ export namespace michelsonParsingUtil {
     }
 
     function michelsonToJson(parameter: string, storage: string, code: string): Object {
-        //const parameterJson = parameterToJson(parameter)
-        //const storageJson = storageToJson(storage)
-        //const codeJson = codeToJson(code)
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar));
         const sanitizedParameter = parameter.replace(/[\n\r\t]/g,'');
         const sanitizedStorage = storage.replace(/[\n\r\t]/g,'');
         const sanitizedCode = code.replace(/[\n\r\t]/g,'');
         const sanitizedScript = sanitizedParameter + sanitizedStorage + sanitizedCode
         parser.feed(sanitizedScript)
-        return util.inspect(parser.results[1].map(s => JSON.parse(s)), false, null, true) //parameterJson//, storageJson, codeJson]
+        return util.inspect(parser.results[0].map(s => JSON.parse(s)), false, null, true)
     }
 
     export function storageToJson(storage: string): Object {
@@ -34,15 +31,6 @@ export namespace michelsonParsingUtil {
         parser.feed(sanitizedStorage)
         const storageJson = JSON.parse(parser.results)
         return util.inspect(storageJson, false, null, true)
-    }
-
-    function oldMichelsonToJson(michelson: string): Array<Object> {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(grammar), { keepHistory: true});
-        const fixedString = michelson.replace(/[\n\r\t]/g,'');
-        parser.feed(fixedString)
-        const returnValue : Array<Array<string>> = parser.results
-        //return util.inspect(JSON.parse(parser.results[0]), false, null, true)
-        return util.inspect(returnValue[0].map(t => JSON.parse(t)), false, null, true)
     }
 
     //In the case of ambiguous parses, a quick hack will be to take the longest length match

@@ -429,8 +429,20 @@ const par = str.substring(0, n).replace(/[\n\r\t]/g,'');
 const stor = str.substring(n, m).replace(/[\n\r\t]/g,'');
 const cod = str.substring(m).replace(/[\n\r\t]/g,'');
 
+const s = `parameter key_hash;
+storage unit;
+code { CAR; DEFAULT_ACCOUNT; 
+       DIP{UNIT};             
+       PUSH tez "1.00";      
+       UNIT;                
+       TRANSFER_TOKENS;      
+       PAIR; };    
+`           
+const t = "\"hello\""
+
 //console.log(cod)
-console.log(michelsonParsingUtil.michelsonScriptToJson(str))
+console.log(michelsonParsingUtil.michelsonScriptToJson(s))
+console.log(michelsonParsingUtil.storageToJson(t))
 //console.log(util.michelsonScriptToJson(par))
 //console.log(util.michelsonScriptToJson(stor))
 //console.log(util.michelsonScriptToJson(cod))
