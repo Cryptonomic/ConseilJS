@@ -1,6 +1,8 @@
 @{%
 const moo = require("moo");
-const util = require('util');
+const baseN = require("base-n");
+
+const base128 = baseN.create({ characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2)) });
 
 const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"'];
 
@@ -39,7 +41,18 @@ primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"
  * 
  */
 const staticIntToHex = d => {
-    return '00' + parseInt(d[6]).toString(16);
+    const prefix = '00';
+    const value = base128.encode(parseInt(d[6])).split('').map((v, i, a) => {
+            if (i % 2 !== 0) { return null; } // skip odd indices
+            const n = parseInt(v + a[i + 1], 16); // take two
+            return i > 0 ? n ^ 0x80 : n;
+        })
+        .filter(v => v !== null)
+        .reverse()
+        .map(v => v.toString(16))
+        .join('');
+
+    return prefix + value;
 };
 
 const staticStringToHex = d => {
@@ -55,11 +68,16 @@ const staticArrayToHex = d => {
 
 const primBareToHex = d => {
     //const keywords = lexer.groups.filter(g => g.defaultType === 'keyword')[0].match;
-    return '03' + MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prefix = '03';
+    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+
+    return prefix + prim;
 }
 
 const primAnnToHex = d => {
-    let text = d[15].map(v => {
+    const prefix = '04';
+    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const ann = d[15].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
             t = t.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
@@ -67,13 +85,14 @@ const primAnnToHex = d => {
             return t;
         });
 
-    return '04' + MichelineKeywords.indexOf(d[6].toString()).toString(16) + text;
+    return prefix + prim + ann;
 }
 
 const primArgToHex = d => {
     const prefix = (d[15].length == 1 ? '05' : '07');
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
-    const args =  d[15].map(v => v[0]).join('')
+    const args =  d[15].map(v => v[0]).join('');
+
     return prefix + prim + args;
 }
 
@@ -92,6 +111,7 @@ const primArgAnnToHex = d => {
     return prefix + prim + args + ann;
 }
 
-//console.log(`'${util.inspect(d[15], false, null, false)}'`)
+// 09
 
+// 10
 %}

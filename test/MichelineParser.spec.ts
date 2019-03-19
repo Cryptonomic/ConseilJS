@@ -17,6 +17,11 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('002a');
     });
 
+    it('parse a large static int', () => {
+        const result = michelsonToJson('{ "int": 976146032 }');
+        expect(result).to.equal('00f09cbbd13');
+    });
+
     it('parse a static string', () => {
         const result = michelsonToJson('{ "string" : "abc" }');
         expect(result).to.equal('0100000003616263');
