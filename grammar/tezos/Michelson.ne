@@ -132,36 +132,17 @@ semicolons -> null | semicolons ";"
   /* Given a keyword with one argument, convert it to JSON.
      Example: "option int" -> "{ prim: option, args: [int] }"
   */
-  const singleArgKeywordToJson = d => 
-    { 
-      const s = d[0]
-      const doubleQuotedS = '"' + s + '"'      
-      const rule = d[2]
-      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
-    }  
+  const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
 
   /* Given a keyword with one argument and parentheses, convert it to JSON.
      Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
   */
-  const singleArgKeywordWithParenToJson = d =>
-    {
-      const s = d[2]
-      const doubleQuotedS = '"' + s + '"'
-      const rule = d[4]
-      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule + "] }"
-    }
+  const singleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`; }
 
   /* Given a keyword with two arguments, convert it into JSON.
      Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
   */
-  const doubleArgKeywordToJson = d => 
-    {
-      const s = d[0]
-      const doubleQuotedS = '"' + s + '"'
-      const rule_one = d[2]
-      const rule_two = d[4]
-      return "{ \"prim\": " + doubleQuotedS + ", \"args\": [" + rule_one + ", " + rule_two + "] }"
-    }  
+  const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
 
   /* Given a keyword with two arguments and parentheses, convert it into JSON.
      Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
@@ -217,22 +198,18 @@ semicolons -> null | semicolons ";"
      list of instructions case. Will update description or delete
      if used.
   */
-  const altInstructionSetToJson = d =>
-    {
+  const altInstructionSetToJson = d => {
       const instruction = d[2]
       const instructions = d[3]
       instructions.unshift(instruction)
       const instructionsList = instructions.map(x => x[0])
       return instructionsList
-    }  
+  }
 
-    const scriptToJson = d =>
-      {
-        const parameterJson = d[0]
-        const storageJson = d[2]
-        const code = d[4] 
-        const codeJson = "{ \"prim\": \"code\", \"args\": " + "[" + code + "]}"
+    const scriptToJson = d => {
+        const parameterJson = d[0];
+        const storageJson = d[2];
+        const code = `{ "prim": "code", "args": [ ${d[4]} ]}`;
         return [parameterJson, storageJson, codeJson]
       }
-
 %}
