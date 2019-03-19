@@ -16,8 +16,7 @@ const lexer = moo.compile({
     colon: ":",
     comma: ",",
     _: /[ \t]+/,
-    number: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?(?:[eE][-+]?[0-9]+)?\b/,
-    text: /\"[\S\s]*?\"/
+    quotedValue: /\"[\S\s]*?\"/
 });
 %}
 
@@ -26,14 +25,14 @@ const lexer = moo.compile({
 main -> staticInt {% id %} | staticString {% id %} | staticArray {% id %}
         | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %} | primArray {% id %}
 
-staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %number %_ %rbrace {% staticIntToHex %}
-staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %text %_ %rbrace {% staticStringToHex %}
+staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticIntToHex %}
+staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticStringToHex %}
 staticArray -> %lbracket %_ (staticObject %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 staticObject -> staticInt {% id %} | staticString {% id %}
 primBare -> %lbrace %_ "\"prim\"" %_:* %colon %_ %keyword %_ %rbrace {% primBareToHex %}
 primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
-primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%text %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
-primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%text %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
+primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
+primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
 primAny -> primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
 primArray -> %lbracket %_ (primAny %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 any -> primAny {% id %} | staticObject {% id %} | primArray {% id %} | staticArray {% id %}
@@ -45,7 +44,8 @@ any -> primAny {% id %} | staticObject {% id %} | primArray {% id %} | staticArr
  */
 const staticIntToHex = d => {
     const prefix = '00';
-    const value = base128.encode(parseInt(d[6])).split('').map((v, i, a) => {
+    const text = d[6].toString();
+    const value = base128.encode(parseInt(text.substring(1, text.length - 1))).split('').map((v, i, a) => {
             if (i % 2 !== 0) { return null; } // skip odd indices
             const n = parseInt(v + a[i + 1], 16); // take two
             return i > 0 ? n ^ 0x80 : n;
