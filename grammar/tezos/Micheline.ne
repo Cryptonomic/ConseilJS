@@ -36,9 +36,9 @@ primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" 
 primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%text %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
 
 @{%
-/** Encode an int value
- * 
- * 
+/**
+ * Encode an int value into zarith format, add "00" prefix.
+ * { "int": "42" } => 002a
  */
 const staticIntToHex = d => {
     const prefix = '00';
@@ -55,17 +55,37 @@ const staticIntToHex = d => {
     return prefix + value;
 };
 
+/**
+ * Encode a string to hex, add "01" prefix.
+ * { "string": "abc" } => 0100000003616263
+ */
 const staticStringToHex = d => {
+    const prefix = '01';
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
-    return '01' + ('0000000' + text.length.toString(16)).slice(-8) + text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+    const len = ('0000000' + text.length.toString(16)).slice(-8);
+    
+    text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+
+    return prefix + len + text;
 };
 
+/**
+ * Encode an array of static values with a "02" prefix. Individual value encoding is done by staticIntToHex or staticStringToHex.
+ *[ { "int": "42" }, { "string": "abc" } ] => 020000000a002a0100000003616263
+ */
 const staticArrayToHex = d => {
-    let matchedArray = d[2]; // data array starts at position 2 after the opening bracket "[ "
-    return '02' + ('0000000' + matchedArray.length.toString(16)).slice(-8) + matchedArray.map(a => a[0]).join('');
+    const matchedArray = d[2]; // data array starts at position 2 after the opening bracket "[ "
+    const prefix = '02';
+    const len = ('0000000' + matchedArray.length.toString(16)).slice(-8)
+
+    return prefix + len + matchedArray.map(a => a[0]).join('');
 };
 
+/**
+ * Encodes a single primitive without arguments or annotations.
+ *{ "prim": "PUSH" } => 0343
+ */
 const primBareToHex = d => {
     //const keywords = lexer.groups.filter(g => g.defaultType === 'keyword')[0].match;
     const prefix = '03';
@@ -74,6 +94,10 @@ const primBareToHex = d => {
     return prefix + prim;
 }
 
+/**
+ * Encodes a single primitive with an annotation
+ * { "prim": "PUSH", "annots": [ "@cba" ] } => 04430000000440636261
+ */
 const primAnnToHex = d => {
     const prefix = '04';
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
@@ -88,19 +112,41 @@ const primAnnToHex = d => {
     return prefix + prim + ann;
 }
 
+/**
+ * Encodes a single primitive with one or more arguments.
+ * { "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] } => 063d036d0000000440636261
+ */
 const primArgToHex = d => {
-    const prefix = (d[15].length == 1 ? '05' : '07');
+    const prefix = '05';
+    if (d[15].length == 2)
+        prefix = '07';
+    } else if (d[15].length > 2) {
+        prefix = '09';
+    }
+
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
-    const args =  d[15].map(v => v[0]).join('');
+    const args = d[15].map(v => v[0]).join('');
+
+    if (prefix === '09') { args += '00000000'; } // append empty annotation to message type 09
 
     return prefix + prim + args;
 }
 
+/**
+ * Encodes a primitive with arguments and annotations
+ * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] } => 083d036d036d0000000440636261
+ */
 const primArgAnnToHex = d => {
-    const prefix = (d[15].length == 1 ? '06' : '08')
+    const prefix = '06';
+    if (d[15].length == 2) {
+        prefix = '08';
+    } else if (d[15].length > 2) {
+        prefix = '09';
+    }
+
     const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
     const args = d[15].map(v => v[0]).join('');
-    const ann = d[26].map(v => {
+    const ann = d[26].map(v => { // TODO: multiple annotations
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
             t = t.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
@@ -110,8 +156,6 @@ const primArgAnnToHex = d => {
 
     return prefix + prim + args + ann;
 }
-
-// 09
 
 // 10
 %}
