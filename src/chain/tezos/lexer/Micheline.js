@@ -11,7 +11,7 @@ const base128 = baseN.create({ characters: [...Array(128).keys()].map(k => ("0" 
 const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"'];
 
 const lexer = moo.compile({
-    reservedWord: ['"int"', '"string"', '"prim"', '"args"', '"annots"'],
+    reservedWord: ['"prim"', '"args"', '"annots"'],
     keyword: MichelineKeywords,
     lbrace: '{',
     rbrace: '}',
@@ -38,7 +38,7 @@ const staticIntToHex = d => {
         })
         .filter(v => v !== null)
         .reverse()
-        .map(v => v.toString(16))
+        .map(v => ('00' + v.toString(16)).slice(-2))
         .join('');
 
     return prefix + value;
@@ -52,7 +52,7 @@ const staticStringToHex = d => {
     const prefix = '01';
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
-    const len = ('0000000' + text.length.toString(16)).slice(-8);
+    const len = encodeLength(text.length);
 
     text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
 
@@ -66,7 +66,7 @@ const staticStringToHex = d => {
 const staticArrayToHex = d => {
     const matchedArray = d[2]; // data array starts at position 2 after the opening bracket "[ "
     const prefix = '02';
-    const len = ('0000000' + matchedArray.length.toString(16)).slice(-8)
+    const len = encodeLength(matchedArray.length);
 
     return prefix + len + matchedArray.map(a => a[0]).join('');
 };
@@ -78,7 +78,7 @@ const staticArrayToHex = d => {
 const primBareToHex = d => {
     //const keywords = lexer.groups.filter(g => g.defaultType === 'keyword')[0].match;
     const prefix = '03';
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
 
     return prefix + prim;
 }
@@ -89,21 +89,22 @@ const primBareToHex = d => {
  */
 const primAnnToHex = d => {
     const prefix = '04';
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     let ann = d[15].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
             return t;
         }).join(' ');
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
+    ann = encodeLength(ann.length / 2) + ann; // prepend length
 
     return prefix + prim + ann;
 }
 
 /**
  * Encodes a single primitive with one or more arguments.
- * 
+ * { "prim": "NIL", "args": [ { "prim": "operation" } ] } => 053d036d
+ * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] } => 073d036d036d
  */
 const primArgToHex = d => {
     let prefix = '05';
@@ -113,7 +114,7 @@ const primArgToHex = d => {
         prefix = '09';
     }
 
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     const args = d[15].map(v => v[0]).join('');
 
     if (prefix === '09') { args += '00000000'; } // append empty annotation to message type 09
@@ -135,7 +136,7 @@ const primArgAnnToHex = d => {
         prefix = '09';
     }
 
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     const args = d[15].map(v => v[0]).join('');
     let ann = d[26].map(v => {
             let t = v[0].toString();
@@ -143,12 +144,20 @@ const primArgAnnToHex = d => {
             return t;
         }).join(' ');
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
+    ann = encodeLength(ann.length / 2) + ann; // prepend length
 
     return prefix + prim + args + ann;
 }
 
 // 10
+
+const encodePrimitive = p => {
+    return ('00' + MichelineKeywords.indexOf(p).toString(16)).slice(-2);
+}
+
+const encodeLength = l => {
+    return ('0000000' + l.toString(16)).slice(-8).toString(16)
+}
 var grammar = {
     Lexer: lexer,
     ParserRules: [
@@ -159,6 +168,7 @@ var grammar = {
     {"name": "main", "symbols": ["primArg"], "postprocess": id},
     {"name": "main", "symbols": ["primAnn"], "postprocess": id},
     {"name": "main", "symbols": ["primArgAnn"], "postprocess": id},
+    {"name": "main", "symbols": ["primArray"], "postprocess": id},
     {"name": "staticInt$ebnf$1", "symbols": []},
     {"name": "staticInt$ebnf$1", "symbols": ["staticInt$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "staticInt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"int\""}, "staticInt$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("number") ? {type: "number"} : number), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticIntToHex},
@@ -191,13 +201,13 @@ var grammar = {
     {"name": "primArg$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "primArg$ebnf$3$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
     {"name": "primArg$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "primArg$ebnf$3$subexpression$1", "symbols": ["primBare", "primArg$ebnf$3$subexpression$1$ebnf$1", "primArg$ebnf$3$subexpression$1$ebnf$2"]},
+    {"name": "primArg$ebnf$3$subexpression$1", "symbols": ["any", "primArg$ebnf$3$subexpression$1$ebnf$1", "primArg$ebnf$3$subexpression$1$ebnf$2"]},
     {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3$subexpression$1"]},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
-    {"name": "primArg$ebnf$3$subexpression$2", "symbols": ["primBare", "primArg$ebnf$3$subexpression$2$ebnf$1", "primArg$ebnf$3$subexpression$2$ebnf$2"]},
+    {"name": "primArg$ebnf$3$subexpression$2", "symbols": ["any", "primArg$ebnf$3$subexpression$2$ebnf$1", "primArg$ebnf$3$subexpression$2$ebnf$2"]},
     {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3", "primArg$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "primArg", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArg$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArg$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArg$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgToHex},
     {"name": "primAnn$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
@@ -247,7 +257,28 @@ var grammar = {
     {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "primArgAnn$ebnf$5$subexpression$2", "symbols": [(lexer.has("text") ? {type: "text"} : text), "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "primArgAnn$ebnf$5$subexpression$2$ebnf$2"]},
     {"name": "primArgAnn$ebnf$5", "symbols": ["primArgAnn$ebnf$5", "primArgAnn$ebnf$5$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "primArgAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArgAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArgAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primArgAnn$ebnf$4", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$5", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgAnnToHex}
+    {"name": "primArgAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArgAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArgAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primArgAnn$ebnf$4", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$5", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgAnnToHex},
+    {"name": "primAny", "symbols": ["primBare"], "postprocess": id},
+    {"name": "primAny", "symbols": ["primArg"], "postprocess": id},
+    {"name": "primAny", "symbols": ["primAnn"], "postprocess": id},
+    {"name": "primAny", "symbols": ["primArgAnn"], "postprocess": id},
+    {"name": "primArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
+    {"name": "primArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
+    {"name": "primArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArray$ebnf$1$subexpression$1", "symbols": ["primAny", "primArray$ebnf$1$subexpression$1$ebnf$1", "primArray$ebnf$1$subexpression$1$ebnf$2"]},
+    {"name": "primArray$ebnf$1", "symbols": ["primArray$ebnf$1$subexpression$1"]},
+    {"name": "primArray$ebnf$1$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
+    {"name": "primArray$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArray$ebnf$1$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
+    {"name": "primArray$ebnf$1$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArray$ebnf$1$subexpression$2", "symbols": ["primAny", "primArray$ebnf$1$subexpression$2$ebnf$1", "primArray$ebnf$1$subexpression$2$ebnf$2"]},
+    {"name": "primArray$ebnf$1", "symbols": ["primArray$ebnf$1", "primArray$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArray$ebnf$1", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": staticArrayToHex},
+    {"name": "any", "symbols": ["primAny"], "postprocess": id},
+    {"name": "any", "symbols": ["staticObject"], "postprocess": id},
+    {"name": "any", "symbols": ["primArray"], "postprocess": id},
+    {"name": "any", "symbols": ["staticArray"], "postprocess": id}
 ]
   , ParserStart: "main"
 }

@@ -7,7 +7,7 @@ const base128 = baseN.create({ characters: [...Array(128).keys()].map(k => ("0" 
 const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"'];
 
 const lexer = moo.compile({
-    reservedWord: ['"int"', '"string"', '"prim"', '"args"', '"annots"'],
+    reservedWord: ['"prim"', '"args"', '"annots"'],
     keyword: MichelineKeywords,
     lbrace: '{',
     rbrace: '}',
@@ -24,16 +24,19 @@ const lexer = moo.compile({
 @lexer lexer
 
 main -> staticInt {% id %} | staticString {% id %} | staticArray {% id %}
-        | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
+        | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %} | primArray {% id %}
 
 staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %number %_ %rbrace {% staticIntToHex %}
 staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %text %_ %rbrace {% staticStringToHex %}
 staticArray -> %lbracket %_ (staticObject %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 staticObject -> staticInt {% id %} | staticString {% id %}
 primBare -> %lbrace %_ "\"prim\"" %_:* %colon %_ %keyword %_ %rbrace {% primBareToHex %}
-primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
+primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
 primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%text %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
 primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%text %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
+primAny -> primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
+primArray -> %lbracket %_ (primAny %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
+any -> primAny {% id %} | staticObject {% id %} | primArray {% id %} | staticArray {% id %}
 
 @{%
 /**
@@ -49,7 +52,7 @@ const staticIntToHex = d => {
         })
         .filter(v => v !== null)
         .reverse()
-        .map(v => v.toString(16))
+        .map(v => ('00' + v.toString(16)).slice(-2))
         .join('');
 
     return prefix + value;
@@ -63,7 +66,7 @@ const staticStringToHex = d => {
     const prefix = '01';
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
-    const len = ('0000000' + text.length.toString(16)).slice(-8);
+    const len = encodeLength(text.length);
 
     text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
 
@@ -77,7 +80,7 @@ const staticStringToHex = d => {
 const staticArrayToHex = d => {
     const matchedArray = d[2]; // data array starts at position 2 after the opening bracket "[ "
     const prefix = '02';
-    const len = ('0000000' + matchedArray.length.toString(16)).slice(-8)
+    const len = encodeLength(matchedArray.length);
 
     return prefix + len + matchedArray.map(a => a[0]).join('');
 };
@@ -89,7 +92,7 @@ const staticArrayToHex = d => {
 const primBareToHex = d => {
     //const keywords = lexer.groups.filter(g => g.defaultType === 'keyword')[0].match;
     const prefix = '03';
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
 
     return prefix + prim;
 }
@@ -100,14 +103,14 @@ const primBareToHex = d => {
  */
 const primAnnToHex = d => {
     const prefix = '04';
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     let ann = d[15].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
             return t;
         }).join(' ');
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
+    ann = encodeLength(ann.length / 2) + ann; // prepend length
 
     return prefix + prim + ann;
 }
@@ -125,7 +128,7 @@ const primArgToHex = d => {
         prefix = '09';
     }
 
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     const args = d[15].map(v => v[0]).join('');
 
     if (prefix === '09') { args += '00000000'; } // append empty annotation to message type 09
@@ -147,7 +150,7 @@ const primArgAnnToHex = d => {
         prefix = '09';
     }
 
-    const prim = MichelineKeywords.indexOf(d[6].toString()).toString(16);
+    const prim = encodePrimitive(d[6].toString());
     const args = d[15].map(v => v[0]).join('');
     let ann = d[26].map(v => {
             let t = v[0].toString();
@@ -155,10 +158,18 @@ const primArgAnnToHex = d => {
             return t;
         }).join(' ');
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
-    ann = ('0000000' + (ann.length/2).toString(16)).slice(-8).toString(16) + ann; // prepend length
+    ann = encodeLength(ann.length / 2) + ann; // prepend length
 
     return prefix + prim + args + ann;
 }
 
 // 10
+
+const encodePrimitive = p => {
+    return ('00' + MichelineKeywords.indexOf(p).toString(16)).slice(-2);
+}
+
+const encodeLength = l => {
+    return ('0000000' + l.toString(16)).slice(-8).toString(16)
+}
 %}
