@@ -1,6 +1,7 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
 import { Activation, Ballot, BallotVote, Operation} from "../../types/tezos/TezosChainTypes";
 import * as Micheline from './lexer/Micheline';
+import * as Michelson from './lexer/Michelson';
 import * as nearley from 'nearley';
 
 const operationTypes: Array<string> = [
@@ -609,7 +610,14 @@ export namespace TezosMessageCodec {
   }
 
   export function translateMichelsonToMicheline (code: string): string {
-    return code; // TODO
+    // TODO: preprocess to strip comments
+    // TODO: preprocess to strip new lines
+    // TODO: preprocess to strip repeated whitespace?
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+    parser.feed(code);
+
+    let m = parser.results.join('').replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }'); // HACK: normalize whitespace coming from michelson parser
+    return m;
   }
 
   export function translateMichelineToHex (code: string): string {

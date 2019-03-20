@@ -9,14 +9,14 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha test/*.spec.ts",
+    "test": "mocha test/chain/tezos/lexer/MichelsonParser.spec.ts",
     "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc && copyfiles -u 1 ./src/**/*.js dist/",
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
     "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
     "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js"
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js"
   },
   "repository": {
     "type": "git",
@@ -93,6 +93,7 @@
     "mocha": "^5.2.0",
     "nock": "^10.0.6",
     "nyc": "13.3.0",
+    "request-promise": "^4.2.4",
     "source-map-loader": "^0.2.4",
     "source-map-support": "^0.5.11",
     "terser-webpack-plugin": "^1.2.3",
