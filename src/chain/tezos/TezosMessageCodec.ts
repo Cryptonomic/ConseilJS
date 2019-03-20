@@ -1,5 +1,7 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
 import { Activation, Ballot, BallotVote, Operation} from "../../types/tezos/TezosChainTypes";
+import * as Micheline from './lexer/Micheline';
+import * as nearley from 'nearley';
 
 const operationTypes: Array<string> = [
   "endorsement",
@@ -308,7 +310,7 @@ export namespace TezosMessageCodec {
     fieldoffset += 2;
     let parameters = '';
     if (hasParameters) {
-      // TODO
+      console.log(transactionMessage.substring(fieldoffset));
     }
 
     let next;
@@ -604,6 +606,20 @@ export namespace TezosMessageCodec {
     }
 
     return operations;
+  }
+
+  export function translateMichelsonToMicheline (code: string): string {
+    return '';
+  }
+
+  export function translateMichelineToHex (code: string): string {
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+    parser.feed(code);
+    return parser.results.join('');
+  }
+
+  export function translateMichelsoneToHex (code: string): string {
+    return translateMichelineToHex(translateMichelsonToMicheline(code));
   }
 
   interface OperationEnvelope {

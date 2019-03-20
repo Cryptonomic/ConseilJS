@@ -321,8 +321,8 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {Array<any>} code Contract code.
-     * @param {any} storage Initial storage value.
+     * @param {string} code Contract code.
+     * @param {string} storage Initial storage value.
      */
     export async function sendContractOriginationOperation(
         server: string,
@@ -335,8 +335,8 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code: Array<any>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage: any // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code: string,
+        storage: string
     ) {
         return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
     }
@@ -354,8 +354,8 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {Array<any>} code Contract code.
-     * @param {any} storage Initial storage value.
+     * @param {string} code Contract code.
+     * @param {string} storage Initial storage value.
      *
      * @returns {Promise<OperationResult>} Result of the operation
      */
@@ -370,11 +370,15 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code?: Array<any>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage?: any // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code?: string,
+        storage?: string
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+
+        const parsedCode = !!code ? TezosMessageCodec.translateMichelineToHex(code) : '';
+        const parsedStorage = !!storage ? TezosMessageCodec.translateMichelineToHex(storage) : '';
+
         const origination: TezosTypes.Operation = {
             kind: "origination",
             source: keyStore.publicKeyHash,
@@ -388,7 +392,7 @@ export namespace TezosNodeWriter {
             spendable: spendable,
             delegatable: delegatable && !!delegate,
             delegate: delegate,
-            script: code ? { code: code, storage: storage } : undefined
+            script: code ? { code: parsedCode, storage: parsedStorage } : undefined
         };
         const operations = await appendRevealOperation(server, keyStore, account, [origination]);
 
@@ -434,7 +438,7 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = parameters;
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosMessageCodec.translateMichelineToHex(parameters);
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
