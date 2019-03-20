@@ -609,7 +609,7 @@ export namespace TezosMessageCodec {
   }
 
   export function translateMichelsonToMicheline (code: string): string {
-    return '';
+    return code; // TODO
   }
 
   export function translateMichelineToHex (code: string): string {
@@ -618,7 +618,7 @@ export namespace TezosMessageCodec {
     return parser.results.join('');
   }
 
-  export function translateMichelsoneToHex (code: string): string {
+  export function translateMichelsonToHex (code: string): string {
     return translateMichelineToHex(translateMichelsonToMicheline(code));
   }
 

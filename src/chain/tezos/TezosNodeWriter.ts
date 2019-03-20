@@ -376,8 +376,8 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
 
-        const parsedCode = !!code ? TezosMessageCodec.translateMichelineToHex(code) : '';
-        const parsedStorage = !!storage ? TezosMessageCodec.translateMichelineToHex(storage) : '';
+        const parsedCode = !!code ? TezosMessageCodec.translateMichelsonToHex(code) : '';
+        const parsedStorage = !!storage ? TezosMessageCodec.translateMichelsonToHex(storage) : '';
 
         const origination: TezosTypes.Operation = {
             kind: "origination",
@@ -438,7 +438,7 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosMessageCodec.translateMichelineToHex(parameters);
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosMessageCodec.translateMichelsonToHex(parameters);
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
