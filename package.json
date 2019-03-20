@@ -44,7 +44,7 @@
     ],
     "extension": [
       ".ts",
-      ".tsx"
+      ".js"
     ],
     "require": [
       "ts-node/register"
