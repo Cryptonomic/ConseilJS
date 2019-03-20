@@ -16,7 +16,7 @@
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
     "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
     "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js"
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js"
   },
   "repository": {
     "type": "git",
