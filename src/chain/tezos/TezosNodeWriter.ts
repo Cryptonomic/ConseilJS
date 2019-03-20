@@ -321,22 +321,22 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {Array<object>} code Contract code.
-     * @param {object} storage Initial storage value.
+     * @param {Array<any>} code Contract code.
+     * @param {any} storage Initial storage value.
      */
     export async function sendContractOriginationOperation(
         server: string,
         keyStore: KeyStore,
         amount: number,
-        delegate: string,
+        delegate: string | undefined,
         spendable: boolean,
         delegatable: boolean,
         fee: number,
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code: Array<any>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage: any // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
     }
@@ -347,15 +347,15 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {string} delegate Account ID to delegate to or 'undefined'
      * @param {boolean} spendable Is account spendable?
      * @param {boolean} delegatable Is account delegatable?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {Array<object>} code Contract code.
-     * @param {object} storage Initial storage value.
+     * @param {Array<any>} code Contract code.
+     * @param {any} storage Initial storage value.
      *
      * @returns {Promise<OperationResult>} Result of the operation
      */
@@ -363,15 +363,15 @@ export namespace TezosNodeWriter {
         server: string,
         keyStore: KeyStore,
         amount: number,
-        delegate: string,
+        delegate: string | undefined,
         spendable: boolean,
         delegatable: boolean,
         fee: number,
         derivationPath: string,
         storage_limit: string,
         gas_limit: string,
-        code?: Array<object>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
-        storage?: object // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        code?: Array<any>, // TODO: may have to change this type depending on how parser (from JS to michelson) works
+        storage?: any // TODO: may have to change this type depending on how parser (from JS to michelson) works
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
@@ -386,7 +386,7 @@ export namespace TezosNodeWriter {
             //manager_pubkey: keyStore.publicKeyHash, // zeronet
             balance: amount.toString(),
             spendable: spendable,
-            delegatable: delegatable,
+            delegatable: delegatable && !!delegate,
             delegate: delegate,
             script: code ? { code: code, storage: storage } : undefined
         };
@@ -433,7 +433,7 @@ export namespace TezosNodeWriter {
             kind: "transaction"
         };
 
-        if (parameters !== undefined) {
+        if (!!parameters) {
             (<TezosTypes.ContractInvocationOperation> transaction).parameters = parameters;
         }
 
