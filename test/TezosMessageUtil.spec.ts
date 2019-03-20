@@ -113,6 +113,27 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
     expect(() => TezosMessageUtils.readBranch('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse a branch hash');
     expect(() => TezosMessageUtils.readSignatureWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff', 'hex'), '')).to.throw('Unrecognized signature hint, \'\'');
-  });
+  });  
 });
 
+describe("Tezos P2P message Micheline decoding", () => {
+  it('Small int', () => {
+    const result = TezosMessageUtils.hexToMicheline('0006');
+    expect(result.code).to.equal('{ "int": "6" }');
+  });
+
+  it('Large int', () => {
+    const result = TezosMessageUtils.hexToMicheline('00facdbbb503');
+    expect(result.code).to.equal('{ "int": "917432058" }');
+  });
+
+  it('string', () => {
+    const result = TezosMessageUtils.hexToMicheline('01000000096d696368656c696e65');
+    expect(result.code).to.equal('{ "string": "micheline" }');
+  });
+
+  it('Mixed static value array', () => {
+    const result = TezosMessageUtils.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
+    expect(result.code).to.equal('[ { "int": "97" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');
+  });  
+});

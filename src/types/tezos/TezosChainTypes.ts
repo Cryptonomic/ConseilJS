@@ -82,7 +82,8 @@ export interface Operation {
     delegatable?: boolean,
     destination?: string,
     amount?: string,
-    script?: string | object;
+    script?: string | object,
+    parameters?: string;
 }
 
 /**
@@ -96,7 +97,7 @@ export interface Ballot {
 }
 
 export interface ContractOriginationOperation extends Operation {
-    script: object;
+    script: string;
 }
 
 export interface ContractInvocationOperation extends Operation {

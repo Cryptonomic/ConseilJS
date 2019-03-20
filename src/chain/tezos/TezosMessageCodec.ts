@@ -311,7 +311,12 @@ export namespace TezosMessageCodec {
     fieldoffset += 2;
     let parameters = '';
     if (hasParameters) {
-      console.log(transactionMessage.substring(fieldoffset));
+      const paramLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 8), 16);
+      fieldoffset += 8;
+      const codeEnvelope = TezosMessageUtils.hexToMicheline(transactionMessage.substring(fieldoffset));
+      parameters = codeEnvelope.code;
+      if (codeEnvelope.consumed !== paramLength * 2) { throw new Error('Failed to parse transaction parameters: length mismatch'); }
+      fieldoffset += paramLength * 2;
     }
 
     let next;
@@ -323,11 +328,12 @@ export namespace TezosMessageCodec {
       kind: "transaction",
       source: source,
       destination: target,
-      amount: amountInfo.value + "",
-      fee: feeInfo.value + "",
-      gas_limit: gasInfo.value + "",
-      storage_limit: storageInfo.value + "",
-      counter: counterInfo.value + ""
+      amount: amountInfo.value.toString(),
+      fee: feeInfo.value.toString(),
+      gas_limit: gasInfo.value.toString(),
+      storage_limit: storageInfo.value.toString(),
+      counter: counterInfo.value.toString(),
+      parameters: parameters
     };
 
     const envelope: OperationEnvelope = {

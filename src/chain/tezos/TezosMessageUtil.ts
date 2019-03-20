@@ -2,12 +2,19 @@
 import base58check from "bs58check";
 import baseN from "base-n";
 
+import * as Micheline from './lexer/Micheline';
+import * as Michelson from './lexer/Michelson';
+import * as nearley from 'nearley';
+
 import {SignedOperationGroup} from '../../types/tezos/TezosChainTypes';
 import {CryptoUtils} from '../../utils/CryptoUtils';
 
 const base128 = baseN.create({
   characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
 });
+
+// TODO: share this with the parser somehow
+const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DEFAULT_ACCOUNT"', '"tez"'];
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
@@ -303,5 +310,82 @@ export namespace TezosMessageUtils {
     export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
       const hash = CryptoUtils.simpleHash(key, 20);
       return readAddressWithHint(hash, prefix);
+    }
+
+    export function hexToMicheline(hex: string): codeEnvelope {
+      let code = '';
+      let offset = 0;
+      let fieldType = hex.substring(offset, offset + 2);
+      offset += 2;
+
+      switch(fieldType) {
+        case '00': {
+          const value = findInt(hex.substring(offset), 0);
+          code += `{ "int": "${value.value}" }`;
+          offset += value.length;
+          break;
+        }
+        case '01': {
+          const length = parseInt(hex.substring(offset, offset + 8), 16);
+          offset += 8;
+          code += `{ "string": "${Buffer.from(hex.substring(offset, offset + length * 2), 'hex').toString()}" }`;
+          offset += length * 2;
+          break;
+        }
+        case '02': {
+          const length = parseInt(hex.substring(offset, offset + 8), 16);
+          offset += 8;
+          let buffer: string[] = [];
+          let consumed = 0;
+          while(consumed < length) {
+            let envelope = hexToMicheline(hex.substring(offset));
+            buffer.push(envelope.code);
+            consumed += envelope.consumed / 2; // plain bytes
+            offset += envelope.consumed; // hex-encoded two-char bytes
+          }
+          code += `[ ${buffer.join(', ')} ]`;
+          offset += consumed;
+          break;
+        }
+        case '03': {
+          code += `{ "prim": ${MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)]} }`;
+          offset += 2;
+          break;
+        }
+        case '04': {
+          break;
+        }
+        case '05': {
+          code += `{ "prim": ${MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)]}, `;
+          offset += 2;
+          const envelope = hexToMicheline(hex.substring(offset));
+          code += `"args": [ ${envelope.code} ] }`;
+          offset += envelope.consumed;
+          break;
+        }
+        case '06': {
+          break;
+        }
+        case '07': {
+          break;
+        }
+        case '08': {
+          break;
+        }
+        case '09': {
+          break;
+        }
+        case '10': {
+          break;
+        }
+        default: { throw new Error(`Unknown Micheline field type ${fieldType}`); }
+      }
+
+      return {code: code, consumed: offset};
+    }
+
+    interface codeEnvelope {
+      code: string,
+      consumed: number
     }
 }
