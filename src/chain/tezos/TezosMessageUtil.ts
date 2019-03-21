@@ -326,10 +326,9 @@ export namespace TezosMessageUtils {
           break;
         }
         case '01': {
-          const length = parseInt(hex.substring(offset, offset + 8), 16);
-          offset += 8;
-          code += `{ "string": "${Buffer.from(hex.substring(offset, offset + length * 2), 'hex').toString()}" }`;
-          offset += length * 2;
+          const stringEnvelope = michelineHexToString(hex.substring(offset));
+          code += `{ "string": "${stringEnvelope.code}" }`;
+          offset += stringEnvelope.consumed;
           break;
         }
         case '02': {
@@ -337,7 +336,7 @@ export namespace TezosMessageUtils {
           offset += 8;
           let buffer: string[] = [];
           let consumed = 0;
-          while(consumed < length) {
+          while (consumed < length) {
             let envelope = hexToMicheline(hex.substring(offset));
             buffer.push(envelope.code);
             consumed += envelope.consumed / 2; // plain bytes
@@ -348,15 +347,20 @@ export namespace TezosMessageUtils {
           break;
         }
         case '03': {
-          code += `{ "prim": ${MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)]} }`;
+          code += `{ "prim": ${michelineHexToKeyword(hex, offset)} }`;
           offset += 2;
           break;
         }
         case '04': {
+          code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
+          offset += 2;
+          const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+          code += `"annots": [ ${annEnvelope.code} ] }`;
+          offset += annEnvelope.consumed;
           break;
         }
         case '05': {
-          code += `{ "prim": ${MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)]}, `;
+          code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
           offset += 2;
           const envelope = hexToMicheline(hex.substring(offset));
           code += `"args": [ ${envelope.code} ] }`;
@@ -367,12 +371,41 @@ export namespace TezosMessageUtils {
           break;
         }
         case '07': {
+          code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
+          offset += 2;
+
+          let buffer: string[] = [];
+          let envelope = hexToMicheline(hex.substring(offset));
+          buffer.push(envelope.code);
+          offset += envelope.consumed;
+          envelope = hexToMicheline(hex.substring(offset));
+          buffer.push(envelope.code);
+          offset += envelope.consumed;
+
+          code += `"args": [ ${buffer.join(', ')} ] }`;
           break;
         }
         case '08': {
           break;
         }
         case '09': {
+          code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
+          offset += 2;
+
+          let buffer: string[] = [];
+          while (offset !== hex.length) {
+            let envelope = hexToMicheline(hex.substring(offset));
+            buffer.push(envelope.code);
+            offset += envelope.consumed;
+            if (hex.substring(offset, offset + 2) === '00') {
+              const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+              if (annEnvelope.code.length > 2) { // more than empty quotes
+                buffer.push(`"annots": [ ${annEnvelope.code} ] }`);
+              }
+              offset += annEnvelope.consumed;
+            }
+          }
+          code += `"args": [ ${buffer.join(', ')} ] }`;
           break;
         }
         case '10': {
@@ -381,7 +414,28 @@ export namespace TezosMessageUtils {
         default: { throw new Error(`Unknown Micheline field type ${fieldType}`); }
       }
 
-      return {code: code, consumed: offset};
+      return { code: code, consumed: offset };
+    }
+
+    /**
+     * Converts a Micheline-encoded ASCII string from hex. First 4 bytes are treated as length, followed by n-byte string.
+     */
+    function michelineHexToString(hex: string): codeEnvelope {
+      let offset = 0;
+      const length = parseInt(hex.substring(offset, offset + 8), 16);
+      offset += 8;
+      const text = Buffer.from(hex.substring(offset, offset + length * 2), 'hex').toString();
+      offset += length * 2
+      return {code: text, consumed: offset };
+    }
+
+    function michelineHexToKeyword(hex: string, offset: number): string {
+      return MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)];
+    }
+
+    function michelineHexToAnnotations(hex: string): codeEnvelope {
+      const stringEnvelope = michelineHexToString(hex);
+      return { code: stringEnvelope.code.split(' @').map((s, i) => i > 0 ? `"@${s}"`: `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
     }
 
     interface codeEnvelope {
