@@ -155,7 +155,7 @@ const primArgAnnToHex = d => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
             return t;
-        }).join(' ');
+        }).join(' '); // multiple annotations are encoded as a single space-separated string
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
     ann = encodeLength(ann.length / 2) + ann; // prepend length
 
