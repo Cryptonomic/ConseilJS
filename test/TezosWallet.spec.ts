@@ -89,27 +89,21 @@ describe('unlockIdentityWithMnemonic()', () => {
 
 describe('getKeysFromMnemonicAndPassphrase()', () => {
     it('should produce the correct mnemonic-based key pair', async () => {
-        const result = await TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', '', false, StoreType.Mnemonic);
+        let result = await TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', StoreType.Mnemonic);
+        expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
 
+        result = await TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenant', 'password', StoreType.Mnemonic, 'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
     });
 
     it('should be 15 words', async () => {
-        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
-            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say',
-            'password',
-            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
-            true,
-            StoreType.Mnemonic
-        )).be.rejectedWith("The mnemonic should be 15 words.");
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm', 'password', StoreType.Mnemonic)).be.rejectedWith("The mnemonic should be 15 words.");
     });
 
     it('should detect invalid mnemonics', async () => {
         await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase(
-            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say tenants',
+            'clerk rhythm bonus fabric vital luggage team engine stairs palm degree gossip hour say c0ff33',
             'password',
-            'tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc',
-            true,
             StoreType.Mnemonic
         )).be.rejectedWith("The given mnemonic could not be validated.");
     });

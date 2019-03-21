@@ -15,7 +15,7 @@ export namespace TezosWalletUtil {
      * @returns {Promise<KeyStore>} Wallet file
      */
     export async function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string) : Promise<KeyStore> {
-        return await getKeysFromMnemonicAndPassphrase(mnemonic, email + password, pkh, true, StoreType.Fundraiser);
+        return await getKeysFromMnemonicAndPassphrase(mnemonic, email + password, StoreType.Fundraiser, pkh);
     }
 
     /**
@@ -33,7 +33,7 @@ export namespace TezosWalletUtil {
      * @returns {Promise<KeyStore>} Unlocked key pair
      */
     export async function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): Promise<KeyStore> {
-        return await getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, '', false, StoreType.Mnemonic);
+        return await getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, StoreType.Mnemonic);
     }
 
     /**
@@ -46,7 +46,7 @@ export namespace TezosWalletUtil {
      * @param {StoreType} storeType Type of the generated key store
      * @returns {Promise<KeyStore>} Generated keys
      */
-    export async function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, pkh = '', checkPKH = true, storeType: StoreType) : Promise<KeyStore> {
+    export async function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, storeType: StoreType, pkh?: string) : Promise<KeyStore> {
         if (mnemonic.split(' ').length !== 15) { throw new Error('The mnemonic should be 15 words.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
@@ -56,7 +56,7 @@ export namespace TezosWalletUtil {
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
 
-        if (checkPKH && publicKeyHash !== pkh) { throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash'); }
+        if (!!pkh && publicKeyHash !== pkh) { throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash'); }
 
         return { publicKey, privateKey, publicKeyHash, seed, storeType };
     }
