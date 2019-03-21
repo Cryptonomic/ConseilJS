@@ -72,37 +72,6 @@ export namespace TezosNodeWriter {
         let encoded = TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
-        const optypes = Array.from(operations.map(o => o["kind"]));
-
-        let validate = false;
-        for (let t of optypes) {
-            validate = ["reveal", "transaction", "delegation", "origination"].includes(t);
-
-            if (validate) { break; }
-        }
-
-        if (validate) {
-            let decoded = TezosMessageCodec.parseOperationGroup(encoded);
-
-            for (let i = 0; i < operations.length; i++) {
-                const clientop = operations[i];
-                const serverop = decoded[i];
-                if (clientop["kind"] === "transaction") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
-                        throw new Error("Forged transaction failed validation.");
-                    }
-                } else if (clientop["kind"] === "delegation") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.delegate !== clientop["delegate"]) {
-                        throw new Error("Forged delegation failed validation.");
-                    }
-                } else if (clientop["kind"] === "origination") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"] || serverop.script !== undefined) {
-                        throw new Error("Forged origination failed validation.");
-                    }
-                }
-            }
-        }
-
         return encoded;
     }
 
