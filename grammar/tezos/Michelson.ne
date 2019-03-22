@@ -181,7 +181,7 @@ semicolons -> null | semicolons ";"
     const scriptToJson = d => {
         const parameterJson = d[0];
         const storageJson = d[2];
-        const codeJson = `{ "prim": "code", "args": [ ${d[4]} ]}`;
+        const codeJson = `{ "prim": "code", "args": [ [ ${d[4]} ] ] }`;
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
     }
 %}
