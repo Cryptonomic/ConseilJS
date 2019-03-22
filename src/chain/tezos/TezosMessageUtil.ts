@@ -398,9 +398,7 @@ export namespace TezosMessageUtils {
           code += `"args": [ ${buffer.join(', ')} ] }`;
           break;
         }
-        
         case '08': {
-          //{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] } => 083d036d036d0000000440636261
           code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
           offset += 2;
 
@@ -411,11 +409,8 @@ export namespace TezosMessageUtils {
           code += `"args": [ ${arg0.code}, ${arg1.code} ], `;
 
           const anns = michelineHexToAnnotations(hex.substring(offset));
-          if (anns.code.length > 2) { // more than empty quotes
-            code += `"annots": [ ${anns.code} ] }`;
-          } else {
-            code += ' }';
-          }
+          code += `"annots": [ ${anns.code} ] }`;
+          offset += anns.consumed;
           break;
         }
         case '09': {
