@@ -113,6 +113,7 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
     expect(() => TezosMessageUtils.readBranch('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse a branch hash');
     expect(() => TezosMessageUtils.readSignatureWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff', 'hex'), '')).to.throw('Unrecognized signature hint, \'\'');
+    expect(() => TezosMessageUtils.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
   });  
 });
 
@@ -149,16 +150,29 @@ describe("Tezos P2P message Micheline decoding", () => {
     expect(result.code).to.equal('{ "prim": "PUSH" }');
   });
 
-  it('Single primitive with single annotation', () => {
+  it('Single primitive with a single annotation', () => {
     const result = TezosMessageUtils.hexToMicheline('04430000000440636261');
     expect(result.code).to.equal('{ "prim": "PUSH", "annots": [ "@cba" ] }');
   });
 
-  //TODO: Single primitive with one argument
+  it('Single primitive with a single argument', () => {
+    const result = TezosMessageUtils.hexToMicheline('053d036d');
+    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ] }');
+  });
+
+  it('Single primitive with two arguments', () => {
+    const result = TezosMessageUtils.hexToMicheline('063d036d0000000440636261');
+    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] }');
+  });
 
   it('Single primitive with two arguments', () => {
     const result = TezosMessageUtils.hexToMicheline('073d036d036d');
     expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] }');
+  });
+
+  it('Single primitive with two arguments and annotation', () => {
+    const result = TezosMessageUtils.hexToMicheline('083d036d036d0000000440636261');
+    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
   });
 
   it('Single primitive with more than two arguments and no annotations', () => {
@@ -166,6 +180,8 @@ describe("Tezos P2P message Micheline decoding", () => {
     expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
   });
 
-  // TODO: Single primitive with more than two arguments and no annotations
-
+  it('Single primitive with more than two arguments and multiple annotations', () => {
+    const result = TezosMessageUtils.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
+    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
+  });
 });

@@ -31,7 +31,7 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'tez'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
     constantType: ['key', 'unit', 'signature', 'operation', 'address'],
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
@@ -41,7 +41,7 @@ const lexer = moo.compile({
     'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-     'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'DEFAULT_ACCOUNT', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
+     'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE'],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
@@ -51,71 +51,81 @@ const lexer = moo.compile({
     storage: ["Storage", "storage"],
     code: ["Code", "code"],
     elt: "Elt",
-    number: /-?(?:[0-9]|[1-9][0-9]+)(?:\.[0-9]+)?\b/,
+    number: /-?[0-9]+/,
     word: /[a-z]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 
 
-  /* Given a int, convert it to JSON.
-     Example: "3" -> { "int": "3" }
-  */
-  const intToJson = d => { return `{ "int": "${parseInt(d[0])}" }`; }
+    /**
+     * Given a int, convert it to JSON.
+     * Example: "3" -> { "int": "3" }
+     */
+    const intToJson = d => { return `{ "int": "${parseInt(d[0])}" }`; }
 
-  /* Given a string, convert it to JSON.
-     Example: "string" -> "{ "string": "blah" }"
-  */
-  const stringToJson =  d => { return `{ "string": ${d[0]} }`; }
+    /**
+     * Given a string, convert it to JSON.
+     * Example: "string" -> "{ "string": "blah" }"
+     */
+    const stringToJson =  d => { return `{ "string": ${d[0]} }`; }
 
-  /* Given a keyword, convert it to JSON.
-     Example: "int" -> "{ "prim" : "int" }"
-  */
-  const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
+    /**
+     * Given a keyword, convert it to JSON.
+     * Example: "int" -> "{ "prim" : "int" }"
+     */
+    const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
 
-  /* Given a keyword with one argument, convert it to JSON.
-     Example: "option int" -> "{ prim: option, args: [int] }"
-  */
-  const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
+    /**
+     * Given a keyword with one argument, convert it to JSON.
+     * Example: "option int" -> "{ prim: option, args: [int] }"
+     */
+    const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
 
-  /* Given a keyword with one argument and parentheses, convert it to JSON.
-     Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
-  */
-  const singleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`; }
+    /**
+     * Given a keyword with one argument and parentheses, convert it to JSON.
+     * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
+     */
+    const singleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`; }
 
-  /* Given a keyword with two arguments, convert it into JSON.
-     Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
-  */
-  const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
+    /**
+     * Given a keyword with two arguments, convert it into JSON.
+     * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+     */
+    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
 
-  /* Given a keyword with two arguments and parentheses, convert it into JSON.
-     Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
-  */
-  const doubleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]}, ${d[6]} ] }`; }
+    /**
+     * Given a keyword with two arguments and parentheses, convert it into JSON.
+     * Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+     */
+    const doubleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]}, ${d[6]} ] }`; }
 
-  /* Given a keyword with three arguments, convert it into JSON.
-     Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
-  */
-  const tripleArgKeyWordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
+    /**
+     * Given a keyword with three arguments, convert it into JSON.
+     * Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+     */
+    const tripleArgKeyWordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
 
-  /* Given a keyword with three arguments and parentheses, convert it into JSON.
-      Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
-  */
-  const tripleArgKeyWordWithParenToJson = d =>  { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
+    /**
+     * Given a keyword with three arguments and parentheses, convert it into JSON.
+     * Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
+     */
+    const tripleArgKeyWordWithParenToJson = d =>  { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
 
-  /* Given a list of michelson instructions, convert it into JSON.
-     Example: "{CAR; NIL operation; PAIR;}" -> 
-     [ '{ prim: CAR }',
-       '{ prim: NIL, args: [{ prim: operation }] }',
-       '{ prim: PAIR }' ]
-  */
-  const instructionSetToJson = d => { return d[2].map(x => x[0]); }
+    /**
+     * Given a list of michelson instructions, convert it into JSON.
+     * Example: "{CAR; NIL operation; PAIR;}" -> 
+     * [ '{ prim: CAR }',
+     * '{ prim: NIL, args: [{ prim: operation }] }',
+     * '{ prim: PAIR }' ]
+     */
+    const instructionSetToJson = d => { return d[2].map(x => x[0]); }
 
     const scriptToJson = d => {
         const parameterJson = d[0];
         const storageJson = d[2];
-        const codeJson = `{ "prim": "code", "args": [ ${d[4]} ]}`;
+        const codeJson = `{ "prim": "code", "args": [ [ ${d[4]} ] ] }`;
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
-      }
+    }
 var grammar = {
     Lexer: lexer,
     ParserRules: [
