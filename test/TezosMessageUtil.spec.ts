@@ -166,6 +166,8 @@ describe("Tezos P2P message Micheline decoding", () => {
     expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
   });
 
-  // TODO: Single primitive with more than two arguments and no annotations
-
+  it('Single primitive with more than two arguments and multiple annotations', () => {
+    const result = TezosMessageUtils.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
+    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
+  });
 });

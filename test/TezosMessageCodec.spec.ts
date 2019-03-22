@@ -340,5 +340,17 @@ describe("Tezos P2P message decoder test suite", () => {
 
     let incorrectForgedBallot = 'a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c070069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f801';
     expect(() => TezosMessageCodec.parseOperation(incorrectForgedBallot, 'ballot')).to.throw('Provided operation is not a ballot');
+
+    expect(() => TezosMessageCodec.encodeOperation({coffee: 'c0ff33'})).to.throw('Unsupported message type');
+  });
+
+  it("parse contract invocation operation", () => {
+    const result = TezosMessageCodec.parseTransaction("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f0800000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a0a013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000405050306");
+
+    expect(result.operation.parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "None" } ] }');
+  });
+
+  it("parse contract origination operation", () => {
+    
   });
 });
