@@ -615,23 +615,30 @@ export namespace TezosMessageCodec {
     return operations;
   }
 
+  // TODO: move to TezosMessageUtil
   export function translateMichelsonToMicheline (code: string): string {
-    // TODO: preprocess to strip comments
-    // TODO: preprocess to strip new lines
-    // TODO: preprocess to strip repeated whitespace?
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-    parser.feed(code);
+    parser.feed(preProcessMichelson(code)); // strip comments
 
-    let m = parser.results.join('').replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }'); // HACK: normalize whitespace coming from michelson parser
-    return m;
+    return postProcessMicheline(parser.results.join(''));
   }
 
+  function preProcessMichelson(code: string): string {
+    return code.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).join(' ');
+  }
+
+  function postProcessMicheline(code: string): string {
+    return code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
+  }
+
+  // TODO: move to TezosMessageUtil
   export function translateMichelineToHex (code: string): string {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
     parser.feed(code);
     return parser.results.join('');
   }
 
+  // TODO: move to TezosMessageUtil
   export function translateMichelsonToHex (code: string): string {
     return translateMichelineToHex(translateMichelsonToMicheline(code));
   }
