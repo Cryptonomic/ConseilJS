@@ -169,6 +169,6 @@ const encodePrimitive = p => {
 }
 
 const encodeLength = l => {
-    return ('0000000' + l.toString(16)).slice(-8).toString(16)
+    return ('0000000' + l.toString(16)).slice(-8);
 }
 %}
