@@ -11,6 +11,7 @@
 * [CryptoUtils](modules/cryptoutils.md)
 * [TezosConseilClient](modules/tezosconseilclient.md)
 * [TezosFileWallet](modules/tezosfilewallet.md)
+* [TezosLanguageUtil](modules/tezoslanguageutil.md)
 * [TezosLedgerWallet](modules/tezosledgerwallet.md)
 * [TezosMessageCodec](modules/tezosmessagecodec.md)
 * [TezosMessageUtils](modules/tezosmessageutils.md)

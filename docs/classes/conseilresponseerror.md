@@ -40,7 +40,7 @@ A specialization of ServiceResponseError for Conseil services.
 
 *Overrides [ServiceResponseError](serviceresponseerror.md).[constructor](serviceresponseerror.md#constructor)*
 
-*Defined in [types/conseil/ErrorTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L60)*
+*Defined in [types/conseil/ErrorTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L60)*
 
 **Parameters:**
 
@@ -64,7 +64,7 @@ ___
 
 **● conseilQuery**: *[ConseilQuery](../interfaces/conseilquery.md) \| `null`*
 
-*Defined in [types/conseil/ErrorTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L60)*
+*Defined in [types/conseil/ErrorTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L60)*
 
 ___
 <a id="conseilurl"></a>
@@ -75,7 +75,7 @@ ___
 
 *Inherited from [ServiceResponseError](serviceresponseerror.md).[conseilURL](serviceresponseerror.md#conseilurl)*
 
-*Defined in [types/conseil/ErrorTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L41)*
+*Defined in [types/conseil/ErrorTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L41)*
 
 ___
 <a id="data"></a>
@@ -86,7 +86,7 @@ ___
 
 *Inherited from [ServiceResponseError](serviceresponseerror.md).[data](serviceresponseerror.md#data)*
 
-*Defined in [types/conseil/ErrorTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L42)*
+*Defined in [types/conseil/ErrorTypes.ts:42](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L42)*
 
 ___
 <a id="httpmessage"></a>
@@ -97,7 +97,7 @@ ___
 
 *Inherited from [ServiceResponseError](serviceresponseerror.md).[httpMessage](serviceresponseerror.md#httpmessage)*
 
-*Defined in [types/conseil/ErrorTypes.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L40)*
+*Defined in [types/conseil/ErrorTypes.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L40)*
 
 ___
 <a id="httpstatus"></a>
@@ -108,7 +108,7 @@ ___
 
 *Inherited from [ServiceResponseError](serviceresponseerror.md).[httpStatus](serviceresponseerror.md#httpstatus)*
 
-*Defined in [types/conseil/ErrorTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L39)*
+*Defined in [types/conseil/ErrorTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L39)*
 
 ___
 <a id="message"></a>
@@ -141,7 +141,7 @@ ___
 
 *Inherited from [ServiceResponseError](serviceresponseerror.md).[response](serviceresponseerror.md#response)*
 
-*Defined in [types/conseil/ErrorTypes.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ErrorTypes.ts#L43)*
+*Defined in [types/conseil/ErrorTypes.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ErrorTypes.ts#L43)*
 
 ___
 <a id="stack"></a>

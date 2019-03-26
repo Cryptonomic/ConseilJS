@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
+const TezosLanguageUtil_1 = require("./TezosLanguageUtil");
 const operationTypes = [
     "endorsement",
     "seedNonceRevelation",
@@ -232,6 +233,14 @@ var TezosMessageCodec;
         fieldoffset += 2;
         let parameters = '';
         if (hasParameters) {
+            const paramLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 8), 16);
+            fieldoffset += 8;
+            const codeEnvelope = TezosLanguageUtil_1.TezosLanguageUtil.hexToMicheline(transactionMessage.substring(fieldoffset));
+            parameters = codeEnvelope.code;
+            if (codeEnvelope.consumed !== paramLength * 2) {
+                throw new Error('Failed to parse transaction parameters: length mismatch');
+            }
+            fieldoffset += paramLength * 2;
         }
         let next;
         if (transactionMessage.length > fieldoffset) {
@@ -241,11 +250,12 @@ var TezosMessageCodec;
             kind: "transaction",
             source: source,
             destination: target,
-            amount: amountInfo.value + "",
-            fee: feeInfo.value + "",
-            gas_limit: gasInfo.value + "",
-            storage_limit: storageInfo.value + "",
-            counter: counterInfo.value + ""
+            amount: amountInfo.value.toString(),
+            fee: feeInfo.value.toString(),
+            gas_limit: gasInfo.value.toString(),
+            storage_limit: storageInfo.value.toString(),
+            counter: counterInfo.value.toString(),
+            parameters: parameters
         };
         const envelope = {
             operation: transaction,
@@ -319,11 +329,20 @@ var TezosMessageCodec;
         }
         let hasScript = TezosMessageUtil_1.TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
         fieldoffset += 2;
+        let script = '';
         if (hasScript) {
-            throw new Error('Unsupported message content');
+            let codesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
+            fieldoffset += 8;
+            const code = TezosLanguageUtil_1.TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + codesize * 2)).code;
+            fieldoffset += codesize * 2;
+            let storagesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
+            fieldoffset += 8;
+            const storage = TezosLanguageUtil_1.TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
+            fieldoffset += storagesize * 2;
+            script = `{ "script": [ ${storage}, ${code} ] }`;
         }
         let next;
-        if (originationMessage.length > fieldoffset && !hasScript) {
+        if (originationMessage.length > fieldoffset) {
             next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
         }
         const origination = {
@@ -338,7 +357,7 @@ var TezosMessageCodec;
             gas_limit: gasInfo.value + "",
             storage_limit: storageInfo.value + "",
             counter: counterInfo.value + "",
-            script: hasScript ? "script" : undefined,
+            script: hasScript ? script : undefined,
         };
         const envelope = {
             operation: origination,
@@ -376,7 +395,25 @@ var TezosMessageCodec;
         else {
             hex += TezosMessageUtil_1.TezosMessageUtils.writeBoolean(false);
         }
-        hex += '00';
+        if (!!origination.script) {
+            let container = undefined;
+            if (origination.script instanceof String) {
+                container = JSON.parse(origination.script);
+            }
+            else {
+                container = origination.script;
+            }
+            let parts = [];
+            parts.push(JSON.stringify(container.script[2], null, 1));
+            parts.push(JSON.stringify(container.script[1], null, 1));
+            hex += parts.map(p => {
+                let result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(p);
+                return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
+            }).join('');
+        }
+        else {
+            hex += '00';
+        }
         return hex;
     }
     TezosMessageCodec.encodeOrigination = encodeOrigination;

@@ -25,7 +25,7 @@ Result of a successfully sent operation
 
 **● operationGroupID**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:119](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L119)*
+*Defined in [types/tezos/TezosChainTypes.ts:120](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L120)*
 
 ___
 <a id="results"></a>
@@ -34,7 +34,7 @@ ___
 
 **● results**: *[AlphaOperationsWithMetadata](alphaoperationswithmetadata.md)*
 
-*Defined in [types/tezos/TezosChainTypes.ts:118](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L118)*
+*Defined in [types/tezos/TezosChainTypes.ts:119](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L119)*
 
 ___
 

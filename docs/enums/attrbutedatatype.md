@@ -21,7 +21,7 @@
 
 **BOOLEAN**:  = "Boolean"
 
-*Defined in [types/conseil/MetadataTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L33)*
+*Defined in [types/conseil/MetadataTypes.ts:33](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/MetadataTypes.ts#L33)*
 
 ___
 <a id="decimal"></a>
@@ -30,7 +30,7 @@ ___
 
 **DECIMAL**:  = "Decimal"
 
-*Defined in [types/conseil/MetadataTypes.ts:32](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L32)*
+*Defined in [types/conseil/MetadataTypes.ts:32](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/MetadataTypes.ts#L32)*
 
 ___
 <a id="int"></a>
@@ -39,7 +39,7 @@ ___
 
 **INT**:  = "Int"
 
-*Defined in [types/conseil/MetadataTypes.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L31)*
+*Defined in [types/conseil/MetadataTypes.ts:31](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/MetadataTypes.ts#L31)*
 
 ___
 <a id="string"></a>
@@ -48,7 +48,7 @@ ___
 
 **STRING**:  = "String"
 
-*Defined in [types/conseil/MetadataTypes.ts:30](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/MetadataTypes.ts#L30)*
+*Defined in [types/conseil/MetadataTypes.ts:30](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/MetadataTypes.ts#L30)*
 
 ___
 

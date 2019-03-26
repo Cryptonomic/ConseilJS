@@ -28,7 +28,7 @@
 
 **AFTER**:  = "after"
 
-*Defined in [types/conseil/QueryTypes.ts:19](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L19)*
+*Defined in [types/conseil/QueryTypes.ts:19](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L19)*
 
 ___
 <a id="before"></a>
@@ -37,7 +37,7 @@ ___
 
 **BEFORE**:  = "before"
 
-*Defined in [types/conseil/QueryTypes.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L17)*
+*Defined in [types/conseil/QueryTypes.ts:17](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L17)*
 
 ___
 <a id="between"></a>
@@ -46,7 +46,7 @@ ___
 
 **BETWEEN**:  = "between"
 
-*Defined in [types/conseil/QueryTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L12)*
+*Defined in [types/conseil/QueryTypes.ts:12](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L12)*
 
 ___
 <a id="endswith"></a>
@@ -55,7 +55,7 @@ ___
 
 **ENDSWITH**:  = "endsWith"
 
-*Defined in [types/conseil/QueryTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L21)*
+*Defined in [types/conseil/QueryTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L21)*
 
 ___
 <a id="eq"></a>
@@ -64,7 +64,7 @@ ___
 
 **EQ**:  = "eq"
 
-*Defined in [types/conseil/QueryTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L13)*
+*Defined in [types/conseil/QueryTypes.ts:13](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L13)*
 
 ___
 <a id="gt"></a>
@@ -73,7 +73,7 @@ ___
 
 **GT**:  = "gt"
 
-*Defined in [types/conseil/QueryTypes.ts:18](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L18)*
+*Defined in [types/conseil/QueryTypes.ts:18](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L18)*
 
 ___
 <a id="in"></a>
@@ -82,7 +82,7 @@ ___
 
 **IN**:  = "in"
 
-*Defined in [types/conseil/QueryTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L14)*
+*Defined in [types/conseil/QueryTypes.ts:14](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L14)*
 
 ___
 <a id="isnull"></a>
@@ -91,7 +91,7 @@ ___
 
 **ISNULL**:  = "isnull"
 
-*Defined in [types/conseil/QueryTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L22)*
+*Defined in [types/conseil/QueryTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L22)*
 
 ___
 <a id="like"></a>
@@ -100,7 +100,7 @@ ___
 
 **LIKE**:  = "like"
 
-*Defined in [types/conseil/QueryTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L15)*
+*Defined in [types/conseil/QueryTypes.ts:15](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L15)*
 
 ___
 <a id="lt"></a>
@@ -109,7 +109,7 @@ ___
 
 **LT**:  = "lt"
 
-*Defined in [types/conseil/QueryTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L16)*
+*Defined in [types/conseil/QueryTypes.ts:16](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L16)*
 
 ___
 <a id="startswith"></a>
@@ -118,7 +118,7 @@ ___
 
 **STARTSWITH**:  = "startsWith"
 
-*Defined in [types/conseil/QueryTypes.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L20)*
+*Defined in [types/conseil/QueryTypes.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L20)*
 
 ___
 

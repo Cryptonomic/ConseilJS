@@ -25,7 +25,7 @@
 
 **● chain_id**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L21)*
+*Defined in [types/tezos/TezosChainTypes.ts:21](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L21)*
 
 ___
 <a id="hash"></a>
@@ -34,7 +34,7 @@ ___
 
 **● hash**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L22)*
+*Defined in [types/tezos/TezosChainTypes.ts:22](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L22)*
 
 ___
 <a id="metadata"></a>
@@ -43,7 +43,7 @@ ___
 
 **● metadata**: *[BlockHeader](blockheader.md)*
 
-*Defined in [types/tezos/TezosChainTypes.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L23)*
+*Defined in [types/tezos/TezosChainTypes.ts:23](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L23)*
 
 ___
 <a id="protocol"></a>
@@ -52,7 +52,7 @@ ___
 
 **● protocol**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L20)*
+*Defined in [types/tezos/TezosChainTypes.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L20)*
 
 ___
 

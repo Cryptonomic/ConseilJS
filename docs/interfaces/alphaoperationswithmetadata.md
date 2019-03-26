@@ -26,7 +26,7 @@
 
 **● contents**: *[AlphaOperationContentsAndResult](alphaoperationcontentsandresult.md)[]*
 
-*Defined in [types/tezos/TezosChainTypes.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L57)*
+*Defined in [types/tezos/TezosChainTypes.ts:57](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L57)*
 
 ___
 <a id="contract"></a>
@@ -35,7 +35,7 @@ ___
 
 **● contract**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:61](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L61)*
+*Defined in [types/tezos/TezosChainTypes.ts:61](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L61)*
 
 ___
 <a id="id"></a>
@@ -44,7 +44,7 @@ ___
 
 **● id**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L60)*
+*Defined in [types/tezos/TezosChainTypes.ts:60](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L60)*
 
 ___
 <a id="kind"></a>
@@ -53,7 +53,7 @@ ___
 
 **● kind**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:59](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L59)*
+*Defined in [types/tezos/TezosChainTypes.ts:59](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L59)*
 
 ___
 <a id="signature"></a>
@@ -62,7 +62,7 @@ ___
 
 **● signature**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:58](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L58)*
+*Defined in [types/tezos/TezosChainTypes.ts:58](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L58)*
 
 ___
 

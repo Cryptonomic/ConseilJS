@@ -24,7 +24,7 @@
 
 **● hash**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L91)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:91](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ConseilTezosTypes.ts#L91)*
 
 ___
 <a id="id"></a>
@@ -33,7 +33,7 @@ ___
 
 **● id**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:90](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L90)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:90](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ConseilTezosTypes.ts#L90)*
 
 ___
 <a id="kind"></a>
@@ -42,7 +42,7 @@ ___
 
 **● kind**: *`string`*
 
-*Defined in [types/conseil/ConseilTezosTypes.ts:89](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/ConseilTezosTypes.ts#L89)*
+*Defined in [types/conseil/ConseilTezosTypes.ts:89](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/ConseilTezosTypes.ts#L89)*
 
 ___
 

@@ -22,7 +22,7 @@ Functions for Tezos file wallet functionality.
 
 ▸ **createWallet**(filename: *`string`*, password: *`string`*): `Promise`<`any`>
 
-*Defined in [identity/tezos/TezosFileWallet.ts:72](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/identity/tezos/TezosFileWallet.ts#L72)*
+*Defined in [identity/tezos/TezosFileWallet.ts:72](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/identity/tezos/TezosFileWallet.ts#L72)*
 
 Creates a new wallet file.
 
@@ -43,7 +43,7 @@ ___
 
 ▸ **loadWallet**(filename: *`string`*, passphrase: *`string`*): `Promise`<[Wallet](../interfaces/wallet.md)>
 
-*Defined in [identity/tezos/TezosFileWallet.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/identity/tezos/TezosFileWallet.ts#L49)*
+*Defined in [identity/tezos/TezosFileWallet.ts:49](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/identity/tezos/TezosFileWallet.ts#L49)*
 
 Loads a wallet from a given file.
 
@@ -64,7 +64,7 @@ ___
 
 ▸ **saveWallet**(filename: *`string`*, wallet: *[Wallet](../interfaces/wallet.md)*, passphrase: *`string`*): `Promise`<[Wallet](../interfaces/wallet.md)>
 
-*Defined in [identity/tezos/TezosFileWallet.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/identity/tezos/TezosFileWallet.ts#L20)*
+*Defined in [identity/tezos/TezosFileWallet.ts:20](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/identity/tezos/TezosFileWallet.ts#L20)*
 
 Saves a wallet to a given file.
 

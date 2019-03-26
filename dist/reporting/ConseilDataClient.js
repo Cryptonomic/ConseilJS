@@ -41,30 +41,5 @@ var ConseilDataClient;
         });
     }
     ConseilDataClient.executeEntityQuery = executeEntityQuery;
-    function executeComplexQuery(serverInfo, platform, network, query) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const url = `${serverInfo.url}/v2/query/${platform}/${network}`;
-            return fetch(url, {
-                method: 'post',
-                headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
-                body: JSON.stringify(query)
-            })
-                .then(response => {
-                if (!response.ok) {
-                    throw new ErrorTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
-                }
-                return response;
-            })
-                .then(response => {
-                try {
-                    return response.json();
-                }
-                catch (_a) {
-                    throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
-                }
-            });
-        });
-    }
-    ConseilDataClient.executeComplexQuery = executeComplexQuery;
 })(ConseilDataClient = exports.ConseilDataClient || (exports.ConseilDataClient = {}));
 //# sourceMappingURL=ConseilDataClient.js.map

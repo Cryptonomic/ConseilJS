@@ -20,7 +20,7 @@
 
 **Nay**:  = 1
 
-*Defined in [types/tezos/TezosChainTypes.ts:135](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L135)*
+*Defined in [types/tezos/TezosChainTypes.ts:136](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L136)*
 
 ___
 <a id="pass"></a>
@@ -29,7 +29,7 @@ ___
 
 **Pass**:  = 2
 
-*Defined in [types/tezos/TezosChainTypes.ts:136](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L136)*
+*Defined in [types/tezos/TezosChainTypes.ts:137](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L137)*
 
 ___
 <a id="yay"></a>
@@ -38,7 +38,7 @@ ___
 
 **Yay**:  = 0
 
-*Defined in [types/tezos/TezosChainTypes.ts:134](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L134)*
+*Defined in [types/tezos/TezosChainTypes.ts:135](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L135)*
 
 ___
 

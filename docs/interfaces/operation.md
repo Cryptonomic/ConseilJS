@@ -24,6 +24,7 @@
 * [gas_limit](operation.md#gas_limit)
 * [kind](operation.md#kind)
 * [managerPubkey](operation.md#managerpubkey)
+* [parameters](operation.md#parameters)
 * [public_key](operation.md#public_key)
 * [script](operation.md#script)
 * [source](operation.md#source)
@@ -40,7 +41,7 @@
 
 **● amount**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:84](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L84)*
+*Defined in [types/tezos/TezosChainTypes.ts:84](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L84)*
 
 ___
 <a id="balance"></a>
@@ -49,7 +50,7 @@ ___
 
 **● balance**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:80](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L80)*
+*Defined in [types/tezos/TezosChainTypes.ts:80](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L80)*
 
 ___
 <a id="counter"></a>
@@ -58,7 +59,7 @@ ___
 
 **● counter**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:73](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L73)*
+*Defined in [types/tezos/TezosChainTypes.ts:73](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L73)*
 
 ___
 <a id="delegatable"></a>
@@ -67,7 +68,7 @@ ___
 
 **● delegatable**: *`undefined` \| `false` \| `true`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:82](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L82)*
+*Defined in [types/tezos/TezosChainTypes.ts:82](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L82)*
 
 ___
 <a id="delegate"></a>
@@ -76,7 +77,7 @@ ___
 
 **● delegate**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L76)*
+*Defined in [types/tezos/TezosChainTypes.ts:76](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L76)*
 
 ___
 <a id="destination"></a>
@@ -85,7 +86,7 @@ ___
 
 **● destination**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:83](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L83)*
+*Defined in [types/tezos/TezosChainTypes.ts:83](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L83)*
 
 ___
 <a id="fee"></a>
@@ -94,7 +95,7 @@ ___
 
 **● fee**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:72](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L72)*
+*Defined in [types/tezos/TezosChainTypes.ts:72](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L72)*
 
 ___
 <a id="gas_limit"></a>
@@ -103,7 +104,7 @@ ___
 
 **● gas_limit**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:75](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L75)*
+*Defined in [types/tezos/TezosChainTypes.ts:75](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L75)*
 
 ___
 <a id="kind"></a>
@@ -112,7 +113,7 @@ ___
 
 **● kind**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:70](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L70)*
+*Defined in [types/tezos/TezosChainTypes.ts:70](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L70)*
 
 ___
 <a id="managerpubkey"></a>
@@ -121,7 +122,16 @@ ___
 
 **● managerPubkey**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L78)*
+*Defined in [types/tezos/TezosChainTypes.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L78)*
+
+___
+<a id="parameters"></a>
+
+### `<Optional>` parameters
+
+**● parameters**: *`undefined` \| `string`*
+
+*Defined in [types/tezos/TezosChainTypes.ts:86](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L86)*
 
 ___
 <a id="public_key"></a>
@@ -130,7 +140,7 @@ ___
 
 **● public_key**: *`undefined` \| `string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:77](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L77)*
+*Defined in [types/tezos/TezosChainTypes.ts:77](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L77)*
 
 ___
 <a id="script"></a>
@@ -139,7 +149,7 @@ ___
 
 **● script**: *`string` \| `object`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:85](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L85)*
+*Defined in [types/tezos/TezosChainTypes.ts:85](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L85)*
 
 ___
 <a id="source"></a>
@@ -148,7 +158,7 @@ ___
 
 **● source**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:71](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L71)*
+*Defined in [types/tezos/TezosChainTypes.ts:71](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L71)*
 
 ___
 <a id="spendable"></a>
@@ -157,7 +167,7 @@ ___
 
 **● spendable**: *`undefined` \| `false` \| `true`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:81](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L81)*
+*Defined in [types/tezos/TezosChainTypes.ts:81](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L81)*
 
 ___
 <a id="storage_limit"></a>
@@ -166,7 +176,7 @@ ___
 
 **● storage_limit**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:74](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L74)*
+*Defined in [types/tezos/TezosChainTypes.ts:74](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L74)*
 
 ___
 

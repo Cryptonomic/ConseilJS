@@ -22,7 +22,7 @@
 
 **● injectedOperation**: *`string`*
 
-*Defined in [types/tezos/TezosChainTypes.ts:65](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/tezos/TezosChainTypes.ts#L65)*
+*Defined in [types/tezos/TezosChainTypes.ts:65](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/tezos/TezosChainTypes.ts#L65)*
 
 ___
 

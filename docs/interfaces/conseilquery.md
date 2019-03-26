@@ -25,7 +25,7 @@
 
 **● fields**: *`string`[]*
 
-*Defined in [types/conseil/QueryTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L38)*
+*Defined in [types/conseil/QueryTypes.ts:38](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L38)*
 
 ___
 <a id="limit"></a>
@@ -34,7 +34,7 @@ ___
 
 **● limit**: *`number`*
 
-*Defined in [types/conseil/QueryTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L41)*
+*Defined in [types/conseil/QueryTypes.ts:41](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L41)*
 
 ___
 <a id="orderby"></a>
@@ -43,7 +43,7 @@ ___
 
 **● orderBy**: *[ConseilOrdering](conseilordering.md)[]*
 
-*Defined in [types/conseil/QueryTypes.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L40)*
+*Defined in [types/conseil/QueryTypes.ts:40](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L40)*
 
 ___
 <a id="predicates"></a>
@@ -52,7 +52,7 @@ ___
 
 **● predicates**: *[ConseilPredicate](conseilpredicate.md)[]*
 
-*Defined in [types/conseil/QueryTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/types/conseil/QueryTypes.ts#L39)*
+*Defined in [types/conseil/QueryTypes.ts:39](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/types/conseil/QueryTypes.ts#L39)*
 
 ___
 

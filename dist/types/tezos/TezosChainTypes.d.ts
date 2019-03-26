@@ -69,6 +69,7 @@ export interface Operation {
     destination?: string;
     amount?: string;
     script?: string | object;
+    parameters?: string;
 }
 export interface Ballot {
     source: string;
@@ -77,10 +78,10 @@ export interface Ballot {
     vote: BallotVote;
 }
 export interface ContractOriginationOperation extends Operation {
-    script: object;
+    script: string;
 }
 export interface ContractInvocationOperation extends Operation {
-    parameters: object;
+    parameters: string;
 }
 export interface SignedOperationGroup {
     bytes: Buffer;

@@ -25,7 +25,7 @@ Utility functions for interacting with a Tezos node.
 
 ▸ **getAccountForBlock**(server: *`string`*, blockHash: *`string`*, accountID: *`string`*): `Promise`<[Account](../interfaces/account.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:65](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L65)*
+*Defined in [chain/tezos/TezosNodeReader.ts:65](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L65)*
 
 Fetches a specific account for a given block.
 
@@ -47,7 +47,7 @@ ___
 
 ▸ **getAccountManagerForBlock**(server: *`string`*, blockHash: *`string`*, accountID: *`string`*): `Promise`<[ManagerKey](../interfaces/managerkey.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L78)*
+*Defined in [chain/tezos/TezosNodeReader.ts:78](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L78)*
 
 Fetches the manager of a specific account for a given block.
 
@@ -69,7 +69,7 @@ ___
 
 ▸ **getBlock**(server: *`string`*, hash: *`string`*): `Promise`<[BlockMetadata](../interfaces/blockmetadata.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L43)*
+*Defined in [chain/tezos/TezosNodeReader.ts:43](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L43)*
 
 Gets a block for a given hash.
 
@@ -90,7 +90,7 @@ ___
 
 ▸ **getBlockHead**(server: *`string`*): `Promise`<[BlockMetadata](../interfaces/blockmetadata.md)>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L53)*
+*Defined in [chain/tezos/TezosNodeReader.ts:53](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L53)*
 
 Gets the top block.
 
@@ -110,7 +110,7 @@ ___
 
 ▸ **isImplicitAndEmpty**(server: *`string`*, accountHash: *`string`*): `Promise`<`boolean`>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:90](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L90)*
+*Defined in [chain/tezos/TezosNodeReader.ts:90](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L90)*
 
 Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
 
@@ -131,7 +131,7 @@ ___
 
 ▸ **isManagerKeyRevealedForAccount**(server: *`string`*, keyStore: *[KeyStore](../interfaces/keystore.md)*): `Promise`<`boolean`>
 
-*Defined in [chain/tezos/TezosNodeReader.ts:107](https://github.com/Cryptonomic/ConseilJS/blob/2dbb08e/src/chain/tezos/TezosNodeReader.ts#L107)*
+*Defined in [chain/tezos/TezosNodeReader.ts:107](https://github.com/Cryptonomic/ConseilJS/blob/b4f6349/src/chain/tezos/TezosNodeReader.ts#L107)*
 
 Indicates whether a reveal operation has already been done for a given account.
 

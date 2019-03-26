@@ -15,6 +15,7 @@ const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeReader_1 = require("./TezosNodeReader");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
+const TezosLanguageUtil_1 = require("./TezosLanguageUtil");
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const FetchSelector_1 = __importDefault(require("../../utils/FetchSelector"));
 const fetch = FetchSelector_1.default.getFetch();
@@ -50,36 +51,6 @@ var TezosNodeWriter;
     function forgeOperations(blockHead, operations) {
         let encoded = TezosMessageUtil_1.TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec_1.TezosMessageCodec.encodeOperation(m));
-        const optypes = Array.from(operations.map(o => o["kind"]));
-        let validate = false;
-        for (let t of optypes) {
-            validate = ["reveal", "transaction", "delegation", "origination"].includes(t);
-            if (validate) {
-                break;
-            }
-        }
-        if (validate) {
-            let decoded = TezosMessageCodec_1.TezosMessageCodec.parseOperationGroup(encoded);
-            for (let i = 0; i < operations.length; i++) {
-                const clientop = operations[i];
-                const serverop = decoded[i];
-                if (clientop["kind"] === "transaction") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.amount !== clientop["amount"] || serverop.destination !== clientop["destination"]) {
-                        throw new Error("Forged transaction failed validation.");
-                    }
-                }
-                else if (clientop["kind"] === "delegation") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.delegate !== clientop["delegate"]) {
-                        throw new Error("Forged delegation failed validation.");
-                    }
-                }
-                else if (clientop["kind"] === "origination") {
-                    if (serverop.kind !== clientop["kind"] || serverop.fee !== clientop["fee"] || serverop.balance !== clientop["balance"] || serverop.spendable !== clientop["spendable"] || serverop.delegatable !== clientop["delegatable"] || serverop.delegate !== clientop["delegate"] || serverop.script !== undefined) {
-                        throw new Error("Forged origination failed validation.");
-                    }
-                }
-            }
-        }
         return encoded;
     }
     TezosNodeWriter.forgeOperations = forgeOperations;
@@ -204,6 +175,8 @@ var TezosNodeWriter;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
             const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+            const parsedCode = !!code ? TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code) : '';
+            const parsedStorage = !!storage ? TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage) : '';
             const origination = {
                 kind: "origination",
                 source: keyStore.publicKeyHash,
@@ -214,9 +187,9 @@ var TezosNodeWriter;
                 managerPubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
-                delegatable: delegatable,
+                delegatable: delegatable && !!delegate,
                 delegate: delegate,
-                script: code ? { code: code, storage: storage } : undefined
+                script: code ? { code: parsedCode, storage: parsedStorage } : undefined
             };
             const operations = yield appendRevealOperation(server, keyStore, account, [origination]);
             return sendOperation(server, operations, keyStore, derivationPath);
@@ -226,7 +199,7 @@ var TezosNodeWriter;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
             const sourceAccount = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
-            const transaction = {
+            let transaction = {
                 destination: to,
                 amount: amount.toString(),
                 storage_limit: storageLimit.toString(),
@@ -234,9 +207,11 @@ var TezosNodeWriter;
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind: "transaction",
-                parameters: parameters,
+                kind: "transaction"
             };
+            if (!!parameters) {
+                transaction.parameters = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+            }
             const operations = yield appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });

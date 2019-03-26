@@ -17,4 +17,5 @@ __export(require("./reporting/ConseilDataClient"));
 __export(require("./reporting/ConseilMetadataClient"));
 __export(require("./reporting/ConseilQueryBuilder"));
 __export(require("./types/conseil/QueryTypes"));
+__export(require("./types/wallet/KeyStore"));
 //# sourceMappingURL=index-web.js.map
