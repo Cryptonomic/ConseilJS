@@ -3,6 +3,8 @@ import { expect } from 'chai';
 
 import * as Micheline from '../../../../src/chain/tezos/lexer/Micheline';
 import * as nearley from 'nearley';
+import * as fs from 'fs';
+import * as path from 'path';
 
 function michelineToHex(code: string): string {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
@@ -77,4 +79,32 @@ describe('Micheline binary encoding complex tests', () => {
         const result = michelineToHex('[ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ]');
         expect(result).to.equal('020000001f0500035b0501035b0502020000001003160743035b00010312053d036d0342');
     });
+});
+
+function MichelineToHex (code: string): string {
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+    parser.feed(code);
+    return parser.results.join('');
+  }
+
+describe('Micheline/hex official contract tests', async () => {
+    const contractSampleRoot = 'test/chain/tezos/lexer/samples';
+    const p = new Promise<string[]>((resolve, reject) => {
+        fs.readdir(contractSampleRoot, function(err, items) {
+            if (!!err) { reject(err); return; }
+            resolve([... new Set(items.map(f => path.basename(f, path.extname(f))))]);
+        });
+    });
+    const samples = await p;
+
+    for (let i = 0; i < samples.length; i++) {
+        const contractName = samples[i];
+        it(`Contract test: ${contractName}`, () => {
+            let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
+            let hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
+
+            let parsedHex = MichelineToHex(micheline);
+            expect(parsedHex).to.equal(hexaline);
+        });
+    }
 });
