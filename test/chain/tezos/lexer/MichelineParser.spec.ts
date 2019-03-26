@@ -87,7 +87,7 @@ function michelineToHex (code: string): string {
             let parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
             parser.feed(p);
             let result = parser.results.join('');
-            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
+            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
         }).join('');
 }
 
@@ -95,8 +95,8 @@ function preProcessMicheline(code: string): string[] {
     const container = JSON.parse(code);
     let parts: string[] = [];
 
-    parts.push(JSON.stringify(container.script[2], null, 1));
-    parts.push(JSON.stringify(container.script[1], null, 1));
+    parts.push(JSON.stringify(container.script[2], null, 1)); // code
+    parts.push(JSON.stringify(container.script[1], null, 1)); // storage
 
     for (let i = 0; i < parts.length; i++) {
         parts[i] = parts[i].replace(/\n/g, ' ').replace(/ +/g, ' ').replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
@@ -117,7 +117,7 @@ describe('Micheline/hex official contract tests', async () => {
 
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
-        it(`Contract test: ${contractName}`, () => {
+        it(`Micheline/hex contract test: ${contractName}`, () => {
             let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
             let hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
 

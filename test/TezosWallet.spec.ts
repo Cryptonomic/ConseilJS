@@ -112,8 +112,8 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
 describe('Error paths', () => {
     it('test error conditions', async () => {
         await expect(TezosFileWallet.loadWallet("//###//missing.tezwallet", "passwordwithentropy")).to.be.rejected;
-        
-            const keys: KeyStore = {
+
+        const keys: KeyStore = {
             publicKey: 'edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9',
             privateKey: 'edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi',
             publicKeyHash: 'tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95',
@@ -121,7 +121,6 @@ describe('Error paths', () => {
             storeType: StoreType.Mnemonic
         };
         const wallet: Wallet = {identities: [keys]};
-
         await expect(TezosFileWallet.saveWallet("//###//test.tezwallet", wallet, "passwordwithentropy")).to.be.rejected;
     });
 });
