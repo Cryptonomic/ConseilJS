@@ -83,9 +83,13 @@ describe('Micheline binary encoding complex tests', () => {
 
 function MichelineToHex (code: string): string {
     const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-    parser.feed(code);
+    parser.feed(preProcessMicheline(code));
     return parser.results.join('');
-  }
+}
+
+function preProcessMicheline(code: string): string {
+    return code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
+}
 
 describe('Micheline/hex official contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
