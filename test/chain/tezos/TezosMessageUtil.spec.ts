@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
+import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
 import 'mocha';
 
 describe('Tezos P2P message codec helper tests', () => {
@@ -113,75 +113,5 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
     expect(() => TezosMessageUtils.readBranch('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse a branch hash');
     expect(() => TezosMessageUtils.readSignatureWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff', 'hex'), '')).to.throw('Unrecognized signature hint, \'\'');
-    expect(() => TezosMessageUtils.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
   });  
-});
-
-describe("Tezos P2P message Micheline decoding", () => {
-  it('Small int', () => {
-    const result = TezosMessageUtils.hexToMicheline('0006');
-    expect(result.code).to.equal('{ "int": "6" }');
-  });
-
-  it('Large int', () => {
-    const result = TezosMessageUtils.hexToMicheline('00facdbbb503');
-    expect(result.code).to.equal('{ "int": "917432058" }');
-  });
-
-  //TODO: negtive number
-
-  it('string', () => {
-    const result = TezosMessageUtils.hexToMicheline('01000000096d696368656c696e65');
-    expect(result.code).to.equal('{ "string": "micheline" }');
-  });
-
-  it('empty string', () => {
-    const result = TezosMessageUtils.hexToMicheline('0100000000');
-    expect(result.code).to.equal('{ "string": "" }');
-  });
-
-  it('Mixed static value array', () => {
-    const result = TezosMessageUtils.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
-    expect(result.code).to.equal('[ { "int": "97" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');
-  });
-
-  it('Bare primitive', () => {
-    const result = TezosMessageUtils.hexToMicheline('0343');
-    expect(result.code).to.equal('{ "prim": "PUSH" }');
-  });
-
-  it('Single primitive with a single annotation', () => {
-    const result = TezosMessageUtils.hexToMicheline('04430000000440636261');
-    expect(result.code).to.equal('{ "prim": "PUSH", "annots": [ "@cba" ] }');
-  });
-
-  it('Single primitive with a single argument', () => {
-    const result = TezosMessageUtils.hexToMicheline('053d036d');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ] }');
-  });
-
-  it('Single primitive with two arguments', () => {
-    const result = TezosMessageUtils.hexToMicheline('063d036d0000000440636261');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] }');
-  });
-
-  it('Single primitive with two arguments', () => {
-    const result = TezosMessageUtils.hexToMicheline('073d036d036d');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] }');
-  });
-
-  it('Single primitive with two arguments and annotation', () => {
-    const result = TezosMessageUtils.hexToMicheline('083d036d036d0000000440636261');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
-  });
-
-  it('Single primitive with more than two arguments and no annotations', () => {
-    const result = TezosMessageUtils.hexToMicheline('093d036d036d036d00000000');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
-  });
-
-  it('Single primitive with more than two arguments and multiple annotations', () => {
-    const result = TezosMessageUtils.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
-  });
 });
