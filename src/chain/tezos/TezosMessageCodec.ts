@@ -1,8 +1,6 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
+import { TezosLanguageUtil } from "./TezosLanguageUtil";
 import { Activation, Ballot, BallotVote, Operation} from "../../types/tezos/TezosChainTypes";
-import * as Micheline from './lexer/Micheline';
-import * as Michelson from './lexer/Michelson';
-import * as nearley from 'nearley';
 
 const operationTypes: Array<string> = [
   "endorsement",
@@ -313,7 +311,7 @@ export namespace TezosMessageCodec {
     if (hasParameters) {
       const paramLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 8), 16);
       fieldoffset += 8;
-      const codeEnvelope = TezosMessageUtils.hexToMicheline(transactionMessage.substring(fieldoffset));
+      const codeEnvelope = TezosLanguageUtil.hexToMicheline(transactionMessage.substring(fieldoffset));
       parameters = codeEnvelope.code;
       if (codeEnvelope.consumed !== paramLength * 2) { throw new Error('Failed to parse transaction parameters: length mismatch'); }
       fieldoffset += paramLength * 2;
@@ -437,13 +435,13 @@ export namespace TezosMessageCodec {
       let codesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
       fieldoffset += 8;
 
-      const code = TezosMessageUtils.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + codesize * 2)).code;
+      const code = TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + codesize * 2)).code;
       fieldoffset += codesize * 2;
 
       let storagesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
       fieldoffset += 8;
 
-      const storage = TezosMessageUtils.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
+      const storage = TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
       fieldoffset += storagesize * 2;
 
       script = `{ "script": [ ${storage}, ${code} ] }`;
@@ -480,7 +478,7 @@ export namespace TezosMessageCodec {
   }
 
   /**
-   * "Forges" Tezos P2P Origination message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
+   * "Forges" Tezos P2P Origination message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch. Script parameter, if present, is expected to be in Micheline format.
    * 
    * @param origination Message to encode
    */
@@ -506,7 +504,26 @@ export namespace TezosMessageCodec {
     } else {
       hex += TezosMessageUtils.writeBoolean(false);
     }
-    hex += '00'; // no script
+
+    if (!!origination.script) {
+      let container: any = undefined;
+      if (origination.script instanceof String) {
+        container = JSON.parse(origination.script as string);
+      } else {
+        container = origination.script;
+      }
+      let parts: string[] = [];
+
+      parts.push(JSON.stringify(container.script[2], null, 1)); // code
+      parts.push(JSON.stringify(container.script[1], null, 1)); // storage
+
+      hex += parts.map(p => {
+            let result = TezosLanguageUtil.translateMichelineToHex(p);
+            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+          }).join('');
+    } else {
+      hex += '00';
+    }
 
     return hex;
   }
@@ -625,34 +642,6 @@ export namespace TezosMessageCodec {
     }
 
     return operations;
-  }
-
-  // TODO: move to TezosMessageUtil
-  export function translateMichelsonToMicheline (code: string): string {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-    parser.feed(preProcessMichelson(code)); // strip comments
-
-    return postProcessMicheline(parser.results.join(''));
-  }
-
-  function preProcessMichelson(code: string): string {
-    return code.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).join(' ');
-  }
-
-  function postProcessMicheline(code: string): string {
-    return code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
-  }
-
-  // TODO: move to TezosMessageUtil
-  export function translateMichelineToHex (code: string): string {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-    parser.feed(code);
-    return parser.results.join('');
-  }
-
-  // TODO: move to TezosMessageUtil
-  export function translateMichelsonToHex (code: string): string {
-    return translateMichelineToHex(translateMichelsonToMicheline(code));
   }
 
   interface OperationEnvelope {

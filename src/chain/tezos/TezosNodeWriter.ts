@@ -3,6 +3,7 @@ import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import {TezosNodeReader} from './TezosNodeReader';
 import {TezosMessageCodec} from './TezosMessageCodec';
 import {TezosMessageUtils} from './TezosMessageUtil';
+import {TezosLanguageUtil} from './TezosLanguageUtil';
 import {CryptoUtils} from '../../utils/CryptoUtils';
 
 import FetchSelector from '../../utils/FetchSelector'
@@ -345,8 +346,8 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
 
-        const parsedCode = !!code ? TezosMessageCodec.translateMichelsonToHex(code) : '';
-        const parsedStorage = !!storage ? TezosMessageCodec.translateMichelsonToHex(storage) : '';
+        const parsedCode = !!code ? TezosLanguageUtil.translateMichelsonToMicheline(code) : '';
+        const parsedStorage = !!storage ? TezosLanguageUtil.translateMichelsonToMicheline(storage) : '';
 
         const origination: TezosTypes.Operation = {
             kind: "origination",
@@ -407,7 +408,7 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosMessageCodec.translateMichelsonToHex(parameters);
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
