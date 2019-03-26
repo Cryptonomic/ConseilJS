@@ -134,7 +134,7 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.counter).to.equal('15440');
   });
 
-  /*it("correctly parse an origination with contract", () => {
+  it("correctly parse an origination with contract", () => {
     let forgedOrigination = "0f9c939d51f90e9435fe2f466058eed68cd7f0624ff439136dfe2dcc3139391c090000b2e1d673031ec0711eacb822cbca4ce95f1e3c0ac09a0c890581d901b04f00b2e1d673031ec0711eacb822cbca4ce95f1e3c0a80897affffff00641d2f258a7fafe9cf1f18720a14dfadba9adb0eff0000001c02000000170500036805010368050202000000080316053d036d03420000000a010000000568656c6c6f15f3cff9210c5287e91a2a9ba65871ed83b7c784ecf42419aa03c7bef02e50cd7916e228f15418ca74b7bb12d42f64cd9dac7e978173ff1360ff4dc7ca7bb501";
     const result = TezosMessageCodec.parseOrigination(forgedOrigination);
     expect(result.operation.kind).to.equal("origination");
@@ -149,7 +149,8 @@ describe("Tezos P2P message decoder test suite", () => {
     expect(result.operation.gas_limit).to.equal('27777'); // microtez
     expect(result.operation.storage_limit).to.equal('10160'); // microtez
     expect(result.operation.counter).to.equal('649');
-  });*/
+    expect(result.nextoffset).to.equal(-1);
+  });
 
   it("correctly parse a delegation ", () => {
     let forgedDelegtion = "a76af8bde55501f677bfff412d59dd21a91606f47459288476a6e947766d0e8c0a0180be2031715ea183848c08e2ff59d62e7d255ae500a0c21e03904e00ff00b15b7a2484464ed3228c0ae23d0391f8269de3da";

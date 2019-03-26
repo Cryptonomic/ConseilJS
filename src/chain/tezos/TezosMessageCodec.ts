@@ -431,14 +431,26 @@ export namespace TezosMessageCodec {
     }
 
     let hasScript = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
-
     fieldoffset += 2;
+    let script = '';
     if (hasScript) {
-      throw new Error('Unsupported message content');
+      let codesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
+      fieldoffset += 8;
+
+      const code = TezosMessageUtils.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + codesize * 2)).code;
+      fieldoffset += codesize * 2;
+
+      let storagesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
+      fieldoffset += 8;
+
+      const storage = TezosMessageUtils.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
+      fieldoffset += storagesize * 2;
+
+      script = `{ "script": [ ${storage}, ${code} ] }`;
     }
 
-    let next; // TODO
-    if (originationMessage.length > fieldoffset && !hasScript) {
+    let next;
+    if (originationMessage.length > fieldoffset) {
       next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
     }
 
@@ -454,7 +466,7 @@ export namespace TezosMessageCodec {
       gas_limit: gasInfo.value + "",
       storage_limit: storageInfo.value + "",
       counter: counterInfo.value + "",
-      script: hasScript ? "script" : undefined,
+      script: hasScript ? script : undefined,
     };
 
     const envelope: OperationEnvelope = {
