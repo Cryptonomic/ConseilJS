@@ -27,8 +27,9 @@ main -> staticInt {% id %} | staticString {% id %} | staticArray {% id %}
 
 staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticIntToHex %}
 staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticStringToHex %}
+staticBytes -> %lbrace %_ "\"bytes\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticBytesToHex %}
 staticArray -> %lbracket %_ (staticObject %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
-staticObject -> staticInt {% id %} | staticString {% id %}
+staticObject -> staticInt {% id %} | staticString {% id %} | staticBytes {% id %}
 primBare -> %lbrace %_ "\"prim\"" %_:* %colon %_ %keyword %_ %rbrace {% primBareToHex %}
 primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
 primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
@@ -71,6 +72,15 @@ const staticStringToHex = d => {
     text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
 
     return prefix + len + text;
+};
+
+const staticBytesToHex = d => {
+    const prefix = '0a';
+    let bytes = d[6].toString();
+    bytes = bytes.substring(1, bytes.length - 1); // strip double quotes
+    const len = encodeLength(bytes.length / 2);
+
+    return prefix + len + bytes;
 };
 
 /**

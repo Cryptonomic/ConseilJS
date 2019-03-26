@@ -137,7 +137,7 @@ export namespace TezosLanguageUtil {
                 code += `"args": [ ${buffer.join(', ')} ] }`;
                 break;
             }
-            case '10': {
+            case '0a': {
                 throw new Error('Micheline binary fields are not yet supported');
                 break;
             }

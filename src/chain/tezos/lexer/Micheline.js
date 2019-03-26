@@ -59,6 +59,15 @@ const staticStringToHex = d => {
     return prefix + len + text;
 };
 
+const staticBytesToHex = d => {
+    const prefix = '0a';
+    let bytes = d[6].toString();
+    bytes = bytes.substring(1, bytes.length - 1); // strip double quotes
+    const len = encodeLength(bytes.length / 2);
+
+    return prefix + len + bytes;
+};
+
 /**
  * Encode an array of static values with a "02" prefix. Individual value encoding is done by staticIntToHex or staticStringToHex.
  *[ { "int": "42" }, { "string": "abc" } ] => 020000000a002a0100000003616263
@@ -174,6 +183,9 @@ var grammar = {
     {"name": "staticString$ebnf$1", "symbols": []},
     {"name": "staticString$ebnf$1", "symbols": ["staticString$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "staticString", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"string\""}, "staticString$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticStringToHex},
+    {"name": "staticBytes$ebnf$1", "symbols": []},
+    {"name": "staticBytes$ebnf$1", "symbols": ["staticBytes$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "staticBytes", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"bytes\""}, "staticBytes$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticBytesToHex},
     {"name": "staticArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
     {"name": "staticArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "staticArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
@@ -189,6 +201,7 @@ var grammar = {
     {"name": "staticArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "staticArray$ebnf$1", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": staticArrayToHex},
     {"name": "staticObject", "symbols": ["staticInt"], "postprocess": id},
     {"name": "staticObject", "symbols": ["staticString"], "postprocess": id},
+    {"name": "staticObject", "symbols": ["staticBytes"], "postprocess": id},
     {"name": "primBare$ebnf$1", "symbols": []},
     {"name": "primBare$ebnf$1", "symbols": ["primBare$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "primBare", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primBare$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primBareToHex},
