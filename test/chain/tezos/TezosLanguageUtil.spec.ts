@@ -25,6 +25,11 @@ describe("Tezos P2P message Micheline decoding", () => {
     expect(result.code).to.equal('{ "string": "" }');
   });
 
+  it('bytes', () => {
+    const result = TezosLanguageUtil.hexToMicheline('0a000000080123456789abcdef');
+    expect(result.code).to.equal('{ "bytes": "0123456789abcdef" }');
+  });
+
   it('Mixed static value array', () => {
     const result = TezosLanguageUtil.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
     expect(result.code).to.equal('[ { "int": "97" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');

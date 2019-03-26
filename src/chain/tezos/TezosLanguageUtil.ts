@@ -138,7 +138,10 @@ export namespace TezosLanguageUtil {
                 break;
             }
             case '0a': {
-                throw new Error('Micheline binary fields are not yet supported');
+                const length = parseInt(hex.substring(offset, offset + 8), 16);
+                offset += 8;
+                code += `{ "bytes": "${hex.substring(offset, offset + length * 2)}" }`;
+                offset += length * 2;
                 break;
             }
             default: { throw new Error(`Unknown Micheline field type ${fieldType}`); }
