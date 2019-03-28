@@ -22,21 +22,24 @@ const lexer = moo.compile({
 
 @lexer lexer
 
-main -> staticInt {% id %} | staticString {% id %} | staticArray {% id %}
-        | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %} | primArray {% id %}
+main -> staticInt {% id %} | staticString {% id %}
+        | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
+        | anyArray {% id %}
 
 staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticIntToHex %}
 staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticStringToHex %}
 staticBytes -> %lbrace %_ "\"bytes\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticBytesToHex %}
-staticArray -> %lbracket %_ (staticObject %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 staticObject -> staticInt {% id %} | staticString {% id %} | staticBytes {% id %}
+
 primBare -> %lbrace %_ "\"prim\"" %_:* %colon %_ %keyword %_ %rbrace {% primBareToHex %}
-primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
+primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (all %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
 primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
-primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (primBare %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
+primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (all %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
 primAny -> primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
-primArray -> %lbracket %_ (primAny %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
-any -> primAny {% id %} | staticObject {% id %} | primArray {% id %} | staticArray {% id %}
+
+any -> primAny {% id %} | staticObject {% id %}
+anyArray -> %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
+all -> any {% id %} | anyArray {% id %}
 
 @{%
 /**

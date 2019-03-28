@@ -6,12 +6,6 @@ import * as nearley from 'nearley';
 import * as fs from 'fs';
 import * as path from 'path';
 
-function michelineFragmentToHex(code: string): string {
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-    parser.feed(code);
-    return parser.results.join('');
-}
-
 describe('Micheline binary encoding tests', () => {
     it('parse a static int', () => {
         const result = michelineFragmentToHex('{ "int": "42" }');
@@ -79,7 +73,19 @@ describe('Micheline binary encoding complex tests', () => {
         const result = michelineFragmentToHex('[ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ]');
         expect(result).to.equal('020000001f0500035b0501035b0502020000001003160743035b00010312053d036d0342');
     });
+
+    it('test 1', () => {
+        const result = michelineFragmentToHex('[ {  "prim":"CAR" }, [  [  {  "prim":"DUP" }, {  "prim":"CAR" }, {  "prim":"DIP", "args":[  [  {  "prim":"CDR" } ] ] } ] ], {  "prim":"NIL", "args":[  {  "prim":"int" } ] } ]');
+        expect(result).to.equal('020000001f0500035b0501035b0502020000001003160743035b00010312053d036d0342');
+    });
+    
 });
+
+function michelineFragmentToHex(code: string): string {
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+    parser.feed(normalizeWhiteSpace(code));
+    return parser.results.join('');
+}
 
 function michelineToHex (code: string): string {
     return preProcessMicheline(code)
@@ -99,10 +105,20 @@ function preProcessMicheline(code: string): string[] {
     parts.push(JSON.stringify(container.script[1], null, 1)); // storage
 
     for (let i = 0; i < parts.length; i++) {
-        parts[i] = parts[i].replace(/\n/g, ' ').replace(/ +/g, ' ').replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
+        parts[i] = normalizeWhiteSpace(parts[i]);
     }
 
     return parts;
+}
+
+function normalizeWhiteSpace(fragment: string): string {
+    return fragment.replace(/\n/g, ' ')
+        .replace(/ +/g, ' ')
+        .replace(/\[{/g, '[ {')
+        .replace(/}\]/g, '} ]')
+        .replace(/},{/g, '}, {')
+        .replace(/\]}/g, '] }')
+        .replace(/":"/g, '": "');
 }
 
 describe('Micheline/hex official contract tests', async () => {
@@ -122,8 +138,8 @@ describe('Micheline/hex official contract tests', async () => {
             let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
             let hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
 
-            //let parsedHex = michelineToHex(micheline);
-            //expect(parsedHex).to.equal(hexaline);
+            let parsedHex = michelineToHex(micheline);
+            expect(parsedHex).to.equal(hexaline);
         });
     }
 });
