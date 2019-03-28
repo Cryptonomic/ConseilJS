@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha test/**/*.spec.ts",
+    "test": "mocha test/chain/tezos/**/*.spec.ts",
     "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc && copyfiles -u 1 ./src/**/*.js dist/",

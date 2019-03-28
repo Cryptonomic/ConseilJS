@@ -73,7 +73,8 @@ type ->
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
 # Helper pattern for lists of michelson instructions
-subInstruction -> %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
+subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJson %}
+  | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% d => "{}" %}
@@ -176,7 +177,7 @@ semicolons -> null | semicolons ";"
      * '{ prim: NIL, args: [{ prim: operation }] }',
      * '{ prim: PAIR }' ]
      */
-    const instructionSetToJson = d => { return d[2].map(x => x[0]); }
+    const instructionSetToJson = d => { return d[2].map(x => x[0]).concat(d[3]); }
 
     const scriptToJson = d => {
         const parameterJson = d[0];

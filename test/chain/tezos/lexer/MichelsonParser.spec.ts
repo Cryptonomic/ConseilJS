@@ -28,8 +28,8 @@ describe('Michelson/Micheline official contract tests', async () => {
                 .replace(/},{/g, '}, {')
                 .replace(/\]}/g, '] }');
 
-            //let parsedMicheline = TezosLanguageUtil.translateMichelsonToMicheline(michelson);
-            //expect(parsedMicheline).to.equal(micheline);
+            let parsedMicheline = TezosLanguageUtil.translateMichelsonToMicheline(michelson);
+            expect(parsedMicheline).to.equal(micheline);
         });
     }
 });
