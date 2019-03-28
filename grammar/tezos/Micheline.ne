@@ -32,14 +32,14 @@ staticBytes -> %lbrace %_ "\"bytes\"" %_:* %colon %_ %quotedValue %_ %rbrace {% 
 staticObject -> staticInt {% id %} | staticString {% id %} | staticBytes {% id %}
 
 primBare -> %lbrace %_ "\"prim\"" %_:* %colon %_ %keyword %_ %rbrace {% primBareToHex %}
-primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (all %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
+primArg -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgToHex %}
 primAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primAnnToHex %}
-primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (all %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
+primArgAnn -> %lbrace %_ "\"prim\"" %_:? %colon %_ %keyword %comma %_  "\"args\"" %_:? %colon %_ %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket %comma %_ "\"annots\"" %_:? %colon %_ %lbracket %_ (%quotedValue %comma:? %_:?):+ %_ %rbracket %_ %rbrace {% primArgAnnToHex %}
 primAny -> primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
 
-any -> primAny {% id %} | staticObject {% id %}
-anyArray -> %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
-all -> any {% id %} | anyArray {% id %}
+any -> primAny {% id %} | staticObject {% id %} | anyArray {% id %}
+anyArray ->  %lbracket %rbracket {% function(d) { return '0200000000'; } %}
+        | %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 
 @{%
 /**

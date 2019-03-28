@@ -76,7 +76,7 @@ describe('Micheline binary encoding complex tests', () => {
 
     it('test 1', () => {
         const result = michelineFragmentToHex('[ {  "prim":"CAR" }, [  [  {  "prim":"DUP" }, {  "prim":"CAR" }, {  "prim":"DIP", "args":[  [  {  "prim":"CDR" } ] ] } ] ], {  "prim":"NIL", "args":[  {  "prim":"int" } ] } ]');
-        expect(result).to.equal('020000001f0500035b0501035b0502020000001003160743035b00010312053d036d0342');
+        expect(result).to.equal('020000001d03160200000012020000000d03210316051f02000000020317053d035b');
     });
     
 });
@@ -118,7 +118,8 @@ function normalizeWhiteSpace(fragment: string): string {
         .replace(/}\]/g, '} ]')
         .replace(/},{/g, '}, {')
         .replace(/\]}/g, '] }')
-        .replace(/":"/g, '": "');
+        .replace(/":"/g, '": "')
+        .replace(/":\[/g, '": [');
 }
 
 describe('Micheline/hex official contract tests', async () => {
