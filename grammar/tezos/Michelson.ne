@@ -38,7 +38,7 @@ const lexer = moo.compile({
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
-     'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE'],
+     'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT'],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
@@ -61,7 +61,8 @@ main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %
 script -> parameter _ storage _ code {% scriptToJson %} 
 parameter -> %parameter _ type semicolons {% singleArgKeywordToJson %}
 storage -> %storage _ type semicolons {% singleArgKeywordToJson %}
-code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}  | %code _ "{};" {% d => "code {}" %}
+code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}
+  | %code _ "{};" {% d => "code {}" %}
 
 # Grammar of a Michelson type
 type -> 
@@ -73,7 +74,7 @@ type ->
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
 # Helper pattern for lists of michelson instructions
-subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJson %}
+subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJson %} # fix post processor to account for extra instruction
   | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
