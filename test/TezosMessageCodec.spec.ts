@@ -30,6 +30,26 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].counter).to.equal('3');
     });
 
+    it("correctly parse a contract invocation transaction", () => {
+        const result = TezosMessageCodec.parseOperationGroup("e943f55f402cc95cc8786190cb83a1409a8f338248302add11aaf79bdf7ba12e080000cbc60b41535ff0474fbdacc4e3d658eed9707ebdd08603a6850280b518e0d40300013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff000000330505050805080508050501000000244b5431474532415a68617a52784773416a52566b516363486342327076414e5851576437");
+
+        expect(result[0].kind).to.equal("transaction");
+        expect(result[0].source).to.equal("tz1eDV7PxrCz2FeyB37C9S7F2KWi2KVYQb1y");
+        expect(result[0].destination).to.equal("KT1E7xh6tvnVMWx7QCZnuWXwcpCJ9UmMWcyK");
+        expect(result[0].amount).to.equal('0'); // microtez
+        expect(result[0].fee).to.equal('50000'); // microtez
+        expect(result[0].gas_limit).to.equal('400000'); // microtez
+        expect(result[0].storage_limit).to.equal('60000'); // microtez*/
+        expect(result[0].counter).to.equal('33446');
+        expect(result[0].parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Left", "args": [ { "string": "KT1GE2AZhazRxGsAjRVkQccHcB2pvANXQWd7" } ] } ] } ] } ] } ] }');
+    });
+
+    it("parse contract invocation transaction", () => {
+        const result = TezosMessageCodec.parseTransaction("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f0800000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a0a013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000405050306");
+
+        expect(result.operation.parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "None" } ] }');
+    });
+
     it("correctly encode a transaction operation", () => {
         const transaction: Operation = {
             kind: "transaction",
@@ -362,11 +382,5 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(() => TezosMessageCodec.parseOperation(incorrectForgedBallot, 'ballot')).to.throw('Provided operation is not a ballot');
 
         expect(() => TezosMessageCodec.encodeOperation({ coffee: 'c0ff33' })).to.throw('Unsupported message type');
-    });
-
-    it("parse contract invocation operation", () => {
-        const result = TezosMessageCodec.parseTransaction("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f0800000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a0a013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000405050306");
-
-        expect(result.operation.parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "None" } ] }');
     });
 });
