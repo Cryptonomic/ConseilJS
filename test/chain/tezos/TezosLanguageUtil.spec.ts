@@ -2,7 +2,10 @@ import { expect } from 'chai';
 import { TezosLanguageUtil } from '../../../src/chain/tezos/TezosLanguageUtil';
 import 'mocha';
 
-describe("Tezos P2P message Micheline decoding", () => {
+import * as fs from 'fs';
+import * as path from 'path';
+
+describe("Tezos Micheline fragment decoding", () => {
   it('Small int', () => {
     const result = TezosLanguageUtil.hexToMicheline('0006');
     expect(result.code).to.equal('{ "int": "6" }');
@@ -13,7 +16,7 @@ describe("Tezos P2P message Micheline decoding", () => {
     expect(result.code).to.equal('{ "int": "917432058" }');
   });
 
-  //TODO: negtive number
+  //TODO: negative number
 
   it('string', () => {
     const result = TezosLanguageUtil.hexToMicheline('01000000096d696368656c696e65');
@@ -78,4 +81,69 @@ describe("Tezos P2P message Micheline decoding", () => {
   it("test various parsing and encoding failures", () => {
     expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
   });
+});
+
+
+function preProcessMicheline(code: string): string[] {
+    const container = JSON.parse(code);
+    let parts: string[] = [];
+
+    parts.push(JSON.stringify(container.script[2], null, 1)); // code
+    parts.push(JSON.stringify(container.script[1], null, 1)); // storage
+
+    for (let i = 0; i < parts.length; i++) {
+        parts[i] = normalizeWhiteSpace(parts[i]);
+    }
+
+    return parts;
+}
+
+function preProcessHex(hex: string): string[] {
+    let parts: string[] = [];
+
+    let offset = 0;
+    while (offset < hex.length) {
+        let partlength = parseInt(hex.substring(offset, offset + 8), 16) * 2;
+        offset += 8;
+        parts.push(hex.substring(offset, offset + partlength));
+        offset += partlength;
+    }
+
+    return parts;
+}
+
+function normalizeWhiteSpace(fragment: string): string {
+    return fragment.replace(/\n/g, ' ')
+        .replace(/ +/g, ' ')
+        .replace(/\[{/g, '[ {')
+        .replace(/}\]/g, '} ]')
+        .replace(/},{/g, '}, {')
+        .replace(/\]}/g, '] }')
+        .replace(/":"/g, '": "')
+        .replace(/":\[/g, '": [');
+}
+
+describe('Micheline/hex official contract tests', async () => {
+    const contractSampleRoot = 'test/chain/tezos/lexer/samples';
+    const p = new Promise<string[]>((resolve, reject) => {
+        fs.readdir(contractSampleRoot, function(err, items) {
+            if (!!err) { reject(err); return; }
+            resolve([... new Set(items.map(f => path.basename(f, path.extname(f))))]);
+        });
+    });
+    const samples = await p;
+
+    for (let i = 0; i < samples.length; i++) {
+        const contractName = samples[i];
+        if(!fs.existsSync(`${contractSampleRoot}/${contractName}.micheline`)) { continue; }
+        it(`Micheline/hex contract test: ${contractName}`, () => {
+            const micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
+            const hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
+
+            const parsedMicheline = `{ "script": ${preProcessHex(hexaline).map(h => TezosLanguageUtil.hexToMicheline(h).code).join(', ')} }`;
+            const expectedMicheline = `{ "script": ${preProcessMicheline(micheline).join(', ')} }`;
+
+            expect(parsedMicheline).to.equal(expectedMicheline);
+        });
+    }
 });

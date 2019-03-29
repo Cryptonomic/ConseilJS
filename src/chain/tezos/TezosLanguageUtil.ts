@@ -39,15 +39,19 @@ export namespace TezosLanguageUtil {
                 const length = parseInt(hex.substring(offset, offset + 8), 16);
                 offset += 8;
                 let buffer: string[] = [];
-                let consumed = 0;
+                let consumed = 0;   
                 while (consumed < length) {
                     let envelope = hexToMicheline(hex.substring(offset));
                     buffer.push(envelope.code);
                     consumed += envelope.consumed / 2; // plain bytes
                     offset += envelope.consumed; // hex-encoded two-char bytes
                 }
-                code += `[ ${buffer.join(', ')} ]`;
-                offset += consumed;
+                if (length === 0) {
+                    code += '[]';
+                } else {
+                    code += `[ ${buffer.join(', ')} ]`;
+                }
+
                 break;
             }
             case '03': {
@@ -85,6 +89,7 @@ export namespace TezosLanguageUtil {
                 } else {
                     code += ' }';
                 }
+                offset += anns.consumed;
                 break;
             }
             case '07': {
@@ -206,14 +211,16 @@ export namespace TezosLanguageUtil {
     }
 
     /**
-     * Translates hex-encoded stream into a collection of annotations. Determines the length internally.
+     * Translates hex-encoded stream into a collection of annotations. Determines the length internally. Annotations are prefixed with ':', '@', or '%' for type, variable, and field annotations.
      * 
      * @param {string} hex Hex-encoded contract fragment to process
      * @returns {codeEnvelope} Parsed annotations and the number of consumed bytes.
+     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/master/whitedoc/michelson.html#annotations}
      */
     function michelineHexToAnnotations(hex: string): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);
-        return { code: stringEnvelope.code.split(' @').map((s, i) => i > 0 ? `"@${s}"` : `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
+        const prefix = stringEnvelope.code.substring(0, 1);
+        return { code: stringEnvelope.code.split(` ${prefix}`).map((s, i) => i > 0 ? `"${prefix}${s}"` : `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
     }
 
     /**
@@ -249,7 +256,8 @@ export namespace TezosLanguageUtil {
             .replace(/\[{/g, '[ {')
             .replace(/}\]/g, '} ]')
             .replace(/},{/g, '}, {')
-            .replace(/\]}/g, '] }');
+            .replace(/\]}/g, '] }')
+            .replace(/":"/g, '": "');
     }
 
     interface codeEnvelope {
