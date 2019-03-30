@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { TezosLanguageUtil } from '../../../src/chain/tezos/TezosLanguageUtil';
+import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
 import 'mocha';
 
 import * as fs from 'fs';
@@ -12,8 +13,15 @@ describe("Tezos Micheline fragment decoding", () => {
   });
 
   it('Large int', () => {
-    const result = TezosLanguageUtil.hexToMicheline('00facdbbb503');
-    expect(result.code).to.equal('{ "int": "917432058" }');
+    let result = TezosLanguageUtil.hexToMicheline('00facdbbb503').code;
+    expect(result).to.equal('{ "int": "917432058" }');
+    result = TezosMessageUtils.readInt('facdbbb503') + '';
+    expect(result).to.equal('917432058');
+
+    result = TezosLanguageUtil.hexToMicheline('008084af5f').code;
+    expect(result).to.equal('{ "int": "200000000" }');
+    result = TezosMessageUtils.readInt('8084af5f') + '';
+    expect(result).to.equal('200000000');
   });
 
   //TODO: negative number
@@ -82,7 +90,6 @@ describe("Tezos Micheline fragment decoding", () => {
     expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
   });
 });
-
 
 function preProcessMicheline(code: string): string[] {
     const container = JSON.parse(code);

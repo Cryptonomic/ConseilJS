@@ -35,7 +35,7 @@ export namespace TezosMessageUtils {
      */
     export function writeInt(value: number): string {
         //@ts-ignore
-        return Buffer.from(base128.encode(parseInt(value, 10)), "hex")
+        return Buffer.from(base128.encode(value), "hex")
             .map((v, i) => {
                 return i === 0 ? v : v ^ 0x80;
             })

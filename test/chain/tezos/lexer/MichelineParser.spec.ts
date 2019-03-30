@@ -2,6 +2,7 @@ import 'mocha';
 import { expect } from 'chai';
 
 import * as Micheline from '../../../../src/chain/tezos/lexer/Micheline';
+import { TezosMessageUtils } from '../../../../src/chain/tezos/TezosMessageUtil';
 import * as nearley from 'nearley';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -13,8 +14,15 @@ describe('Micheline binary encoding tests', () => {
     });
 
     it('parse a large static int', () => {
-        const result = michelineFragmentToHex('{ "int": "976146032" }');
+        let result = michelineFragmentToHex('{ "int": "976146032" }');
         expect(result).to.equal('00f09cbbd103');
+        result = TezosMessageUtils.writeInt(976146032);
+        expect(result).to.equal('f09cbbd103');
+
+        result = michelineFragmentToHex('{ "int": "200000000" }');
+        expect(result).to.equal('008084af5f');
+        result = TezosMessageUtils.writeInt(200000000);
+        expect(result).to.equal('8084af5f');
     });
 
     it('parse a static string', () => {

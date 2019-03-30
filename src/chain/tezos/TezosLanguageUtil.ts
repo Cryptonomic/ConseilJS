@@ -219,8 +219,7 @@ export namespace TezosLanguageUtil {
      */
     function michelineHexToAnnotations(hex: string): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);
-        const prefix = stringEnvelope.code.substring(0, 1);
-        return { code: stringEnvelope.code.split(` ${prefix}`).map((s, i) => i > 0 ? `"${prefix}${s}"` : `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
+        return { code: stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
     }
 
     /**
