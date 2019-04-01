@@ -38,7 +38,8 @@ const lexer = moo.compile({
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
-     'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT'],
+     'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
+     'CMPLE', 'UNPAPAIR', 'CAAR'],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
@@ -59,8 +60,8 @@ const lexer = moo.compile({
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %}
 script -> parameter _ storage _ code {% scriptToJson %} 
-parameter -> %parameter _ type semicolons {% singleArgKeywordToJson %}
-storage -> %storage _ type semicolons {% singleArgKeywordToJson %}
+parameter -> %parameter _ type _ semicolons {% singleArgKeywordToJson %}
+storage -> %storage _ type _ semicolons {% singleArgKeywordToJson %}
 code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}
   | %code _ "{};" {% d => "code {}" %}
 
