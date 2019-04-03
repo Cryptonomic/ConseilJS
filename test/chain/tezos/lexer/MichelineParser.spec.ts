@@ -15,14 +15,13 @@ describe('Micheline binary encoding tests', () => {
 
     it('parse a large literal int', () => {
         let result = michelineFragmentToHex('{ "int": "976146032" }');
-        expect(result).to.equal('00f09cbbd103');
-        result = TezosMessageUtils.writeInt(976146032);
-        expect(result).to.equal('f09cbbd103');
+        expect(result).to.equal('00b0b9f6a207');
 
         result = michelineFragmentToHex('{ "int": "200000000" }');
-        expect(result).to.equal('008084af5f');
-        result = TezosMessageUtils.writeInt(200000000);
-        expect(result).to.equal('8084af5f');
+        expect(result).to.equal('008088debe01');
+
+        result = michelineFragmentToHex('{ "int": "-897900" }');
+        expect(result).to.equal('00eccd6d');
     });
 
     it('parse a listeral string', () => {
