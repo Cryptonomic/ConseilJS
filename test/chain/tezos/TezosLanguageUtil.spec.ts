@@ -7,88 +7,111 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe("Tezos Micheline fragment decoding", () => {
-  it('Small int', () => {
-    const result = TezosLanguageUtil.hexToMicheline('0006');
-    expect(result.code).to.equal('{ "int": "6" }');
-  });
+    it('Small int', () => {
+        let result = TezosLanguageUtil.hexToMicheline('0006');
+        expect(result.code).to.equal('{ "int": "6" }');
 
-  it('Large int', () => {
-    let result = TezosLanguageUtil.hexToMicheline('00facdbbb503').code;
-    expect(result).to.equal('{ "int": "917432058" }');
-    result = TezosMessageUtils.readInt('facdbbb503') + '';
-    expect(result).to.equal('917432058');
+        result = TezosLanguageUtil.hexToMicheline('0046');
+        expect(result.code).to.equal('{ "int": "-6" }');
 
-    result = TezosLanguageUtil.hexToMicheline('008084af5f').code;
-    expect(result).to.equal('{ "int": "200000000" }');
-    result = TezosMessageUtils.readInt('8084af5f') + '';
-    expect(result).to.equal('200000000');
-  });
+        result = TezosLanguageUtil.hexToMicheline('003f');
+        expect(result.code).to.equal('{ "int": "63" }');
 
-  //TODO: negative number
+        result = TezosLanguageUtil.hexToMicheline('007f');
+        expect(result.code).to.equal('{ "int": "-63" }');
+    });
 
-  it('string', () => {
-    const result = TezosLanguageUtil.hexToMicheline('01000000096d696368656c696e65');
-    expect(result.code).to.equal('{ "string": "micheline" }');
-  });
+    it('Medium int', () => {
+        let result = TezosLanguageUtil.hexToMicheline('00a101');
+        expect(result.code).to.equal('{ "int": "97" }');
 
-  it('empty string', () => {
-    const result = TezosLanguageUtil.hexToMicheline('0100000000');
-    expect(result.code).to.equal('{ "string": "" }');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00ff01');
+        expect(result.code).to.equal('{ "int": "-127" }');
 
-  it('bytes', () => {
-    const result = TezosLanguageUtil.hexToMicheline('0a000000080123456789abcdef');
-    expect(result.code).to.equal('{ "bytes": "0123456789abcdef" }');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00840e');
+        expect(result.code).to.equal('{ "int": "900" }');
 
-  it('Mixed static value array', () => {
-    const result = TezosLanguageUtil.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
-    expect(result.code).to.equal('[ { "int": "97" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00c40e');
+        expect(result.code).to.equal('{ "int": "-900" }');
+    });
 
-  it('Bare primitive', () => {
-    const result = TezosLanguageUtil.hexToMicheline('0343');
-    expect(result.code).to.equal('{ "prim": "PUSH" }');
-  });
+    it('Large int', () => {
+        let result = TezosLanguageUtil.hexToMicheline('00ba9af7ea06');
+        expect(result.code).to.equal('{ "int": "917431994" }');
 
-  it('Single primitive with a single annotation', () => {
-    const result = TezosLanguageUtil.hexToMicheline('04430000000440636261');
-    expect(result.code).to.equal('{ "prim": "PUSH", "annots": [ "@cba" ] }');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00fa9af7ea06');
+        expect(result.code).to.equal('{ "int": "-917431994" }');
 
-  it('Single primitive with a single argument', () => {
-    const result = TezosLanguageUtil.hexToMicheline('053d036d');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ] }');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00a1d22c');
+        expect(result.code).to.equal('{ "int": "365729" }');
 
-  it('Single primitive with two arguments', () => {
-    const result = TezosLanguageUtil.hexToMicheline('063d036d0000000440636261');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] }');
-  });
+        result = TezosLanguageUtil.hexToMicheline('00e1d22c');
+        expect(result.code).to.equal('{ "int": "-365729" }');
+    });
 
-  it('Single primitive with two arguments', () => {
-    const result = TezosLanguageUtil.hexToMicheline('073d036d036d');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] }');
-  });
+    it('string', () => {
+        const result = TezosLanguageUtil.hexToMicheline('01000000096d696368656c696e65');
+        expect(result.code).to.equal('{ "string": "micheline" }');
+    });
 
-  it('Single primitive with two arguments and annotation', () => {
-    const result = TezosLanguageUtil.hexToMicheline('083d036d036d0000000440636261');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
-  });
+    it('empty string', () => {
+        const result = TezosLanguageUtil.hexToMicheline('0100000000');
+        expect(result.code).to.equal('{ "string": "" }');
+    });
 
-  it('Single primitive with more than two arguments and no annotations', () => {
-    const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000000');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
-  });
+    it('bytes', () => {
+        const result = TezosLanguageUtil.hexToMicheline('0a000000080123456789abcdef');
+        expect(result.code).to.equal('{ "bytes": "0123456789abcdef" }');
+    });
 
-  it('Single primitive with more than two arguments and multiple annotations', () => {
-    const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
-    expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
-  });
+    it('Mixed literal value array', () => {
+        const result = TezosLanguageUtil.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
+        expect(result.code).to.equal('[ { "int": "-33" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');
+    });
 
-  it("test various parsing and encoding failures", () => {
-    expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
-  });
+    it('Bare primitive', () => {
+        const result = TezosLanguageUtil.hexToMicheline('0343');
+        expect(result.code).to.equal('{ "prim": "PUSH" }');
+    });
+
+    it('Single primitive with a single annotation', () => {
+        const result = TezosLanguageUtil.hexToMicheline('04430000000440636261');
+        expect(result.code).to.equal('{ "prim": "PUSH", "annots": [ "@cba" ] }');
+    });
+
+    it('Single primitive with a single argument', () => {
+        const result = TezosLanguageUtil.hexToMicheline('053d036d');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ] }');
+    });
+
+    it('Single primitive with two arguments', () => {
+        const result = TezosLanguageUtil.hexToMicheline('063d036d0000000440636261');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] }');
+    });
+
+    it('Single primitive with two arguments', () => {
+        const result = TezosLanguageUtil.hexToMicheline('073d036d036d');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ] }');
+    });
+
+    it('Single primitive with two arguments and annotation', () => {
+        const result = TezosLanguageUtil.hexToMicheline('083d036d036d0000000440636261');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] }');
+    });
+
+    it('Single primitive with more than two arguments and no annotations', () => {
+        const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000000');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
+    });
+
+    it('Single primitive with more than two arguments and multiple annotations', () => {
+        const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
+    });
+
+    it("test various parsing and encoding failures", () => {
+        expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
+    });
 });
 
 function preProcessMicheline(code: string): string[] {
@@ -130,10 +153,10 @@ function normalizeWhiteSpace(fragment: string): string {
         .replace(/":\[/g, '": [');
 }
 
-describe('Micheline/hex official contract tests', async () => {
+describe('Hex to Micheline official contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
     const p = new Promise<string[]>((resolve, reject) => {
-        fs.readdir(contractSampleRoot, function(err, items) {
+        fs.readdir(contractSampleRoot, function (err, items) {
             if (!!err) { reject(err); return; }
             resolve([... new Set(items.map(f => path.basename(f, path.extname(f))))]);
         });
@@ -142,8 +165,8 @@ describe('Micheline/hex official contract tests', async () => {
 
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
-        if(!fs.existsSync(`${contractSampleRoot}/${contractName}.micheline`)) { continue; }
-        it(`Micheline/hex contract test: ${contractName}`, () => {
+        if (!fs.existsSync(`${contractSampleRoot}/${contractName}.micheline`)) { continue; }
+        it(`Hex/Micheline contract ${contractName}`, () => {
             const micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
             const hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
 

@@ -130,7 +130,7 @@ function normalizeWhiteSpace(fragment: string): string {
         .replace(/":\[/g, '": [');
 }
 
-describe('Micheline/hex official contract tests', async () => {
+describe('Micheline to hex official contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
     const p = new Promise<string[]>((resolve, reject) => {
         fs.readdir(contractSampleRoot, function(err, items) {
@@ -143,7 +143,7 @@ describe('Micheline/hex official contract tests', async () => {
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
         if(!fs.existsSync(`${contractSampleRoot}/${contractName}.micheline`)) { continue; }
-        it(`Micheline/hex contract test: ${contractName}`, () => {
+        it(`Micheline to hex contract ${contractName}`, () => {
             let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
             let hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
 
