@@ -34,6 +34,7 @@ export namespace TezosMessageUtils {
      * @param {number} value Number to be obfuscated.
      */
     export function writeInt(value: number): string {
+        if (value < 0) {throw new Error('Use writeSignedInt to encode negative numbers'); }
         //@ts-ignore
         return Buffer.from(base128.encode(value), "hex")
         .map((v, i) => {
@@ -48,6 +49,8 @@ export namespace TezosMessageUtils {
      * @param {number} value Number to be obfuscated.
      */
     export function writeSignedInt(value: number): string {
+        if (value === 0) { return '00'; }
+
         const n = Math.abs(value);
         const l = Math.log2(n) + 1;
 

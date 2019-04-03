@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { TezosLanguageUtil } from '../../../src/chain/tezos/TezosLanguageUtil';
-import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
 import 'mocha';
 
 import * as fs from 'fs';

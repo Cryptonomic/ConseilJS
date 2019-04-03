@@ -4,9 +4,6 @@
 function id(x) { return x[0]; }
 
 const moo = require("moo");
-const baseN = require("base-n");
-
-const base128 = baseN.create({ characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2)) });
 
 const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"'];
 
@@ -25,21 +22,13 @@ const lexer = moo.compile({
 
 
 /**
- * Encode an int value into zarith format, add "00" prefix.
+ * Encode a signed int value, add "00" prefix.
  * { "int": "42" } => 002a
  */
 const staticIntToHex = d => {
     const prefix = '00';
     const text = d[6].toString();
-    const value = base128.encode(parseInt(text.substring(1, text.length - 1))).split('').map((v, i, a) => {
-            if (i % 2 !== 0) { return null; } // skip odd indices
-            const n = parseInt(v + a[i + 1], 16); // take two
-            return i > 0 ? n ^ 0x80 : n;
-        })
-        .filter(v => v !== null)
-        .reverse()
-        .map(v => ('00' + v.toString(16)).slice(-2))
-        .join('');
+    const value = writeSignedInt(parseInt(text.substring(1, text.length - 1))); // strip double quotes
 
     return prefix + value;
 };
@@ -165,6 +154,40 @@ const encodePrimitive = p => {
 
 const encodeLength = l => {
     return ('0000000' + l.toString(16)).slice(-8);
+}
+
+const writeSignedInt = value => {
+    if (value === 0) { return '00'; }
+
+    const n = Math.abs(value);
+    const l = Math.log2(n) + 1;
+
+    let arr = [];
+    let v = n;
+    for (let i = 0; i < l; i += 7) {
+        let byte = 0;
+
+        if (i === 0) {
+            byte = v & 0x3f; // first byte makes room for sign flag
+            v = v >> 6;
+        } else {
+            byte = v & 0x7f; // NOT base128 encoded
+            v = v >> 7;
+        }
+
+        if (value < 0 && i === 0) { byte |= 0x40; } // set sign flag
+
+        if (i + 7 < l) { byte |= 0x80; } // set next byte flag
+
+        arr.push(byte);
+    }
+
+    if (l % 7 === 0) {
+        arr[arr.length - 1] = arr[arr.length - 1] | 0x80;
+        arr.push(1);
+    }
+
+    return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
 }
 var grammar = {
     Lexer: lexer,

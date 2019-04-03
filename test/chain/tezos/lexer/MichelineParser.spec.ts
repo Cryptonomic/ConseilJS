@@ -8,12 +8,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('Micheline binary encoding tests', () => {
-    it('parse a static int', () => {
+    it('parse a literal int', () => {
         const result = michelineFragmentToHex('{ "int": "42" }');
         expect(result).to.equal('002a');
     });
 
-    it('parse a large static int', () => {
+    it('parse a large literal int', () => {
         let result = michelineFragmentToHex('{ "int": "976146032" }');
         expect(result).to.equal('00f09cbbd103');
         result = TezosMessageUtils.writeInt(976146032);
@@ -25,12 +25,12 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('8084af5f');
     });
 
-    it('parse a static string', () => {
+    it('parse a listeral string', () => {
         const result = michelineFragmentToHex('{ "string" : "abc" }');
         expect(result).to.equal('0100000003616263');
     });
 
-    it('parse a static array', () => {
+    it('parse a literal array', () => {
         const result = michelineFragmentToHex('[ { "int" : "42" }, { "string": "abc" }, { "string": "def" } ]');
         expect(result).to.equal('0200000012002a01000000036162630100000003646566');
     });
