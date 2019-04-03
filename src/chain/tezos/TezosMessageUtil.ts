@@ -1,6 +1,7 @@
 /*eslint no-bitwise: 0*/
 import base58check from "bs58check";
 import baseN from "base-n";
+import bigInt from 'big-integer';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
@@ -51,27 +52,25 @@ export namespace TezosMessageUtils {
     export function writeSignedInt(value: number): string {
         if (value === 0) { return '00'; }
 
-        const n = Math.abs(value);
-        const l = Math.log2(n) + 1;
-
+        const n = bigInt(value).abs();
+        const l = n.bitLength().toJSNumber();
         let arr: number[] = [];
         let v = n;
         for (let i = 0; i < l; i += 7) {
-            let byte = 0;
+            let byte = bigInt.zero;
 
             if (i === 0) {
-                byte = v & 0x3f; // first byte makes room for sign flag
-                v = v >> 6;
+                byte = v.and(0x3f); // first byte makes room for sign flag
+                v = v.shiftRight(6);
             } else {
-                byte = v & 0x7f; // NOT base128 encoded
-                v = v >> 7;
+                byte = v.and(0x7f); // NOT base128 encoded
+                v = v.shiftRight(7);
             }
 
-            if (value < 0 && i === 0) { byte |= 0x40; } // set sign flag
+            if (value < 0 && i === 0) { byte = byte.or(0x40); } // set sign flag
 
-            if (i + 7 < l) { byte |= 0x80; } // set next byte flag
-
-            arr.push(byte);
+            if (i + 7 < l) { byte = byte.or(0x80); } // set next byte flag
+            arr.push(byte.toJSNumber());
         }
 
         if (l % 7 === 0) {
@@ -91,29 +90,25 @@ export namespace TezosMessageUtils {
             //@ts-ignore
             Buffer.from(hex, "hex")
                 .reverse()
-                .map((v, i) => {
-                    return i === 0 ? v : v & 0x7f;
-                })
+                .map((v, i) => { return i === 0 ? v : v & 0x7f; })
                 .toString("hex")
         );
     }
 
     export function readSignedInt(hex: string): number {
-        const positive = (Buffer.from(hex.slice(0, 2), 'hex')[0] & 0x40) ? -1 : 1;
+        const positive = (Buffer.from(hex.slice(0, 2), 'hex')[0] & 0x40) ? false : true;
         //@ts-ignore
         const arr = Buffer.from(hex, 'hex').map((v, i) => i === 0 ? v & 0x3f : v & 0x7f);
-        let n = 0;
+        let n = bigInt.zero;
         for (let i = arr.length - 1; i >= 0; i--) {
             if (i === 0) {
-                //@ts-ignore
-                n = n | arr[i]
+                n = n.or(arr[i]);
             } else {
-                //@ts-ignore
-                n = n | arr[i] << (7 * i - 1);
+                n = n.or(bigInt(arr[i]).shiftLeft(7 * i - 1));
             }
         }
 
-        return positive * n;
+        return positive ? n.toJSNumber() : n.negate().toJSNumber();
     }
 
     /**

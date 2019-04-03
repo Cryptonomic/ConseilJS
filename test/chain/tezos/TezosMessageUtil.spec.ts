@@ -83,6 +83,24 @@ describe('Tezos P2P message codec helper tests', () => {
 
     result = TezosMessageUtils.writeInt(4096);
     expect(result).to.equal('8020');
+
+    result = TezosMessageUtils.writeInt(0);
+    expect(result).to.equal('00');
+
+    result = TezosMessageUtils.writeSignedInt(0);
+    expect(result).to.equal('00');
+
+    result = TezosMessageUtils.writeSignedInt(-64);
+    expect(result).to.equal('c001');
+
+    result = TezosMessageUtils.writeSignedInt(-120053);
+    expect(result).to.equal('f5d30e');
+
+    result = TezosMessageUtils.writeSignedInt(30268635200);
+    expect(result).to.equal('80e1b5c2e101');
+
+    result = TezosMessageUtils.writeSignedInt(610913435200);
+    expect(result).to.equal('80f9b9d4c723');
   });
 
   it('test int read function', () => {
@@ -113,5 +131,6 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.readBufferWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee', 'hex'), 'bb')).to.throw('Unsupported hint, \'bb\'');
     expect(() => TezosMessageUtils.readBranch('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse a branch hash');
     expect(() => TezosMessageUtils.readSignatureWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff', 'hex'), '')).to.throw('Unrecognized signature hint, \'\'');
+    expect(() => TezosMessageUtils.writeInt(-1)).to.throw('Use writeSignedInt to encode negative numbers');
   });  
 });

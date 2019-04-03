@@ -46,6 +46,12 @@ describe("Tezos Micheline fragment decoding", () => {
 
         result = TezosLanguageUtil.hexToMicheline('00e1d22c');
         expect(result.code).to.equal('{ "int": "-365729" }');
+
+        result = TezosLanguageUtil.hexToMicheline('0080f9b9d4c723');
+        expect(result.code).to.equal('{ "int": "610913435200" }');
+
+        result = TezosLanguageUtil.hexToMicheline('00c0f9b9d4c723');
+        expect(result.code).to.equal('{ "int": "-610913435200" }');
     });
 
     it('string', () => {
