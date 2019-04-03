@@ -117,14 +117,22 @@ function preProcessMicheline(code: string): string[] {
     const container = JSON.parse(code);
     let parts: string[] = [];
 
-    parts.push(JSON.stringify(container.script[2], null, 1)); // code
-    parts.push(JSON.stringify(container.script[1], null, 1)); // storage
+    parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
+    parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
 
     for (let i = 0; i < parts.length; i++) {
         parts[i] = normalizeWhiteSpace(parts[i]);
     }
 
     return parts;
+}
+
+function indexOfKey(container: any, key: string): number {
+    for (let i = 0; i < container.script.length; i++) {
+        if (container.script[i]['prim'] === key) { return i; }
+    }
+    
+    throw new Error(`${key} key was not found`);
 }
 
 function preProcessHex(hex: string): string[] {

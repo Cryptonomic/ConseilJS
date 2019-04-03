@@ -18,7 +18,7 @@ describe('Michelson/Micheline official contract tests', async () => {
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
         if(!fs.existsSync(`${contractSampleRoot}/${contractName}.michelson`)) { continue; }
-        it(`Michelson/Micheline contract test: ${contractName}`, () => {
+        //it(`Michelson/Micheline contract test: ${contractName}`, () => {
             let michelson = fs.readFileSync(`${contractSampleRoot}/${contractName}.michelson`, 'utf8');
             /*let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
             micheline = micheline.replace(/\n/g, ' ')
@@ -30,7 +30,7 @@ describe('Michelson/Micheline official contract tests', async () => {
 
             let parsedMicheline = TezosLanguageUtil.translateMichelsonToMicheline(michelson);
             expect(parsedMicheline).to.equal(micheline);*/
-        });
+        //});
     }
 });
 

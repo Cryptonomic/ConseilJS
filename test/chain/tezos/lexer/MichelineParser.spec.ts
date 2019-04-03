@@ -2,7 +2,6 @@ import 'mocha';
 import { expect } from 'chai';
 
 import * as Micheline from '../../../../src/chain/tezos/lexer/Micheline';
-import { TezosMessageUtils } from '../../../../src/chain/tezos/TezosMessageUtil';
 import * as nearley from 'nearley';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -94,7 +93,7 @@ function michelineFragmentToHex(code: string): string {
     return parser.results.join('');
 }
 
-function michelineToHex (code: string): string {
+function michelineToHex(code: string): string {
     return preProcessMicheline(code)
         .map(p => {
             let parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
@@ -108,14 +107,22 @@ function preProcessMicheline(code: string): string[] {
     const container = JSON.parse(code);
     let parts: string[] = [];
 
-    parts.push(JSON.stringify(container.script[2], null, 1)); // code
-    parts.push(JSON.stringify(container.script[1], null, 1)); // storage
+    parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
+    parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
 
     for (let i = 0; i < parts.length; i++) {
         parts[i] = normalizeWhiteSpace(parts[i]);
     }
 
     return parts;
+}
+
+function indexOfKey(container: any, key: string): number {
+    for (let i = 0; i < container.script.length; i++) {
+        if (container.script[i]['prim'] === key) { return i; }
+    }
+    
+    throw new Error(`${key} key was not found`);
 }
 
 function normalizeWhiteSpace(fragment: string): string {
