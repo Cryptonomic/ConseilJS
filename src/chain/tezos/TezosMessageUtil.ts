@@ -36,11 +36,47 @@ export namespace TezosMessageUtils {
     export function writeInt(value: number): string {
         //@ts-ignore
         return Buffer.from(base128.encode(value), "hex")
-            .map((v, i) => {
-                return i === 0 ? v : v ^ 0x80;
-            })
-            .reverse()
-            .toString("hex");
+        .map((v, i) => {
+            return i === 0 ? v : v ^ 0x80;
+        })
+        .reverse()
+        .toString("hex");
+    }
+
+    /**
+     * Encodes a signed integer into hex.
+     * @param {number} value Number to be obfuscated.
+     */
+    export function writeSignedInt(value: number): string {
+        const n = Math.abs(value);
+        const l = Math.log2(n) + 1;
+
+        let arr: number[] = [];
+        let v = n;
+        for (let i = 0; i < l; i += 7) {
+            let byte = 0;
+
+            if (i === 0) {
+                byte = v & 0x3f; // first byte makes room for sign flag
+                v = v >> 6;
+            } else {
+                byte = v & 0x7f; // NOT base128 encoded
+                v = v >> 7;
+            }
+
+            if (value < 0 && i === 0) { byte |= 0x40; } // set sign flag
+
+            if (i + 7 < l) { byte |= 0x80; } // set next byte flag
+
+            arr.push(byte);
+        }
+
+        if (l % 7 === 0) {
+            arr[arr.length - 1] = arr[arr.length - 1] | 0x80;
+            arr.push(1);
+        }
+
+        return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
     }
 
     /**
@@ -59,12 +95,30 @@ export namespace TezosMessageUtils {
         );
     }
 
+    export function readSignedInt(hex: string): number {
+        const positive = (Buffer.from(hex.slice(0, 2), 'hex')[0] & 0x40) ? -1 : 1;
+        //@ts-ignore
+        const arr = Buffer.from(hex, 'hex').map((v, i) => i === 0 ? v & 0x3f : v & 0x7f);
+        let n = 0;
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (i === 0) {
+                //@ts-ignore
+                n = n | arr[i]
+            } else {
+                //@ts-ignore
+                n = n | arr[i] << (7 * i - 1);
+            }
+        }
+
+        return positive * n;
+    }
+
     /**
      * Takes a hex string and reads a hex-encoded Zarith-formatted number starting at provided offset. Returns the number itself and the number of characters that were used to decode it.
      * @param {string} hex Encoded message.
      * @param {number} offset Offset within the message to start decoding from.
      */
-    export function findInt(hex: string, offset: number) {
+    export function findInt(hex: string, offset: number, signed: boolean = false) {
         let buffer = "";
         let i = 0;
         while (offset + i * 2 < hex.length) {
@@ -74,12 +128,10 @@ export namespace TezosMessageUtils {
             buffer += part;
             i += 1;
 
-            if (parseInt(part, 16) < 127) {
-                break;
-            }
+            if (parseInt(part, 16) < 127) { break; }
         }
 
-        return { value: readInt(buffer), length: i * 2 };
+        return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
     }
 
     /**

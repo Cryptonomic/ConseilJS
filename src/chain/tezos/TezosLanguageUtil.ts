@@ -24,7 +24,7 @@ export namespace TezosLanguageUtil {
 
         switch (fieldType) {
             case '00': {
-                const value = TezosMessageUtils.findInt(hex.substring(offset), 0);
+                const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
                 code += `{ "int": "${value.value}" }`;
                 offset += value.length;
                 break;
