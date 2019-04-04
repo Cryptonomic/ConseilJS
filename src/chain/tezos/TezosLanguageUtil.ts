@@ -17,6 +17,7 @@ export namespace TezosLanguageUtil {
      * @returns {string} xxx
      */
     export function hexToMicheline(hex: string): codeEnvelope {
+        if (hex.length < 2) { throw new Error(`Malformed Micheline fragement '${hex}'`); }
         let code = '';
         let offset = 0;
         let fieldType = hex.substring(offset, offset + 2);
@@ -128,18 +129,20 @@ export namespace TezosLanguageUtil {
 
                 let buffer: string[] = [];
                 while (offset !== hex.length) {
-                    let envelope = hexToMicheline(hex.substring(offset));
+                    let envelope = hexToMicheline('02' + hex.substring(offset));
                     buffer.push(envelope.code);
-                    offset += envelope.consumed;
-                    if (hex.substring(offset, offset + 2) === '00') {
+                    offset += envelope.consumed - 2; // account for the inserted '02' above
+                    if (hex.substring(offset, offset + 8) !== '00000000') {
                         const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
                         if (annEnvelope.code.length > 2) { // more than empty quotes
-                            buffer.push(`"annots": [ ${annEnvelope.code} ] }`);
+                            buffer.push(`"annots": [ ${annEnvelope.code} ]`);
                         }
                         offset += annEnvelope.consumed;
+                    } else {
+                        offset += 8;
                     }
                 }
-                code += `"args": [ ${buffer.join(', ')} ] }`;
+                code += `"args": ${buffer.join(', ')} }`;
                 break;
             }
             case '0a': {
@@ -149,7 +152,7 @@ export namespace TezosLanguageUtil {
                 offset += length * 2;
                 break;
             }
-            default: { throw new Error(`Unknown Micheline field type ${fieldType}`); }
+            default: { throw new Error(`Unknown Micheline field type '${fieldType}'`); }
         }
 
         return { code: code, consumed: offset };

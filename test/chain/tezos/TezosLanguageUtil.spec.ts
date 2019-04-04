@@ -105,17 +105,17 @@ describe("Tezos Micheline fragment decoding", () => {
     });
 
     it('Single primitive with more than two arguments and no annotations', () => {
-        const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000000');
+        const result = TezosLanguageUtil.hexToMicheline('093d00000006036d036d036d00000000');
         expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ] }');
     });
 
     it('Single primitive with more than two arguments and multiple annotations', () => {
-        const result = TezosLanguageUtil.hexToMicheline('093d036d036d036d00000011407265642040677265656e2040626c7565');
-        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" }, "annots": [ "@red", "@green", "@blue" ] } ] }');
+        const result = TezosLanguageUtil.hexToMicheline('093d00000006036d036d036d00000011407265642040677265656e2040626c7565');
+        expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@red", "@green", "@blue" ] }');
     });
 
     it("test various parsing and encoding failures", () => {
-        expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type c0');
+        expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type \'c0\'');
     });
 });
 
@@ -188,5 +188,5 @@ describe('Hex to Micheline official contract tests', async () => {
 
             expect(parsedMicheline).to.equal(expectedMicheline);
         });
-    }
+    }   
 });

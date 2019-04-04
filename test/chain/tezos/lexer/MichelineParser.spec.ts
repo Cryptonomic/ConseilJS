@@ -70,7 +70,7 @@ describe('Micheline binary encoding tests', () => {
 
     it('parse primitive with an argument array and annotations', () => {
         const result = michelineFragmentToHex('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@red", "@green", "@blue" ] }');
-        expect(result).to.equal('093d036d036d036d00000011407265642040677265656e2040626c7565');
+        expect(result).to.equal('093d00000006036d036d036d00000011407265642040677265656e2040626c7565');
     });
 });
 

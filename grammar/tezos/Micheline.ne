@@ -133,7 +133,12 @@ const primArgToHex = d => {
     }
 
     const prim = encodePrimitive(d[6].toString());
-    const args = d[15].map(v => v[0]).join('') + (prefix === '09' ? '00000000' : ''); // append empty annotation to message type 09
+    let args = d[15].map(v => v[0]).join('');
+
+    if (prefix === '09') {
+        args = ('0000000' + (args.length / 2).toString(16)).slice(-8) + args; // args is implicitly an array here, array prefix (02) is missing, but 4-byte length is written
+        args += '00000000';  // append empty annotation to message type 09
+    }
 
     return prefix + prim + args;
 }
@@ -153,7 +158,7 @@ const primArgAnnToHex = d => {
     }
 
     const prim = encodePrimitive(d[6].toString());
-    const args = d[15].map(v => v[0]).join('');
+    let args = d[15].map(v => v[0]).join('');
     let ann = d[26].map(v => {
             let t = v[0].toString();
             t = t.substring(1, t.length - 1); // strip double quotes
@@ -161,6 +166,10 @@ const primArgAnnToHex = d => {
         }).join(' '); // multiple annotations are encoded as a single space-separated string
     ann = ann.split('').map(c => c.charCodeAt(0).toString(16)).join(''); // to hex
     ann = encodeLength(ann.length / 2) + ann; // prepend length
+
+    if (prefix === '09') {
+        args = ('0000000' + (args.length / 2).toString(16)).slice(-8) + args;  // args is implicitly an array here, array prefix (02) is missing, but 4-byte length is written
+    }
 
     return prefix + prim + args + ann;
 }
