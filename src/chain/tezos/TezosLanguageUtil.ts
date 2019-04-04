@@ -24,19 +24,19 @@ export namespace TezosLanguageUtil {
         offset += 2;
 
         switch (fieldType) {
-            case '00': {
+            case '00': { // literal natural int
                 const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
                 code += `{ "int": "${value.value}" }`;
                 offset += value.length;
                 break;
             }
-            case '01': {
+            case '01': { // literal string
                 const stringEnvelope = michelineHexToString(hex.substring(offset));
                 code += `{ "string": "${stringEnvelope.code}" }`;
                 offset += stringEnvelope.consumed;
                 break;
             }
-            case '02': {
+            case '02': { // array
                 const length = parseInt(hex.substring(offset, offset + 8), 16);
                 offset += 8;
                 let buffer: string[] = [];
@@ -52,23 +52,23 @@ export namespace TezosLanguageUtil {
                 } else {
                     code += `[ ${buffer.join(', ')} ]`;
                 }
-
                 break;
             }
-            case '03': {
+            case '03': { // bare primitive
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)} }`;
                 offset += 2;
                 break;
             }
-            case '04': {
+            case '04': { // primitive with a set of annotations
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
+
                 const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
                 code += `"annots": [ ${annEnvelope.code} ] }`;
                 offset += annEnvelope.consumed;
                 break;
             }
-            case '05': {
+            case '05': { // primitive with an argument
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
                 const envelope = hexToMicheline(hex.substring(offset));
@@ -76,7 +76,7 @@ export namespace TezosLanguageUtil {
                 offset += envelope.consumed;
                 break;
             }
-            case '06': {
+            case '06': { // primitive with an argument an a set of annotations
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
 
@@ -85,15 +85,11 @@ export namespace TezosLanguageUtil {
                 offset += args.consumed;
 
                 const anns = michelineHexToAnnotations(hex.substring(offset));
-                if (anns.code.length > 2) { // more than empty quotes
-                    code += `"annots": [ ${anns.code} ] }`;
-                } else {
-                    code += ' }';
-                }
+                code += `"annots": [ ${anns.code} ] }`;
                 offset += anns.consumed;
                 break;
             }
-            case '07': {
+            case '07': { // primitive with two arguments
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
 
@@ -108,7 +104,7 @@ export namespace TezosLanguageUtil {
                 code += `"args": [ ${buffer.join(', ')} ] }`;
                 break;
             }
-            case '08': {
+            case '08': { // primitive with two arguments and an anotation set
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
 
@@ -123,7 +119,7 @@ export namespace TezosLanguageUtil {
                 offset += anns.consumed;
                 break;
             }
-            case '09': {
+            case '09': { // primitive with an argument array and an optional anotation set
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
 
@@ -143,7 +139,7 @@ export namespace TezosLanguageUtil {
                 }
                 break;
             }
-            case '0a': {
+            case '0a': { // raw bytes
                 const length = parseInt(hex.substring(offset, offset + 8), 16);
                 offset += 8;
                 code += `{ "bytes": "${hex.substring(offset, offset + length * 2)}" }`;

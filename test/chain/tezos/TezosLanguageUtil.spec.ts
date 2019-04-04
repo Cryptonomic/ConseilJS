@@ -116,6 +116,7 @@ describe("Tezos Micheline fragment decoding", () => {
 
     it("test various parsing and encoding failures", () => {
         expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type \'c0\'');
+        expect(() => TezosLanguageUtil.hexToMicheline('c')).to.throw('Malformed Micheline fragement \'c\'');
     });
 });
 
