@@ -40,7 +40,9 @@ const lexer = moo.compile({
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
      'CMPLE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
-     'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'CMPEQ' ],
+     'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
+     'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
+     'ASSERT_CMPEQ', 'ASSERT_CMPLT' ],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
@@ -86,7 +88,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
 instruction ->
     subInstruction {% id %}
   | %instruction {% keywordToJson %}
-  | %instruction _ subInstruction {% singleArgKeywordToJson %}
+  | %instruction _ subInstruction {% singleArgInstrKeywordToJson %}
   | %instruction _ type {% singleArgKeywordToJson %}
   | %instruction _ data {% singleArgKeywordToJson %}
   | %instruction _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
@@ -119,6 +121,32 @@ _ -> [\s]:*
 semicolons -> null | semicolons ";"
 
 @{%
+
+    const truncatedKeywords = new Set(
+      ['CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 
+       'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR', 
+       'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 
+       'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 
+       'CMPLT', 'CMPGT', 'CMPEQ', 'ASSERT_CMPGE', 'ASSERT_CMPEQ', 'ASSERT_CMPLT',
+       'UNPAPAIR', 
+       'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
+       'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR'])   
+
+    const expandKeyword = word => {
+      switch (word) {
+        case 'CAAR':
+          const car = ['CAR']
+          return [keywordToJson(car), keywordToJson(car)]    
+        case 'CMPGT':
+          const compare = ['COMPARE']
+          const gt = ['GT']
+          return [keywordToJson(compare), keywordToJson(gt)]    
+        case 'CDDR':
+          const cdr = ['CDR']
+          return [keywordToJson(cdr), keywordToJson(cdr)]                                                            
+      }
+    }
+   
     /**
      * Given a int, convert it to JSON.
      * Example: "3" -> { "int": "3" }
@@ -129,19 +157,38 @@ semicolons -> null | semicolons ";"
      * Given a string, convert it to JSON.
      * Example: "string" -> "{ "string": "blah" }"
      */
-    const stringToJson =  d => { return `{ "string": ${d[0]} }`; }
+    const stringToJson = d => { return `{ "string": ${d[0]} }`; }
 
     /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
-    const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
+    const keywordToJson = d => { 
+      //console.log(`matching keyword '${d[0]}'`)
+      //console.log(truncatedKeywords)
+      //console.log(`--t '${truncatedKeywords.has(d[0].toString())}'`)
+      const word = `${d[0].toString()}`
+      if (truncatedKeywords.has(word)) {//(truncatedKeywords.has(`${d[0].toString()}`)) {
+        //console.log(`found expansion '${expandKeyword(d[0].toString())}'`)
+        return expandKeyword(d[0]) 
+      }
+      else {
+        //console.log(`found '${d[0]}'`)
+        return `{ "prim": "${d[0]}" }`; 
+      }
+    }
 
     /**
      * Given a keyword with one argument, convert it to JSON.
      * Example: "option int" -> "{ prim: option, args: [int] }"
      */
     const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
+
+    /**
+     * Given a keyword with one argument, convert it to JSON.
+     * Example: "option int" -> "{ prim: option, args: [int] }"
+     */
+    const singleArgInstrKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; }
 
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
@@ -188,4 +235,5 @@ semicolons -> null | semicolons ";"
         const codeJson = `{ "prim": "code", "args": [ [ ${d[4]} ] ] }`;
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
     }
+
 %}

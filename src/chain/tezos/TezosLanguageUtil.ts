@@ -159,7 +159,8 @@ export namespace TezosLanguageUtil {
      */
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-        preProcessMichelson(code).forEach(p => { parser.feed(p); });
+        preProcessMichelson(code).forEach(p => { console.log("original: " + p); parser.feed(p); });
+        console.log("result: " + parser.results.join(' '))
         return postProcessMicheline(parser.results.join(' '));
     }
 
@@ -242,8 +243,8 @@ export namespace TezosLanguageUtil {
     }
 
     function postProcessMicheline(code: string): string {
-        const inner = code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
-        return `{ "script": ${inner} }`;
+        //const inner = code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
+        return `{ "script": ${code} }`;
     }
 
     function preProcessMicheline(fragment: string): string {
