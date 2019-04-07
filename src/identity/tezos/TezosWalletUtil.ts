@@ -8,6 +8,8 @@ export namespace TezosWalletUtil {
     /**
      * Unlocks an identity supplied during the 2017 Tezos fundraiser.
      * 
+     * To get an account for testing on Tezos Alphanet go to https://faucet.tzalpha.net
+     * 
      * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
      * @param {string} email Email address from fundraiser PDF.
      * @param {string} password Password from fundraiser PDF.
@@ -28,7 +30,7 @@ export namespace TezosWalletUtil {
     /**
      * Generates a key pair based on a mnemonic.
      * 
-     * @param {string} mnemonic Fifteen word memonic phrase
+     * @param {string} mnemonic Fifteen word mnemonic phrase
      * @param {string} passphrase User-supplied passphrase
      * @returns {Promise<KeyStore>} Unlocked key pair
      */

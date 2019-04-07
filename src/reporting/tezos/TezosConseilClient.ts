@@ -12,6 +12,9 @@ export namespace TezosConseilClient {
     const OPERATION_GROUPS = 'operation_groups';
     const OPERATIONS = 'operations';
     const FEES = 'fees';
+    const PROPOSALS = 'proposals';
+    const BAKERS = 'bakers';
+    const BALLOTS = 'ballots';
 
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
@@ -142,5 +145,17 @@ export namespace TezosConseilClient {
         query = ConseilQueryBuilder.setLimit(query, 1);
 
         return getTezosEntityData(serverInfo, network, FEES, query);
+    }
+
+    export async function getProposals(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
+        return getTezosEntityData(serverInfo, network, PROPOSALS, query)
+    }
+
+    export async function getBakers(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
+        return getTezosEntityData(serverInfo, network, BAKERS, query)
+    }
+
+    export async function getBallots(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
+        return getTezosEntityData(serverInfo, network, BALLOTS, query)
     }
 }

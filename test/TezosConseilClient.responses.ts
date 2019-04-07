@@ -291,3 +291,24 @@ export const transactionfees = [{
     "kind": "transaction",
     "high": 3668825
 }];
+
+export const bakers = [{
+    "pkh": "tz3NdTPb3Ax2rVW2Kq9QEdzfYFkRwhrQRPhX",
+    "rolls": 300,
+    "block_id": "BMHpKEssQmPUGYbuUb2ifaWFcDALySjVDgXbckmobWUmYLSYZ69",
+    "block_level": 8193
+}, {
+    "pkh": "tz1hodJSw6uv7LqArLW86zKuUjkXiayJvqCf",
+    "rolls": 400,
+    "block_id": "BMHpKEssQmPUGYbuUb2ifaWFcDALySjVDgXbckmobWUmYLSYZ69",
+    "block_level": 8193
+}, {
+    "pkh": "tz1aWXP237BLwNHJcCD4b3DutCevhqq2T1Z9",
+    "rolls": 96,
+    "block_id": "BMHpKEssQmPUGYbuUb2ifaWFcDALySjVDgXbckmobWUmYLSYZ69",
+    "block_level": 8193
+}]
+
+export const ballots = [];
+
+export const proposals = [];
