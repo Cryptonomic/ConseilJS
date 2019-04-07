@@ -7,7 +7,7 @@ import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
 
 const base128 = baseN.create({
-    characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
+    characters: [...Array(128).keys()].map(k => ('0' + k.toString(16)).slice(-2))
 });
 
 /**
@@ -35,14 +35,9 @@ export namespace TezosMessageUtils {
      * @param {number} value Number to be obfuscated.
      */
     export function writeInt(value: number): string {
-        if (value < 0) {throw new Error('Use writeSignedInt to encode negative numbers'); }
+        if (value < 0) { throw new Error('Use writeSignedInt to encode negative numbers'); }
         //@ts-ignore
-        return Buffer.from(base128.encode(value), "hex")
-        .map((v, i) => {
-            return i === 0 ? v : v ^ 0x80;
-        })
-        .reverse()
-        .toString("hex");
+        return Buffer.from(Buffer.from(base128.encode(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
     }
 
     /**
@@ -88,10 +83,7 @@ export namespace TezosMessageUtils {
     export function readInt(hex: string): number {
         return base128.decode(
             //@ts-ignore
-            Buffer.from(hex, "hex")
-                .reverse()
-                .map((v, i) => { return i === 0 ? v : v & 0x7f; })
-                .toString("hex")
+            Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex')
         );
     }
 
