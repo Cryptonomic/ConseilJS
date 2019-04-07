@@ -94,9 +94,13 @@ export namespace TezosNodeWriter {
         }];
 
         const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
-        const json = await response.json();
-
-        return json as TezosTypes.AlphaOperationsWithMetadata[];
+        const text = await response.text();
+        try {
+            const json = JSON.parse(text);
+            return json as TezosTypes.AlphaOperationsWithMetadata[];
+        } catch (err) {
+            throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}'`);
+        }
     }
 
     /**
@@ -260,7 +264,7 @@ export namespace TezosNodeWriter {
      * @param {number} amount Initial funding amount of new account
      * @param {string} delegate Account ID to delegate to, blank if none
      * @param {boolean} spendable Is account spendable?
-     * @param {boolean} delegatable Is account delegatable?
+     * @param {boolean} delegatable Can the account be delegated?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
@@ -269,7 +273,7 @@ export namespace TezosNodeWriter {
         server: string,
         keyStore: KeyStore,
         amount: number,
-        delegate: string,
+        delegate: string | undefined,
         spendable: boolean,
         delegatable: boolean,
         fee: number,
@@ -420,21 +424,21 @@ export namespace TezosNodeWriter {
      *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {number} fee  Fee to pay
+     * @param {number} fee Fee to pay
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
     export async function sendKeyRevealOperation(
         server: string,
         keyStore: KeyStore,
-        fee: number,
-        derivationPath: string) {
+        fee: number = 1300,
+        derivationPath: string = '') {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
         const revealOp: TezosTypes.Operation = {
-            kind: "reveal",
+            kind: 'reveal',
             source: keyStore.publicKeyHash,
-            fee: '1300', //sendKeyRevealOperation is no longer used by Galleon. Set the correct minimum fee just for in case.
+            fee: fee + '',
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: '10000',
             storage_limit: '0',
@@ -457,6 +461,6 @@ export namespace TezosNodeWriter {
     export function sendIdentityActivationOperation(server: string, keyStore: KeyStore, activationCode: string, derivationPath: string) {
         const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
 
-        return sendOperation(server, [activation], keyStore, derivationPath)
+        return sendOperation(server, [activation], keyStore, derivationPath);
     }
 }
