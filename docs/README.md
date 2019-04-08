@@ -43,72 +43,6 @@ Some ConseilJS functions require an API key for a Conseil service instance. Whil
 
 Obtaining a development key is easy. Hit us on the [Riot Dev Channel](https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech?via=cryptonomic.tech&via=matrix.org&via=ostez.com) and we'll hook you up.
 
-### Namespaces
-
-#### ConseilQueryBuilder
-
-This collection of methods crates entity queries.
-
-##### blankQuery()
-
-This method creates a minimum viable query that can be sent a Conseil data service like `TezosConseilClient`.
-
-##### addFields(query, ...fields)
-
-By default, all fields are returned, but using the information from the ConseilMetadataClient for the appropriate platform/network/entity combination.
-
-##### addPredicate(query, field, operation, values, invert)
-
-Several predicate operations are supported. For string values: `EQ`, `IN`, `LIKE`, `STARTSWITH`, `ENDSWITH`, `ISNULL`. For numbers and dates: `EQ`, `IN`, `BETWEEN`, `LT` or `BEFORE`, `GT` or `AFTER`, `ISNULL`. The operation values are located in the `ConseilOperator` enum. The difference between `LIKE` and `STARTSWITH` and `ENDSWITH`, is that the former will do a match at any point in the text.
-
-There are limitations on the contents of the values array depending on the supplied operation. `EQ` requires a single value, `IN` an contain multiple, `BETWEEN` only accepts two.
-
-The last parameter is to allow for queries like `not in`, or `is not null`, `!=`. Default is `false`.
-
-##### addOrdering(query, field, direction)
-
-One or more ordering instructions can be added to a query and they may be applied on fields that are not part of the result set.
-
-The default direction is `ASC`. Direction values are in the `ConseilSortDirection` enum.
-
-##### setLimitsetLimit(query, limit)
-
-The default record set is 100 rows. This can be changed using this method, however the server may override the request.
-
-#### ConseilMetadataClient
-
-For details, see [API Examples](#metadata-discovery-functions) below.
-
-#### ConseilDataClient
-
-#### TezosConseilClient
-
-Functions for querying the Conseil back-end REST API v2 for Tezos. This functionality is offered by wrapping ConseilDataClient for Tezos-specific entities.
-
-#### TezosHardwareWallet
-
-Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
-
-#### TezosMessageCodec
-
-A collection of functions to encode and decode various Tezos P2P message components
-
-#### TezosNodeReader
-
-Utility functions for interacting with the Tezos node.
-
-#### TezosNodeWriter
-
-Functions for sending operations on the Tezos network.
-
-#### TezosFileWallet
-
-Functions for Tezos wallet functionality.
-
-#### TezosTypes
-
-Types used to process data returned from Conseil server.
-
 ### Tezos Chain Operations
 
 To execute operations on the Tezos chain a link to a Tezos node is required. One can be found on the [tzscan public node page](https://tzscan.io/nodes). Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
@@ -463,6 +397,122 @@ A result of that request might look like this.
 #### List top-10 bakers by delegator count
 
 #### Export a large dataset to csv
+
+### Namespaces
+
+#### ConseilQueryBuilder
+
+This collection of methods crates entity queries.
+
+##### blankQuery()
+
+This method creates a minimum viable query that can be sent a Conseil data service like `TezosConseilClient`.
+
+##### addFields(query, ...fields)
+
+By default, all fields are returned, but using the information from the ConseilMetadataClient for the appropriate platform/network/entity combination.
+
+##### addPredicate(query, field, operation, values, invert)
+
+Several predicate operations are supported. For string values: `EQ`, `IN`, `LIKE`, `STARTSWITH`, `ENDSWITH`, `ISNULL`. For numbers and dates: `EQ`, `IN`, `BETWEEN`, `LT` or `BEFORE`, `GT` or `AFTER`, `ISNULL`. The operation values are located in the `ConseilOperator` enum. The difference between `LIKE` and `STARTSWITH` and `ENDSWITH`, is that the former will do a match at any point in the text.
+
+There are limitations on the contents of the values array depending on the supplied operation. `EQ` requires a single value, `IN` an contain multiple, `BETWEEN` only accepts two.
+
+The last parameter is to allow for queries like `not in`, or `is not null`, `!=`. Default is `false`.
+
+##### addOrdering(query, field, direction)
+
+One or more ordering instructions can be added to a query and they may be applied on fields that are not part of the result set.
+
+The default direction is `ASC`. Direction values are in the `ConseilSortDirection` enum.
+
+##### setLimitsetLimit(query, limit)
+
+The default record set is 100 rows. This can be changed using this method, however the server may override the request.
+
+#### ConseilMetadataClient
+
+For details, see [API Examples](#metadata-discovery-functions) below.
+
+#### ConseilDataClient
+
+#### TezosConseilClient
+
+Functions for querying the Conseil back-end REST API v2 for Tezos. This functionality is offered by wrapping ConseilDataClient for Tezos-specific entities.
+
+All of these methods require Conseil connection object which is a URL and API key. The `serverInfo` parameter below is of type `ConseilServerInfo`. Some of the methods also take a `query` parameter of type `ConseilQuery`, these are best constructed with `ConseilQueryBuilder` described [earlier](#ConseilQueryBuilder).
+
+##### getBlockHead(serverInfo, network)
+
+Returns the most recent block on the chain for a given `network`. Internally this is implemented with a `ConseilQuery` ordered by block level with limit 1. All block entity fields are returned. To get just a subset of fields, use `getBlocks(serverInfo, network, query)`.
+
+##### getBlock(serverInfo, network, hash)
+
+Returns a specific block with the given `hash` and `network`. All block entity fields are returned. To get just a subset of fields, use `getBlocks(serverInfo, network, query)`.
+
+##### getAccount(serverInfo, network, accountID)
+
+Returns a specific account on the given `network` with the provided `accountID`. In Tezos account id, account address, public key hash (phk) all refer to the same thing. All account entity fields are returned. To get just a subset of fields, use `getAccounts(serverInfo, network, query)`.
+
+##### getOperationGroup(serverInfo, network, operationGroupID)
+
+Returns a specific operation group on the given `network` with the provided `operationGroupID`. In Tezos individual operations are not keyed. All operation group entity fields are returned. To get just a subset of fields, use `getOperationGroups(serverInfo, network, query)`.
+
+##### getBlocks(serverInfo, network, query)
+
+Returns block information subject to the provided `query` on a given `network`.
+
+##### getAccounts(serverInfo, network, query)
+
+Returns account information subject to the provided `query` on a given `network`.
+
+##### getOperationGroups(serverInfo, network, query)
+
+Returns operation group information subject to the provided `query` on a given `network`.
+
+##### getOperations(serverInfo, network, query)
+
+Returns operation information subject to the provided `query` on a given `network`.
+
+##### getProposals(serverInfo, network, query)
+
+Returns proposal information subject to the provided `query` on a given `network`.
+
+##### getBakers(serverInfo, network, query)
+
+Returns baker information subject to the provided `query` on a given `network`.
+
+##### getBallots(serverInfo, network, query)
+
+Returns ballot information subject to the provided `query` on a given `network`.
+
+##### getFeeStatistics(serverInfo, network, operationType)
+
+Conseil indexer calculates running average fees by operation type. This is a convenience method to get that information. [Tezori](https://github.com/Cryptonomic/Tezori/blob/master/app/utils/general.js#L168) for example uses this information to suggest an appropriate fee to the user via a drop-down.
+
+#### TezosHardwareWallet
+
+Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
+
+#### TezosMessageCodec
+
+A collection of functions to encode and decode various Tezos P2P message components
+
+#### TezosNodeReader
+
+Utility functions for interacting with the Tezos node.
+
+#### TezosNodeWriter
+
+Functions for sending operations on the Tezos network.
+
+#### TezosFileWallet
+
+Functions for Tezos wallet functionality.
+
+#### TezosTypes
+
+Types used to process data returned from Conseil server.
 
 ## Contribute
 
