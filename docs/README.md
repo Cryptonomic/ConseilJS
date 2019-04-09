@@ -325,7 +325,11 @@ Result here is:
 [ "seed_nonce_revelation", "delegation", "transaction", "activate_account", "origination", "reveal", "double_baking_evidence", "endorsement" ]
 ```
 
-This information can be used to create a drop-down list in some UI, or allow for type-ahead-autocomplete, etc.
+This information can be used to create a drop-down list in some UI, or allow for type-ahead-autocomplete, etc. If the returned list is too long to be useful, or to get partial matches on high-cardinality fields, see getAttributeValuesForPrefix.
+
+#### Attribute Values for Prefix
+
+For long lists that may not be practical to display in a UI for auto-complete or for fields that the server will not provide attribute lists due to limits on cardinality, use `getAttributeValuesForPrefix(serverInfo, platform, network, entity, attribute, prefix)`. The last parameter of this call should be a few characters long to be effective.
 
 ### Reporting &amp; Analytics Functions
 
@@ -426,9 +430,17 @@ One or more ordering instructions can be added to a query and they may be applie
 
 The default direction is `ASC`. Direction values are in the `ConseilSortDirection` enum.
 
-##### setLimitsetLimit(query, limit)
+##### setLimit(query, limit)
 
 The default record set is 100 rows. This can be changed using this method, however the server may override the request.
+
+##### setOutputType(query, outputType)
+
+By default, the service will return json data. For large datasets this is suboptimal. This function sets the output parameter of the ConseilQuery to one of 'json' or 'csv' as defined in `ConseilOutput` enum.
+
+##### addAggregationFunction(query, field, aggregationFunction)
+
+It is possible to apply an aggregation function to a field in the query. This field must be present in the `fields` collection. The aggregation function is one of `avg`, `count`, `max`, `min`, `sum` as defined in the `ConseilFunction` enum. `count` can be applied to any field type; `max`, `min` can be applied to a datetime or numeric fields, while `avg` and `sum` are only valid on numeric fields.
 
 #### ConseilMetadataClient
 
