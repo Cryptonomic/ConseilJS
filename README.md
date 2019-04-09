@@ -6,76 +6,58 @@
 [![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
 [![dependencies](https://david-dm.org/Cryptonomic/ConseilJS/status.svg)](https://david-dm.org/Cryptonomic/ConseilJS)
 
-Client-side library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
+A library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
 
-ConseilJS connects to [Conseil](https://github.com/Cryptonomic/Conseil) for cached blockchain data and [Nautilus](https://github.com/Cryptonomic/Nautilus) for live chain data and operations.
+ConseilJS connects to the [Nautilus](https://github.com/Cryptonomic/Nautilus) infrastructure for high-performance analytics provided by [Conseil](https://github.com/Cryptonomic/Conseil) and for live chain data and operations via the integrated Tezos node.
 
-## Use
+## Use with Nodejs
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: `https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js`.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: ``.
 
 ```bash
 $ npm i conseiljs
-
 ```
 
 If you are using webpack in your project, add below lines to your `webpack.config.js` file:
 
 ```javascript
- node: {
-    fs: 'empty'
-  }
-```  
-
-## Develop
-
-You can find some tutorials in our [wiki](https://github.com/Cryptonomic/ConseilJS/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-ConseilJS-v2-API) to help you get started with ConseilJS.
-
-Below is the list of namespaces you can import to your project and start building immediately:
-
-`TezosConseilClient` - Functions for querying the Conseil backend REST API v2
-
-`TezosHardwareWallet` - Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
-
-`TezosMessageCodec` - A collection of functions to encode and decode various Tezos P2P message components
-
-`TezosNodeReader` - Utility functions for interacting with the Tezos node.
-
-`TezosNodeWriter` - Functions for sending operations on the Tezos network.
-
-`TezosFileWallet` - Functions for Tezos wallet functionality.
-
-`TezosTypes` - Types used to process data returned from Conseil server.
-
-Example import:
-
-```javascript
-import { TezosNodeWriter } from 'conseiljs';
+node: { fs: 'empty' }
 ```
 
-## Run Tests
+We have a complete [React application example](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
 
-### Unit Tests
-
-`npm run test` runs all unit tests.
-
-### Integration Tests
-
-Add a file called `servers.ts` under the `integration_test` with these contents:
-
-```javascript
-export const servers = {
-    conseilServer: '',
-    conseilApiKey: '',
-    tezosServer: ''
-}
+## Use with Web
+```html
+<script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
+        integrity="sha384-vEYcqX2ydD4D+n+2j1nlGWaKZQTGH+lynkxGagIMnuSzLgAxPTcp0HUBa+XM50HR"
+        crossorigin="anonymous"></script>
 ```
 
-The blank strings should be replaced with the details of your Conseil & Tezos servers.
+A fully functional sample [webpage example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
 
-After this, `npm run integration-test` to run all integration tests.
-Please note that some of the integration tests require the usage of a hardware wallet.
+## API Overview and Examples
 
-### Dependency Issues
-- As later versions of the npm package libsodium-sumo (a JS wrapper around libSodium) do not support all methods of libSodium, this version must remain at 0.5.4
-- AWS-SDK dependency must remain as the Ledger Connect feature depends on this package
+We have [ready-to-use examples](https://cryptonomic.github.io/ConseilJS/) to copy/paste.
+
+## Contribute
+
+There are many ways to contribute to this project. You can develop applications or dApps with it. You can submit bug reports or feature requests. You can ask questions about it on [r/Tezos](http://reddit.com/r/tezos/) or the [Tezos StackExchange](https://tezos.stackexchange.com). We certainly welcome pull requests as well.
+
+### Known Issues
+
+- Some of the P2P messages are not implemented, specifically those used in baking operations.
+
+### Dependency Requirements
+- AWS-SDK dependency must remain as the Ledger Connect feature requires it.
+
+## Other references
+
+[Wiki](https://github.com/Cryptonomic/ConseilJS/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-ConseilJS-v2-API)
+
+[Riot Dev Channel](https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech?via=cryptonomic.tech&via=matrix.org&via=ostez.com)
+
+[Cryptonomic Reddit](https://www.reddit.com/r/cryptonomic)
+
+[The Cryptonomic Aperiodical](https://medium.com/the-cryptonomic-aperiodical)
+
+[@CryptonomicTech](https://twitter.com/CryptonomicTech)
