@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "test": "mocha test/**/*.spec.ts",
-    "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
+    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 10000 -b false integration_test/*.spec.ts",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
