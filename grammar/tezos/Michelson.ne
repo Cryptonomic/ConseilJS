@@ -39,7 +39,7 @@ const lexer = moo.compile({
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
-     'CMPLE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
+     'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
      'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
      'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
      'ASSERT_CMPEQ', 'ASSERT_CMPLT' ],
@@ -82,7 +82,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
   | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
-  | %lbrace _ %rbrace {% d => "{}" %}
+  | %lbrace _ %rbrace {% d => "[]" %}
 
 # Grammar for michelson instruction.   
 instruction ->
@@ -128,22 +128,31 @@ semicolons -> null | semicolons ";"
        'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 
        'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 
        'CMPLT', 'CMPGT', 'CMPEQ', 'ASSERT_CMPGE', 'ASSERT_CMPEQ', 'ASSERT_CMPLT',
-       'UNPAPAIR', 
-       'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
-       'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR'])   
+       'CMPLE', 'CMPGE', 'UNPAIR', 'UNPAPAIR', 
+       'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
+       'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'FAIL'])   
 
     const expandKeyword = word => {
       switch (word) {
         case 'CAAR':
-          const car = ['CAR']
-          return [keywordToJson(car), keywordToJson(car)]    
+          return [keywordToJson(['CAR']), keywordToJson(['CAR'])]
+        case 'CDAR':
+          return [keywordToJson(['CDR']), keywordToJson(['CAR'])]         
         case 'CMPGT':
-          const compare = ['COMPARE']
-          const gt = ['GT']
-          return [keywordToJson(compare), keywordToJson(gt)]    
+          return [keywordToJson(['COMPARE']), keywordToJson(['GT'])] 
+        case 'CMPGE':
+          return [keywordToJson(['COMPARE']), keywordToJson(['GE'])]    
+        case 'CMPLT':
+          return [keywordToJson(['COMPARE']), keywordToJson(['LT'])]    
+        case 'CMPLE':
+          return [keywordToJson(['COMPARE']), keywordToJson(['LE'])]     
         case 'CDDR':
-          const cdr = ['CDR']
-          return [keywordToJson(cdr), keywordToJson(cdr)]                                                            
+          return [keywordToJson(['CDR']), keywordToJson(['CDR'])]   
+        //These are equivalent by inspection of tezos node output, replace with more elegant solution later.  
+        case 'UNPAIR':
+          return [ [ '{ "prim": "DUP" }', '{ "prim": "CAR" }', '{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] }' ] ]
+        case 'FAIL': 
+          return [ [ '{ "prim": "UNIT" }', '{ "prim": "FAILWITH"}' ] ] 
       }
     }
    
