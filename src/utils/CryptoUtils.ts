@@ -65,7 +65,7 @@ export namespace CryptoUtils {
         return results.score;
     }
 
-    export async function generateKeys(seed: string) {
+    export async function generateKeys(seed: Buffer) {
         const k = await wrapper.keys(seed);
 
         return { privateKey: k.privateKey, publicKey: k.publicKey };

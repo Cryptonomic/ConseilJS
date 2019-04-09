@@ -52,7 +52,7 @@ export namespace TezosWalletUtil {
         if (mnemonic.split(' ').length !== 15) { throw new Error('The mnemonic should be 15 words.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
-        const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
+        const seed = (await bip39.mnemonicToSeed(mnemonic, passphrase)).slice(0, 32);
         const keys = await CryptoUtils.generateKeys(seed);
         const privateKey = TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
@@ -60,6 +60,6 @@ export namespace TezosWalletUtil {
 
         if (!!pkh && publicKeyHash !== pkh) { throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash'); }
 
-        return { publicKey, privateKey, publicKeyHash, seed, storeType };
+        return { publicKey, privateKey, publicKeyHash, seed: '', storeType };
     }
 }
