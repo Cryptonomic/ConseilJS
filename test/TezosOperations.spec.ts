@@ -44,10 +44,10 @@ const ktAddress = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
 
 describe('Tezos Operations Test', () => {
     before(mochaAsync(async () => {
-        keyStore = await unlockFundraiserIdentity(info0.seed, info0.email, info0.password, info0.pkh);
+        keyStore = await unlockFundraiserIdentity(info0.mnemonic.join(' '), info0.email, info0.password, info0.pkh);
         keyStore.storeType = 'Fundraiser';
 
-        keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
+        keyStore1 = await unlockFundraiserIdentity(info1.mnemonic.join(' '), info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
         const nockOb = nock('http://conseil.server');
         nockOb
