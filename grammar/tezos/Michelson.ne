@@ -132,6 +132,14 @@ semicolons -> null | semicolons ";"
        'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
        'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'FAIL'])   
 
+    const replicateKeyword = (word, n) => {
+      var result = []
+      for (i = 0; i < n; i++) {
+        result.push(keywordToJson([word]))
+      }
+      return result
+    }   
+
     const expandKeyword = word => {
       switch (word) {
         case 'CAAR':
@@ -151,8 +159,19 @@ semicolons -> null | semicolons ";"
         //These are equivalent by inspection of tezos node output, replace with more elegant solution later.  
         case 'UNPAIR':
           return [ [ '{ "prim": "DUP" }', '{ "prim": "CAR" }', '{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] }' ] ]
+        case 'UNPAPAIR':
+          return [ [ '{ "prim": "DUP" }',
+                     '{ "prim": "CAR" }',
+                     '{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] }',
+                     '{ "prim": "DIP", "args": [ [ { "prim": "DUP", "args": [ [ { "prim": "CAR" },{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ] } ] ] }' ] ]
         case 'FAIL': 
-          return [ [ '{ "prim": "UNIT" }', '{ "prim": "FAILWITH"}' ] ] 
+          return [ [ '{ "prim": "UNIT" }', '{ "prim": "FAILWITH"}' ] ]  
+        case 'DUUP':
+          return [keywordToJson(['DUP']), keywordToJson(['DUP'])] 
+        case 'DUUUP':
+          return [keywordToJson(['DUP']), keywordToJson(['DUP']), keywordToJson(['DUP'])]   
+        case 'CDDADDR':
+          return [keywordToJson(['CDR']), keywordToJson(['CDR']), keywordToJson(['CAR']), keywordToJson(['CDR']), keywordToJson(['CDR'])]  
       }
     }
    
