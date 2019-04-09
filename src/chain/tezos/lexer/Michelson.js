@@ -109,8 +109,9 @@ const lexer = moo.compile({
       //console.log(`--t '${truncatedKeywords.has(d[0].toString())}'`)
       const word = `${d[0].toString()}`
       if (truncatedKeywords.has(word)) {//(truncatedKeywords.has(`${d[0].toString()}`)) {
-        //console.log(`found expansion '${expandKeyword(d[0].toString())}'`)
-        return expandKeyword(d[0]) 
+        //console.log(`found expansion ${[expandKeyword(d[0].toString())]}`)
+        //console.log([1,2,3])
+        return [expandKeyword(d[0].toString())] 
       }
       else {
         //console.log(`found '${d[0]}'`)
@@ -160,6 +161,20 @@ const lexer = moo.compile({
      */
     const tripleArgKeyWordWithParenToJson = d =>  { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
 
+    const nestedArrayChecker = x => {
+      if (Array.isArray(x)) {
+        if (Array.isArray(x[0])) {
+          return x[0]
+        }
+        else {
+          return x
+        }
+      } 
+      else {
+        return x
+      } 
+    }
+
     /**
      * Given a list of michelson instructions, convert it into JSON.
      * Example: "{CAR; NIL operation; PAIR;}" -> 
@@ -167,7 +182,7 @@ const lexer = moo.compile({
      * '{ prim: NIL, args: [{ prim: operation }] }',
      * '{ prim: PAIR }' ]
      */
-    const instructionSetToJson = d => { return d[2].map(x => x[0]).concat(d[3]); }
+     const instructionSetToJson = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
 
     const scriptToJson = d => {
         const parameterJson = d[0];
