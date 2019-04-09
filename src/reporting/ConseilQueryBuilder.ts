@@ -1,4 +1,4 @@
-import {ConseilQuery, ConseilOperator, ConseilSortDirection} from "../types/conseil/QueryTypes"
+import {ConseilQuery, ConseilOperator, ConseilSortDirection, ConseilFunction, ConseilOutput} from "../types/conseil/QueryTypes"
 
 export namespace ConseilQueryBuilder {
     /**
@@ -78,6 +78,35 @@ export namespace ConseilQueryBuilder {
 
         let q = {...query};
         q.limit = limit;
+
+        return q;
+    }
+
+    /**
+     * Sets output data type.
+     * 
+     * @param query Source query.
+     * @param limit Output type, 'json' (default), or 'csv'.
+     */
+    export function setOutputType(query: ConseilQuery, outputType: ConseilOutput): ConseilQuery {
+        let q = {...query};
+        q.output = outputType;
+
+        return q;
+    }
+
+    /**
+     * Add an aggregation function on a field that is already part of the selection.
+     * 
+     * @param query Source query.
+     * @param limit Output type, 'json' (default), or 'csv'.
+     */
+    export function addAggregationFunction(query: ConseilQuery, field: string, aggregationFunction: ConseilFunction): ConseilQuery {
+        if (!query.fields.includes(field)) { throw new Error('Cannot apply an aggregation function on a field not being returned.'); }
+        if (query.fields.length === 1) { throw new Error('Cannot apply an aggregation function on the only field being returned.'); }
+        
+        let q = {...query};
+        q.aggregation = { 'field': field, 'function': aggregationFunction };
 
         return q;
     }

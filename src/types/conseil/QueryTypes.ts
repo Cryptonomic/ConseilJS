@@ -22,6 +22,19 @@ export enum ConseilOperator {
     ISNULL = 'isnull'
 }
 
+export enum ConseilFunction {
+    avg = 'avg',
+    count = 'count',
+    max = 'max',
+    min = 'min',
+    sum = 'sum'
+}
+
+export enum ConseilOutput {
+    csv = 'csv',
+    json = 'json'
+}
+
 export interface ConseilOrdering {
     field: string,
     direction: ConseilSortDirection
@@ -39,4 +52,6 @@ export interface ConseilQuery {
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
+    aggregation?: any;
+    output?: string;
 }

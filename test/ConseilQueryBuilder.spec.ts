@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import {ConseilQueryBuilder} from "../src/reporting/ConseilQueryBuilder";
-import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
+import {ConseilOperator, ConseilSortDirection, ConseilOutput, ConseilFunction} from "../src/types/conseil/QueryTypes"
 
 
 describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
@@ -48,5 +48,24 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
         expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.IN, ['a'])).to.throw("IN operation requires a list of two or more values.");
         expect(() => ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), "field 1", ConseilOperator.EQ, ['a', 'b'])).to.throw("invalid values list for eq.");
         expect(() => ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 0)).to.throw('Limit cannot be less than one.');
+    });
+
+    it('make a query with csv output', async () => {
+        const query = ConseilQueryBuilder.setOutputType(ConseilQueryBuilder.addFields(ConseilQueryBuilder.blankQuery(), 'field 1', 'field 2'), ConseilOutput.csv);
+
+        expect(query.output).to.be.not.null;
+        expect(query.output).to.equals('csv');
+    });
+
+    it('make a query with an aggregation function', async () => {
+        const query = ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.addFields(ConseilQueryBuilder.blankQuery(), 'field 1', 'field 2'), 'field 1', ConseilFunction.sum);
+
+        expect(query.aggregation).to.be.not.null;
+        expect(query.aggregation.field).to.equals('field 1');
+    });
+
+    it('aggregation creation error conditions', async () => {
+        expect(() => ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.blankQuery(), 'field 1', ConseilFunction.sum)).to.throw('Cannot apply an aggregation function on a field not being returned.');
+        expect(() => ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.addFields(ConseilQueryBuilder.blankQuery(), 'field 1'), 'field 1', ConseilFunction.sum)).to.throw('Cannot apply an aggregation function on the only field being returned.');
     });
 });
