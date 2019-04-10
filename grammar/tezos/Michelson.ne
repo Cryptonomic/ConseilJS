@@ -82,7 +82,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
   | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
  #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
-  | %lbrace _ %rbrace {% d => "[]" %}
+  | %lbrace _ %rbrace {% d => "" %}
 
 # Grammar for michelson instruction.   
 instruction ->
@@ -92,7 +92,7 @@ instruction ->
   | %instruction _ type {% singleArgKeywordToJson %}
   | %instruction _ data {% singleArgKeywordToJson %}
   | %instruction _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
-  | %instruction _ subInstruction _ subInstruction {% doubleArgKeywordToJson %}
+  | %instruction _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
   | %instruction _ type _ data {% doubleArgKeywordToJson %}
 
@@ -125,12 +125,16 @@ semicolons -> null | semicolons ";"
     const truncatedKeywords = new Set(
       ['CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 
        'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR', 
-       'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 
-       'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 
+       'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP',  
        'CMPLT', 'CMPGT', 'CMPEQ', 'ASSERT_CMPGE', 'ASSERT_CMPEQ', 'ASSERT_CMPLT',
        'CMPLE', 'CMPGE', 'UNPAIR', 'UNPAPAIR', 
        'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
        'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'FAIL'])   
+
+    //The difference between these and truncated is that these instructions have other instructions as arguments.
+    const dipKeywords = new Set(
+      [ 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP']
+    )   
 
     const replicateKeyword = (word, n) => {
       var result = []
@@ -143,35 +147,43 @@ semicolons -> null | semicolons ";"
     const expandKeyword = word => {
       switch (word) {
         case 'CAAR':
-          return [keywordToJson(['CAR']), keywordToJson(['CAR'])]
+          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
         case 'CDAR':
-          return [keywordToJson(['CDR']), keywordToJson(['CAR'])]         
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`         
         case 'CMPGT':
-          return [keywordToJson(['COMPARE']), keywordToJson(['GT'])] 
+          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['GT'])}]` 
         case 'CMPGE':
-          return [keywordToJson(['COMPARE']), keywordToJson(['GE'])]    
+          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['GE'])}]`    
         case 'CMPLT':
-          return [keywordToJson(['COMPARE']), keywordToJson(['LT'])]    
+          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['LT'])}]`   
         case 'CMPLE':
-          return [keywordToJson(['COMPARE']), keywordToJson(['LE'])]     
+          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['LE'])}]`  
         case 'CDDR':
-          return [keywordToJson(['CDR']), keywordToJson(['CDR'])]   
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`   
         //These are equivalent by inspection of tezos node output, replace with more elegant solution later.  
         case 'UNPAIR':
-          return [ [ '{ "prim": "DUP" }', '{ "prim": "CAR" }', '{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] }' ] ]
+          return '[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ]'
         case 'UNPAPAIR':
-          return [ [ '{ "prim": "DUP" }',
-                     '{ "prim": "CAR" }',
-                     '{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] }',
-                     '{ "prim": "DIP", "args": [ [ { "prim": "DUP", "args": [ [ { "prim": "CAR" },{ "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ] } ] ] }' ] ]
+          return `[ [ { "prim": "DUP" },
+                     { "prim": "CAR" },
+                     { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
+                     {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
         case 'FAIL': 
-          return [ [ '{ "prim": "UNIT" }', '{ "prim": "FAILWITH"}' ] ]  
-        case 'DUUP':
-          return [keywordToJson(['DUP']), keywordToJson(['DUP'])] 
+          return '[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]'  
         case 'DUUUP':
-          return [keywordToJson(['DUP']), keywordToJson(['DUP']), keywordToJson(['DUP'])]   
+          return `[{"prim":"DIP","args":[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]},{"prim":"SWAP"}]`
+        case 'DUUP':
+          return `[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]`   
         case 'CDDADDR':
-          return [keywordToJson(['CDR']), keywordToJson(['CDR']), keywordToJson(['CAR']), keywordToJson(['CDR']), keywordToJson(['CDR'])]  
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`  
+      }
+    }
+
+    const expandDIP = (dip, instruction) => { 
+      switch (dip) {
+        case 'DIIP':
+          console.log(instruction)
+          return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
       }
     }
    
@@ -213,11 +225,15 @@ semicolons -> null | semicolons ";"
      */
     const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
 
-    /**
-     * Given a keyword with one argument, convert it to JSON.
-     * Example: "option int" -> "{ prim: option, args: [int] }"
-     */
-    const singleArgInstrKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; }
+    const singleArgInstrKeywordToJson = d => { 
+      const word = `${d[0].toString()}`
+      if (dipKeywords.has(word)) {
+        return expandDIP(word, d[2])
+      }
+      else {
+        return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; 
+      }
+    }
 
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
@@ -231,6 +247,8 @@ semicolons -> null | semicolons ";"
      */
     const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
 
+    const doubleArgInstrKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; }
+
     /**
      * Given a keyword with two arguments and parentheses, convert it into JSON.
      * Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
@@ -241,7 +259,7 @@ semicolons -> null | semicolons ";"
      * Given a keyword with three arguments, convert it into JSON.
      * Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
      */
-    const tripleArgKeyWordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
+    const tripleArgKeyWordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, [${d[6]}] ] }`; }
 
     /**
      * Given a keyword with three arguments and parentheses, convert it into JSON.
