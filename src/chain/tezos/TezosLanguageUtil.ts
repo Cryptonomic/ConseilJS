@@ -228,10 +228,39 @@ export namespace TezosLanguageUtil {
         const si = code.search(/storage/);
         const ci = code.search(/code/);
         let parts: string[] = [];
+        /*
+        No matter what order "parameter", "storage", and "code"
+        are given in, they will be joined together in that order.
+        */
         if (pi < si && si < ci) {
             parts[0] = code.substring(pi, si);
             parts[1] = code.substring(si, ci);
             parts[2] = code.substring(ci);
+        }
+        if (pi < ci && ci < si) {
+            parts[0] = code.substring(pi, ci);
+            parts[1] = code.substring(si);
+            parts[2] = code.substring(ci, si);
+        }
+        if (si < pi && pi < ci) {
+            parts[0] = code.substring(pi, ci);
+            parts[1] = code.substring(si, pi);
+            parts[2] = code.substring(ci);
+        }
+        if (si < ci && ci < pi) {
+            parts[0] = code.substring(pi);
+            parts[1] = code.substring(si, ci);
+            parts[2] = code.substring(ci, pi);
+        }
+        if (ci < si && si < pi) {
+            parts[0] = code.substring(pi); 
+            parts[1] = code.substring(si, pi);
+            parts[2] = code.substring(ci, si);
+        }
+        if (ci < pi && pi < si) {
+            parts[0] = code.substring(pi, si); 
+            parts[1] = code.substring(si); 
+            parts[2] = code.substring(ci, pi);
         }
 
         for (let i = 0; i < 3; i++) {
