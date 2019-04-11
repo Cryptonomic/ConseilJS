@@ -78,9 +78,8 @@ type ->
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
 # Helper pattern for lists of michelson instructions
-subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJson %} # fix post processor to account for extra instruction
-  | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJson %} 
- #| %lbrace _ instruction (_ %semicolon _ instruction):+ _ %rbrace {% id %} potential fix for arbitrary semicolons in list of michelson instructions.
+subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
+  | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJsonSemi %} #If last instruction has semicolon
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% d => "" %}
 
@@ -107,12 +106,12 @@ data ->
   | %string {% stringToJson %}
 # Helper grammar for list of michelson data types.
 subData -> 
-    "{" _ (data ";" _):+ "}" {% instructionSetToJson %}
-  | "(" _ (data ";" _):+ ")" {% instructionSetToJson %}
+    "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subElt -> 
-    "{" _ (elt ";" _):+ "}" {% instructionSetToJson %}
-  | "(" _ (elt ";" _):+ ")" {% instructionSetToJson %}
+    "{" _ (elt ";" _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (elt ";" _):+ ")" {% instructionSetToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson  %}
 
 # Helper grammar for whitespace.
@@ -135,6 +134,10 @@ semicolons -> null | semicolons ";"
     const dipKeywords = new Set(
       [ 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP']
     )   
+
+    const ifKeywords = new Set(
+      [ 'IFCMPEQ' ]
+    )
 
     const replicateKeyword = (word, n) => {
       var result = []
@@ -176,14 +179,52 @@ semicolons -> null | semicolons ";"
           return `[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]`   
         case 'CDDADDR':
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`  
+        case 'CDDAR': 
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]` 
+        case 'CDDDR': 
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]` 
+        case 'CDADAR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`
+        case 'CDADDR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]` 
+        case 'CDDAAR':  
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
+        case 'CDDDADR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]` 
+        case 'CADAR':
+          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`
+        case 'CDDDAAR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
+        case 'CADDR':  
+          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`    
+        case 'CDDDDR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`   
+        case 'CDDADAR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`   
+        case 'CDDDDADR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`
+        case 'CDDDDDR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`  
+        case 'CDAAR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
+        case 'CDADR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`  
+        case 'CDDDDAAR':
+          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
       }
     }
 
     const expandDIP = (dip, instruction) => { 
       switch (dip) {
         case 'DIIP':
-          console.log(instruction)
           return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
+      }
+    }
+    
+    const expandIF = (ifInstr, ifTrue, ifFalse) => {
+      switch (ifInstr) {
+        case 'IFCMPEQ':
+          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
       }
     }
    
@@ -247,7 +288,16 @@ semicolons -> null | semicolons ";"
      */
     const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
 
-    const doubleArgInstrKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; }
+    const doubleArgInstrKeywordToJson = d => { 
+      const word = `${d[0].toString()}`
+      console.log(word)
+      if (ifKeywords.has(word)) {
+        return expandIF(word, d[2], d[4])
+      }
+      else {
+        return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; 
+      }
+    }
 
     /**
      * Given a keyword with two arguments and parentheses, convert it into JSON.
@@ -288,7 +338,8 @@ semicolons -> null | semicolons ";"
      * '{ prim: NIL, args: [{ prim: operation }] }',
      * '{ prim: PAIR }' ]
      */
-     const instructionSetToJson = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
+     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
+     const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
 
     const scriptToJson = d => {
         const parameterJson = d[0];
