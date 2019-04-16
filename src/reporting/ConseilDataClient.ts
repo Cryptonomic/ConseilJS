@@ -30,8 +30,14 @@ export namespace ConseilDataClient {
             return response;
         })
         .then(response => {
+            const contentType = response.headers.get('content-type').toLowerCase();
+
             try {
-                return response.json();
+                if (contentType.contains('application/json')) {
+                    return response.json();
+                } else {
+                    return response.text();
+                }
             } catch {
                 throw new ConseilResponseError(response.status, response.statusText, url, null, response);
             }
