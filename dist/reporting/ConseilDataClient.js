@@ -33,14 +33,9 @@ var ConseilDataClient;
                 .then(response => {
                 const contentType = response.headers.get('content-type').toLowerCase();
                 try {
-                    if (contentType.contains('application/json')) {
-                        return response.json();
-                    }
-                    else {
-                        return response.text();
-                    }
+                    return contentType.includes('application/json') ? response.json() : response.text();
                 }
-                catch (_a) {
+                catch (err) {
                     throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
                 }
             });

@@ -30,15 +30,11 @@ export namespace ConseilDataClient {
             return response;
         })
         .then(response => {
-            const contentType = response.headers.get('content-type').toLowerCase();
+            const contentType: string = response.headers.get('content-type').toLowerCase();
 
             try {
-                if (contentType.contains('application/json')) {
-                    return response.json();
-                } else {
-                    return response.text();
-                }
-            } catch {
+                return contentType.includes('application/json') ? response.json() : response.text();
+            } catch (err) {
                 throw new ConseilResponseError(response.status, response.statusText, url, null, response);
             }
         });
