@@ -54,5 +54,11 @@ var ConseilMetadataClient;
         });
     }
     ConseilMetadataClient.getAttributeValues = getAttributeValues;
+    function getAttributeValuesForPrefix(serverInfo, platform, network, entity, attribute, prefix) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return executeMetadataQuery(serverInfo, `${platform}/${network}/${entity}/${attribute}/${encodeURIComponent(prefix)}`);
+        });
+    }
+    ConseilMetadataClient.getAttributeValuesForPrefix = getAttributeValuesForPrefix;
 })(ConseilMetadataClient = exports.ConseilMetadataClient || (exports.ConseilMetadataClient = {}));
 //# sourceMappingURL=ConseilMetadataClient.js.map

@@ -15,13 +15,16 @@ const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"El
 var TezosLanguageUtil;
 (function (TezosLanguageUtil) {
     function hexToMicheline(hex) {
+        if (hex.length < 2) {
+            throw new Error(`Malformed Micheline fragement '${hex}'`);
+        }
         let code = '';
         let offset = 0;
         let fieldType = hex.substring(offset, offset + 2);
         offset += 2;
         switch (fieldType) {
             case '00': {
-                const value = TezosMessageUtil_1.TezosMessageUtils.findInt(hex.substring(offset), 0);
+                const value = TezosMessageUtil_1.TezosMessageUtils.findInt(hex.substring(offset), 0, true);
                 code += `{ "int": "${value.value}" }`;
                 offset += value.length;
                 break;
@@ -43,8 +46,12 @@ var TezosLanguageUtil;
                     consumed += envelope.consumed / 2;
                     offset += envelope.consumed;
                 }
-                code += `[ ${buffer.join(', ')} ]`;
-                offset += consumed;
+                if (length === 0) {
+                    code += '[]';
+                }
+                else {
+                    code += `[ ${buffer.join(', ')} ]`;
+                }
                 break;
             }
             case '03': {
@@ -75,12 +82,8 @@ var TezosLanguageUtil;
                 code += `"args": [ ${args.code} ], `;
                 offset += args.consumed;
                 const anns = michelineHexToAnnotations(hex.substring(offset));
-                if (anns.code.length > 2) {
-                    code += `"annots": [ ${anns.code} ] }`;
-                }
-                else {
-                    code += ' }';
-                }
+                code += `"annots": [ ${anns.code} ] }`;
+                offset += anns.consumed;
                 break;
             }
             case '07': {
@@ -112,28 +115,31 @@ var TezosLanguageUtil;
             case '09': {
                 code += `{ "prim": ${michelineHexToKeyword(hex, offset)}, `;
                 offset += 2;
-                let buffer = [];
-                while (offset !== hex.length) {
-                    let envelope = hexToMicheline(hex.substring(offset));
-                    buffer.push(envelope.code);
-                    offset += envelope.consumed;
-                    if (hex.substring(offset, offset + 2) === '00') {
-                        const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
-                        if (annEnvelope.code.length > 2) {
-                            buffer.push(`"annots": [ ${annEnvelope.code} ] }`);
-                        }
-                        offset += annEnvelope.consumed;
+                let envelope = hexToMicheline('02' + hex.substring(offset));
+                code += `"args": ${envelope.code}`;
+                offset += envelope.consumed - 2;
+                if (hex.substring(offset, offset + 8) !== '00000000') {
+                    const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                    if (annEnvelope.code.length > 2) {
+                        code += `, "annots": [ ${annEnvelope.code} ] }`;
                     }
+                    offset += annEnvelope.consumed;
                 }
-                code += `"args": [ ${buffer.join(', ')} ] }`;
+                else {
+                    code += ' }';
+                    offset += 8;
+                }
                 break;
             }
-            case '10': {
-                throw new Error('Micheline binary fields are not yet supported');
+            case '0a': {
+                const length = parseInt(hex.substring(offset, offset + 8), 16);
+                offset += 8;
+                code += `{ "bytes": "${hex.substring(offset, offset + length * 2)}" }`;
+                offset += length * 2;
                 break;
             }
             default: {
-                throw new Error(`Unknown Micheline field type ${fieldType}`);
+                throw new Error(`Unknown Micheline field type '${fieldType}'`);
             }
         }
         return { code: code, consumed: offset };
@@ -168,7 +174,7 @@ var TezosLanguageUtil;
     }
     function michelineHexToAnnotations(hex) {
         const stringEnvelope = michelineHexToString(hex);
-        return { code: stringEnvelope.code.split(' @').map((s, i) => i > 0 ? `"@${s}"` : `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
+        return { code: stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
     }
     function preProcessMichelson(code) {
         const pi = code.search(/parameter/);
@@ -180,14 +186,38 @@ var TezosLanguageUtil;
             parts[1] = code.substring(si, ci);
             parts[2] = code.substring(ci);
         }
+        if (pi < ci && ci < si) {
+            parts[0] = code.substring(pi, ci);
+            parts[1] = code.substring(si);
+            parts[2] = code.substring(ci, si);
+        }
+        if (si < pi && pi < ci) {
+            parts[0] = code.substring(pi, ci);
+            parts[1] = code.substring(si, pi);
+            parts[2] = code.substring(ci);
+        }
+        if (si < ci && ci < pi) {
+            parts[0] = code.substring(pi);
+            parts[1] = code.substring(si, ci);
+            parts[2] = code.substring(ci, pi);
+        }
+        if (ci < si && si < pi) {
+            parts[0] = code.substring(pi);
+            parts[1] = code.substring(si, pi);
+            parts[2] = code.substring(ci, si);
+        }
+        if (ci < pi && pi < si) {
+            parts[0] = code.substring(pi, si);
+            parts[1] = code.substring(si);
+            parts[2] = code.substring(ci, pi);
+        }
         for (let i = 0; i < 3; i++) {
             parts[i] = parts[i].trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' ');
         }
         return parts;
     }
     function postProcessMicheline(code) {
-        const inner = code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
-        return `{ "script": ${inner} }`;
+        return `{ "script": ${code} }`;
     }
     function preProcessMicheline(fragment) {
         return fragment.replace(/\n/g, ' ')
@@ -195,7 +225,8 @@ var TezosLanguageUtil;
             .replace(/\[{/g, '[ {')
             .replace(/}\]/g, '} ]')
             .replace(/},{/g, '}, {')
-            .replace(/\]}/g, '] }');
+            .replace(/\]}/g, '] }')
+            .replace(/":"/g, '": "');
     }
 })(TezosLanguageUtil = exports.TezosLanguageUtil || (exports.TezosLanguageUtil = {}));
 //# sourceMappingURL=TezosLanguageUtil.js.map

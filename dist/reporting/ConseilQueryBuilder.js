@@ -50,5 +50,23 @@ var ConseilQueryBuilder;
         return q;
     }
     ConseilQueryBuilder.setLimit = setLimit;
+    function setOutputType(query, outputType) {
+        let q = Object.assign({}, query);
+        q.output = outputType;
+        return q;
+    }
+    ConseilQueryBuilder.setOutputType = setOutputType;
+    function addAggregationFunction(query, field, aggregationFunction) {
+        if (!query.fields.includes(field)) {
+            throw new Error('Cannot apply an aggregation function on a field not being returned.');
+        }
+        if (query.fields.length === 1) {
+            throw new Error('Cannot apply an aggregation function on the only field being returned.');
+        }
+        let q = Object.assign({}, query);
+        q.aggregation = { 'field': field, 'function': aggregationFunction };
+        return q;
+    }
+    ConseilQueryBuilder.addAggregationFunction = addAggregationFunction;
 })(ConseilQueryBuilder = exports.ConseilQueryBuilder || (exports.ConseilQueryBuilder = {}));
 //# sourceMappingURL=ConseilQueryBuilder.js.map

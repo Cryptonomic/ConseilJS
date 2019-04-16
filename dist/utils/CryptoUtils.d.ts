@@ -5,7 +5,7 @@ export declare namespace CryptoUtils {
     function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer): Promise<string>;
     function simpleHash(payload: Buffer, length: number): Buffer;
     function getPasswordStrength(password: string): number;
-    function generateKeys(seed: string): Promise<{
+    function generateKeys(seed: Buffer): Promise<{
         privateKey: any;
         publicKey: any;
     }>;
