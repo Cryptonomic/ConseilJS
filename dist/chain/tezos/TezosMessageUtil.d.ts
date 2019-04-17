@@ -4,8 +4,10 @@ export declare namespace TezosMessageUtils {
     function writeBoolean(value: boolean): string;
     function readBoolean(hex: string): boolean;
     function writeInt(value: number): string;
+    function writeSignedInt(value: number): string;
     function readInt(hex: string): number;
-    function findInt(hex: string, offset: number): {
+    function readSignedInt(hex: string): number;
+    function findInt(hex: string, offset: number, signed?: boolean): {
         value: number;
         length: number;
     };

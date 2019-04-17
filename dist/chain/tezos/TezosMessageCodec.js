@@ -396,16 +396,15 @@ var TezosMessageCodec;
             hex += TezosMessageUtil_1.TezosMessageUtils.writeBoolean(false);
         }
         if (!!origination.script) {
-            let container = undefined;
-            if (origination.script instanceof String) {
+            hex += 'ff';
+            let container = origination.script;
+            try {
                 container = JSON.parse(origination.script);
             }
-            else {
-                container = origination.script;
-            }
+            catch (_a) { }
             let parts = [];
-            parts.push(JSON.stringify(container.script[2], null, 1));
-            parts.push(JSON.stringify(container.script[1], null, 1));
+            parts.push(JSON.stringify(container['code'], null, 1));
+            parts.push(JSON.stringify(container['storage'], null, 1));
             hex += parts.map(p => {
                 let result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(p);
                 return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;

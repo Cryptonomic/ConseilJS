@@ -7,4 +7,5 @@ export declare namespace ConseilMetadataClient {
     function getEntities(serverInfo: ConseilServerInfo, platform: string, network: string): Promise<EntityDefinition[]>;
     function getAttributes(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string): Promise<AttributeDefinition[]>;
     function getAttributeValues(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, attribute: string): Promise<string[]>;
+    function getAttributeValuesForPrefix(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, attribute: string, prefix: string): Promise<string[]>;
 }

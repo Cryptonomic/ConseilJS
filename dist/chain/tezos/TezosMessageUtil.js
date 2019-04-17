@@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bs58check_1 = __importDefault(require("bs58check"));
 const base_n_1 = __importDefault(require("base-n"));
+const big_integer_1 = __importDefault(require("big-integer"));
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const base128 = base_n_1.default.create({
-    characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
+    characters: [...Array(128).keys()].map(k => ('0' + k.toString(16)).slice(-2))
 });
 var TezosMessageUtils;
 (function (TezosMessageUtils) {
@@ -20,24 +21,65 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readBoolean = readBoolean;
     function writeInt(value) {
-        return Buffer.from(base128.encode(parseInt(value, 10)), "hex")
-            .map((v, i) => {
-            return i === 0 ? v : v ^ 0x80;
-        })
-            .reverse()
-            .toString("hex");
+        if (value < 0) {
+            throw new Error('Use writeSignedInt to encode negative numbers');
+        }
+        return Buffer.from(Buffer.from(base128.encode(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
     }
     TezosMessageUtils.writeInt = writeInt;
+    function writeSignedInt(value) {
+        if (value === 0) {
+            return '00';
+        }
+        const n = big_integer_1.default(value).abs();
+        const l = n.bitLength().toJSNumber();
+        let arr = [];
+        let v = n;
+        for (let i = 0; i < l; i += 7) {
+            let byte = big_integer_1.default.zero;
+            if (i === 0) {
+                byte = v.and(0x3f);
+                v = v.shiftRight(6);
+            }
+            else {
+                byte = v.and(0x7f);
+                v = v.shiftRight(7);
+            }
+            if (value < 0 && i === 0) {
+                byte = byte.or(0x40);
+            }
+            if (i + 7 < l) {
+                byte = byte.or(0x80);
+            }
+            arr.push(byte.toJSNumber());
+        }
+        if (l % 7 === 0) {
+            arr[arr.length - 1] = arr[arr.length - 1] | 0x80;
+            arr.push(1);
+        }
+        return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
+    }
+    TezosMessageUtils.writeSignedInt = writeSignedInt;
     function readInt(hex) {
-        return base128.decode(Buffer.from(hex, "hex")
-            .reverse()
-            .map((v, i) => {
-            return i === 0 ? v : v & 0x7f;
-        })
-            .toString("hex"));
+        return base128.decode(Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex'));
     }
     TezosMessageUtils.readInt = readInt;
-    function findInt(hex, offset) {
+    function readSignedInt(hex) {
+        const positive = (Buffer.from(hex.slice(0, 2), 'hex')[0] & 0x40) ? false : true;
+        const arr = Buffer.from(hex, 'hex').map((v, i) => i === 0 ? v & 0x3f : v & 0x7f);
+        let n = big_integer_1.default.zero;
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (i === 0) {
+                n = n.or(arr[i]);
+            }
+            else {
+                n = n.or(big_integer_1.default(arr[i]).shiftLeft(7 * i - 1));
+            }
+        }
+        return positive ? n.toJSNumber() : n.negate().toJSNumber();
+    }
+    TezosMessageUtils.readSignedInt = readSignedInt;
+    function findInt(hex, offset, signed = false) {
         let buffer = "";
         let i = 0;
         while (offset + i * 2 < hex.length) {
@@ -50,7 +92,7 @@ var TezosMessageUtils;
                 break;
             }
         }
-        return { value: readInt(buffer), length: i * 2 };
+        return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
     }
     TezosMessageUtils.findInt = findInt;
     function readAddress(hex) {

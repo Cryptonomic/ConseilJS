@@ -45,7 +45,7 @@ var TezosWalletUtil;
             if (!bip39.validateMnemonic(mnemonic)) {
                 throw new Error('The given mnemonic could not be validated.');
             }
-            const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
+            const seed = (yield bip39.mnemonicToSeed(mnemonic, passphrase)).slice(0, 32);
             const keys = yield CryptoUtils_1.CryptoUtils.generateKeys(seed);
             const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
@@ -53,7 +53,7 @@ var TezosWalletUtil;
             if (!!pkh && publicKeyHash !== pkh) {
                 throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash');
             }
-            return { publicKey, privateKey, publicKeyHash, seed, storeType };
+            return { publicKey, privateKey, publicKeyHash, seed: '', storeType };
         });
     }
     TezosWalletUtil.getKeysFromMnemonicAndPassphrase = getKeysFromMnemonicAndPassphrase;
