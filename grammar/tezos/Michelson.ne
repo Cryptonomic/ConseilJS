@@ -21,6 +21,7 @@ const moo = require("moo");
   Lexer to parse keywords more efficiently.
 */
 const lexer = moo.compile({
+    annot: ["%",":","@"],
     lparen: '(',
     rparen: ')',
     lbrace: '{',
@@ -42,7 +43,7 @@ const lexer = moo.compile({
      'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
      'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
      'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
-     'ASSERT_CMPEQ', 'ASSERT_CMPLT' ],
+     'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME' ],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
@@ -52,7 +53,7 @@ const lexer = moo.compile({
     code: ["Code", "code"],
     elt: "Elt",
     number: /-?[0-9]+/,
-    word: /[a-z]+/,
+    word: /[a-zA-z]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 %}
@@ -76,6 +77,16 @@ type ->
   | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
+  | %comparableType _ (%annot (%storage|%string|%word)):+ {% typeKeywordToJson %} 
+  | %constantType _ (%annot (%storage|%string|%word)):+ {% typeKeywordToJson %}
+  | %lparen _ %comparableType _ (%annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %constantType _ (%annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %singleArgType _ (%annot (%storage|%string|%word)):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %doubleArgType _ (%annot (%storage|%string|%word)):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
+#  | %singleArgType _ type {% singleArgKeywordToJson %}
+#  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
+#  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
+#  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}  
 
 # Helper pattern for lists of michelson instructions
 subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
@@ -87,6 +98,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
 instruction ->
     subInstruction {% id %}
   | %instruction {% keywordToJson %}
+  | %instruction _ (%annot (%parameter|storage|%word)):+ {% typeKeywordToJson %}
   | %instruction _ subInstruction {% singleArgInstrKeywordToJson %}
   | %instruction _ type {% singleArgKeywordToJson %}
   | %instruction _ data {% singleArgKeywordToJson %}
@@ -94,6 +106,8 @@ instruction ->
   | %instruction _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
   | %instruction _ type _ data {% doubleArgKeywordToJson %}
+  | %instruction _ (%annot (%parameter|%storage|%word)):+ _ type _ data {% doubleArgTypeKeywordToJson %}
+
 
 # Grammar for michelson data.
 data ->
@@ -136,7 +150,7 @@ semicolons -> null | semicolons ";"
     )   
 
     const ifKeywords = new Set(
-      [ 'IFCMPEQ' ]
+      [ 'IFCMPEQ', 'IFCMPGE', 'IFCMPGT', 'IFCMPLE', 'IFCMPLT' ]
     )
 
     const replicateKeyword = (word, n) => {
@@ -211,6 +225,8 @@ semicolons -> null | semicolons ";"
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`  
         case 'CDDDDAAR':
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
+        case 'ASSERT_CMPGE':
+          return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
       }
     }
 
@@ -225,6 +241,14 @@ semicolons -> null | semicolons ";"
       switch (ifInstr) {
         case 'IFCMPEQ':
           return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPGE':
+          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPGT':
+          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPLE':
+          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPLT':
+          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`       
       }
     }
    
@@ -346,6 +370,26 @@ semicolons -> null | semicolons ";"
         const storageJson = d[2];
         const codeJson = `{ "prim": "code", "args": [ [ ${d[4]} ] ] }`;
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
+    }
+
+    const typeKeywordToJson = d => { 
+      const annot = d[2].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[0]}", "annots": ["${annot}"] }`;  
+    }
+
+    const singleArgTypeKeywordWithParenToJson = d => {
+      const annot = d[4].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]} ], "annots": ["${annot}"]  }`;
+    }
+
+    const doubleArgTypeKeywordToJson = d => {
+      const annot = d[2].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": ["${annot}"]  }`;
+    }
+
+    const doubleArgTypeKeywordWithParenToJson = d => {
+      const annot = d[4].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]}, ${d[9]} ], "annots": ["${annot}"]  }`;
     }
 
 %}

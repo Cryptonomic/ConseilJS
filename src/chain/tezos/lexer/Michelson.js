@@ -25,6 +25,7 @@ const moo = require("moo");
   Lexer to parse keywords more efficiently.
 */
 const lexer = moo.compile({
+    annot: ["%",":","@"],
     lparen: '(',
     rparen: ')',
     lbrace: '{',
@@ -46,7 +47,7 @@ const lexer = moo.compile({
      'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
      'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
      'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
-     'ASSERT_CMPEQ', 'ASSERT_CMPLT' ],
+     'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME' ],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
@@ -56,7 +57,7 @@ const lexer = moo.compile({
     code: ["Code", "code"],
     elt: "Elt",
     number: /-?[0-9]+/,
-    word: /[a-z]+/,
+    word: /[a-zA-z]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 
@@ -77,7 +78,7 @@ const lexer = moo.compile({
     )   
 
     const ifKeywords = new Set(
-      [ 'IFCMPEQ' ]
+      [ 'IFCMPEQ', 'IFCMPGE', 'IFCMPGT', 'IFCMPLE', 'IFCMPLT' ]
     )
 
     const replicateKeyword = (word, n) => {
@@ -152,6 +153,8 @@ const lexer = moo.compile({
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`  
         case 'CDDDDAAR':
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
+        case 'ASSERT_CMPGE':
+          return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
       }
     }
 
@@ -166,6 +169,14 @@ const lexer = moo.compile({
       switch (ifInstr) {
         case 'IFCMPEQ':
           return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPGE':
+          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPGT':
+          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPLE':
+          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPLT':
+          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`       
       }
     }
    
@@ -289,6 +300,26 @@ const lexer = moo.compile({
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
     }
 
+    const typeKeywordToJson = d => { 
+      const annot = d[2].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[0]}", "annots": ["${annot}"] }`;  
+    }
+
+    const singleArgTypeKeywordWithParenToJson = d => {
+      const annot = d[4].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]} ], "annots": ["${annot}"]  }`;
+    }
+
+    const doubleArgTypeKeywordToJson = d => {
+      const annot = d[2].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": ["${annot}"]  }`;
+    }
+
+    const doubleArgTypeKeywordWithParenToJson = d => {
+      const annot = d[4].map(x => `${x[0] + x[1]}`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]}, ${d[9]} ], "annots": ["${annot}"]  }`;
+    }
+
 var grammar = {
     Lexer: lexer,
     ParserRules: [
@@ -310,6 +341,72 @@ var grammar = {
     {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
     {"name": "type", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
     {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
+    {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$1$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$1$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$1", "symbols": ["type$ebnf$1$subexpression$1"]},
+    {"name": "type$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$1$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$1$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$1", "symbols": ["type$ebnf$1", "type$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "_", "type$ebnf$1"], "postprocess": typeKeywordToJson},
+    {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$2$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$2$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$2", "symbols": ["type$ebnf$2$subexpression$1"]},
+    {"name": "type$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$2$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$2$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$2", "symbols": ["type$ebnf$2", "type$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("constantType") ? {type: "constantType"} : constantType), "_", "type$ebnf$2"], "postprocess": typeKeywordToJson},
+    {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$3$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$3$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$3", "symbols": ["type$ebnf$3$subexpression$1"]},
+    {"name": "type$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$3$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$3$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$3", "symbols": ["type$ebnf$3", "type$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "_", "type$ebnf$3", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgTypeKeywordWithParenToJson},
+    {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$4$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$4$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$4", "symbols": ["type$ebnf$4$subexpression$1"]},
+    {"name": "type$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$4$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$4$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$4", "symbols": ["type$ebnf$4", "type$ebnf$4$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("constantType") ? {type: "constantType"} : constantType), "_", "type$ebnf$4", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgTypeKeywordWithParenToJson},
+    {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$5$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$5$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$5", "symbols": ["type$ebnf$5$subexpression$1"]},
+    {"name": "type$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$5$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$5$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$5", "symbols": ["type$ebnf$5", "type$ebnf$5$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "type$ebnf$5", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgTypeKeywordWithParenToJson},
+    {"name": "type$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$6$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$6$subexpression$1$subexpression$1"]},
+    {"name": "type$ebnf$6", "symbols": ["type$ebnf$6$subexpression$1"]},
+    {"name": "type$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "type$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "type$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "type$ebnf$6$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$6$subexpression$2$subexpression$1"]},
+    {"name": "type$ebnf$6", "symbols": ["type$ebnf$6", "type$ebnf$6$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type$ebnf$6", "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgTypeKeywordWithParenToJson},
     {"name": "subInstruction$ebnf$1$subexpression$1", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1$subexpression$1"]},
     {"name": "subInstruction$ebnf$1$subexpression$2", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
@@ -324,6 +421,17 @@ var grammar = {
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "instruction", "symbols": ["subInstruction"], "postprocess": id},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction)], "postprocess": keywordToJson},
+    {"name": "instruction$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$1$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$1$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$1$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$1", "symbols": ["instruction$ebnf$1$subexpression$1"]},
+    {"name": "instruction$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$1$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$1$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$1$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$1", "symbols": ["instruction$ebnf$1", "instruction$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "instruction$ebnf$1"], "postprocess": typeKeywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction"], "postprocess": singleArgInstrKeywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type"], "postprocess": singleArgKeywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "data"], "postprocess": singleArgKeywordToJson},
@@ -331,6 +439,17 @@ var grammar = {
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction", "_", "subInstruction"], "postprocess": doubleArgInstrKeywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$2$subexpression$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$2$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$2", "symbols": ["instruction$ebnf$2$subexpression$1"]},
+    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$2$subexpression$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$2$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$2", "symbols": ["instruction$ebnf$2", "instruction$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "instruction$ebnf$2", "_", "type", "_", "data"], "postprocess": doubleArgTypeKeywordToJson},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "data"], "postprocess": singleArgKeywordToJson},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "data", "_", "data"], "postprocess": doubleArgKeywordWithParenToJson},
