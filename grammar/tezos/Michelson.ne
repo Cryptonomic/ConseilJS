@@ -43,17 +43,14 @@ const lexer = moo.compile({
      'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
      'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
      'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
-     'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME' ],
+     'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'CADR' ],
     data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
-    parameter: ["parameter", "Parameter"],
-    storage: ["Storage", "storage"],
-    code: ["Code", "code"],
     elt: "Elt",
     number: /-?[0-9]+/,
-    word: /[a-zA-z]+/,
+    word: /[a-zA-z_0-9]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 %}
@@ -64,9 +61,14 @@ const lexer = moo.compile({
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %}
 script -> parameter _ storage _ code {% scriptToJson %} 
-parameter -> %parameter _ type _ semicolons {% singleArgKeywordToJson %}
-storage -> %storage _ type _ semicolons {% singleArgKeywordToJson %}
-code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}
+
+parameter -> "parameter" | "Parameter"
+storage -> "Storage" | "storage"
+code -> "Code" | "code"
+
+parameter -> parameter _ type _ semicolons {% singleArgKeywordToJson %}
+storage -> storage _ type _ semicolons {% singleArgKeywordToJson %}
+code -> code _ subInstruction _ semicolons _ {% d => d[2] %}
   | %code _ "{};" {% d => "code {}" %}
 
 # Grammar of a Michelson type
@@ -77,12 +79,12 @@ type ->
   | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
-  | %comparableType _ (%annot (%storage|%string|%word)):+ {% typeKeywordToJson %} 
-  | %constantType _ (%annot (%storage|%string|%word)):+ {% typeKeywordToJson %}
-  | %lparen _ %comparableType _ (%annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
-  | %lparen _ %constantType _ (%annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
-  | %lparen _ %singleArgType _ (%annot (%storage|%string|%word)):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
-  | %lparen _ %doubleArgType _ (%annot (%storage|%string|%word)):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
+  | %comparableType (_ %annot (%storage|%string|%word)):+ {% typeKeywordToJson %} 
+  | %constantType (_ %annot (%storage|%string|%word)):+ {% typeKeywordToJson %}
+  | %lparen _ %comparableType (_ %annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %constantType (_ %annot (%storage|%string|%word)):+ _ %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %singleArgType (_ %annot (%storage|%string|%word)):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %doubleArgType (_ %annot (%storage|%string|%word)):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
 #  | %singleArgType _ type {% singleArgKeywordToJson %}
 #  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
 #  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
@@ -98,7 +100,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
 instruction ->
     subInstruction {% id %}
   | %instruction {% keywordToJson %}
-  | %instruction _ (%annot (%parameter|storage|%word)):+ {% typeKeywordToJson %}
+  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ {% typeKeywordToJson %}
   | %instruction _ subInstruction {% singleArgInstrKeywordToJson %}
   | %instruction _ type {% singleArgKeywordToJson %}
   | %instruction _ data {% singleArgKeywordToJson %}
@@ -106,7 +108,7 @@ instruction ->
   | %instruction _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
   | %instruction _ type _ data {% doubleArgKeywordToJson %}
-  | %instruction _ (%annot (%parameter|%storage|%word)):+ _ type _ data {% doubleArgTypeKeywordToJson %}
+  | %instruction (_ %annot (%parameter|%storage|%word)):+ _ type _ data {% doubleArgTypeKeywordToJson %}
 
 
 # Grammar for michelson data.
@@ -141,7 +143,7 @@ semicolons -> null | semicolons ";"
        'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP',  
        'CMPLT', 'CMPGT', 'CMPEQ', 'ASSERT_CMPGE', 'ASSERT_CMPEQ', 'ASSERT_CMPLT',
        'CMPLE', 'CMPGE', 'UNPAIR', 'UNPAPAIR', 
-       'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 
+       'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 'CADR',
        'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'FAIL'])   
 
     //The difference between these and truncated is that these instructions have other instructions as arguments.
@@ -160,6 +162,180 @@ semicolons -> null | semicolons ";"
       }
       return result
     }   
+
+    const checkC_R = c_r => {
+      var pattern = new RegExp('^C(A|D)+R$')
+      return pattern.test(c_r)
+    }
+
+    const expandC_R = c_r => {return [];}
+      //input: C*R
+      //remove first and last characters from string
+      //A -> keywordToJson(['CAR'])
+      //D -> keywordToJson(['CDR'])
+      // if annotations, put in last element of array
+      //return `${mappedArray}`
+
+    const check_compare = cmp => 
+    {
+      var pattern = new RegExp('^CMP(NEQ|EQ|GT|LT|GE|LE)$')
+      return pattern.test(c_r)
+    }
+
+    const expand_cmp = cmp => { return []; }
+      //input : CMP*
+      //take last characters of string that aren't CMP -> keywordToJson([last])
+      // if annotations, put in last element of array
+      //return '${[keywordToJson(['COMPARE'])], ^}
+
+    const check_dup = dup =>
+    {
+      var pattern = new RegExp('^DU+P$')
+      return pattern.test(c_r)
+    }
+
+    //finish function
+    const expand_dup = dup => {
+      if (dup == "DUP") {
+        return `[${keywordToJson(['DUP'])}]`
+      }
+      const newDup = dup.substring(0,1) + dup.substring(2)
+
+      var dip = keywordToJson(['DIP']);
+      var dips = []
+
+      var swap = keywordToJson(['SWAP']);
+      var swaps = []
+      for (let i = 0; i < dup.length; i++) {
+
+      }
+
+    }
+      //input : D(U*)P
+      // DUP -> DUP
+      // DU(U+)P -> n = |U+|, repeat n keywordToJson(['DIP']); keywordToJson(['DUP']); repeat n keywordToJson(['SWAP']);
+      // // if no annot, return duuuup put annot in swap otherwise
+
+    const check_assert = assert =>
+    {
+      var pattern = new RegExp('^ASSERT$|^ASSERT_(EQ|NEQ|GT|LT|GE|LE|NONE|SOME|LEFT|RIGHT|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
+      return pattern.test(c_r)
+    }
+
+    const expand_assert = assert => {
+      //input : ASSERT_CMP**
+      //ASSERT -> {"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}
+      //ASSERT_* -> same as above, but [] -> expand * (comparison ops, CMP_comparison ops)
+      //ASSERT_NONE  =>  IF_NONE {} {FAIL}
+      //ASSERT_SOME  =>  IF_NONE {FAIL} {}
+      //ASSERT_LEFT  =>  IF_LEFT {} {FAIL}
+      //ASSERT_RIGHT  =>  IF_LEFT {FAIL} {}
+      // last five characters -> expand_cmp
+      // return [expand_cmp, assert]  if no annot, put annot in assert otherwise
+      // if annotations, put in last element of array
+      switch (assert) {
+        case 'ASSERT':
+          return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+        case 'ASSERT_CMPEQ':
+          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+        case 'ASSERT_CMPGE':
+          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+        case 'ASSERT_CMPGT':
+          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+        case 'ASSERT_CMPLE':
+          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+        case 'ASSERT_CMPLT':
+          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+        case 'ASSERT_CMPNEQ': 
+          return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+        //put this in cmp function, replace with assert_*
+        case 'CMPEQ':
+          return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+        case 'CMPGE':
+          return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+        case 'CMPGT':
+          return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+        case 'CMPLE':
+          return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+        case 'CMPLT':
+          return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+        case 'CMPNEQ': 
+          return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`        
+      }
+    }
+
+    const check_fail = fail => {
+      return fail == "FAIL";
+    } 
+
+    const expand_fail = fail => {
+      // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
+      return '[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]'   
+    }
+
+    const check_if = ifStatement => {
+      var pattern = new RegExp('^IF(EQ|NEQ|GT|LT|GE|LE|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
+      return pattern.test(c_r)
+    }
+
+    const expandIF = (ifInstr, ifTrue, ifFalse) => {
+      //IFEQ, IFGE, IFGT, IFLE, IFLT : EXACTLY THE SAME AS IFCMP, JUST REMOVE COMPARE
+      // if annotations, put in last element of array
+      switch (ifInstr) {
+        case 'IFCMPEQ':
+          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPGE':
+          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPGT':
+          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'IFCMPLE':
+          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'IFCMPLT':
+          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+        case 'IFCMPNEQ': 
+          return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'CMPEQ':
+          return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'CMPGE':
+          return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'CMPGT':
+          return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+        case 'CMPLE':
+          return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+        case 'CMPLT':
+          return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+        case 'CMPNEQ': 
+          return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`        
+      }
+    }   
+
+    const check_dip = dip => {
+      var pattern = new RegExp('^DI+P$')
+      return pattern.test(c_r)
+    }
+
+    const expandDIP = (dip, instruction) => { 
+      switch (dip) {
+        case 'DIIP':
+          return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
+      }  
+
+      // ANNOTATION LAST ONE
+      // DIP code -> return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`; 
+      // DI(I+)P code -> return `{ "prim": "DIP", "args": [ [ ${expandDIP(D(I+)P, instruction)} ] ] }`; 
+      /*
+      var pattern = new RegExp('^DII+P$')
+      if (pattern.test(dip)) {
+        var newDip = dip.substring(0,1) + dip.substring(2)
+        var innerDip = expandDIP(newDip, instruction)
+        return `{ "prim": "DIP", "args": [ [ ${innerDip} ] ] }`; 
+      }
+      else {
+        //add annotation in this branch
+        return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`; 
+      }
+      */
+    }
 
     const expandKeyword = word => {
       switch (word) {
@@ -223,6 +399,8 @@ semicolons -> null | semicolons ";"
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
         case 'CDADR':
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`  
+        case 'CADR':
+          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`     
         case 'CDDDDAAR':
           return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
         case 'ASSERT_CMPGE':
@@ -230,27 +408,9 @@ semicolons -> null | semicolons ";"
       }
     }
 
-    const expandDIP = (dip, instruction) => { 
-      switch (dip) {
-        case 'DIIP':
-          return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
-      }
-    }
+
     
-    const expandIF = (ifInstr, ifTrue, ifFalse) => {
-      switch (ifInstr) {
-        case 'IFCMPEQ':
-          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-        case 'IFCMPGE':
-          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
-        case 'IFCMPGT':
-          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-        case 'IFCMPLE':
-          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
-        case 'IFCMPLT':
-          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`       
-      }
-    }
+
    
     /**
      * Given a int, convert it to JSON.
@@ -372,24 +532,24 @@ semicolons -> null | semicolons ";"
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
     }
 
-    const typeKeywordToJson = d => { 
-      const annot = d[2].map(x => `${x[0] + x[1]}`)
-      return `{ "prim": "${d[0]}", "annots": ["${annot}"] }`;  
+    const typeKeywordToJson = d => {   
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
     }
 
     const singleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[4].map(x => `${x[0] + x[1]}`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[7]} ], "annots": ["${annot}"]  }`;
+      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]} ], "annots": [${annot}]  }`;
     }
 
     const doubleArgTypeKeywordToJson = d => {
-      const annot = d[2].map(x => `${x[0] + x[1]}`)
-      return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": ["${annot}"]  }`;
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": [${annot}]  }`;
     }
 
     const doubleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[4].map(x => `${x[0] + x[1]}`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[7]}, ${d[9]} ], "annots": ["${annot}"]  }`;
+      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[2]}", "args": [ ${d[7]}, ${d[9]} ], "annots": [${annot}]  }`;
     }
 
 %}
