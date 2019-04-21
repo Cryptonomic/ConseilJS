@@ -23,6 +23,6 @@ describe('ConseilDataClient integration test suite', () => {
         const result = await ConseilDataClient.executeEntityQuery({ url: ConseilV2URL, apiKey: ConseilV2APIKey }, 'tezos', 'alphanet', 'operations', query);
 
         expect(result.length).to.be.greaterThan(100);
-        expect(result.length).to.be.a.instanceof(String);
+        expect(result.toString().split('\n').length).to.equal(6);
     });
 });

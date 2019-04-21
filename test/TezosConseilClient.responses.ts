@@ -312,3 +312,10 @@ export const bakers = [{
 export const ballots = [];
 
 export const proposals = [];
+
+export const operationscsv = `secret,delegatable,source,consumed_gas,timestamp,pkh,nonce,block_level,balance,operation_group_hash,public_key,amount,delegate,block_hash,spendable,status,operation_id,manager_pubkey,slots,storage_limit,storage,counter,script,kind,gas_limit,parameters,destination,fee,level
+null,null,tz1h9F8AtGP7B9S7mC3pRpQ6Q8Vfy9MwQVMm,10100,2019-04-21 15:41:18.0,null,null,320927,null,oo1bbE7tA811EbMNjkPRDyPYyk21gh6uHaxdCSRNq6ErXQXFovH,null,100000,null,BMMRQ2piUqkAvbUy1vQ4kDcnkfgnuDYnQfgVqZDGJNuDtE6GSgW,null,applied,2420458,null,null,0,null,38563,null,transaction,10100,null,KT1BbYY2i74ZVAdL2x1fdvumsSfkmNvCMUGN,1420,null
+null,null,tz1h9F8AtGP7B9S7mC3pRpQ6Q8Vfy9MwQVMm,10100,2019-04-21 15:40:18.0,null,null,320925,null,oneJjG2zEpECH6PbUH2q4EqMAcMNThoEUUFjV1XxSy6mgc7kBaK,null,100000,null,BKjBJ9kA6Q1tJAgUUtoDQ8eaVdMrYCpjcnmHtcT31zbTCAp1tEZ,null,applied,2420447,null,null,0,null,38562,null,transaction,10100,null,KT1BbYY2i74ZVAdL2x1fdvumsSfkmNvCMUGN,1420,null
+null,null,tz1W2ckNBQ2phVADpxVcjzwC4SjRMo6swYcG,10100,2019-04-21 15:38:18.0,null,null,320921,null,onoofvbbeDrnKQoXk7fga7rrsz3Dsdt18dH5JuLNGSaTqZFzGLj,null,120000,null,BLLAga4PFXb4rubs4rvrpz6Gw5cUQUa2PJ3wf2vKoGKkBy1mjTH,null,applied,2420426,null,null,300,null,38561,null,transaction,10300,null,tz1h9F8AtGP7B9S7mC3pRpQ6Q8Vfy9MwQVMm,1420,null
+null,null,tz1W2ckNBQ2phVADpxVcjzwC4SjRMo6swYcG,10100,2019-04-21 15:22:58.0,null,null,320897,null,ooackEaTNyuqLoU4bkSoqEFbT36MTMpvvsaQzTkunhN9UKkCyjh,null,1000000,null,BKtdbyvHsFW5k2rpxDt23BDJfSeQv9LwMjsTAPZV6ei3xBVNW5g,null,applied,2420240,null,null,300,null,38560,null,transaction,10300,null,tz1h9F8AtGP7B9S7mC3pRpQ6Q8Vfy9MwQVMm,1420,null
+null,null,tz1PhFkHaSbQoBFyFPWQjjPq3rg3sqXHnrsu,10100,2019-04-21 14:14:58.0,null,null,320785,null,ooxrLDLTBx4qKCMxKX11gHpZoGTAAkM837kaLHuRdbg2efitM2f,null,1000000000,null,BLfjGRuT4gwdJ4gWeMnhvHS2k3YnrBVFYYiv5JpvimsTFKqwFYv,null,applied,2419457,null,null,277,null,38442,null,transaction,10200,null,tz1Qny7jVMGiwRrP9FikRK95jTNbJcffTpx1,1276,null`;

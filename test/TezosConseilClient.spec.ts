@@ -9,13 +9,13 @@ FetchSelector.setFetch(fetch);
 
 import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient';
 import {ConseilQueryBuilder} from '../src/reporting/ConseilQueryBuilder';
-import {ConseilOperator, ConseilSortDirection} from "../src/types/conseil/QueryTypes"
+import {ConseilOperator, ConseilSortDirection, ConseilOutput} from "../src/types/conseil/QueryTypes"
 import {OperationKindType} from "../src/types/tezos/TezosChainTypes";
 
 import mochaAsync from '../test/mochaTestHelper';
 
 import {
-    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees, bakers, proposals, ballots
+    blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees, bakers, proposals, ballots, operationscsv
 } from './TezosConseilClient.responses';
 
 use(chaiAsPromised);
@@ -156,4 +156,17 @@ describe('TezosConseilClient tests', () => {
         await expect(TezosConseilClient.getBlock({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', 'BL5zoNBN17j2AcUrs8mqSKSMcEiuBKkd9RB6uZ6CgYE2Xyb2ybV')).to.be.rejected;
     });
 
+    it('TezosConseilClient.getOperations as CSV', mochaAsync(async () => {
+        const nockedserver = nock('http://conseil.server');
+        nockedserver.post('/v2/data/tezos/alphanet/operations').reply(200, operationscsv, {'Content-Type': 'text/csv',});
+
+        let query = ConseilQueryBuilder.blankQuery();
+        query = ConseilQueryBuilder.addPredicate(query, 'kind', ConseilOperator.EQ, ['transaction'], false);
+        query = ConseilQueryBuilder.addOrdering(query, 'block_level', ConseilSortDirection.DESC);
+        query = ConseilQueryBuilder.setLimit(query, 5);
+        query = ConseilQueryBuilder.setOutputType(query, ConseilOutput.csv);
+        const result = await TezosConseilClient.getOperations({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', query);
+
+        expect(result.toString().split('\n').length).to.equal(6);
+    }));
 });
