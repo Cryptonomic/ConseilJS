@@ -11,7 +11,7 @@ import {ConseilMetadataClient} from '../src/reporting/ConseilMetadataClient'
 import mochaAsync from '../test/mochaTestHelper';
 
 import {
-    platformsResponse, networksResponse, entityResponse, blockAttributeResponse, accountAttributeValueResponse
+    platformsResponse, networksResponse, entityResponse, blockAttributeResponse, accountAttributeValueResponse, accountAttributePrefixedValueResponse
 } from './ConseilMetadataClient.responses';
 
 describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
@@ -59,4 +59,14 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
 
         expect(result.length).to.equal(2);
     }));
+
+    it('get distinct attribute values', mochaAsync(async () => {
+        const nockedserver = nock('http://conseil.server');
+        nockedserver.get('/v2/metadata/tezos/alphanet/accounts/account_id/tz3').reply(200, accountAttributePrefixedValueResponse);
+
+        const result = await ConseilMetadataClient.getAttributeValuesForPrefix({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet', 'accounts', 'account_id', 'tz3');
+
+        expect(result.length).to.be.greaterThan(2);
+    }));
+    
 });
