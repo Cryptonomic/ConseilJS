@@ -444,7 +444,7 @@ export namespace TezosMessageCodec {
             const storage = TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
             fieldoffset += storagesize * 2;
 
-            script = `{ "script": [ ${storage}, ${code} ] }`;
+            script = `{ "script": [ ${code}, ${storage} ] }`;
         }
 
         let next;
@@ -511,8 +511,8 @@ export namespace TezosMessageCodec {
             try { container = JSON.parse(origination.script as string); } catch { }
 
             let parts: string[] = [];
-            parts.push(JSON.stringify(container['code'], null, 1));
-            parts.push(JSON.stringify(container['storage'], null, 1));
+            parts.push(JSON.stringify(container['code'], null, 1)); // full contract definition containing code, storage and parameters properties
+            parts.push(JSON.stringify(container['storage'], null, 1)); // initial storage
 
             hex += parts.map(p => {
                 let result = TezosLanguageUtil.translateMichelineToHex(p);

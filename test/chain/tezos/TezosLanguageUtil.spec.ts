@@ -116,7 +116,16 @@ describe("Tezos Micheline fragment decoding", () => {
 
     it("test various parsing and encoding failures", () => {
         expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type \'c0\'');
-        expect(() => TezosLanguageUtil.hexToMicheline('c')).to.throw('Malformed Micheline fragement \'c\'');
+        expect(() => TezosLanguageUtil.hexToMicheline('c')).to.throw('Malformed Micheline fragment \'c\'');
+    });
+
+    it('Serialize Michelson directly to hex', () => {
+        const contract = `parameter (list int);
+                storage (list int);
+                code { CAR; MAP { PUSH int 1; ADD }; NIL operation; PAIR }`; // add1_list
+        const result = TezosLanguageUtil.translateMichelsonToHex(contract);
+
+        expect(result).to.equal('0000001e050202000000170316053802000000080743035b00010312053d036d0342000000060501055f035b');
     });
 });
 
@@ -128,13 +137,15 @@ function preProcessMicheline(code: string): string[] {
     parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
 
     for (let i = 0; i < parts.length; i++) {
-        parts[i] = normalizeWhiteSpace(parts[i]);
+        parts[i] = TezosLanguageUtil.normalizeMichelineWhiteSpace(parts[i]);
     }
 
     return parts;
 }
 
 function indexOfKey(container: any, key: string): number {
+    if (!!!container.script) { throw new Error('script property not found'); }
+
     for (let i = 0; i < container.script.length; i++) {
         if (container.script[i]['prim'] === key) { return i; }
     }
@@ -154,17 +165,6 @@ function preProcessHex(hex: string): string[] {
     }
 
     return parts;
-}
-
-function normalizeWhiteSpace(fragment: string): string {
-    return fragment.replace(/\n/g, ' ')
-        .replace(/ +/g, ' ')
-        .replace(/\[{/g, '[ {')
-        .replace(/}\]/g, '} ]')
-        .replace(/},{/g, '}, {')
-        .replace(/\]}/g, '] }')
-        .replace(/":"/g, '": "')
-        .replace(/":\[/g, '": [');
 }
 
 describe('Hex to Micheline official contract tests', async () => {

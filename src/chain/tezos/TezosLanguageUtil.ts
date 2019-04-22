@@ -17,7 +17,7 @@ export namespace TezosLanguageUtil {
      * @returns {string} xxx
      */
     export function hexToMicheline(hex: string): codeEnvelope {
-        if (hex.length < 2) { throw new Error(`Malformed Micheline fragement '${hex}'`); }
+        if (hex.length < 2) { throw new Error(`Malformed Micheline fragment '${hex}'`); }
         let code = '';
         let offset = 0;
         let fieldType = hex.substring(offset, offset + 2);
@@ -153,14 +153,12 @@ export namespace TezosLanguageUtil {
     }
 
     /**
-     * 
-     * @param {string} code 
-     * @returns {string} xxx
+     * Converts Michelson to Micheline and wraps the result in a script property.
      */
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-        preProcessMichelson(code).forEach(p => { parser.feed(p); });
-        return postProcessMicheline(parser.results.join(' '));
+        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+        return `{ "script": ${parser.results.join(' ')} }`;
     }
 
     /**
@@ -170,17 +168,38 @@ export namespace TezosLanguageUtil {
      * @returns {string} hex-encoded contract content
      */
     export function translateMichelsonToHex(code: string): string {
-        return translateMichelineToHex(translateMichelsonToMicheline(code));
+        return preProcessMicheline(translateMichelsonToMicheline(code))
+            .map(p => normalizeMichelineWhiteSpace(p))
+            .map(p => {
+                const result = translateMichelineToHex(p);
+                return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+            }).join('');
+    }
+
+    function preProcessMicheline(code: string): string[] {
+        const container = JSON.parse(code);
+        let parts: string[] = [];
+
+        parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
+        parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
+
+        return parts;
+    }
+    
+    function indexOfKey(container: any, key: string): number {
+        for (let i = 0; i < container.script.length; i++) {
+            if (container.script[i]['prim'] === key) { return i; }
+        }
+
+        throw new Error(`${key} key was not found`);
     }
 
     /**
-     * 
-     * @param {string} code 
-     * @returns {string} xxx
+     * Translate Micheline fragment into hex. Resulting hex string may need to be processed further before being submitted to the server.
      */
     export function translateMichelineToHex(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-        parser.feed(preProcessMicheline(code));
+        parser.feed(normalizeMichelineWhiteSpace(code));
         return parser.results.join('');
     }
 
@@ -220,10 +239,9 @@ export namespace TezosLanguageUtil {
     }
 
     /**
-     * 
-     * @param code 
+     * Reformats the Michelson code into the order the parser will understand. Input is expected to contains parameter, storage and code sections.
      */
-    function preProcessMichelson(code: string): string[] {
+    export function preProcessMichelsonScript(code: string): string[] {
         let sections = new Map<string, any>();
         sections['parameter'] = code.search(/parameter/),
         sections['storage'] = code.search(/storage/),
@@ -239,19 +257,15 @@ export namespace TezosLanguageUtil {
         return parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
     }
 
-    function postProcessMicheline(code: string): string {
-        //const inner = code.replace(/\[{/g, '[ {').replace(/}\]/g, '} ]').replace(/},{/g, '}, {').replace(/\]}/g, '] }');
-        return `{ "script": ${code} }`;
-    }
-
-    function preProcessMicheline(fragment: string): string {
+    export function normalizeMichelineWhiteSpace(fragment: string): string {
         return fragment.replace(/\n/g, ' ')
             .replace(/ +/g, ' ')
             .replace(/\[{/g, '[ {')
             .replace(/}\]/g, '} ]')
             .replace(/},{/g, '}, {')
             .replace(/\]}/g, '] }')
-            .replace(/":"/g, '": "');
+            .replace(/":"/g, '": "')
+            .replace(/":\[/g, '": [');
     }
 
     interface codeEnvelope {
