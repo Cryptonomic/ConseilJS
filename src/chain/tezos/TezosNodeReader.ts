@@ -1,6 +1,6 @@
 import * as TezosTypes from '../../types/tezos/TezosChainTypes'
 import {KeyStore} from "../../types/wallet/KeyStore";
-import {ServiceRequestError, ServiceResponseError} from "../../types/conseil/ErrorTypes";
+import {ServiceRequestError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../../utils/FetchSelector'
 
 const fetch = FetchSelector.getFetch();
@@ -24,13 +24,7 @@ export namespace TezosNodeReader {
                 if (!response.ok) { throw new ServiceRequestError(response.status, response.statusText, url, null); }
                 return response;
             })
-            .then(response => {
-                try {
-                    return response.json();
-                } catch {
-                    throw new ServiceResponseError(response.status, response.statusText, url, null, response);
-                }
-            });
+            .then(response => response.json());
     }
 
     /**

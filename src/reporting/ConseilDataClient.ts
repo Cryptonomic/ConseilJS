@@ -1,5 +1,5 @@
 import {ConseilServerInfo, ConseilQuery} from '../types/conseil/QueryTypes';
-import {ConseilRequestError, ConseilResponseError} from '../types/conseil/ErrorTypes';
+import {ConseilRequestError} from '../types/conseil/ErrorTypes';
 import FetchSelector from '../utils/FetchSelector';
 
 const fetch = FetchSelector.getFetch();
@@ -31,12 +31,7 @@ export namespace ConseilDataClient {
         })
         .then(response => {
             const contentType: string = response.headers.get('content-type').toLowerCase();
-
-            try {
-                return contentType.includes('application/json') ? response.json() : response.text();
-            } catch (err) {
-                throw new ConseilResponseError(response.status, response.statusText, url, null, response);
-            }
+            return contentType.includes('application/json') ? response.json() : response.text();
         });
     }
 }
