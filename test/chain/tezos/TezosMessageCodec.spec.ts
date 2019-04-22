@@ -1,6 +1,6 @@
 import { expect } from "chai";
-import { TezosMessageCodec } from "../src/chain/tezos/TezosMessageCodec";
-import { Activation, Ballot, BallotVote, Operation } from "../src/types/tezos/TezosChainTypes";
+import { TezosMessageCodec } from "../../../src/chain/tezos/TezosMessageCodec";
+import { Activation, Ballot, BallotVote, Operation } from "../../../src/types/tezos/TezosChainTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {

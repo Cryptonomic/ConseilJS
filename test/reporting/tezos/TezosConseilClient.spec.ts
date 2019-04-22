@@ -4,15 +4,15 @@ import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 
 import fetch from 'node-fetch';
-import FetchSelector from '../src/utils/FetchSelector';
+import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {TezosConseilClient} from '../src/reporting/tezos/TezosConseilClient';
-import {ConseilQueryBuilder} from '../src/reporting/ConseilQueryBuilder';
-import {ConseilOperator, ConseilSortDirection, ConseilOutput} from "../src/types/conseil/QueryTypes"
-import {OperationKindType} from "../src/types/tezos/TezosChainTypes";
+import {TezosConseilClient} from '../../../src/reporting/tezos/TezosConseilClient';
+import {ConseilQueryBuilder} from '../../../src/reporting/ConseilQueryBuilder';
+import {ConseilOperator, ConseilSortDirection, ConseilOutput} from "../../../src/types/conseil/QueryTypes"
+import {OperationKindType} from "../../../src/types/tezos/TezosChainTypes";
 
-import mochaAsync from '../test/mochaTestHelper';
+import mochaAsync from '../../../test/mochaTestHelper';
 
 import {
     blockHead, block, accounts, operationgroups, operationgroup, blocks, account, operations, transactionfees, bakers, proposals, ballots, operationscsv

@@ -3,12 +3,12 @@ import {expect} from 'chai';
 import nock from 'nock';
 
 import fetch from 'node-fetch';
-import FetchSelector from '../src/utils/FetchSelector';
+import FetchSelector from '../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {ConseilMetadataClient} from '../src/reporting/ConseilMetadataClient'
+import {ConseilMetadataClient} from '../../src/reporting/ConseilMetadataClient'
 
-import mochaAsync from '../test/mochaTestHelper';
+import mochaAsync from '../../test/mochaTestHelper';
 
 import {
     platformsResponse, networksResponse, entityResponse, blockAttributeResponse, accountAttributeValueResponse, accountAttributePrefixedValueResponse
