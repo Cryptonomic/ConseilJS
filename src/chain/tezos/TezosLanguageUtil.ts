@@ -158,7 +158,8 @@ export namespace TezosLanguageUtil {
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
-        return `{ "script": ${parser.results.join(' ')} }`;
+        //parser.results[0] is a workaround to a bug which causes duplicate matches
+        return `{ "script": ${parser.results[0]} }`;
     }
 
     /**

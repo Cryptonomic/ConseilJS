@@ -37,7 +37,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     type: ['key', 'unit', 'signature', 'option', 'list', 'set', 'operation', 'address', 'contract', 'pair', 'or', 'lambda', 'map', 'big_map'],
-    instruction: ['DROP', 'DUP', 'SWAP', 'PUSH', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
+    instruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
     'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
     'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
@@ -60,38 +60,36 @@ const lexer = moo.compile({
 
 
 
-    const truncatedKeywords = new Set(
-      ['CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 
-       'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR', 
-       'DUUP', 'DUUUP', 'DUUUUP', 'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP',  
-       'CMPLT', 'CMPGT', 'CMPEQ', 'ASSERT_CMPGE', 'ASSERT_CMPEQ', 'ASSERT_CMPLT',
-       'CMPLE', 'CMPGE', 'UNPAIR', 'UNPAPAIR', 
-       'CDAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'CDDDADR', 'CADAR', 'CDDDAAR', 'CADDR', 'CADR',
-       'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 'FAIL'])   
-
-    //The difference between these and truncated is that these instructions have other instructions as arguments.
-    const dipKeywords = new Set(
-      [ 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP']
-    )   
-
-    const ifKeywords = new Set(
-      [ 'IFCMPEQ', 'IFCMPGE', 'IFCMPGT', 'IFCMPLE', 'IFCMPLT' ]
-    )
-
-    const replicateKeyword = (word, n) => {
-      var result = []
-      for (i = 0; i < n; i++) {
-        result.push(keywordToJson([word]))
-      }
-      return result
-    }   
-
     const checkC_R = c_r => {
-      var pattern = new RegExp('^C(A|D)+R$')
+      var pattern = new RegExp('^C(A|D)(A|D)+R$')
       return pattern.test(c_r)
     }
 
-    const expandC_R = c_r => {return [];}
+    const mapper = a_or_d => {
+      switch(a_or_d) {
+        case "A":
+          return keywordToJson(['CAR'])
+        case "D":
+          return keywordToJson(['CDR'])
+      }
+    }
+
+    const expandC_R = (c_r, annot) => {
+      var as_and_ds = c_r.substring(1,c_r.length-1) 
+      var expandedC_R = as_and_ds.split('').map(x => mapper(x))
+      //if annotations, put in last element of array
+      if (annot != null) {
+        const lastChar = as_and_ds[as_and_ds.length-1]
+        if (lastChar == 'A') {
+          expandedC_R[expandedC_R.length-1] = `{ "prim": "CAR", "annots": [${annot}] }`
+        }
+        if (lastChar == 'D') {
+          expandedC_R[expandedC_R.length-1] = `{ "prim": "CDR", "annots": [${annot}] }`
+        }
+      }
+      return `[${expandedC_R}]`
+    }
+
       //input: C*R
       //remove first and last characters from string
       //A -> keywordToJson(['CAR'])
@@ -102,10 +100,19 @@ const lexer = moo.compile({
     const check_compare = cmp => 
     {
       var pattern = new RegExp('^CMP(NEQ|EQ|GT|LT|GE|LE)$')
-      return pattern.test(c_r)
+      return pattern.test(cmp)
     }
 
-    const expand_cmp = cmp => { return []; }
+    const expand_cmp = (cmp, annot) => { 
+      var op = cmp.substring(3)
+      var binary_op = keywordToJson([`${op}`])
+      var compare = keywordToJson(['COMPARE'])
+      if (annot != null) {
+        binary_op = `{ "prim": "${op}", "annots": [${annot}] }`;
+      }
+      var result = [compare, binary_op]
+      return `[${result}]`
+    }
       //input : CMP*
       //take last characters of string that aren't CMP -> keywordToJson([last])
       // if annotations, put in last element of array
@@ -113,25 +120,64 @@ const lexer = moo.compile({
 
     const check_dup = dup =>
     {
-      var pattern = new RegExp('^DU+P$')
-      return pattern.test(c_r)
+      var pattern = new RegExp('^DUU+P$')
+      return pattern.test(dup)
     }
 
-    //finish function
-    const expand_dup = dup => {
-      if (dup == "DUP") {
-        return `[${keywordToJson(['DUP'])}]`
+    //currently does not handle annotations
+    const expand_dup = (dup, annot) => {
+      var pattern = new RegExp('^DUU+P$')
+      if (pattern.test(dup)) {
+        var newDup = dup.substring(0,1) + dup.substring(2)
+        var innerDup = expand_dup(newDup, annot)
+        return `[{ "prim": "DIP", "args": [  ${innerDup}  ] },{"prim":"SWAP"}]`; 
       }
-      const newDup = dup.substring(0,1) + dup.substring(2)
+      else {
+        if (annot == null) {
+          return `[{ "prim": "DUP" }]`; 
+        }
+        else {
+          return `[{ "prim": "DUP", "annots": [${annot}] }]`; 
+        }
+      }
+      /*
 
-      var dip = keywordToJson(['DIP']);
+      if (dup == "DUP") {
+          return `{ "prim": "${dup}" }`;
+  
+      }
+
+      if (dup == "DUUP") {
+        if (annot == null) {
+
+        }
+        else {
+
+        }  
+      }
+
+
+      const newDup = dup.substring(1,dup.length-1)
+
+      const dip = keywordToJson(['DIP']);
       var dips = []
 
-      var swap = keywordToJson(['SWAP']);
-      var swaps = []
-      for (let i = 0; i < dup.length; i++) {
-
+      const swap = keywordToJson(['SWAP']);
+      var finalSwap = swap
+      if (annot != null) {
+        finalSwap = `{ "prim": "SWAP", "annots": [${annot}] }`
       }
+      var swaps = []
+
+      for (let i = 0; i < newDup.length; i++) {
+        dips.push(dip);
+        swaps.push(swap);
+      }
+
+      swaps[swaps.length-1] = finalSwap
+
+      return `[${dips}, ${[keywordToJson(['DUP'])]}, ${swaps}]`
+      */
 
     }
       //input : D(U*)P
@@ -142,10 +188,10 @@ const lexer = moo.compile({
     const check_assert = assert =>
     {
       var pattern = new RegExp('^ASSERT$|^ASSERT_(EQ|NEQ|GT|LT|GE|LE|NONE|SOME|LEFT|RIGHT|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
-      return pattern.test(c_r)
+      return pattern.test(assert)
     }
 
-    const expand_assert = assert => {
+    const expand_assert = (assert, annot) => {
       //input : ASSERT_CMP**
       //ASSERT -> {"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}
       //ASSERT_* -> same as above, but [] -> expand * (comparison ops, CMP_comparison ops)
@@ -158,32 +204,96 @@ const lexer = moo.compile({
       // if annotations, put in last element of array
       switch (assert) {
         case 'ASSERT':
-          return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          if (annot == null) {
+            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          }
+          else {
+            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
+          }
         case 'ASSERT_CMPEQ':
-          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`  
+          }
         case 'ASSERT_CMPGE':
-          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`  
+          }
         case 'ASSERT_CMPGT':
-          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`            
+          }
         case 'ASSERT_CMPLE':
-          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`              
+          }
         case 'ASSERT_CMPLT':
-          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`                 
+          }
         case 'ASSERT_CMPNEQ': 
-          return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-        //put this in cmp function, replace with assert_*
-        case 'CMPEQ':
-          return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-        case 'CMPGE':
-          return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
-        case 'CMPGT':
-          return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-        case 'CMPLE':
-          return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
-        case 'CMPLT':
-          return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
-        case 'CMPNEQ': 
-          return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`        
+          if (annot == null) {
+            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          }
+          else {
+            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`            
+          }
+        case 'ASSERT_EQ':
+          if (annot == null) {
+            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`
+          }
+          else {
+            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`          
+          }
+        case 'ASSERT_GE':
+          if (annot == null) {
+            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+          }
+          else {
+            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`              
+          }
+        case 'ASSERT_GT':
+          if (annot == null) {
+            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          }
+          else {
+            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
+          }
+        case 'ASSERT_LE':
+          if (annot == null) {
+            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
+          }
+          else {
+            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`          
+          }
+        case 'ASSERT_LT':
+          if (annot == null) {
+            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+          }
+          else {
+            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`               
+          }
+        case 'ASSERT_NEQ':
+          if (annot == null) {
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`        
+          }
+          else {
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`                    
+          } 
       }
     }
 
@@ -191,150 +301,213 @@ const lexer = moo.compile({
       return fail == "FAIL";
     } 
 
-    const expand_fail = fail => {
+    const expand_fail = (fail, annot) => {
       // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
-      return '[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]'   
+      if (annot == null) {
+        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]`   
+      }
+      else {
+        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}]} ]`  
+      } 
     }
 
     const check_if = ifStatement => {
       var pattern = new RegExp('^IF(EQ|NEQ|GT|LT|GE|LE|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
-      return pattern.test(c_r)
+      return pattern.test(ifStatement)
     }
 
-    const expandIF = (ifInstr, ifTrue, ifFalse) => {
+    const expandIF = (ifInstr, ifTrue, ifFalse, annot) => {
       //IFEQ, IFGE, IFGT, IFLE, IFLT : EXACTLY THE SAME AS IFCMP, JUST REMOVE COMPARE
       // if annotations, put in last element of array
       switch (ifInstr) {
         case 'IFCMPEQ':
-          return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFCMPGE':
-          return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
+          }
         case 'IFCMPGT':
-          return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`         
+          }
         case 'IFCMPLE':
-          return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
+          }       
         case 'IFCMPLT':
-          return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`             
+          }        
         case 'IFCMPNEQ': 
-          return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-        case 'CMPEQ':
-          return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-        case 'CMPGE':
-          return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
-        case 'CMPGT':
-          return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-        case 'CMPLE':
-          return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
-        case 'CMPLT':
-          return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
-        case 'CMPNEQ': 
-          return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`        
+          if (annot == null) {
+            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          }
+          else {
+            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
+          }        
+        case 'IFEQ':
+          if (annot == null) {
+            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          }
+          else {
+            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
+          }        
+        case 'IFGE':
+          if (annot == null) {
+            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          }
+          else {
+            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
+          }        
+        case 'IFGT':
+          if (annot == null) {
+            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
+          }
+          else {
+            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`          
+          }        
+        case 'IFLE':
+          if (annot == null) {
+            return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+          }
+          else {
+           return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
+          }        
+        case 'IFLT':
+          if (annot == null) {
+            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+          }
+          else {
+            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
+          }        
+        case 'IFNEQ': 
+          if (annot == null) {
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`        
+          }
+          else {
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`                  
+          }        
       }
     }   
 
     const check_dip = dip => {
-      var pattern = new RegExp('^DI+P$')
-      return pattern.test(c_r)
+      var pattern = new RegExp('^DII+P$')
+      return pattern.test(dip)
     }
 
-    const expandDIP = (dip, instruction) => { 
-      switch (dip) {
-        case 'DIIP':
-          return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
-      }  
+    const expandDIP = (dip, instruction, annot) => { 
+      //switch (dip) {
+      //  case 'DIIP':
+      //    return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
+      //}  
 
       // ANNOTATION LAST ONE
       // DIP code -> return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`; 
       // DI(I+)P code -> return `{ "prim": "DIP", "args": [ [ ${expandDIP(D(I+)P, instruction)} ] ] }`; 
-      /*
+      
       var pattern = new RegExp('^DII+P$')
       if (pattern.test(dip)) {
         var newDip = dip.substring(0,1) + dip.substring(2)
-        var innerDip = expandDIP(newDip, instruction)
-        return `{ "prim": "DIP", "args": [ [ ${innerDip} ] ] }`; 
+        var innerDip = expandDIP(newDip, instruction, annot)
+        return `[{ "prim": "DIP", "args": [  ${innerDip}  ] }]`; 
       }
       else {
         //add annotation in this branch
-        return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`; 
+        if (annot == null) {
+          return `[{ "prim": "DIP", "args": [ [ ${instruction} ] ] }]`; 
+        }
+        else {
+          return `[{ "prim": "DIP", "args": [ [ ${instruction} ] ], "annots": [${annot}] }]`; 
+        }
       }
-      */
+      
     }
 
-    const expandKeyword = word => {
-      switch (word) {
-        case 'CAAR':
-          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CDAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`         
-        case 'CMPGT':
-          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['GT'])}]` 
-        case 'CMPGE':
-          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['GE'])}]`    
-        case 'CMPLT':
-          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['LT'])}]`   
-        case 'CMPLE':
-          return `[${keywordToJson(['COMPARE'])}, ${keywordToJson(['LE'])}]`  
-        case 'CDDR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`   
-        //These are equivalent by inspection of tezos node output, replace with more elegant solution later.  
-        case 'UNPAIR':
+    //until we have proper checks for these cases
+    const check_other = word => {
+      return word == "UNPAIR" || word == "UNPAPAIR"  
+    }
+
+    const expand_other = (word, annot) => {
+      if (word == 'UNPAIR') {
+        if (annot == null) {
           return '[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ]'
-        case 'UNPAPAIR':
+        }
+        else {
+          return `[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ], "annots": [${annot}]  } ] ]`
+        }
+      }
+      if (word == 'UNPAPAIR') {
+        if (annot == null) {
           return `[ [ { "prim": "DUP" },
                      { "prim": "CAR" },
                      { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
                      {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
-        case 'FAIL': 
-          return '[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]'  
-        case 'DUUUP':
-          return `[{"prim":"DIP","args":[[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]]},{"prim":"SWAP"}]`
-        case 'DUUP':
-          return `[{"prim":"DIP","args":[[{"prim":"DUP"}]]},{"prim":"SWAP"}]`   
-        case 'CDDADDR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`  
-        case 'CDDAR': 
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]` 
-        case 'CDDDR': 
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]` 
-        case 'CDADAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CDADDR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]` 
-        case 'CDDAAR':  
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CDDDADR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]` 
-        case 'CADAR':
-          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CDDDAAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CADDR':  
-          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`    
-        case 'CDDDDR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`   
-        case 'CDDADAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}]`   
-        case 'CDDDDADR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`
-        case 'CDDDDDR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}]`  
-        case 'CDAAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
-        case 'CDADR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`  
-        case 'CADR':
-          return `[${keywordToJson(['CAR'])}, ${keywordToJson(['CDR'])}]`     
-        case 'CDDDDAAR':
-          return `[${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CDR'])}, ${keywordToJson(['CAR'])}, ${keywordToJson(['CAR'])}]`
-        case 'ASSERT_CMPGE':
-          return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+        }
+        else {
+          return `[ [ { "prim": "DUP" },
+                     { "prim": "CAR" },
+                     { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
+                     {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}] `
+        }
       }
     }
 
+    const checkKeyword = word => {
+      return check_assert(word) 
+             || check_compare(word)
+             || check_dip(word)
+             || check_dup(word)
+             || check_fail(word)
+             || check_if(word)
+             || checkC_R(word)
+             || check_other(word)
+    }
 
-    
+    const expandKeyword = (word, annot) => {
+      if (checkC_R(word)) {
+        return expandC_R(word, annot)
+      }
+      if (check_assert(word)) {
+        return expand_assert(word, annot)
+      }
+      if (check_compare(word)) {
+        return expand_cmp(word, annot)
+      }
+      if (check_dip(word)) {
+        return expandDIP(word, annot)
+      }
+      if (check_dup(word)) {
+        return expand_dup(word, annot)
+      }
+      if (check_fail(word)) {
+        return expand_fail(word, annot)
+      }
+      if (check_if(word)) {
+        return expandIF(word, annot)
+      }
+      if (check_other(word)) {
+        return expand_other(word, annot)
+      }
+    }
 
-   
     /**
      * Given a int, convert it to JSON.
      * Example: "3" -> { "int": "3" }
@@ -352,30 +525,53 @@ const lexer = moo.compile({
      * Example: "int" -> "{ "prim" : "int" }"
      */
     const keywordToJson = d => { 
-      //console.log(`matching keyword '${d[0]}'`)
-      //console.log(truncatedKeywords)
-      //console.log(`--t '${truncatedKeywords.has(d[0].toString())}'`)
-      const word = `${d[0].toString()}`
-      if (truncatedKeywords.has(word)) {//(truncatedKeywords.has(`${d[0].toString()}`)) {
-        //console.log(`found expansion ${[expandKeyword(d[0].toString())]}`)
-        //console.log([1,2,3])
-        return [expandKeyword(d[0].toString())] 
+      const word = d[0].toString()
+      if (d.length == 1) {
+        if (checkKeyword(word)) {
+          return [expandKeyword(word, null)] 
+        }
+        else {
+          return `{ "prim": "${d[0]}" }`; 
+        }
       }
       else {
-        //console.log(`found '${d[0]}'`)
-        return `{ "prim": "${d[0]}" }`; 
+        const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+        if (checkKeyword(word)) {
+          return [expandKeyword(word, annot)] 
+        }
+        else {
+          return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
+        }
       }
     }
+
+    /*
+    const typeKeywordToJson = d => {   
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
+    }
+    */
 
     /**
      * Given a keyword with one argument, convert it to JSON.
      * Example: "option int" -> "{ prim: option, args: [int] }"
      */
     const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
+    //changed 5 secs ago
+
+    const comparableTypeToJson = d => {
+      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[2]}", "annots": [${annot}]  }`;
+    }
+
+    const singleArgTypeKeywordWithParenToJson = d => {
+      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[2]}", "args": [ [ ${d[7]} ] ], "annots": [${annot}]  }`;
+    }
 
     const singleArgInstrKeywordToJson = d => { 
       const word = `${d[0].toString()}`
-      if (dipKeywords.has(word)) {
+      if (check_dip(word)) {
         return expandDIP(word, d[2])
       }
       else {
@@ -383,12 +579,23 @@ const lexer = moo.compile({
       }
     }
 
+    const singleArgTypeKeywordToJson = d => {
+      const word = `${d[0].toString()}`
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      if (check_dip(word)) {
+        return expandDIP(word, d[2], annot)
+      }
+      else {
+        return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`; 
+      }  
+    }
+
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
      * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
      */
     const singleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`; }
-
+    //changed 5 secs ago
     /**
      * Given a keyword with two arguments, convert it into JSON.
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
@@ -397,8 +604,7 @@ const lexer = moo.compile({
 
     const doubleArgInstrKeywordToJson = d => { 
       const word = `${d[0].toString()}`
-      console.log(word)
-      if (ifKeywords.has(word)) {
+      if (check_if(word)) {
         return expandIF(word, d[2], d[4])
       }
       else {
@@ -455,16 +661,6 @@ const lexer = moo.compile({
         return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
     }
 
-    const typeKeywordToJson = d => {   
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
-    }
-
-    const singleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[7]} ], "annots": [${annot}]  }`;
-    }
-
     const doubleArgTypeKeywordToJson = d => {
       const annot = d[1].map(x => `"${x[1] + x[2]}"`)
       return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": [${annot}]  }`;
@@ -472,7 +668,21 @@ const lexer = moo.compile({
 
     const doubleArgTypeKeywordWithParenToJson = d => {
       const annot = d[3].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[7]}, ${d[9]} ], "annots": [${annot}]  }`;
+      return `{ "prim": "${d[2]}", "args": [ ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
+    }
+
+    const tripleArgTypeKeyWordToJson = d => {
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;  
+    }
+
+    const pushToJson = d => {
+      return `{ "prim": "${d[0]}", "args": [${d[2]}, []] }`;
+    }
+
+    const pushWithAnnotsToJson = d => {
+      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
 var grammar = {
@@ -512,7 +722,7 @@ var grammar = {
     {"name": "type$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
     {"name": "type$ebnf$1$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$1$subexpression$2$subexpression$1"]},
     {"name": "type$ebnf$1", "symbols": ["type$ebnf$1", "type$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "type", "symbols": [(lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "type$ebnf$1"], "postprocess": typeKeywordToJson},
+    {"name": "type", "symbols": [(lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "type$ebnf$1"], "postprocess": keywordToJson},
     {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "type$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
@@ -523,7 +733,7 @@ var grammar = {
     {"name": "type$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
     {"name": "type$ebnf$2$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$2$subexpression$2$subexpression$1"]},
     {"name": "type$ebnf$2", "symbols": ["type$ebnf$2", "type$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "type", "symbols": [(lexer.has("constantType") ? {type: "constantType"} : constantType), "type$ebnf$2"], "postprocess": typeKeywordToJson},
+    {"name": "type", "symbols": [(lexer.has("constantType") ? {type: "constantType"} : constantType), "type$ebnf$2"], "postprocess": keywordToJson},
     {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "type$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
@@ -534,7 +744,7 @@ var grammar = {
     {"name": "type$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
     {"name": "type$ebnf$3$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$3$subexpression$2$subexpression$1"]},
     {"name": "type$ebnf$3", "symbols": ["type$ebnf$3", "type$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "type$ebnf$3", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgTypeKeywordWithParenToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("comparableType") ? {type: "comparableType"} : comparableType), "type$ebnf$3", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": comparableTypeToJson},
     {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "type$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
@@ -545,7 +755,7 @@ var grammar = {
     {"name": "type$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
     {"name": "type$ebnf$4$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$4$subexpression$2$subexpression$1"]},
     {"name": "type$ebnf$4", "symbols": ["type$ebnf$4", "type$ebnf$4$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("constantType") ? {type: "constantType"} : constantType), "type$ebnf$4", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgTypeKeywordWithParenToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("constantType") ? {type: "constantType"} : constantType), "type$ebnf$4", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": comparableTypeToJson},
     {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "type$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
@@ -594,25 +804,104 @@ var grammar = {
     {"name": "instruction$ebnf$1$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "instruction$ebnf$1$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$1$subexpression$2$subexpression$1"]},
     {"name": "instruction$ebnf$1", "symbols": ["instruction$ebnf$1", "instruction$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$1"], "postprocess": typeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$1"], "postprocess": keywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction"], "postprocess": singleArgInstrKeywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type"], "postprocess": singleArgKeywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "data"], "postprocess": singleArgKeywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "type", "_", "subInstruction"], "postprocess": tripleArgKeyWordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction", "_", "subInstruction"], "postprocess": doubleArgInstrKeywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "data"], "postprocess": doubleArgKeywordToJson},
     {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
-    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": ["storage"]},
     {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$2$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "instruction$ebnf$2$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$2$subexpression$1$subexpression$1"]},
     {"name": "instruction$ebnf$2", "symbols": ["instruction$ebnf$2$subexpression$1"]},
     {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
-    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": ["storage"]},
     {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$2$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "instruction$ebnf$2$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$2$subexpression$2$subexpression$1"]},
     {"name": "instruction$ebnf$2", "symbols": ["instruction$ebnf$2", "instruction$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
-    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$2", "_", "type", "_", "data"], "postprocess": doubleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$2", "_", "subInstruction"], "postprocess": singleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type"], "postprocess": singleArgKeywordToJson},
+    {"name": "instruction$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$3$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$3$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$3$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$3$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$3", "symbols": ["instruction$ebnf$3$subexpression$1"]},
+    {"name": "instruction$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$3$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$3$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$3$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$3$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$3", "symbols": ["instruction$ebnf$3", "instruction$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$3", "_", "type"], "postprocess": singleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "data"], "postprocess": singleArgKeywordToJson},
+    {"name": "instruction$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$4$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$4$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$4$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$4$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$4", "symbols": ["instruction$ebnf$4$subexpression$1"]},
+    {"name": "instruction$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$4$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$4$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$4$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$4$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$4", "symbols": ["instruction$ebnf$4", "instruction$ebnf$4$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$4", "_", "data"], "postprocess": singleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "type", "_", "subInstruction"], "postprocess": tripleArgKeyWordToJson},
+    {"name": "instruction$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$5$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$5$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$5$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$5$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$5", "symbols": ["instruction$ebnf$5$subexpression$1"]},
+    {"name": "instruction$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$5$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$5$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$5$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$5$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$5", "symbols": ["instruction$ebnf$5", "instruction$ebnf$5$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$5", "_", "type", "_", "type", "_", "subInstruction"], "postprocess": tripleArgTypeKeyWordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "subInstruction", "_", "subInstruction"], "postprocess": doubleArgInstrKeywordToJson},
+    {"name": "instruction$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$6$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$6$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$6$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$6$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$6", "symbols": ["instruction$ebnf$6$subexpression$1"]},
+    {"name": "instruction$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$6$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$6$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$6$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$6$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$6", "symbols": ["instruction$ebnf$6", "instruction$ebnf$6$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$6", "_", "subInstruction", "_", "subInstruction"], "postprocess": doubleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction$ebnf$7$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$7$subexpression$1$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$7$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$7$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$7$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$7$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$7", "symbols": ["instruction$ebnf$7$subexpression$1"]},
+    {"name": "instruction$ebnf$7$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$7$subexpression$2$subexpression$1", "symbols": ["storage"]},
+    {"name": "instruction$ebnf$7$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$7$subexpression$2$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
+    {"name": "instruction$ebnf$7$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$7$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$7", "symbols": ["instruction$ebnf$7", "instruction$ebnf$7$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$7", "_", "type", "_", "type"], "postprocess": doubleArgTypeKeywordToJson},
+    {"name": "instruction", "symbols": [{"literal":"PUSH"}, "_", "type", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$8$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$8$subexpression$1$subexpression$1"]},
+    {"name": "instruction$ebnf$8", "symbols": ["instruction$ebnf$8$subexpression$1"]},
+    {"name": "instruction$ebnf$8$subexpression$2$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
+    {"name": "instruction$ebnf$8$subexpression$2$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
+    {"name": "instruction$ebnf$8$subexpression$2$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
+    {"name": "instruction$ebnf$8$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "instruction$ebnf$8$subexpression$2$subexpression$1"]},
+    {"name": "instruction$ebnf$8", "symbols": ["instruction$ebnf$8", "instruction$ebnf$8$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "instruction", "symbols": [{"literal":"PUSH"}, "instruction$ebnf$8", "_", "type", "_", "data"], "postprocess": pushWithAnnotsToJson},
+    {"name": "instruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "data"], "postprocess": singleArgKeywordToJson},
     {"name": "data", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "data", "_", "data"], "postprocess": doubleArgKeywordWithParenToJson},
