@@ -350,7 +350,6 @@ export namespace TezosMessageCodec {
      * @param {Operation} transaction 
      * @returns {string}
      * 
-     * @todo parameters field is not yet supported
      * @see {@link https://tezos.gitlab.io/mainnet/api/p2p.html#transaction-tag-8|Tezos P2P message format}
      */
     export function encodeTransaction(transaction: Operation): string {
@@ -366,7 +365,13 @@ export namespace TezosMessageCodec {
         hex += TezosMessageUtils.writeInt(parseInt(transaction.storage_limit));
         hex += TezosMessageUtils.writeInt(parseInt(transaction.amount));
         hex += TezosMessageUtils.writeAddress(transaction.destination);
-        hex += '00'; // no parameters
+
+        if (!!transaction.parameters) {
+            let result = TezosLanguageUtil.translateMichelineToHex(JSON.stringify(transaction.parameters));
+            hex += 'ff' + ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+        } else {
+            hex += '00';
+        }
 
         return hex;
     }

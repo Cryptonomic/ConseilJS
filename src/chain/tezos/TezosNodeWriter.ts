@@ -412,7 +412,7 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(parameters);
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
