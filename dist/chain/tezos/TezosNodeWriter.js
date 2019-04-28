@@ -216,7 +216,7 @@ var TezosNodeWriter;
                 kind: "transaction"
             };
             if (!!parameters) {
-                transaction.parameters = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+                transaction.parameters = JSON.parse(parameters);
             }
             const operations = yield appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);

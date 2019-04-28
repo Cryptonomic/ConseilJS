@@ -16,7 +16,7 @@ var TezosLanguageUtil;
 (function (TezosLanguageUtil) {
     function hexToMicheline(hex) {
         if (hex.length < 2) {
-            throw new Error(`Malformed Micheline fragement '${hex}'`);
+            throw new Error(`Malformed Micheline fragment '${hex}'`);
         }
         let code = '';
         let offset = 0;
@@ -147,17 +147,37 @@ var TezosLanguageUtil;
     TezosLanguageUtil.hexToMicheline = hexToMicheline;
     function translateMichelsonToMicheline(code) {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-        preProcessMichelson(code).forEach(p => { parser.feed(p); });
-        return postProcessMicheline(parser.results.join(' '));
+        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+        return `{ "script": ${parser.results[0]} }`;
     }
     TezosLanguageUtil.translateMichelsonToMicheline = translateMichelsonToMicheline;
     function translateMichelsonToHex(code) {
-        return translateMichelineToHex(translateMichelsonToMicheline(code));
+        return preProcessMicheline(translateMichelsonToMicheline(code))
+            .map(p => normalizeMichelineWhiteSpace(p))
+            .map(p => {
+            const result = translateMichelineToHex(p);
+            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
+        }).join('');
     }
     TezosLanguageUtil.translateMichelsonToHex = translateMichelsonToHex;
+    function preProcessMicheline(code) {
+        const container = JSON.parse(code);
+        let parts = [];
+        parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
+        parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
+        return parts;
+    }
+    function indexOfKey(container, key) {
+        for (let i = 0; i < container.script.length; i++) {
+            if (container.script[i]['prim'] === key) {
+                return i;
+            }
+        }
+        throw new Error(`${key} key was not found`);
+    }
     function translateMichelineToHex(code) {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-        parser.feed(preProcessMicheline(code));
+        parser.feed(normalizeMichelineWhiteSpace(code));
         return parser.results.join('');
     }
     TezosLanguageUtil.translateMichelineToHex = translateMichelineToHex;
@@ -176,57 +196,31 @@ var TezosLanguageUtil;
         const stringEnvelope = michelineHexToString(hex);
         return { code: stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
     }
-    function preProcessMichelson(code) {
-        const pi = code.search(/parameter/);
-        const si = code.search(/storage/);
-        const ci = code.search(/code/);
-        let parts = [];
-        if (pi < si && si < ci) {
-            parts[0] = code.substring(pi, si);
-            parts[1] = code.substring(si, ci);
-            parts[2] = code.substring(ci);
-        }
-        if (pi < ci && ci < si) {
-            parts[0] = code.substring(pi, ci);
-            parts[1] = code.substring(si);
-            parts[2] = code.substring(ci, si);
-        }
-        if (si < pi && pi < ci) {
-            parts[0] = code.substring(pi, ci);
-            parts[1] = code.substring(si, pi);
-            parts[2] = code.substring(ci);
-        }
-        if (si < ci && ci < pi) {
-            parts[0] = code.substring(pi);
-            parts[1] = code.substring(si, ci);
-            parts[2] = code.substring(ci, pi);
-        }
-        if (ci < si && si < pi) {
-            parts[0] = code.substring(pi);
-            parts[1] = code.substring(si, pi);
-            parts[2] = code.substring(ci, si);
-        }
-        if (ci < pi && pi < si) {
-            parts[0] = code.substring(pi, si);
-            parts[1] = code.substring(si);
-            parts[2] = code.substring(ci, pi);
-        }
-        for (let i = 0; i < 3; i++) {
-            parts[i] = parts[i].trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' ');
-        }
-        return parts;
+    function preProcessMichelsonScript(code) {
+        let sections = new Map();
+        sections['parameter'] = code.search(/parameter/),
+            sections['storage'] = code.search(/storage/),
+            sections['code'] = code.search(/code/);
+        const boundaries = Object.values(sections).sort((a, b) => Number(a) - Number(b));
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[0]) + ''] = code.substring(boundaries[0], boundaries[1]);
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[1]) + ''] = code.substring(boundaries[1], boundaries[2]);
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[2]) + ''] = code.substring(boundaries[2]);
+        const parts = [sections['parameter'], sections['storage'], sections['code']];
+        return parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
     }
-    function postProcessMicheline(code) {
-        return `{ "script": ${code} }`;
-    }
-    function preProcessMicheline(fragment) {
+    TezosLanguageUtil.preProcessMichelsonScript = preProcessMichelsonScript;
+    function normalizeMichelineWhiteSpace(fragment) {
         return fragment.replace(/\n/g, ' ')
             .replace(/ +/g, ' ')
             .replace(/\[{/g, '[ {')
             .replace(/}\]/g, '} ]')
             .replace(/},{/g, '}, {')
             .replace(/\]}/g, '] }')
-            .replace(/":"/g, '": "');
+            .replace(/":"/g, '": "')
+            .replace(/":\[/g, '": [')
+            .replace(/{"/g, '{ "')
+            .replace(/"}/g, '" }');
     }
+    TezosLanguageUtil.normalizeMichelineWhiteSpace = normalizeMichelineWhiteSpace;
 })(TezosLanguageUtil = exports.TezosLanguageUtil || (exports.TezosLanguageUtil = {}));
 //# sourceMappingURL=TezosLanguageUtil.js.map

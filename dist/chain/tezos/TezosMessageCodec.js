@@ -284,7 +284,13 @@ var TezosMessageCodec;
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(transaction.storage_limit));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(transaction.amount));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(transaction.destination);
-        hex += '00';
+        if (!!transaction.parameters) {
+            let result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(JSON.stringify(transaction.parameters));
+            hex += 'ff' + ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
+        }
+        else {
+            hex += '00';
+        }
         return hex;
     }
     TezosMessageCodec.encodeTransaction = encodeTransaction;
@@ -339,7 +345,7 @@ var TezosMessageCodec;
             fieldoffset += 8;
             const storage = TezosLanguageUtil_1.TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
             fieldoffset += storagesize * 2;
-            script = `{ "script": [ ${storage}, ${code} ] }`;
+            script = `{ "script": [ ${code}, ${storage} ] }`;
         }
         let next;
         if (originationMessage.length > fieldoffset) {

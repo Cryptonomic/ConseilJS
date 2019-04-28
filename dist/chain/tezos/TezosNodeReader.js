@@ -25,14 +25,7 @@ var TezosNodeReader;
             }
             return response;
         })
-            .then(response => {
-            try {
-                return response.json();
-            }
-            catch (_a) {
-                throw new ErrorTypes_1.ServiceResponseError(response.status, response.statusText, url, null, response);
-            }
-        });
+            .then(response => response.json());
     }
     function getBlock(server, hash) {
         return performGetRequest(server, `chains/main/blocks/${hash}`)

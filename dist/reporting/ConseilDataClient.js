@@ -32,12 +32,7 @@ var ConseilDataClient;
             })
                 .then(response => {
                 const contentType = response.headers.get('content-type').toLowerCase();
-                try {
-                    return contentType.includes('application/json') ? response.json() : response.text();
-                }
-                catch (err) {
-                    throw new ErrorTypes_1.ConseilResponseError(response.status, response.statusText, url, null, response);
-                }
+                return contentType.includes('application/json') ? response.json() : response.text();
             });
         });
     }
