@@ -19,6 +19,10 @@ const moo = require("moo");
   - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
   - of inputs, accounting for that in the lexer is necessary
   - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
+  - We do not handle instances where parameter, storage, and code are given in a separate order
+  - There is a function called CREATE_CONTRACT which can create a contract inside of a contract, including the parameter,
+    storage, and code definitions. We do not handle this nesting, as we do a lot of preprocessing outside of the grammar.
+  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
 
 /*
@@ -63,12 +67,15 @@ const lexer = moo.compile({
 @lexer lexer
 
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
-main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %}
+main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %} | parameterValue {% id %} | storageValue {% id %} | typeData {% id %}
 script -> parameter _ storage _ code {% scriptToJson %} 
 
 parameter -> "parameter" | "Parameter"
 storage -> "Storage" | "storage"
 code -> "Code" | "code"
+
+parameterValue -> parameter _ typeData _ semicolons {% singleArgKeywordToJson %}
+storageValue -> storage _ typeData _ semicolons {% singleArgKeywordToJson %}
 
 parameter -> parameter _ type _ semicolons {% singleArgKeywordToJson %}
 storage -> storage _ type _ semicolons {% singleArgKeywordToJson %}
@@ -80,9 +87,9 @@ type ->
     %comparableType {% keywordToJson %} 
   | %constantType {% keywordToJson %} 
   | %singleArgType _ type {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
+  | %lparen _ %singleArgType _ type _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
-  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
+  | %lparen _ %doubleArgType _ type _ type _ %rparen {% doubleArgKeywordWithParenToJson %}
   | %comparableType (_ %annot (%storage|%string|%word)):+ {% keywordToJson %} 
   | %constantType (_ %annot (%storage|%string|%word)):+ {% keywordToJson %}
   | %lparen _ %comparableType (_ %annot (%storage|%string|%word)):+ _ %rparen {% comparableTypeToJson %}
@@ -94,6 +101,29 @@ type ->
 #  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
 #  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}  
 
+typeData -> 
+    %singleArgType _ typeData {% singleArgKeywordToJson %}
+  | %lparen _ %singleArgType _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
+  | %doubleArgType _ typeData _ typeData {% doubleArgKeywordToJson %}
+  | %lparen _ %doubleArgType _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
+  | %data {% keywordToJson %}
+  | %data _ typeData {% singleArgKeywordToJson %}
+  | %data _ typeData _ typeData {% doubleArgKeywordWithParenToJson %}
+  | subTypeData {% id %}
+  | subTypeElt {% id %}
+  | %number {% intToJson %}
+  | %string {% stringToJson %}
+  | %word {% stringToJson %}
+  #| %lbrace _ %rbrace {% d => [] %}
+# Helper grammar for list of michelson data types.
+subTypeData -> 
+    "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
+# Helper grammar for list of pairs of michelson data types.
+subTypeElt -> 
+    "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
+typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
 # Helper pattern for lists of michelson instructions
 subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
@@ -132,6 +162,7 @@ data ->
   | subElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
+  | %word {% stringToJson %}
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subData -> 
