@@ -384,7 +384,7 @@ export namespace TezosNodeWriter {
      * @param derivationPath
      * @param storage_limit
      * @param gas_limit
-     * @param parameters
+     * @param parameters Contract arguments expressed as Michelson
      */
     export async function sendContractInvocationOperation(
         server: string,
@@ -412,7 +412,8 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(parameters);
+            const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(michelineParams).script;
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);

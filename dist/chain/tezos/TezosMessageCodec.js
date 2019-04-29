@@ -285,7 +285,8 @@ var TezosMessageCodec;
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(transaction.amount));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(transaction.destination);
         if (!!transaction.parameters) {
-            let result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(JSON.stringify(transaction.parameters));
+            const code = TezosLanguageUtil_1.TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(transaction.parameters));
+            const result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(code);
             hex += 'ff' + ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
         }
         else {

@@ -367,7 +367,8 @@ export namespace TezosMessageCodec {
         hex += TezosMessageUtils.writeAddress(transaction.destination);
 
         if (!!transaction.parameters) {
-            let result = TezosLanguageUtil.translateMichelineToHex(JSON.stringify(transaction.parameters));
+            const code = TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(transaction.parameters));
+            const result = TezosLanguageUtil.translateMichelineToHex(code);
             hex += 'ff' + ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
         } else {
             hex += '00';

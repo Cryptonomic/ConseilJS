@@ -219,6 +219,7 @@ var TezosLanguageUtil;
             .replace(/":"/g, '": "')
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
+            .replace(/","/g, '", "')
             .replace(/"}/g, '" }');
     }
     TezosLanguageUtil.normalizeMichelineWhiteSpace = normalizeMichelineWhiteSpace;

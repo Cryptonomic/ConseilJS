@@ -13,12 +13,20 @@ const moo = require("moo");
     This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
   - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
     "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some keywords were found after trial and error that were not in the grammar. Will update list accordingly.
+  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
   - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: Michelson comments are not parsed.
   - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested, 
     need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon.
+    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
+    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
+  - Postprocessor functions and grammar definitions could use a proper refactor
+  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
+  - of inputs, accounting for that in the lexer is necessary
+  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
+  - We do not handle instances where parameter, storage, and code are given in a separate order
+  - There is a function called CREATE_CONTRACT which can create a contract inside of a contract, including the parameter,
+    storage, and code definitions. We do not handle this nesting, as we do a lot of preprocessing outside of the grammar.
+  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
 
 /*
@@ -695,6 +703,9 @@ var grammar = {
     {"name": "main", "symbols": ["storage"], "postprocess": id},
     {"name": "main", "symbols": ["code"], "postprocess": id},
     {"name": "main", "symbols": ["script"], "postprocess": id},
+    {"name": "main", "symbols": ["parameterValue"], "postprocess": id},
+    {"name": "main", "symbols": ["storageValue"], "postprocess": id},
+    {"name": "main", "symbols": ["typeData"], "postprocess": id},
     {"name": "script", "symbols": ["parameter", "_", "storage", "_", "code"], "postprocess": scriptToJson},
     {"name": "parameter", "symbols": [{"literal":"parameter"}]},
     {"name": "parameter", "symbols": [{"literal":"Parameter"}]},
@@ -702,6 +713,8 @@ var grammar = {
     {"name": "storage", "symbols": [{"literal":"storage"}]},
     {"name": "code", "symbols": [{"literal":"Code"}]},
     {"name": "code", "symbols": [{"literal":"code"}]},
+    {"name": "parameterValue", "symbols": ["parameter", "_", "typeData", "_", "semicolons"], "postprocess": singleArgKeywordToJson},
+    {"name": "storageValue", "symbols": ["storage", "_", "typeData", "_", "semicolons"], "postprocess": singleArgKeywordToJson},
     {"name": "parameter", "symbols": ["parameter", "_", "type", "_", "semicolons"], "postprocess": singleArgKeywordToJson},
     {"name": "storage", "symbols": ["storage", "_", "type", "_", "semicolons"], "postprocess": singleArgKeywordToJson},
     {"name": "code", "symbols": ["code", "_", "subInstruction", "_", "semicolons", "_"], "postprocess": d => d[2]},
@@ -709,9 +722,9 @@ var grammar = {
     {"name": "type", "symbols": [(lexer.has("comparableType") ? {type: "comparableType"} : comparableType)], "postprocess": keywordToJson},
     {"name": "type", "symbols": [(lexer.has("constantType") ? {type: "constantType"} : constantType)], "postprocess": keywordToJson},
     {"name": "type", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "type"], "postprocess": singleArgKeywordToJson},
-    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "type", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
     {"name": "type", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
-    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "type", "_", "type", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("string") ? {type: "string"} : string)]},
     {"name": "type$ebnf$1$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
@@ -778,6 +791,39 @@ var grammar = {
     {"name": "type$ebnf$6$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot), "type$ebnf$6$subexpression$2$subexpression$1"]},
     {"name": "type$ebnf$6", "symbols": ["type$ebnf$6", "type$ebnf$6$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "type$ebnf$6", "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgTypeKeywordWithParenToJson},
+    {"name": "typeData", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData"], "postprocess": singleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
+    {"name": "typeData", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "typeData", "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
+    {"name": "typeData", "symbols": [(lexer.has("data") ? {type: "data"} : data)], "postprocess": keywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "typeData"], "postprocess": singleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordWithParenToJson},
+    {"name": "typeData", "symbols": ["subTypeData"], "postprocess": id},
+    {"name": "typeData", "symbols": ["subTypeElt"], "postprocess": id},
+    {"name": "typeData", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
+    {"name": "typeData", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "typeData", "symbols": [(lexer.has("word") ? {type: "word"} : word)], "postprocess": stringToJson},
+    {"name": "subTypeData$ebnf$1$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
+    {"name": "subTypeData$ebnf$1", "symbols": ["subTypeData$ebnf$1$subexpression$1"]},
+    {"name": "subTypeData$ebnf$1$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},
+    {"name": "subTypeData$ebnf$1", "symbols": ["subTypeData$ebnf$1", "subTypeData$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "subTypeData", "symbols": [{"literal":"{"}, "_", "subTypeData$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeData$ebnf$2$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
+    {"name": "subTypeData$ebnf$2", "symbols": ["subTypeData$ebnf$2$subexpression$1"]},
+    {"name": "subTypeData$ebnf$2$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},
+    {"name": "subTypeData$ebnf$2", "symbols": ["subTypeData$ebnf$2", "subTypeData$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "subTypeData", "symbols": [{"literal":"("}, "_", "subTypeData$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt$ebnf$1$subexpression$1", "symbols": ["typeElt", {"literal":";"}, "_"]},
+    {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1$subexpression$1"]},
+    {"name": "subTypeElt$ebnf$1$subexpression$2", "symbols": ["typeElt", {"literal":";"}, "_"]},
+    {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1", "subTypeElt$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", {"literal":";"}, "_"]},
+    {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2$subexpression$1"]},
+    {"name": "subTypeElt$ebnf$2$subexpression$2", "symbols": ["typeElt", {"literal":";"}, "_"]},
+    {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2", "subTypeElt$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "typeElt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
     {"name": "subInstruction$ebnf$1$subexpression$1", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1$subexpression$1"]},
     {"name": "subInstruction$ebnf$1$subexpression$2", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
@@ -909,6 +955,7 @@ var grammar = {
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
     {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "data", "symbols": [(lexer.has("word") ? {type: "word"} : word)], "postprocess": stringToJson},
     {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
     {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},
