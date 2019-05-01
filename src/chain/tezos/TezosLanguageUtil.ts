@@ -12,9 +12,9 @@ const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"El
  */
 export namespace TezosLanguageUtil {
     /**
-     * 
+     * Parse out a single message from a hex string.
      * @param {string} hex 
-     * @returns {string} xxx
+     * @returns {codeEnvelope} Parsed Micheline object as a string along with the number of bytes that was consumed in the process.
      */
     export function hexToMicheline(hex: string): codeEnvelope {
         if (hex.length < 2) { throw new Error(`Malformed Micheline fragment '${hex}'`); }
@@ -158,7 +158,7 @@ export namespace TezosLanguageUtil {
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
-        //parser.results[0] is a workaround to a bug which causes duplicate matches
+        //TODO: parser.results[0] is a workaround to a bug which causes duplicate matches
         return `{ "script": ${parser.results[0]} }`;
     }
 
@@ -258,6 +258,9 @@ export namespace TezosLanguageUtil {
         return parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
     }
 
+    /**
+     * Micheline parser expects certain whitespace arrangement, this function will correct the input string accordingly.
+     */
     export function normalizeMichelineWhiteSpace(fragment: string): string {
         return fragment.replace(/\n/g, ' ')
             .replace(/ +/g, ' ')

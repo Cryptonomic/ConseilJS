@@ -328,8 +328,8 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {string} code Contract code.
-     * @param {string} storage Initial storage value.
+     * @param {string} code Contract code in Michelson format.
+     * @param {string} storage Initial storage value in Michelson format.
      *
      * @returns {Promise<OperationResult>} Result of the operation
      */
@@ -376,15 +376,15 @@ export namespace TezosNodeWriter {
     /**
      * Invokes a contract with desired parameters
      *
-     * @param server
-     * @param keyStore
-     * @param to
-     * @param amount
-     * @param fee
-     * @param derivationPath
-     * @param storage_limit
-     * @param gas_limit
-     * @param parameters Contract arguments expressed as Michelson
+     * @param {string} server Tezos node to connect to
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} to Contract address
+     * @param {number} amount Initial funding amount of new account
+     * @param {number} fee Operation fee
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {string} storage_limit Storage fee.
+     * @param {string} gas_limit Gas limit.
+     * @param {string} parameters Contract arguments expressed as Michelson
      */
     export async function sendContractInvocationOperation(
         server: string,
