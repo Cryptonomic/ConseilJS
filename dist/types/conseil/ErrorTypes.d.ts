@@ -4,7 +4,6 @@ export declare class ServiceRequestError extends Error {
     httpMessage: string;
     conseilURL: string;
     data: string | null;
-    rootCause: Error | null;
     constructor(httpStatus: number, httpMessage: string, conseilURL: string, data: string | null);
 }
 export declare class ConseilRequestError extends ServiceRequestError {
