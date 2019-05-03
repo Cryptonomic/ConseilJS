@@ -56,6 +56,8 @@ const lexer = moo.compile({
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
+    singleArgTypeData: ['option', 'list', 'set', 'contract', 'Left', 'Right', 'Some'],
+    doubleArgTypeData: ['pair', 'or', 'lambda', 'map', 'big_map', 'Pair'],
     elt: "Elt",
     number: /-?[0-9]+/,
     word: /[a-zA-z_0-9]+/,
@@ -102,13 +104,14 @@ type ->
 #  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}  
 
 typeData -> 
-    %singleArgType _ typeData {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgType _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
-  | %doubleArgType _ typeData _ typeData {% doubleArgKeywordToJson %}
-  | %lparen _ %doubleArgType _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
+    %singleArgTypeData _ typeData {% singleArgKeywordToJson %}
+  | %lparen _ %singleArgTypeData _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
+  | %doubleArgTypeData _ typeData _ typeData {% doubleArgKeywordToJson %}
+  | %lparen _ %doubleArgTypeData _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
   | %data {% keywordToJson %}
   | %data _ typeData {% singleArgKeywordToJson %}
-  | %data _ typeData _ typeData {% doubleArgKeywordWithParenToJson %}
+  | %data _ typeData _ typeData {% doubleArgKeywordToJson %}
+  | %lparen _ data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subTypeData {% id %}
   | subTypeElt {% id %}
   | %number {% intToJson %}
@@ -157,7 +160,8 @@ instruction ->
 data ->
     %data {% keywordToJson %}
   | %data _ data {% singleArgKeywordToJson %}
-  | %data _ data _ data {% doubleArgKeywordWithParenToJson %}
+  | %data _ data _ data {% doubleArgKeywordToJson %}
+  | %lparen _ data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
   | %number {% intToJson %}
