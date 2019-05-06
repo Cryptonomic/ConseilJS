@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { parse } from 'url';
 
-/*describe('Michelson/Micheline official contract tests', async () => {
+describe('Michelson/Micheline official contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
     const p = new Promise<string[]>((resolve, reject) => {
         fs.readdir(contractSampleRoot, function(err, items) {
@@ -34,4 +34,4 @@ import { parse } from 'url';
             expect(parsedMicheline).to.equal(trimmedMicheline);
         });
     }
-});*/
+});

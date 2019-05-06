@@ -111,7 +111,6 @@ typeData ->
   | %data {% keywordToJson %}
   | %data _ typeData {% singleArgKeywordToJson %}
   | %data _ typeData _ typeData {% doubleArgKeywordToJson %}
-  | %lparen _ data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subTypeData {% id %}
   | subTypeElt {% id %}
   | %number {% intToJson %}
@@ -160,8 +159,8 @@ instruction ->
 data ->
     %data {% keywordToJson %}
   | %data _ data {% singleArgKeywordToJson %}
-  | %data _ data _ data {% doubleArgKeywordToJson %}
-  | %lparen _ data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
+  | %data _ data _ data {% doubleArgKeywordToJson  %}
+  | %lparen _ %data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
   | %number {% intToJson %}
