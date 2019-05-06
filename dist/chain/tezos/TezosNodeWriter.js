@@ -69,7 +69,7 @@ var TezosNodeWriter;
                 return json;
             }
             catch (err) {
-                throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}'`);
+                throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
             }
         });
     }
@@ -181,8 +181,14 @@ var TezosNodeWriter;
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
             const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
-            const parsedCode = !!code ? TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code) : '';
-            const parsedStorage = !!storage ? TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage) : '';
+            let parsedCode = undefined;
+            if (!!code) {
+                parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
+            }
+            let parsedStorage = undefined;
+            if (!!storage) {
+                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
+            }
             const origination = {
                 kind: "origination",
                 source: keyStore.publicKeyHash,
@@ -217,7 +223,7 @@ var TezosNodeWriter;
             };
             if (!!parameters) {
                 const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-                transaction.parameters = JSON.parse(michelineParams).script;
+                transaction.parameters = JSON.parse(michelineParams);
             }
             const operations = yield appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);

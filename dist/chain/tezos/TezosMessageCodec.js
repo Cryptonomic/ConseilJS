@@ -412,10 +412,10 @@ var TezosMessageCodec;
             let parts = [];
             parts.push(JSON.stringify(container['code'], null, 1));
             parts.push(JSON.stringify(container['storage'], null, 1));
-            hex += parts.map(p => {
-                let result = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(p);
-                return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
-            }).join('');
+            hex += parts
+                .map(p => TezosLanguageUtil_1.TezosLanguageUtil.normalizeMichelineWhiteSpace(p))
+                .map(p => TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(p))
+                .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
         }
         else {
             hex += '00';

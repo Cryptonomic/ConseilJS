@@ -148,16 +148,14 @@ var TezosLanguageUtil;
     function translateMichelsonToMicheline(code) {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
-        return `{ "script": ${parser.results[0]} }`;
+        return parser.results[0];
     }
     TezosLanguageUtil.translateMichelsonToMicheline = translateMichelsonToMicheline;
     function translateMichelsonToHex(code) {
         return preProcessMicheline(translateMichelsonToMicheline(code))
             .map(p => normalizeMichelineWhiteSpace(p))
-            .map(p => {
-            const result = translateMichelineToHex(p);
-            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result;
-        }).join('');
+            .map(p => translateMichelineToHex(p))
+            .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
     }
     TezosLanguageUtil.translateMichelsonToHex = translateMichelsonToHex;
     function preProcessMicheline(code) {
