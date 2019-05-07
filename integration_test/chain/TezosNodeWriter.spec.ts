@@ -19,9 +19,24 @@ const keys: KeyStore = {
 const tezosURL = servers.tezosServer;
 
 describe('TezosNodeWriter integration test suite', () => {
-    it('Invoke a contract with parameters', async () => {
+    it('Invoke a contract with a string literal parameter', async () => {
         const contractAddress = 'KT1XtauF2tnmAKBzbLA2gNoMji9zSzSyYq9w';
-        const result = await TezosNodeWriter.sendContractInvocationOperation(tezosURL, keys, contractAddress, 10000, 1000, '', 1000, 100000, '{ "string": "Cryptonomicon" }');
+        const result = await TezosNodeWriter.sendContractInvocationOperation(tezosURL, keys, contractAddress, 10000, 1000, '', 1000, 100000, '"Cryptonomicon"');
+        expect(result["operationGroupID"]).to.exist;
+    });
+
+    it('Invoke a contract with a complex parameter', async () => {
+        const contractAddress = 'KT1XtauF2tnmAKBzbLA2gNoMji9zSzSyYq9w';
+        const result = await TezosNodeWriter.sendContractInvocationOperation(tezosURL, keys, contractAddress, 10000, 50000, '', 10000, 100000, '(Pair "message" (Pair "edsigtt7VBCeJjU9XtdCCPcV8VL3xe1XQHehk9Kg78Pxs3VZGXgHGGfktB71jUrK51tiJNybhUQidxxN48W4XWuRjjQwFJ17M1e" "edpkuqoemi1z8wjKxYCMvvshpFU7f71RUXhRyKudwLPBAdhqyj9epe"))');
+        expect(result["operationGroupID"]).to.exist;
+    });
+
+    it('Originate a simple contract', async () => {
+        const contract = `parameter string;
+        storage string;
+        code { CAR ; NIL operation ; PAIR }`;
+        const storage = '"Test"';
+        const result = await TezosNodeWriter.sendContractOriginationOperation(tezosURL, keys, 10000, undefined, false, false, 10000, '', '10000', '10000', contract, storage);
         expect(result["operationGroupID"]).to.exist;
     });
 });

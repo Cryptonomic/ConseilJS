@@ -99,7 +99,7 @@ export namespace TezosNodeWriter {
             const json = JSON.parse(text);
             return json as TezosTypes.AlphaOperationsWithMetadata[];
         } catch (err) {
-            throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}'`);
+            throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
         }
     }
 
@@ -350,8 +350,15 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
 
-        const parsedCode = !!code ? TezosLanguageUtil.translateMichelsonToMicheline(code) : '';
-        const parsedStorage = !!storage ? TezosLanguageUtil.translateMichelsonToMicheline(storage) : '';
+        let parsedCode: any = undefined;
+        if (!!code) {
+            parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
+        }
+
+        let parsedStorage: any = undefined;
+        if (!!storage) {
+            parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
+        }
 
         const origination: TezosTypes.Operation = {
             kind: "origination",
@@ -413,7 +420,7 @@ export namespace TezosNodeWriter {
 
         if (!!parameters) {
             const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(michelineParams).script;
+            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(michelineParams);
         }
 
         const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);

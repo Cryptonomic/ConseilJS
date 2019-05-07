@@ -159,7 +159,8 @@ export namespace TezosLanguageUtil {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
         //TODO: parser.results[0] is a workaround to a bug which causes duplicate matches
-        return `{ "script": ${parser.results[0]} }`;
+
+        return parser.results[0];
     }
 
     /**
@@ -170,26 +171,29 @@ export namespace TezosLanguageUtil {
      */
     export function translateMichelsonToHex(code: string): string {
         return preProcessMicheline(translateMichelsonToMicheline(code))
-            .map(p => normalizeMichelineWhiteSpace(p))
-            .map(p => {
-                const result = translateMichelineToHex(p);
-                return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
-            }).join('');
+            .map(p => { var c = normalizeMichelineWhiteSpace(p); console.log(`--- C ${c}`); return c; } )
+            .map(p => translateMichelineToHex(p))
+            .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
     }
 
     function preProcessMicheline(code: string): string[] {
         const container = JSON.parse(code);
         let parts: string[] = [];
 
-        parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
-        parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
+        parts.push(getSection(container, 'code'));
+        parts.push(getSection(container, 'storage'));
 
         return parts;
     }
     
-    function indexOfKey(container: any, key: string): number {
-        for (let i = 0; i < container.script.length; i++) {
-            if (container.script[i]['prim'] === key) { return i; }
+    function getSection(container: any, key: string): string {
+        let root = container; 
+        if (!!container.script) { root = container.script; }
+
+        for (let i = 0; i < root.length; i++) {
+            if (root[i]['prim'] === key) {
+                return JSON.stringify(root[i], null, 1);
+            }
         }
 
         throw new Error(`${key} key was not found`);
@@ -271,8 +275,10 @@ export namespace TezosLanguageUtil {
             .replace(/":"/g, '": "')
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
+            .replace(/"}/g, '" }')
             .replace(/","/g, '", "')
-            .replace(/"}/g, '" }');
+            .replace(/\[\[/g, '[ [')
+            .replace(/\]\]/g, '] ]');
     }
 
     interface codeEnvelope {

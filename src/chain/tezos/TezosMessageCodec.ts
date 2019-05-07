@@ -520,10 +520,10 @@ export namespace TezosMessageCodec {
             parts.push(JSON.stringify(container['code'], null, 1)); // full contract definition containing code, storage and parameters properties
             parts.push(JSON.stringify(container['storage'], null, 1)); // initial storage
 
-            hex += parts.map(p => {
-                let result = TezosLanguageUtil.translateMichelineToHex(p);
-                return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
-            }).join('');
+            hex += parts
+                .map(p => TezosLanguageUtil.normalizeMichelineWhiteSpace(p))
+                .map(p =>  TezosLanguageUtil.translateMichelineToHex(p))
+                .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
         } else {
             hex += '00';
         }
