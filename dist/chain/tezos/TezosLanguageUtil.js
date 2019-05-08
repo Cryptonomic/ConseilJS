@@ -153,7 +153,7 @@ var TezosLanguageUtil;
     TezosLanguageUtil.translateMichelsonToMicheline = translateMichelsonToMicheline;
     function translateMichelsonToHex(code) {
         return preProcessMicheline(translateMichelsonToMicheline(code))
-            .map(p => normalizeMichelineWhiteSpace(p))
+            .map(p => { var c = normalizeMichelineWhiteSpace(p); console.log(`--- C ${c}`); return c; })
             .map(p => translateMichelineToHex(p))
             .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
     }
@@ -161,14 +161,18 @@ var TezosLanguageUtil;
     function preProcessMicheline(code) {
         const container = JSON.parse(code);
         let parts = [];
-        parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
-        parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
+        parts.push(getSection(container, 'code'));
+        parts.push(getSection(container, 'storage'));
         return parts;
     }
-    function indexOfKey(container, key) {
-        for (let i = 0; i < container.script.length; i++) {
-            if (container.script[i]['prim'] === key) {
-                return i;
+    function getSection(container, key) {
+        let root = container;
+        if (!!container.script) {
+            root = container.script;
+        }
+        for (let i = 0; i < root.length; i++) {
+            if (root[i]['prim'] === key) {
+                return JSON.stringify(root[i], null, 1);
             }
         }
         throw new Error(`${key} key was not found`);
@@ -217,8 +221,10 @@ var TezosLanguageUtil;
             .replace(/":"/g, '": "')
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
+            .replace(/"}/g, '" }')
             .replace(/","/g, '", "')
-            .replace(/"}/g, '" }');
+            .replace(/\[\[/g, '[ [')
+            .replace(/\]\]/g, '] ]');
     }
     TezosLanguageUtil.normalizeMichelineWhiteSpace = normalizeMichelineWhiteSpace;
 })(TezosLanguageUtil = exports.TezosLanguageUtil || (exports.TezosLanguageUtil = {}));
