@@ -23,7 +23,8 @@ export interface AttributeDefinition {
     dataType: AttrbuteDataType,
     cardinality: number,
     keyType: AttrbuteKeyType,
-    entity: string
+    entity: string,
+    dataFormat: string
 }
 
 export enum AttrbuteDataType {

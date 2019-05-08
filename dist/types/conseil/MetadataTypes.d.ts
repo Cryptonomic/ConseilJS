@@ -21,6 +21,7 @@ export interface AttributeDefinition {
     cardinality: number;
     keyType: AttrbuteKeyType;
     entity: string;
+    dataFormat: string;
 }
 export declare enum AttrbuteDataType {
     STRING = "String",
