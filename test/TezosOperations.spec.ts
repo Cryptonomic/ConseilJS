@@ -231,7 +231,7 @@ describe('Tezos Operations Test', () => {
             const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
             expect(isImplicit).to.be.true;
         }));
-        
+
         it('isImplicitAndEmpty should be false', mochaAsync(async () => {
             const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
             expect(isImplicit).to.be.false;
@@ -295,8 +295,8 @@ describe('Tezos Operations Test', () => {
                 amount,
                 bakerAddress,
                 true,
-                true, 
-                fee, 
+                true,
+                fee,
                 ''
             );
             expect(originationResult).to.exist;
