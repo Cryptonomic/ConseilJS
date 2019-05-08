@@ -1,5 +1,27 @@
-export * from "./tezos/TezosConseilQuery";
-export * from "./tezos/TezosNodeQuery";
-export * from "./tezos/TezosOperations";
-export * from "./tezos/TezosWallet";
-export * from "./tezos/TezosHardwareWallet";
+import fetch from 'node-fetch';
+import FetchSelector from './utils/FetchSelector';
+import DeviceSelector from './utils/DeviceSelector';
+import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
+
+FetchSelector.setFetch(fetch);
+DeviceSelector.setLedgerUtils(TezosLedgerWallet);
+
+export * from './chain/tezos/TezosLanguageUtil';
+export * from './chain/tezos/TezosMessageUtil';
+export * from "./chain/tezos/TezosNodeReader";
+export * from "./chain/tezos/TezosNodeWriter";
+
+export * from "./identity/tezos/TezosFileWallet";
+export * from "./identity/tezos/TezosLedgerWallet";
+export * from "./identity/tezos/TezosWalletUtil";
+
+export * from "./reporting/tezos/TezosConseilClient";
+
+export * from './reporting/ConseilDataClient';
+export * from './reporting/ConseilMetadataClient';
+export * from './reporting/ConseilQueryBuilder';
+
+export * from './types/conseil/QueryTypes';
+export * from './types/wallet/KeyStore';
+
+export * from './utils/CryptoUtils';
