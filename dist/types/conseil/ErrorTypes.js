@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 class ServiceRequestError extends Error {
     constructor(httpStatus, httpMessage, conseilURL, data) {
         super();
-        this.rootCause = null;
         this.httpStatus = httpStatus;
         this.httpMessage = httpMessage;
         this.conseilURL = conseilURL;
