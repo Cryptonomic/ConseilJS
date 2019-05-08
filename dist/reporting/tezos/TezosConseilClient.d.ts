@@ -11,4 +11,7 @@ export declare namespace TezosConseilClient {
     function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getFeeStatistics(serverInfo: ConseilServerInfo, network: string, operationType: OperationKindType): Promise<any[]>;
+    function getProposals(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
+    function getBakers(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
+    function getBallots(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
 }

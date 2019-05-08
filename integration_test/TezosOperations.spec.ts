@@ -215,7 +215,7 @@ describe("Tezos operation functions", () => {
     const randomBakerAddress2 = "tz1boot2oCjTjUN6xDNoVmtCLRdh8cc92P1u";
     const randomBakerAddress3 = 'tz1YCABRTa6H8PLKx2EtDWeCGPaKxUhNgv47'; //alphanet
 
-    /*       
+    /*
         //Activate this section in FIRST run to activate the fundraiser account
         //Comment this section out in SECOND round.
         console.log("+++++Activating account");
@@ -338,8 +338,8 @@ describe("Tezos operation functions", () => {
       100000, // Amount sent
       100000, // Protocol 003 minimum fee for inactive implicit accounts is 1387
       invalidDerivationPath,
-      "1000", // Storage Limit
-      "100000", // Gas Limit
+      1000, // Storage Limit
+      100000, // Gas Limit
       { string: "Cryptonomicon" }
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;

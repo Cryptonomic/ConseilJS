@@ -43,7 +43,7 @@ describe('Ledger Test', () => {
         if (!keyStore) { testCondition = false; }
         const info1 = walletInfoLists[1];
 
-        keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
+        keyStore1 = await unlockFundraiserIdentity(info1.mnemonic.join(' '), info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
         const nockOb = nock(tezosURL);
         nockOb

@@ -12,6 +12,8 @@ const DeviceSelector_1 = __importDefault(require("./utils/DeviceSelector"));
 const TezosLedgerWallet_1 = require("./identity/tezos/TezosLedgerWallet");
 FetchSelector_1.default.setFetch(node_fetch_1.default);
 DeviceSelector_1.default.setLedgerUtils(TezosLedgerWallet_1.TezosLedgerWallet);
+__export(require("./chain/tezos/TezosLanguageUtil"));
+__export(require("./chain/tezos/TezosMessageUtil"));
 __export(require("./chain/tezos/TezosNodeReader"));
 __export(require("./chain/tezos/TezosNodeWriter"));
 __export(require("./identity/tezos/TezosFileWallet"));
@@ -23,4 +25,5 @@ __export(require("./reporting/ConseilMetadataClient"));
 __export(require("./reporting/ConseilQueryBuilder"));
 __export(require("./types/conseil/QueryTypes"));
 __export(require("./types/wallet/KeyStore"));
+__export(require("./utils/CryptoUtils"));
 //# sourceMappingURL=index.js.map

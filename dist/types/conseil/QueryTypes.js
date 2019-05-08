@@ -19,4 +19,17 @@ var ConseilOperator;
     ConseilOperator["ENDSWITH"] = "endsWith";
     ConseilOperator["ISNULL"] = "isnull";
 })(ConseilOperator = exports.ConseilOperator || (exports.ConseilOperator = {}));
+var ConseilFunction;
+(function (ConseilFunction) {
+    ConseilFunction["avg"] = "avg";
+    ConseilFunction["count"] = "count";
+    ConseilFunction["max"] = "max";
+    ConseilFunction["min"] = "min";
+    ConseilFunction["sum"] = "sum";
+})(ConseilFunction = exports.ConseilFunction || (exports.ConseilFunction = {}));
+var ConseilOutput;
+(function (ConseilOutput) {
+    ConseilOutput["csv"] = "csv";
+    ConseilOutput["json"] = "json";
+})(ConseilOutput = exports.ConseilOutput || (exports.ConseilOutput = {}));
 //# sourceMappingURL=QueryTypes.js.map

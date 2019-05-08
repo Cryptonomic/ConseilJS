@@ -5,9 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const bs58check_1 = __importDefault(require("bs58check"));
 const base_n_1 = __importDefault(require("base-n"));
+const big_integer_1 = __importDefault(require("big-integer"));
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const base128 = base_n_1.default.create({
-    characters: [...Array(128).keys()].map(k => ("0" + k.toString(16)).slice(-2))
+    characters: [...Array(128).keys()].map(k => ('0' + k.toString(16)).slice(-2))
 });
 var TezosMessageUtils;
 (function (TezosMessageUtils) {
@@ -20,24 +21,65 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readBoolean = readBoolean;
     function writeInt(value) {
-        return Buffer.from(base128.encode(parseInt(value, 10)), "hex")
-            .map((v, i) => {
-            return i === 0 ? v : v ^ 0x80;
-        })
-            .reverse()
-            .toString("hex");
+        if (value < 0) {
+            throw new Error('Use writeSignedInt to encode negative numbers');
+        }
+        return Buffer.from(Buffer.from(base128.encode(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
     }
     TezosMessageUtils.writeInt = writeInt;
+    function writeSignedInt(value) {
+        if (value === 0) {
+            return '00';
+        }
+        const n = big_integer_1.default(value).abs();
+        const l = n.bitLength().toJSNumber();
+        let arr = [];
+        let v = n;
+        for (let i = 0; i < l; i += 7) {
+            let byte = big_integer_1.default.zero;
+            if (i === 0) {
+                byte = v.and(0x3f);
+                v = v.shiftRight(6);
+            }
+            else {
+                byte = v.and(0x7f);
+                v = v.shiftRight(7);
+            }
+            if (value < 0 && i === 0) {
+                byte = byte.or(0x40);
+            }
+            if (i + 7 < l) {
+                byte = byte.or(0x80);
+            }
+            arr.push(byte.toJSNumber());
+        }
+        if (l % 7 === 0) {
+            arr[arr.length - 1] = arr[arr.length - 1] | 0x80;
+            arr.push(1);
+        }
+        return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
+    }
+    TezosMessageUtils.writeSignedInt = writeSignedInt;
     function readInt(hex) {
-        return base128.decode(Buffer.from(hex, "hex")
-            .reverse()
-            .map((v, i) => {
-            return i === 0 ? v : v & 0x7f;
-        })
-            .toString("hex"));
+        return base128.decode(Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex'));
     }
     TezosMessageUtils.readInt = readInt;
-    function findInt(hex, offset) {
+    function readSignedInt(hex) {
+        const positive = (Buffer.from(hex.slice(0, 2), 'hex')[0] & 0x40) ? false : true;
+        const arr = Buffer.from(hex, 'hex').map((v, i) => i === 0 ? v & 0x3f : v & 0x7f);
+        let n = big_integer_1.default.zero;
+        for (let i = arr.length - 1; i >= 0; i--) {
+            if (i === 0) {
+                n = n.or(arr[i]);
+            }
+            else {
+                n = n.or(big_integer_1.default(arr[i]).shiftLeft(7 * i - 1));
+            }
+        }
+        return positive ? n.toJSNumber() : n.negate().toJSNumber();
+    }
+    TezosMessageUtils.readSignedInt = readSignedInt;
+    function findInt(hex, offset, signed = false) {
         let buffer = "";
         let i = 0;
         while (offset + i * 2 < hex.length) {
@@ -50,12 +92,12 @@ var TezosMessageUtils;
                 break;
             }
         }
-        return { value: readInt(buffer), length: i * 2 };
+        return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
     }
     TezosMessageUtils.findInt = findInt;
     function readAddress(hex) {
         if (hex.length !== 44 && hex.length !== 42) {
-            throw new Error("Incorrect hex length to parse an address.");
+            throw new Error("Incorrect hex length to parse an address");
         }
         let implicitHint = hex.length === 44 ? hex.substring(0, 4) : "00" + hex.substring(0, 2);
         let implicitPrefixLength = hex.length === 44 ? 4 : 2;
@@ -110,24 +152,24 @@ var TezosMessageUtils;
             return "01" + hex + "00";
         }
         else {
-            throw new Error("Unrecognized address type.");
+            throw new Error("Unrecognized address type");
         }
     }
     TezosMessageUtils.writeAddress = writeAddress;
     function readBranch(hex) {
         if (hex.length !== 64) {
-            throw new Error("Incorrect hex length to parse a branch hash.");
+            throw new Error('Incorrect hex length to parse a branch hash');
         }
-        return bs58check_1.default.encode(Buffer.from(hex, "hex"));
+        return bs58check_1.default.encode(Buffer.from('0134' + hex, 'hex'));
     }
     TezosMessageUtils.readBranch = readBranch;
     function writeBranch(branch) {
-        return bs58check_1.default.decode(branch).toString("hex");
+        return bs58check_1.default.decode(branch).toString("hex").slice(4);
     }
     TezosMessageUtils.writeBranch = writeBranch;
     function readPublicKey(hex) {
         if (hex.length !== 66 && hex.length !== 68) {
-            throw new Error(`Incorrect hex length, ${hex.length} to parse a key.`);
+            throw new Error(`Incorrect hex length, ${hex.length} to parse a key`);
         }
         let hint = hex.substring(0, 2);
         if (hint === "00") {
@@ -173,7 +215,7 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readKeyWithHint = readKeyWithHint;
     function writeKeyWithHint(key, hint) {
-        if (hint === 'edsk') {
+        if (hint === 'edsk' || hint === 'edpk') {
             return bs58check_1.default.decode(key).slice(4);
         }
         else {
@@ -195,6 +237,9 @@ var TezosMessageUtils;
         const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
         if (hint === 'op') {
             return bs58check_1.default.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
+        }
+        else if (hint === 'p') {
+            return bs58check_1.default.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
         }
         else if (hint === '') {
             return bs58check_1.default.encode(buffer);

@@ -1,5 +1,6 @@
 import * as TezosTypes from '../../types/tezos/TezosChainTypes'
-import {ServiceRequestError, ServiceResponseError} from "../../types/conseil/ErrorTypes";
+import {KeyStore} from "../../types/wallet/KeyStore";
+import {ServiceRequestError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../../utils/FetchSelector'
 
 const fetch = FetchSelector.getFetch();
@@ -23,28 +24,7 @@ export namespace TezosNodeReader {
                 if (!response.ok) { throw new ServiceRequestError(response.status, response.statusText, url, null); }
                 return response;
             })
-            .then(response => {
-                try {
-                    return response.json();
-                } catch {
-                    throw new ServiceResponseError(response.status, response.statusText, url, null, response);
-                }
-            });
-    }
-
-    /**
-     * Send a POST request to a Tezos node.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {string} command RPC route to invoke
-     * @param {object} payload Payload to submit
-     * @returns {Promise<object>} JSON-encoded response
-     */
-    function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
-        const url = `${server}/${command}`;
-        const payloadStr = JSON.stringify(payload);
-
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+            .then(response => response.json());
     }
 
     /**
@@ -95,46 +75,33 @@ export namespace TezosNodeReader {
     }
 
     /**
-     * Forge an operation group using the Tezos RPC client.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {object} opGroup Operation group payload
-     * @returns {Promise<string>} Forged operation
-     */
-    export async function forgeOperation(server: string, opGroup: object): Promise<string> {
-        const response = await performPostRequest(server, "chains/main/blocks/head/helpers/forge/operations", opGroup);
-        const forgedOperation = await response.text();
-
-        return forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
-    }
-
-    /**
-     * Applies an operation using the Tezos RPC client.
-     * 
-     * @param {string} server Which Tezos node to go against
-     * @param {object} payload Payload set according to protocol spec
-     * @returns {Promise<AppliedOperation>} Applied operation
-     */
-    //TODO: move to Writer
-    export async function applyOperation(server: string, payload: object): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
-        const response  = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
-        const json = await response.json();
-        const appliedOperation = json as TezosTypes.AlphaOperationsWithMetadata[];
-
-        return appliedOperation
-    }
-
-    /**
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
      *
-     * @param {string} server Which Tezos node to go against
-     * @param {object} payload Payload set according to protocol spec
-     * @returns {Promise<InjectedOperation>} Injected operation
+     * @param {string} server Tezos node to connect to
+     * @param {string} accountHash Account address
+     * @returns {Promise<boolean>} Result
      */
-    //TODO: move to Writer
-    export async function injectOperation(server: string, payload: string): Promise<string> {
-        const response = await performPostRequest(server, 'injection/operation?chain=main', payload);
-        const injectedOperation = await response.text();
+    export async function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean> {
+        const blockHead = await TezosNodeReader.getBlockHead(server);
+        const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
 
-        return injectedOperation
+        const isImplicit = accountHash.toLowerCase().startsWith("tz");
+        const isEmpty = Number(account.balance) === 0
+
+        return (isImplicit && isEmpty)
+    }
+
+    /**
+     * Indicates whether a reveal operation has already been done for a given account.
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @returns {Promise<boolean>} Result
+     */
+    export async function isManagerKeyRevealedForAccount(server: string, keyStore: KeyStore): Promise<boolean> {
+        const blockHead = await TezosNodeReader.getBlockHead(server);
+        const managerKey = await TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+
+        return managerKey.key != null;
     }
 }

@@ -34,8 +34,6 @@ const close = async (message, nonce, key) => {
 const open = async (nonce_and_ciphertext, key) => {
     await sodiumsumo.ready;
 
-    if (nonce_and_ciphertext.length < sodiumsumo.crypto_secretbox_NONCEBYTES + sodiumsumo.crypto_secretbox_MACBYTES) { throw new Error('The cipher text is of insufficient length'); }
-
     const nonce = nonce_and_ciphertext.slice(0, sodiumsumo.crypto_secretbox_NONCEBYTES);
     const ciphertext = nonce_and_ciphertext.slice(sodiumsumo.crypto_secretbox_NONCEBYTES);
 

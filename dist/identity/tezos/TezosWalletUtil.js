@@ -23,7 +23,7 @@ var TezosWalletUtil;
 (function (TezosWalletUtil) {
     function unlockFundraiserIdentity(mnemonic, email, password, pkh) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield getKeysFromMnemonicAndPassphrase(mnemonic, email + password, pkh, true, KeyStore_1.StoreType.Fundraiser);
+            return yield getKeysFromMnemonicAndPassphrase(mnemonic, email + password, KeyStore_1.StoreType.Fundraiser, pkh);
         });
     }
     TezosWalletUtil.unlockFundraiserIdentity = unlockFundraiserIdentity;
@@ -33,11 +33,11 @@ var TezosWalletUtil;
     TezosWalletUtil.generateMnemonic = generateMnemonic;
     function unlockIdentityWithMnemonic(mnemonic, passphrase) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, '', false, KeyStore_1.StoreType.Mnemonic);
+            return yield getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, KeyStore_1.StoreType.Mnemonic);
         });
     }
     TezosWalletUtil.unlockIdentityWithMnemonic = unlockIdentityWithMnemonic;
-    function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, pkh = '', checkPKH = true, storeType) {
+    function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, storeType, pkh) {
         return __awaiter(this, void 0, void 0, function* () {
             if (mnemonic.split(' ').length !== 15) {
                 throw new Error('The mnemonic should be 15 words.');
@@ -45,15 +45,15 @@ var TezosWalletUtil;
             if (!bip39.validateMnemonic(mnemonic)) {
                 throw new Error('The given mnemonic could not be validated.');
             }
-            const seed = bip39.mnemonicToSeed(mnemonic, passphrase).slice(0, 32);
+            const seed = (yield bip39.mnemonicToSeed(mnemonic, passphrase)).slice(0, 32);
             const keys = yield CryptoUtils_1.CryptoUtils.generateKeys(seed);
             const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
             const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
-            if (checkPKH && publicKeyHash !== pkh) {
+            if (!!pkh && publicKeyHash !== pkh) {
                 throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash');
             }
-            return { publicKey, privateKey, publicKeyHash, seed, storeType };
+            return { publicKey, privateKey, publicKeyHash, seed: '', storeType };
         });
     }
     TezosWalletUtil.getKeysFromMnemonicAndPassphrase = getKeysFromMnemonicAndPassphrase;

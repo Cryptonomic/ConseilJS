@@ -18,8 +18,7 @@ export namespace ConseilMetadataClient {
     /**
      * Retrieves the list of available platforms, for example: 'tezos'.
      * 
-     * @param server A fully qualified base URL for a Conseil server instance
-     * @param apiKey Conseil API key
+     * @param serverInfo Conseil server connection definition.
      */
     export async function getPlatforms(serverInfo: ConseilServerInfo): Promise<PlatformDefinition[]> {
         return executeMetadataQuery(serverInfo, 'platforms');
@@ -77,5 +76,21 @@ export namespace ConseilMetadataClient {
      */
     export async function getAttributeValues(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, attribute: string): Promise<string[]> {
         return executeMetadataQuery(serverInfo, `${platform}/${network}/${entity}/${attribute}`);
+    }
+
+    /**
+     * Retrieves a list of distinct values for a specific attribute of an entity starting with the provided prefix. This would work on high-cardinality, generally non-date and non-numeric data. The intended use-case for this result set is type-ahead auto-complete.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param platform A platform
+     * @param network A network
+     * @param entity An entity
+     * @param attribute Attribute of interest
+     * @param prefix Prefix to match
+     * 
+     * @see {@link getAttributes}
+     */
+    export async function getAttributeValuesForPrefix(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, attribute: string, prefix: string): Promise<string[]> {
+        return executeMetadataQuery(serverInfo, `${platform}/${network}/${entity}/${attribute}/${encodeURIComponent(prefix)}`);
     }
 }

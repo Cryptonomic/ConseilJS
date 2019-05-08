@@ -1,8 +1,11 @@
 import "mocha";
-import { expect } from "chai";
+import { expect, use } from "chai";
+import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
+import { Operation, Ballot } from "../src/types/tezos/TezosChainTypes";
 
 import { TezosNodeReader, TezosWalletUtil, TezosNodeWriter } from "../src";
+import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
 import mochaAsync from '../test/mochaTestHelper';
 import {
     blockHead,
@@ -15,6 +18,8 @@ import {
     walletInfoLists
 } from './TezosOperations.responses';
 
+use(chaiAsPromised);
+
 const { unlockFundraiserIdentity } = TezosWalletUtil;
 const {
     signOperationGroup,
@@ -26,8 +31,7 @@ const {
     sendTransactionOperation,
     sendAccountOriginationOperation,
     sendDelegationOperation,
-    isManagerKeyRevealedForAccount,
-    isImplicitAndEmpty
+    sendContractInvocationOperation
 } = TezosNodeWriter;
 
 let keyStore;
@@ -40,10 +44,10 @@ const ktAddress = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
 
 describe('Tezos Operations Test', () => {
     before(mochaAsync(async () => {
-        keyStore = await unlockFundraiserIdentity(info0.seed, info0.email, info0.password, info0.pkh);
+        keyStore = await unlockFundraiserIdentity(info0.mnemonic.join(' '), info0.email, info0.password, info0.pkh);
         keyStore.storeType = 'Fundraiser';
 
-        keyStore1 = await unlockFundraiserIdentity(info1.seed, info1.email, info1.password, info1.pkh);
+        keyStore1 = await unlockFundraiserIdentity(info1.mnemonic.join(' '), info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
         const nockOb = nock('http://conseil.server');
         nockOb
@@ -105,31 +109,79 @@ describe('Tezos Operations Test', () => {
             expect(block.hash).to.exist;
         }));
 
-        it('TezosNodeReader.forgeOperation test ---', mochaAsync(async () => {
-            const payload = { branch: blockHead.hash, contents: ops };
-            const forgeOp = await TezosNodeReader.forgeOperation('http://conseil.server', payload);
-            expect(forgeOp).to.be.a('string');
-        }));
+        it("correctly encode operations locally", () => {
+            let messages: any = [];
+            messages.push({
+                kind: "reveal",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "0",
+                counter: "425748",
+                storage_limit: "0",
+                gas_limit: "10000",
+                public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
+            } as Operation);
+            messages.push({
+                kind: "transaction",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                amount: "10000000",
+                destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
+            } as Operation);
+            messages.push({
+                kind: "origination",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                balance: "10003",
+                spendable: true,
+                delegatable: true,
+                delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
+            } as Operation);
+            messages.push({
+                kind: "delegation",
+                source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                fee: "10000",
+                counter: "9",
+                storage_limit: "10001",
+                gas_limit: "10002",
+                delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
+            } as Operation);
 
-        it('forgeOperations test ----', mochaAsync(async () => {
-            const forgedOperationGroup = await forgeOperations('http://conseil.server', blockHead, ops);
-            expect(forgedOperationGroup).to.be.a('string');
-        }));
+            const result = forgeOperations(blockHead, messages);
+
+            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c608000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b40009000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce89000a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4');
+        });
+
+        it("correctly encode ballot locally", () => {
+            const message: Ballot = {
+                source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
+                period: 10,
+                proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',
+                vote: 0
+            };
+
+            const result = forgeOperations(blockHead, [message]);
+
+            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f060069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f800');
+        });
 
         it('signOperationGroup test ---', mochaAsync(async () => {
             const signedOpGroup = await signOperationGroup(forgedOpGroupList[0], keyStore, '');
             expect(signedOpGroup).to.be.an('object');
             expect(signedOpGroup.signature).to.exist;
+
+            const opGroupHash = TezosMessageUtils.computeOperationHash(signedOpGroup);
+            expect(opGroupHash).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
 
         it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
-            const payload = [{
-                protocol: blockHead.protocol,
-                branch: blockHead.hash,
-                contents: ops,
-                signature: signedOpGroup.signature
-            }];
-            const appliedOp = await TezosNodeReader.applyOperation('http://conseil.server', payload);
+            const appliedOp = await TezosNodeWriter.applyOperation('http://conseil.server', blockHead, [ops], signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
@@ -143,8 +195,8 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNode.injectOperation test ---', mochaAsync(async () => {
-            const payload = signedOpGroup.bytes.toString('hex');
-            const injectOp = await TezosNodeReader.injectOperation('http://conseil.server', payload);
+            const payload = signedOpGroup;
+            const injectOp = await TezosNodeWriter.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
 
@@ -166,25 +218,24 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
-            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
             expect(isManagerRevealed).to.be.true;
         }));
 
         it('isManagerKeyRevealedForAccount should be false', mochaAsync(async () => {
-            const isManagerRevealed = await isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
             expect(isManagerRevealed).to.be.false;
         }));
 
         it('isImplicitAndEmpty should be true', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
+            const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore1.publicKeyHash);
             expect(isImplicit).to.be.true;
         }));
-        
+
         it('isImplicitAndEmpty should be false', mochaAsync(async () => {
-            const isImplicit = await isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
+            const isImplicit = await TezosNodeReader.isImplicitAndEmpty('http://conseil.server', keyStore.publicKeyHash);
             expect(isImplicit).to.be.false;
         }));
-
     });
 
     describe('Main Operations Test', () => {
@@ -244,8 +295,8 @@ describe('Tezos Operations Test', () => {
                 amount,
                 bakerAddress,
                 true,
-                true, 
-                fee, 
+                true,
+                fee,
                 ''
             );
             expect(originationResult).to.exist;
@@ -256,15 +307,27 @@ describe('Tezos Operations Test', () => {
             keyStore.publicKeyHash = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
             const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
             const fee = 300000;
-            const delegationResult = await sendDelegationOperation(
-                'http://conseil.server',
-                keyStore,
-                bakerAddress,
-                fee, 
-                ''
-            );
+            const delegationResult = await sendDelegationOperation('http://conseil.server', keyStore, bakerAddress, fee, '');
             expect(delegationResult).to.exist;
             expect(delegationResult.operationGroupID).to.be.a('string');
+        }));
+
+        it('sendContractInvocationOperation', mochaAsync(async () => {
+            let result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000);
+            expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
+
+            result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'parameter string; storage string; code {CAR; NIL operation; PAIR;};');
+            expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
+        }));
+    });
+
+    describe('Errors Test', () => {
+        it('test error paths', mochaAsync(async () => {
+            const nockedserver = nock('http://conseil.server');
+            nock.cleanAll();
+
+            nockedserver.get(`/chains/main/blocks/head`).reply(404, blockHead);
+            await expect(TezosNodeReader.getBlockHead('http://conseil.server')).to.be.rejected;
         }));
     });
 });

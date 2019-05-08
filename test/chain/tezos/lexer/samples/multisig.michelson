@@ -1,0 +1,133 @@
+parameter
+  (or :_entries
+     (unit %_Liq_entry_pay)
+     (option %_Liq_entry_manage
+        (pair :proposition (key_hash %destination) (mutez %amount))));
+storage
+  (pair :storage
+     (set %owners address)
+     (pair (map %actions address (pair :proposition (key_hash %destination) (mutez %amount)))
+           (pair (nat %owners_length) (nat %min_agree))));
+code { DUP ;
+       DIP { CDR @storage_slash_1 } ;
+       CAR @parameter_slash_2 ;
+       DUP @parameter ;
+       IF_LEFT
+         { DROP ; DUUP ; NIL operation ; PAIR }
+         { RENAME @action_slash_20 ;
+           DUUUP @storage ;
+           SOURCE @owner ;
+           DUUP @storage ;
+           CAR %owners ;
+           DUUP @owner ;
+           MEM ;
+           NOT ;
+           IF { DUP @owner ; PUSH string "Not an owner" ; PAIR ; FAILWITH } { UNIT } ;
+           DROP ;
+           PUSH mutez 0 ;
+           AMOUNT ;
+           COMPARE ;
+           NEQ ;
+           IF { PUSH string "Don't send money while managing multisig" ; FAILWITH }
+              { UNIT } ;
+           DROP ;
+           DUUP @storage ;
+           DUP ;
+           CAR %owners ;
+           SWAP ;
+           CDR ;
+           CDR ;
+           DUUUUP @storage ;
+           CDAR %actions ;
+           DUUUUUUP @action ;
+           DUUUUUP @owner ;
+           UPDATE ;
+           PAIR %actions ;
+           SWAP ;
+           PAIR @storage %owners ;
+           DUP @storage ;
+           NIL operation ;
+           PAIR @do_nothing ;
+           DUUUUUP @action ;
+           IF_NONE
+             { DUP @do_nothing }
+             { DUP @p ;
+               BALANCE ;
+               DUUP @p ;
+               CDR %amount ;
+               COMPARE ;
+               GT ;
+               IF { PUSH string "Balance to low for withdrawal" ; FAILWITH } { UNIT } ;
+               DIP { DROP } ;
+               DROP ;
+               DUUUP @storage ;
+               DUUP @p ;
+               PAIR ;
+               DUP ;
+               CDR @storage ;
+               DUP @storage ;
+               CDDDR %min_agree ;
+               PUSH nat 0 ;
+               DUUUP @storage ;
+               CDAR %actions ;
+               ITER { RENAME @___p_prim__cpt_slash_12 ;
+                      DIP { DUP } ;
+                      PAIR ;
+                      DUP ;
+                      CDR @cpt ;
+                      DUUP ;
+                      CAR ;
+                      CDR @p_prim_ ;
+                      DUUUUUUUP ;
+                      CAR @p ;
+                      PAIR ;
+                      DUP ;
+                      CAR @p1 ;
+                      SWAP ;
+                      CDR @p2 ;
+                      DUP ;
+                      CDR %amount ;
+                      DUUUP ;
+                      CDR %amount ;
+                      COMPARE ;
+                      EQ ;
+                      SWAP ;
+                      CAR %destination ;
+                      DUUUP ;
+                      DIIIP { DROP } ;
+                      CAR %destination ;
+                      COMPARE ;
+                      EQ ;
+                      AND ;
+                      IF { PUSH nat 1 ; DUUP @cpt ; ADD } { DUP @cpt } ;
+                      DIP { DROP ; DROP ; DROP } } ;
+               DIIP { DROP ; DROP } ;
+               RENAME @nb_agree ;
+               COMPARE ;
+               GE ;
+               IF { DUP @p ;
+                    CAR %destination ;
+                    IMPLICIT_ACCOUNT @c_dest ;
+                    DUUP @p ;
+                    CDR %amount ;
+                    UNIT ;
+                    TRANSFER_TOKENS @op ;
+                    DUUUUP @storage ;
+                    DUP ;
+                    CAR %owners ;
+                    SWAP ;
+                    CDR ;
+                    CDR ;
+                    PUSH (map address (pair :proposition (key_hash %destination) (mutez %amount))) {} ;
+                    PAIR %actions ;
+                    SWAP ;
+                    PAIR %owners ;
+                    NIL operation ;
+                    DUUUP @op ;
+                    DIIIP { DROP } ;
+                    CONS ;
+                    PAIR }
+                  { DUUP @do_nothing } ;
+               DIP { DROP } } ;
+           DIP { DROP ; DROP ; DROP ; DROP ; DROP } } ;
+       DIP { DROP ; DROP } };

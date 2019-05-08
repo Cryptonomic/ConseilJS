@@ -25,19 +25,7 @@ var TezosNodeReader;
             }
             return response;
         })
-            .then(response => {
-            try {
-                return response.json();
-            }
-            catch (_a) {
-                throw new ErrorTypes_1.ServiceResponseError(response.status, response.statusText, url, null, response);
-            }
-        });
-    }
-    function performPostRequest(server, command, payload = {}) {
-        const url = `${server}/${command}`;
-        const payloadStr = JSON.stringify(payload);
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+            .then(response => response.json());
     }
     function getBlock(server, hash) {
         return performGetRequest(server, `chains/main/blocks/${hash}`)
@@ -58,30 +46,23 @@ var TezosNodeReader;
             .then(json => json);
     }
     TezosNodeReader.getAccountManagerForBlock = getAccountManagerForBlock;
-    function forgeOperation(server, opGroup) {
+    function isImplicitAndEmpty(server, accountHash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, "chains/main/blocks/head/helpers/forge/operations", opGroup);
-            const forgedOperation = yield response.text();
-            return forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
+            const blockHead = yield TezosNodeReader.getBlockHead(server);
+            const account = yield TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
+            const isImplicit = accountHash.toLowerCase().startsWith("tz");
+            const isEmpty = Number(account.balance) === 0;
+            return (isImplicit && isEmpty);
         });
     }
-    TezosNodeReader.forgeOperation = forgeOperation;
-    function applyOperation(server, payload) {
+    TezosNodeReader.isImplicitAndEmpty = isImplicitAndEmpty;
+    function isManagerKeyRevealedForAccount(server, keyStore) {
         return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
-            const json = yield response.json();
-            const appliedOperation = json;
-            return appliedOperation;
+            const blockHead = yield TezosNodeReader.getBlockHead(server);
+            const managerKey = yield TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+            return managerKey.key != null;
         });
     }
-    TezosNodeReader.applyOperation = applyOperation;
-    function injectOperation(server, payload) {
-        return __awaiter(this, void 0, void 0, function* () {
-            const response = yield performPostRequest(server, 'injection/operation?chain=main', payload);
-            const injectedOperation = yield response.text();
-            return injectedOperation;
-        });
-    }
-    TezosNodeReader.injectOperation = injectOperation;
+    TezosNodeReader.isManagerKeyRevealedForAccount = isManagerKeyRevealedForAccount;
 })(TezosNodeReader = exports.TezosNodeReader || (exports.TezosNodeReader = {}));
 //# sourceMappingURL=TezosNodeReader.js.map

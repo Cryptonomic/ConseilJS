@@ -69,12 +69,19 @@ export interface Operation {
     destination?: string;
     amount?: string;
     script?: string | object;
+    parameters?: string;
+}
+export interface Ballot {
+    source: string;
+    period: number;
+    proposal: string;
+    vote: BallotVote;
 }
 export interface ContractOriginationOperation extends Operation {
-    script: object;
+    script: string;
 }
 export interface ContractInvocationOperation extends Operation {
-    parameters: object;
+    parameters: string;
 }
 export interface SignedOperationGroup {
     bytes: Buffer;
@@ -91,5 +98,15 @@ export declare enum OperationKindType {
     AccountActivation = "activate_account",
     Origination = "origination",
     Reveal = "reveal",
-    Endorsement = "endorsement"
+    Endorsement = "endorsement",
+    Ballot = "ballot"
+}
+export declare enum BallotVote {
+    Yay = 0,
+    Nay = 1,
+    Pass = 2
+}
+export interface Activation {
+    pkh: string;
+    secret: string;
 }

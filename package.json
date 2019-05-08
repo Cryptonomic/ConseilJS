@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -9,13 +9,15 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha test/*.spec.ts",
-    "integration-test": "mocha --compilers ts-node/register --require source-map-support/register --require ts-node/register --full-trace --timeout 10000 integration_test/*.spec.ts",
+    "test": "mocha \"test/**/*.spec.ts\"",
+    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 10000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
-    "package": "rm -rf ./dist && tsc && copyfiles -u 1 ./src/**/*.js dist/",
+    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
-    "coverage": "nyc mocha test/*.spec.ts && nyc report | coveralls",
-    "doc": "rm -rf ./docs && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./docs ./src"
+    "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
+    "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js",
+    "release-check": "npm run test && npm audit && npm outdated"
   },
   "repository": {
     "type": "git",
@@ -38,12 +40,10 @@
   "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
   "nyc": {
     "include": [
-      "src/**/*.ts",
-      "src/**/*.tsx"
+      "src/**/*.ts"
     ],
     "extension": [
-      ".ts",
-      ".tsx"
+      ".ts"
     ],
     "require": [
       "ts-node/register"
@@ -57,17 +57,19 @@
   "dependencies": {
     "@ledgerhq/hw-transport": "4.24.0",
     "@ledgerhq/hw-transport-node-hid": "4.24.0",
-    "aws-sdk": "^2.417.0",
+    "aws-sdk": "^2.447.0",
     "babel-runtime": "6.26.0",
     "base-n": "git://github.com/yourcodesucks/base-n.git",
     "basil-tezos-ledger": "0.0.1",
-    "bip32": "^1.0.0",
-    "bip39": "^2.5.0",
+    "big-integer": "^1.6.43",
+    "bip39": "^3.0.1",
     "blakejs": "^1.1.0",
     "bs58check": "^2.1.2",
     "https": "^1.0.0",
     "libsodium-wrappers-sumo": "0.7.4",
-    "node-fetch": "^2.3.0",
+    "moo": "^0.5.0",
+    "nearley": "^2.16.0",
+    "node-fetch": "^2.5.0",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
@@ -75,34 +77,35 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.2.6",
     "@types/nock": "^9.3.1",
-    "@types/node": "^10.12.30",
-    "@types/node-fetch": "^2.1.6",
+    "@types/node": "^11.13.8",
+    "@types/node-fetch": "^2.3.3",
     "@types/zxcvbn": "^4.4.0",
-    "@typescript-eslint/eslint-plugin": "^1.4.2",
-    "@typescript-eslint/parser": "^1.4.2",
+    "@typescript-eslint/eslint-plugin": "^1.7.0",
+    "@typescript-eslint/parser": "^1.7.0",
     "awesome-typescript-loader": "^5.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "copyfiles": "^2.1.0",
     "coveralls": "^3.0.3",
-    "eslint": "^5.15.1",
+    "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-typescript": "^0.14.0",
-    "mocha": "^5.2.0",
+    "mocha": "^6.1.4",
     "nock": "^10.0.6",
-    "nyc": "13.3.0",
+    "nyc": "^14.0.0",
+    "request-promise": "^4.2.4",
     "source-map-loader": "^0.2.4",
-    "source-map-support": "^0.5.10",
+    "source-map-support": "^0.5.12",
     "terser-webpack-plugin": "^1.2.3",
-    "ts-loader": "^5.3.3",
-    "ts-node": "^8.0.3",
+    "ts-loader": "^5.4.5",
+    "ts-node": "^8.1.0",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typedoc": "^0.14.2",
-    "typedoc-plugin-markdown": "^1.1.27",
-    "typescript": "^3.3.3333",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3",
+    "typedoc-plugin-markdown": "^1.2.0",
+    "typescript": "^3.4.5",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1",
     "webpack-node-externals": "^1.7.2"
   },
   "eslintConfig": {

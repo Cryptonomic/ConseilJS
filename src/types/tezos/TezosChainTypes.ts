@@ -65,7 +65,7 @@ export interface InjectedOperation {
     injectedOperation: string
 }
 
-// abstracts Transaction, Delegations, and Originations
+// abstracts Transaction, Delegation, Reveal, and Origination operations
 export interface Operation {
     kind: string,
     source: string,
@@ -82,15 +82,26 @@ export interface Operation {
     delegatable?: boolean,
     destination?: string,
     amount?: string,
-    script?: string | object;
+    script?: string | object,
+    parameters?: string;
+}
+
+/**
+ * This object does not match the RPC entity by the same name.
+ */
+export interface Ballot {
+    source: string,
+    period: number,
+    proposal: string,
+    vote: BallotVote
 }
 
 export interface ContractOriginationOperation extends Operation {
-    script: object;
+    script: string;
 }
 
 export interface ContractInvocationOperation extends Operation {
-    parameters: object;
+    parameters: string;
 }
 
 /**
@@ -111,10 +122,25 @@ export interface OperationResult {
 
 export enum OperationKindType {
     SeedNonceRevelation = 'seed_nonce_revelation',
-    Delegation = "delegation",
-    Transaction = "transaction",
-    AccountActivation = "activate_account",
-    Origination = "origination",
-    Reveal = "reveal",
-    Endorsement = "endorsement"
+    Delegation = 'delegation',
+    Transaction = 'transaction',
+    AccountActivation = 'activate_account',
+    Origination = 'origination',
+    Reveal = 'reveal',
+    Endorsement = "endorsement",
+    Ballot = 'ballot'
+}
+
+export enum BallotVote {
+    Yay = 0,
+    Nay = 1,
+    Pass = 2
+}
+
+/**
+ * This object does not match the RPC entity by the same name.
+ */
+export interface Activation {
+    pkh: string,
+    secret: string
 }

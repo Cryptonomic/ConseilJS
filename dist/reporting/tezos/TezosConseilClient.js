@@ -18,6 +18,9 @@ var TezosConseilClient;
     const OPERATION_GROUPS = 'operation_groups';
     const OPERATIONS = 'operations';
     const FEES = 'fees';
+    const PROPOSALS = 'proposals';
+    const BAKERS = 'bakers';
+    const BALLOTS = 'ballots';
     function getTezosEntityData(serverInfo, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             return ConseilDataClient_1.ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', network, entity, query);
@@ -86,5 +89,23 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.getFeeStatistics = getFeeStatistics;
+    function getProposals(serverInfo, network, query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return getTezosEntityData(serverInfo, network, PROPOSALS, query);
+        });
+    }
+    TezosConseilClient.getProposals = getProposals;
+    function getBakers(serverInfo, network, query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return getTezosEntityData(serverInfo, network, BAKERS, query);
+        });
+    }
+    TezosConseilClient.getBakers = getBakers;
+    function getBallots(serverInfo, network, query) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return getTezosEntityData(serverInfo, network, BALLOTS, query);
+        });
+    }
+    TezosConseilClient.getBallots = getBallots;
 })(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map

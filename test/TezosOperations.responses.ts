@@ -301,7 +301,7 @@ export const managerKeyMockList = [
 
 export const walletInfoLists = [
   {
-    "seed": 'crucial can galaxy shield runway chunk sorry bronze icon fold convince inner inherit nest leader',
+    "mnemonic": ["crucial", "can", "galaxy", "shield", "runway", "chunk", "sorry", "bronze", "icon", "fold", "convince", "inner", "inherit", "nest", "leader"],
     "secret": "9b7f631e52f877a1d363474404da8130b0b940ee",
     "amount": "13212502893",
     "pkh": "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
@@ -309,7 +309,7 @@ export const walletInfoLists = [
     "email": "yojmzsbv.cfgoawgf@tezos.example.org"
   },
   {
-    "seed": 'rude expect abstract return garbage pepper situate salad analyst arm garbage canyon maze debris transfer',
+    "mnemonic": ["rude", "expect", "abstract", "return", "garbage", "pepper", "situate", "salad", "analyst", "arm", "garbage", "canyon", "maze", "debris", "transfer"],
     "secret": "a664b80cb07999c349cde169cdc69e2c6b56901b",
     "amount": "2099397010",
     "pkh": "tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa",
@@ -317,5 +317,3 @@ export const walletInfoLists = [
     "email": "zvhmwpxp.oyknmtkh@tezos.example.org"
   }
 ];
-
-
