@@ -37,5 +37,4 @@ __export(require("./reporting/ConseilQueryBuilder"));
 __export(require("./types/conseil/QueryTypes"));
 __export(require("./types/wallet/KeyStore"));
 __export(require("./utils/CryptoUtils"));
-__export(require("./utils/LoggerSelector"));
 //# sourceMappingURL=index.js.map

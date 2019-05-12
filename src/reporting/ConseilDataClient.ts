@@ -1,7 +1,9 @@
 import {ConseilServerInfo, ConseilQuery} from '../types/conseil/QueryTypes';
 import {ConseilRequestError} from '../types/conseil/ErrorTypes';
 import FetchSelector from '../utils/FetchSelector';
+import LogSelector from '../utils/LoggerSelector';
 
+const log = LogSelector.getLogger();
 const fetch = FetchSelector.getFetch();
 
 /**
@@ -19,6 +21,8 @@ export namespace ConseilDataClient {
      */
     export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
         const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`
+
+        log.debug(`ConseilDataClient.executeEntityQuery: ${url}`);
 
         return fetch(url, {
             method: 'post',

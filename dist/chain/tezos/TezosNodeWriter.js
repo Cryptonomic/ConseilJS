@@ -28,6 +28,7 @@ var TezosNodeWriter;
     function performPostRequest(server, command, payload = {}) {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
+        log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
     function signOperationGroup(forgedOperation, keyStore, derivationPath) {

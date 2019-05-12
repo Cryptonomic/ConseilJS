@@ -13,12 +13,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ErrorTypes_1 = require("../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../utils/FetchSelector"));
+const LoggerSelector_1 = __importDefault(require("../utils/LoggerSelector"));
+const log = LoggerSelector_1.default.getLogger();
 const fetch = FetchSelector_1.default.getFetch();
 var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
+            log.debug(`ConseilDataClient.executeEntityQuery: ${url}`);
             return fetch(url, {
                 method: 'post',
                 headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },

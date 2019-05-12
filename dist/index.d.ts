@@ -12,4 +12,3 @@ export * from './reporting/ConseilQueryBuilder';
 export * from './types/conseil/QueryTypes';
 export * from './types/wallet/KeyStore';
 export * from './utils/CryptoUtils';
-export * from './utils/LoggerSelector';
