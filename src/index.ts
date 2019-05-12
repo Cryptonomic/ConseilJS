@@ -1,10 +1,15 @@
 import fetch from 'node-fetch';
+import * as log from 'loglevel';
+
 import FetchSelector from './utils/FetchSelector';
 import DeviceSelector from './utils/DeviceSelector';
+import LogSelector from './utils/LoggerSelector';
 import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 
 FetchSelector.setFetch(fetch);
 DeviceSelector.setLedgerUtils(TezosLedgerWallet);
+LogSelector.setLogger(log.getLogger('conseiljs'));
+LogSelector.setLevel('debug');
 
 export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';

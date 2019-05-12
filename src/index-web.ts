@@ -1,6 +1,8 @@
 import FetchSelector from './utils/FetchSelector';
+import LogSelector from './utils/LoggerSelector';
 
 FetchSelector.setFetch(window.fetch);
+LogSelector.setLogger(console);
 
 export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';

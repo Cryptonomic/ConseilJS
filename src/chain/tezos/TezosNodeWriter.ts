@@ -12,6 +12,9 @@ const fetch = FetchSelector.getFetch();
 import DeviceSelector from '../../utils/DeviceSelector';
 let LedgerUtils = DeviceSelector.getLedgerUtils();
 
+import LogSelector from '../../utils/LoggerSelector';
+const log = LogSelector.getLogger();
+
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -295,7 +298,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {string} code Contract code.
+     * @param {string} code Contract code in Michelson.
      * @param {string} storage Initial storage value.
      */
     export async function sendContractOriginationOperation(
@@ -353,11 +356,13 @@ export namespace TezosNodeWriter {
         let parsedCode: any = undefined;
         if (!!code) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
+            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${parsedCode}`);
         }
 
         let parsedStorage: any = undefined;
         if (!!storage) {
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
+            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${parsedStorage}`);
         }
 
         const origination: TezosTypes.Operation = {
