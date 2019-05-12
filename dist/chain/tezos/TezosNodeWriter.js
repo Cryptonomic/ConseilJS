@@ -187,12 +187,12 @@ var TezosNodeWriter;
             let parsedCode = undefined;
             if (!!code) {
                 parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
-                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${parsedCode}`);
+                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
             }
             let parsedStorage = undefined;
             if (!!storage) {
                 parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
-                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${parsedStorage}`);
+                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
             }
             const origination = {
                 kind: "origination",

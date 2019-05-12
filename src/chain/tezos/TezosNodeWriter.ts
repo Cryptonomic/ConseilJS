@@ -358,13 +358,13 @@ export namespace TezosNodeWriter {
         let parsedCode: any = undefined;
         if (!!code) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
-            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${parsedCode}`);
+            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
         }
 
         let parsedStorage: any = undefined;
         if (!!storage) {
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
-            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${parsedStorage}`);
+            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
         }
 
         const origination: TezosTypes.Operation = {
