@@ -7,7 +7,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const FetchSelector_1 = __importDefault(require("./utils/FetchSelector"));
+const LoggerSelector_1 = __importDefault(require("./utils/LoggerSelector"));
 FetchSelector_1.default.setFetch(window.fetch);
+LoggerSelector_1.default.setLogger(console);
 __export(require("./chain/tezos/TezosLanguageUtil"));
 __export(require("./chain/tezos/TezosMessageUtil"));
 __export(require("./chain/tezos/TezosNodeReader"));

@@ -21,6 +21,8 @@ const FetchSelector_1 = __importDefault(require("../../utils/FetchSelector"));
 const fetch = FetchSelector_1.default.getFetch();
 const DeviceSelector_1 = __importDefault(require("../../utils/DeviceSelector"));
 let LedgerUtils = DeviceSelector_1.default.getLedgerUtils();
+const LoggerSelector_1 = __importDefault(require("../../utils/LoggerSelector"));
+const log = LoggerSelector_1.default.getLogger();
 var TezosNodeWriter;
 (function (TezosNodeWriter) {
     function performPostRequest(server, command, payload = {}) {
@@ -184,10 +186,12 @@ var TezosNodeWriter;
             let parsedCode = undefined;
             if (!!code) {
                 parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
+                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${parsedCode}`);
             }
             let parsedStorage = undefined;
             if (!!storage) {
                 parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
+                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${parsedStorage}`);
             }
             const origination = {
                 kind: "origination",
