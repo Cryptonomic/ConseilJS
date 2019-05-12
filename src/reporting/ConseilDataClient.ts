@@ -17,25 +17,29 @@ export namespace ConseilDataClient {
      * @param platform Platform to query, eg: Tezos.
      * @param network Network to query, eg: mainnet.
      * @param entity Entity to query, eg: block, account, operation, etc.
-     * @param query JSON object confirming to the Conseil query spec.
+     * @param query JSON object or text confirming to the Conseil query spec.
      */
     export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
         const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`
 
-        log.debug(`ConseilDataClient.executeEntityQuery: ${url}`);
+        log.debug(`ConseilDataClient.executeEntityQuery request: ${url}`);
 
         return fetch(url, {
             method: 'post',
             headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
             body: JSON.stringify(query)
         })
-        .then(response => {
-            if (!response.ok) { throw new ConseilRequestError(response.status, response.statusText, url, query); }
-            return response;
+        .then(r => {
+            if (!r.ok) { throw new ConseilRequestError(r.status, r.statusText, url, query); }
+            return r;
         })
-        .then(response => {
-            const contentType: string = response.headers.get('content-type').toLowerCase();
-            return contentType.includes('application/json') ? response.json() : response.text();
+        .then(r => {
+            const isJSONResponse: boolean = r.headers.get('content-type').toLowerCase().includes('application/json');
+            const response = isJSONResponse ? r.json() : r.text();
+
+            log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(r.json()) : r.text()}`);
+
+            return response;
         });
     }
 }

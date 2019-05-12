@@ -101,6 +101,8 @@ export namespace TezosNodeWriter {
         const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
         const text = await response.text();
         try {
+            log.debug(`TezosNodeWriter.applyOperation received ${text}`);
+
             const json = JSON.parse(text);
             return json as TezosTypes.AlphaOperationsWithMetadata[];
         } catch (err) {

@@ -68,6 +68,7 @@ var TezosNodeWriter;
             const response = yield performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
             const text = yield response.text();
             try {
+                log.debug(`TezosNodeWriter.applyOperation received ${text}`);
                 const json = JSON.parse(text);
                 return json;
             }
