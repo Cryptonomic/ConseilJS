@@ -9,7 +9,11 @@ import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 FetchSelector.setFetch(fetch);
 DeviceSelector.setLedgerUtils(TezosLedgerWallet);
 LogSelector.setLogger(log.getLogger('conseiljs'));
-LogSelector.setLevel('debug');
+LogSelector.setLevel('error');
+
+export function setLogLevel(level: string) {
+    LogSelector.setLevel(level);
+}
 
 export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';
