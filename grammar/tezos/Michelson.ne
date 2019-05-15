@@ -151,7 +151,7 @@ instruction ->
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
   | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ type _ type {% doubleArgTypeKeywordToJson %}
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
- # | %instruction _ type _ %lbrace %rbrace {% pushToJson %} 
+  | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %} 
   | "PUSH" (_ %annot (%parameter|%storage|%word)):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
 
@@ -691,7 +691,7 @@ semicolons -> null | semicolons ";"
 
     const singleArgTypeKeywordWithParenToJson = d => {
       const annot = d[3].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[2]}", "args": [ [ ${d[7]} ] ], "annots": [${annot}]  }`;
+      return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
     }
 
     const singleArgInstrKeywordToJson = d => { 

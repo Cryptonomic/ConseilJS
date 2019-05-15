@@ -576,7 +576,7 @@ const lexer = moo.compile({
 
     const singleArgTypeKeywordWithParenToJson = d => {
       const annot = d[3].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[2]}", "args": [ [ ${d[7]} ] ], "annots": [${annot}]  }`;
+      return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
     }
 
     const singleArgInstrKeywordToJson = d => { 
@@ -938,6 +938,7 @@ var grammar = {
     {"name": "instruction$ebnf$7", "symbols": ["instruction$ebnf$7", "instruction$ebnf$7$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "instruction", "symbols": [(lexer.has("instruction") ? {type: "instruction"} : instruction), "instruction$ebnf$7", "_", "type", "_", "type"], "postprocess": doubleArgTypeKeywordToJson},
     {"name": "instruction", "symbols": [{"literal":"PUSH"}, "_", "type", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction", "symbols": [{"literal":"PUSH"}, "_", "type", "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": pushToJson},
     {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter)]},
     {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("storage") ? {type: "storage"} : storage)]},
     {"name": "instruction$ebnf$8$subexpression$1$subexpression$1", "symbols": [(lexer.has("word") ? {type: "word"} : word)]},
