@@ -106,6 +106,7 @@ export namespace TezosNodeWriter {
             const json = JSON.parse(text);
             return json as TezosTypes.AlphaOperationsWithMetadata[];
         } catch (err) {
+            log.error(`TezosNodeWriter.applyOperation failed to parse response`);
             throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
         }
     }
@@ -120,11 +121,15 @@ export namespace TezosNodeWriter {
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
 
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
+            log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${firstAppliedOp.id}`);
+            throw new Error(`Could not apply operation because ${firstAppliedOp.id}`);
         }
 
         for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind)) { throw new Error(`Could not apply operation because: ${op.metadata}`); }
+            if (!validAppliedKinds.has(op.kind)) {
+                log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${op.metadata}`);
+                throw new Error(`Could not apply operation because: ${op.metadata}`);
+            }
         }
     }
 

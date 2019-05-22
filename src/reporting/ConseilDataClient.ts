@@ -30,7 +30,10 @@ export namespace ConseilDataClient {
             body: JSON.stringify(query)
         })
         .then(r => {
-            if (!r.ok) { throw new ConseilRequestError(r.status, r.statusText, url, query); }
+            if (!r.ok) {
+                log.error(`ConseilDataClient.executeEntityQuery failed for ${url} with ${r.status}`);
+                throw new ConseilRequestError(r.status, r.statusText, url, query);
+            }
             return r;
         })
         .then(r => {
