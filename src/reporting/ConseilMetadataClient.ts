@@ -24,13 +24,8 @@ export namespace ConseilMetadataClient {
             r => r.json()
             .catch(error => {
                 log.error(`ConseilMetadataClient.executeMetadataQuery parsing failed for ${serverInfo.url}/v2/metadata/${route} with ${error}`);
-                return null;
             })
-        )
-        .catch(error => {
-            log.error(`ConseilMetadataClient.executeMetadataQuery failed for ${serverInfo.url}/v2/metadata/${route} with ${error}`);
-            return null;
-        });
+        );
     }
 
     /**

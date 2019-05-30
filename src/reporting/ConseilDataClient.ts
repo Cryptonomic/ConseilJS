@@ -37,13 +37,9 @@ export namespace ConseilDataClient {
             const isJSONResponse: boolean = r.headers.get('content-type').toLowerCase().includes('application/json');
             const response = isJSONResponse ? r.json() : r.text();
 
-            log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(r.json()) : r.text()}`);
+            log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(response) : response}`);
 
             return response;
-        })
-        .catch(error => {
-            log.error(`ConseilDataClient.executeEntityQuery failed for ${url} with ${error}`);
-            return null;
-        });;
+        });
     }
 }

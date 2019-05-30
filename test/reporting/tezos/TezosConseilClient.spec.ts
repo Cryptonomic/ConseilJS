@@ -3,6 +3,10 @@ import { expect, use } from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
 
+import * as loglevel from 'loglevel';
+import LogSelector from '../../../src/utils/LoggerSelector';
+LogSelector.setLogger(loglevel.getLogger('conseiljs'));
+
 import fetch from 'node-fetch';
 import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);

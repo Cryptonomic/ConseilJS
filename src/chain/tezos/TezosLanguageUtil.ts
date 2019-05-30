@@ -171,7 +171,7 @@ export namespace TezosLanguageUtil {
      */
     export function translateMichelsonToHex(code: string): string {
         return preProcessMicheline(translateMichelsonToMicheline(code))
-            .map(p => { var c = normalizeMichelineWhiteSpace(p); console.log(`--- C ${c}`); return c; } )
+            .map(p => { var c = normalizeMichelineWhiteSpace(p); return c; } )
             .map(p => translateMichelineToHex(p))
             .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
     }
