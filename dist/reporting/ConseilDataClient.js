@@ -36,7 +36,7 @@ var ConseilDataClient;
                 .then(r => {
                 const isJSONResponse = r.headers.get('content-type').toLowerCase().includes('application/json');
                 const response = isJSONResponse ? r.json() : r.text();
-                log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(r.json()) : r.text()}`);
+                log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(response) : response}`);
                 return response;
             });
         });

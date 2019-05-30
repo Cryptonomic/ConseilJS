@@ -15,6 +15,9 @@ class ConseilRequestError extends ServiceRequestError {
         super(httpStatus, httpMessage, conseilURL, null);
         this.conseilQuery = conseilQuery;
     }
+    toString() {
+        return `ConseilRequestError for ${this.conseilURL} with ${this.httpStatus} and ${this.httpMessage}`;
+    }
 }
 exports.ConseilRequestError = ConseilRequestError;
 class ServiceResponseError extends Error {

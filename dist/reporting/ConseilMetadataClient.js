@@ -11,7 +11,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const ErrorTypes_1 = require("../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../utils/FetchSelector"));
+const LoggerSelector_1 = __importDefault(require("../utils/LoggerSelector"));
+const log = LoggerSelector_1.default.getLogger();
 const fetch = FetchSelector_1.default.getFetch();
 var ConseilMetadataClient;
 (function (ConseilMetadataClient) {
@@ -19,8 +22,18 @@ var ConseilMetadataClient;
         return __awaiter(this, void 0, void 0, function* () {
             return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
                 method: 'GET',
-                headers: { 'apiKey': serverInfo.apiKey },
-            }).then(response => response.json());
+                headers: { 'apiKey': serverInfo.apiKey }
+            })
+                .then(r => {
+                if (!r.ok) {
+                    throw new ErrorTypes_1.ConseilRequestError(r.status, r.statusText, `${serverInfo.url}/v2/metadata/${route}`, null);
+                }
+                return r;
+            })
+                .then(r => r.json()
+                .catch(error => {
+                log.error(`ConseilMetadataClient.executeMetadataQuery parsing failed for ${serverInfo.url}/v2/metadata/${route} with ${error}`);
+            }));
         });
     }
     ConseilMetadataClient.executeMetadataQuery = executeMetadataQuery;

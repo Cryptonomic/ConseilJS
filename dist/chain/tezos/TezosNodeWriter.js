@@ -73,6 +73,7 @@ var TezosNodeWriter;
                 return json;
             }
             catch (err) {
+                log.error(`TezosNodeWriter.applyOperation failed to parse response`);
                 throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
             }
         });
@@ -82,10 +83,12 @@ var TezosNodeWriter;
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0];
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
+            log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${firstAppliedOp.id}`);
+            throw new Error(`Could not apply operation because ${firstAppliedOp.id}`);
         }
         for (const op of firstAppliedOp.contents) {
             if (!validAppliedKinds.has(op.kind)) {
+                log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${op.metadata}`);
                 throw new Error(`Could not apply operation because: ${op.metadata}`);
             }
         }
