@@ -30,6 +30,10 @@ export class ConseilRequestError extends ServiceRequestError {
 
         this.conseilQuery = conseilQuery;
     }
+
+    toString() {
+        return `ConseilRequestError for ${this.conseilURL} with ${this.httpStatus} and ${this.httpMessage}`;
+    }
 }
 
 /**
