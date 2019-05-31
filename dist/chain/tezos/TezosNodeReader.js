@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ErrorTypes_1 = require("../../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../../utils/FetchSelector"));
+const LoggerSelector_1 = __importDefault(require("../../utils/LoggerSelector"));
+const log = LoggerSelector_1.default.getLogger();
 const fetch = FetchSelector_1.default.getFetch();
 var TezosNodeReader;
 (function (TezosNodeReader) {
@@ -21,11 +23,16 @@ var TezosNodeReader;
         return fetch(url, { method: 'get' })
             .then(response => {
             if (!response.ok) {
+                log.error(`TezosNodeReader.performGetRequest error: ${response.status} for ${command} on ${server}`);
                 throw new ErrorTypes_1.ServiceRequestError(response.status, response.statusText, url, null);
             }
             return response;
         })
-            .then(response => response.json());
+            .then(response => {
+            const json = response.json();
+            log.debug(`TezosNodeReader.performGetRequest response: ${json} for ${command} on ${server}`);
+            return json;
+        });
     }
     function getBlock(server, hash) {
         return performGetRequest(server, `chains/main/blocks/${hash}`)

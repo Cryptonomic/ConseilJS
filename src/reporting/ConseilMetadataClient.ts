@@ -1,7 +1,10 @@
 import {ConseilServerInfo} from '../types/conseil/QueryTypes'
+import {ConseilRequestError} from '../types/conseil/ErrorTypes';
 import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from '../types/conseil/MetadataTypes';
 import FetchSelector from '../utils/FetchSelector';
+import LogSelector from '../utils/LoggerSelector';
 
+const log = LogSelector.getLogger();
 const fetch = FetchSelector.getFetch();
 
 /**
@@ -11,8 +14,18 @@ export namespace ConseilMetadataClient {
     export async function executeMetadataQuery(serverInfo: ConseilServerInfo, route: string): Promise<any> {
         return fetch(`${serverInfo.url}/v2/metadata/${route}`, {
             method: 'GET',
-            headers: { 'apiKey': serverInfo.apiKey },
-        }).then(response => response.json());
+            headers: { 'apiKey': serverInfo.apiKey }
+        })
+        .then(r => {
+            if (!r.ok) { throw new ConseilRequestError(r.status, r.statusText, `${serverInfo.url}/v2/metadata/${route}`, null); }
+            return r;
+        })
+        .then(
+            r => r.json()
+            .catch(error => {
+                log.error(`ConseilMetadataClient.executeMetadataQuery parsing failed for ${serverInfo.url}/v2/metadata/${route} with ${error}`);
+            })
+        );
     }
 
     /**

@@ -9,6 +9,7 @@ export declare class ServiceRequestError extends Error {
 export declare class ConseilRequestError extends ServiceRequestError {
     conseilQuery: ConseilQuery | null;
     constructor(httpStatus: number, httpMessage: string, conseilURL: string, conseilQuery: ConseilQuery | null);
+    toString(): string;
 }
 export declare class ServiceResponseError extends Error {
     httpStatus: number;

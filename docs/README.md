@@ -37,6 +37,15 @@ A fully functional sample [webpage example](https://github.com/Cryptonomic/Conse
 
 ## API Overview and Examples
 
+### Contract Development Lightning Route
+
+If you want to skip straight to working on Michelson smart contracts simply follow these instructions in the following order:
+
+1. [Create a chain identity](#Create-a-chain-identity)
+1. [Initialize a chain identity](#Initialize-a-chain-identity)
+1. [Deploy a Contract](#Deploy-a-Contract)
+1. [Invoke a Contract](#Invoke-a-Contract)
+
 ### API Key
 
 Some ConseilJS functions require an API key for a Conseil service instance. While direct chain interactions happen via a Tezos node, Conseil read operations like those in `TezosConseilClient` namespace do require an API key however.
@@ -144,7 +153,7 @@ async function sendTransaction() {
     };
 
     const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, '');
-    console.log(`Injected operation group id ${result.operationGroupID}`)
+    console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
 sendTransaction();
@@ -171,12 +180,76 @@ async function originateAccount() {
         storeType: StoreType.Fundraiser
     };
     const result = await TezosNodeWriter.sendAccountOriginationOperation(tezosNode, keystore, 100000000, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', true, true, 10000, '');
-    console.log(`Injected operation group id ${result.operationGroupID}`)
+    console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
 originateAccount();
 ```
+
 The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA).
+
+#### Deploy a Contract
+
+Deploying a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+
+```typescript
+import { TezosNodeWriter, StoreType } from 'conseiljs';
+
+const tezosNode = '';
+
+async function deployContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contract = `parameter string;
+        storage string;
+        code { DUP;
+            DIP { CDR ; NIL string ; SWAP ; CONS } ;
+            CAR ; CONS ;
+            CONCAT;
+            NIL operation; PAIR}`;
+    const storage = '"Sample"';
+
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 10000, undefined, false, false, 100000, '', '10000', '10000', contract, storage);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+deployContract();
+```
+
+The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://alphanet.tzscan.io/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://alphanet.tzscan.io/KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
+
+#### Invoke a Contract
+
+Invoking a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+
+```typescript
+import { TezosNodeWriter, StoreType } from 'conseiljs';
+
+const tezosNode = '';
+
+async function invokeContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
+
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"');
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+invokeContract();
+```
+
+The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://alphanet.tzscan.io/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
 
 ### Metadata Discovery Functions
 

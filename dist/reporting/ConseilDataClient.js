@@ -13,26 +13,31 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const ErrorTypes_1 = require("../types/conseil/ErrorTypes");
 const FetchSelector_1 = __importDefault(require("../utils/FetchSelector"));
+const LoggerSelector_1 = __importDefault(require("../utils/LoggerSelector"));
+const log = LoggerSelector_1.default.getLogger();
 const fetch = FetchSelector_1.default.getFetch();
 var ConseilDataClient;
 (function (ConseilDataClient) {
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
+            log.debug(`ConseilDataClient.executeEntityQuery request: ${url}`);
             return fetch(url, {
                 method: 'post',
                 headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
                 body: JSON.stringify(query)
             })
-                .then(response => {
-                if (!response.ok) {
-                    throw new ErrorTypes_1.ConseilRequestError(response.status, response.statusText, url, query);
+                .then(r => {
+                if (!r.ok) {
+                    throw new ErrorTypes_1.ConseilRequestError(r.status, r.statusText, url, query);
                 }
-                return response;
+                return r;
             })
-                .then(response => {
-                const contentType = response.headers.get('content-type').toLowerCase();
-                return contentType.includes('application/json') ? response.json() : response.text();
+                .then(r => {
+                const isJSONResponse = r.headers.get('content-type').toLowerCase().includes('application/json');
+                const response = isJSONResponse ? r.json() : r.text();
+                log.debug(`ConseilDataClient.executeEntityQuery response: ${isJSONResponse ? JSON.stringify(response) : response}`);
+                return response;
             });
         });
     }

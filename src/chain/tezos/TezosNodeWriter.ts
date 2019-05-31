@@ -12,6 +12,9 @@ const fetch = FetchSelector.getFetch();
 import DeviceSelector from '../../utils/DeviceSelector';
 let LedgerUtils = DeviceSelector.getLedgerUtils();
 
+import LogSelector from '../../utils/LoggerSelector';
+const log = LogSelector.getLogger();
+
 /**
  *  Functions for sending operations on the Tezos network.
  */
@@ -27,6 +30,8 @@ export namespace TezosNodeWriter {
     function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
+
+        log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
 
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
@@ -96,9 +101,12 @@ export namespace TezosNodeWriter {
         const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
         const text = await response.text();
         try {
+            log.debug(`TezosNodeWriter.applyOperation received ${text}`);
+
             const json = JSON.parse(text);
             return json as TezosTypes.AlphaOperationsWithMetadata[];
         } catch (err) {
+            log.error(`TezosNodeWriter.applyOperation failed to parse response`);
             throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
         }
     }
@@ -113,11 +121,15 @@ export namespace TezosNodeWriter {
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
 
         if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            throw new Error(`Could not apply operation because: ${firstAppliedOp.id}`);
+            log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${firstAppliedOp.id}`);
+            throw new Error(`Could not apply operation because ${firstAppliedOp.id}`);
         }
 
         for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind)) { throw new Error(`Could not apply operation because: ${op.metadata}`); }
+            if (!validAppliedKinds.has(op.kind)) {
+                log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${op.metadata}`);
+                throw new Error(`Could not apply operation because: ${op.metadata}`);
+            }
         }
     }
 
@@ -295,7 +307,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee.
      * @param {string} gas_limit Gas limit.
-     * @param {string} code Contract code.
+     * @param {string} code Contract code in Michelson.
      * @param {string} storage Initial storage value.
      */
     export async function sendContractOriginationOperation(
@@ -353,11 +365,13 @@ export namespace TezosNodeWriter {
         let parsedCode: any = undefined;
         if (!!code) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
+            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
         }
 
         let parsedStorage: any = undefined;
         if (!!storage) {
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
+            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
         }
 
         const origination: TezosTypes.Operation = {

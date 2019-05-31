@@ -2,7 +2,9 @@ import * as TezosTypes from '../../types/tezos/TezosChainTypes'
 import {KeyStore} from "../../types/wallet/KeyStore";
 import {ServiceRequestError} from "../../types/conseil/ErrorTypes";
 import FetchSelector from '../../utils/FetchSelector'
+import LogSelector from '../../utils/LoggerSelector';
 
+const log = LogSelector.getLogger();
 const fetch = FetchSelector.getFetch();
 
 /**
@@ -21,10 +23,17 @@ export namespace TezosNodeReader {
 
         return fetch(url, { method: 'get' })
             .then(response => {
-                if (!response.ok) { throw new ServiceRequestError(response.status, response.statusText, url, null); }
+                if (!response.ok) {
+                    log.error(`TezosNodeReader.performGetRequest error: ${response.status} for ${command} on ${server}`);
+                    throw new ServiceRequestError(response.status, response.statusText, url, null);
+                }
                 return response;
             })
-            .then(response => response.json());
+            .then(response => {
+                const json: any = response.json();
+                log.debug(`TezosNodeReader.performGetRequest response: ${json} for ${command} on ${server}`);
+                return json;
+            });
     }
 
     /**
