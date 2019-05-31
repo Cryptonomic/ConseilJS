@@ -461,7 +461,7 @@ export namespace TezosMessageCodec {
         const origination: Operation = {
             kind: "origination",
             source: source,
-            managerPubkey: publickeyhash,
+            manager_pubkey: publickeyhash,
             balance: balanceInfo.value + "",
             spendable: spendable,
             delegatable: delegatable,
