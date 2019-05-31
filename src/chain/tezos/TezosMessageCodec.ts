@@ -490,7 +490,7 @@ export namespace TezosMessageCodec {
      */
     export function encodeOrigination(origination: Operation): string {
         if (origination.kind !== 'origination') { throw new Error('Incorrect operation type'); }
-        if (origination.managerPubkey === undefined) { throw new Error('Missing manager address'); }
+        if (origination.manager_pubkey === undefined) { throw new Error('Missing manager address'); }
         if (origination.balance === undefined) { throw new Error('Missing balance'); }
 
         let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('origination'));
@@ -499,7 +499,7 @@ export namespace TezosMessageCodec {
         hex += TezosMessageUtils.writeInt(parseInt(origination.counter));
         hex += TezosMessageUtils.writeInt(parseInt(origination.gas_limit));
         hex += TezosMessageUtils.writeInt(parseInt(origination.storage_limit));
-        hex += TezosMessageUtils.writeAddress(origination.managerPubkey).slice(2);
+        hex += TezosMessageUtils.writeAddress(origination.manager_pubkey).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(origination.balance));
         hex += origination.spendable !== undefined ? TezosMessageUtils.writeBoolean(origination.spendable) : '00';
         hex += origination.delegatable !== undefined ? TezosMessageUtils.writeBoolean(origination.delegatable) : '00';
