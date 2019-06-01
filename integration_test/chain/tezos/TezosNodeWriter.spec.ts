@@ -2,12 +2,16 @@ import 'mocha';
 import { expect } from 'chai';
 import fetch from 'node-fetch';
 
-import FetchSelector from '../../src/utils/FetchSelector';
+import * as loglevel from 'loglevel';
+import LogSelector from '../../../src/utils/LoggerSelector';
+LogSelector.setLogger(loglevel.getLogger('conseiljs'));
+
+import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {TezosNodeWriter} from '../../src/chain/tezos/TezosNodeWriter';
-import {KeyStore, StoreType} from '../../src/types/wallet/KeyStore';
-import {servers} from '../servers';
+import {TezosNodeWriter} from '../../../src/chain/tezos/TezosNodeWriter';
+import {KeyStore, StoreType} from '../../../src/types/wallet/KeyStore';
+import {servers} from '../../servers';
 
 const keys: KeyStore = {
     publicKey: 'edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa',
