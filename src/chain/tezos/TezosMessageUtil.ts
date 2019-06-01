@@ -40,7 +40,7 @@ export namespace TezosMessageUtils {
         return i === 0 ? v : v ^ 0x80;
       })
       .reverse()
-      .toString("hex");
+      .toString();
   }
 
   /**
@@ -55,7 +55,7 @@ export namespace TezosMessageUtils {
         .map((v, i) => {
           return i === 0 ? v : v & 0x7f;
         })
-        .toString("hex")
+        .toString()
     );
   }
 

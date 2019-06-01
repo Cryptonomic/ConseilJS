@@ -81,7 +81,7 @@ describe("Tezos P2P message decoder test suite", () => {
     const result = TezosMessageCodec.parseOperation(forgedOrigination, 'origination');
     expect(result.operation.kind).to.equal("origination");
     expect(result.operation.source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
-    expect(result.operation.managerPubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+    expect(result.operation.manager_pubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
     expect(result.operation.script).to.undefined;
     expect(result.operation.balance).to.equal('256000000'); // microtez
     expect(result.operation.spendable).to.equal(true);
@@ -98,7 +98,7 @@ describe("Tezos P2P message decoder test suite", () => {
     const result = TezosMessageCodec.parseOrigination(forgedOrigination);
     expect(result.operation.kind).to.equal("origination");
     expect(result.operation.source).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
-    expect(result.operation.managerPubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
+    expect(result.operation.manager_pubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
     expect(result.operation.script).to.exist;
     expect(result.operation.balance).to.equal('2000000'); // microtez
     expect(result.operation.spendable).to.equal(true);

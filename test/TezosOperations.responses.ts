@@ -156,7 +156,7 @@ export const appliedOpList = [
           "counter": "17284",
           "gas_limit": "10160",
           "storage_limit": "277",
-          "managerPubkey": "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
+          "manager_pubkey": "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
           "balance": "10000000",
           "delegate": "tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G",
           "metadata": {

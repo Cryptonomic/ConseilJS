@@ -25,7 +25,7 @@ var TezosMessageUtils;
             return i === 0 ? v : v ^ 0x80;
         })
             .reverse()
-            .toString("hex");
+            .toString();
     }
     TezosMessageUtils.writeInt = writeInt;
     function readInt(hex) {
@@ -34,7 +34,7 @@ var TezosMessageUtils;
             .map((v, i) => {
             return i === 0 ? v : v & 0x7f;
         })
-            .toString("hex"));
+            .toString());
     }
     TezosMessageUtils.readInt = readInt;
     function findInt(hex, offset) {

@@ -372,7 +372,7 @@ export namespace TezosNodeWriter {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: gas_limit,
             storage_limit: storage_limit,
-            managerPubkey: keyStore.publicKeyHash, // mainnet, alphanet
+            manager_pubkey: keyStore.publicKeyHash, // mainnet, alphanet
             //manager_pubkey: keyStore.publicKeyHash, // zeronet
             balance: amount.toString(),
             spendable: spendable,
