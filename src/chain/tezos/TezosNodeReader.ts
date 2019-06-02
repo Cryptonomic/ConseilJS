@@ -44,12 +44,12 @@ export namespace TezosNodeReader {
      * @returns {Promise<BlockMetadata>} Block
      */
     export function getBlock(server: string, hash: string): Promise<TezosTypes.BlockMetadata> {
-        return performGetRequest(server, `chains/main/blocks/${hash}`)
-            .then(json => {return <TezosTypes.BlockMetadata> json})
+        return performGetRequest(server, `chains/main/blocks/${hash}`).then(json => {return <TezosTypes.BlockMetadata> json});
     }
 
     /**
      * Gets the top block.
+     * 
      * @param {string} server Which Tezos node to go against
      * @returns {Promise<BlockMetadata>} Block head
      */
@@ -95,9 +95,9 @@ export namespace TezosNodeReader {
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith("tz");
-        const isEmpty = Number(account.balance) === 0
+        const isEmpty = Number(account.balance) === 0;
 
-        return (isImplicit && isEmpty)
+        return (isImplicit && isEmpty);
     }
 
     /**

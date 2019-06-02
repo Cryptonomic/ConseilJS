@@ -22,7 +22,7 @@ export namespace ConseilDataClient {
     export async function executeEntityQuery(serverInfo: ConseilServerInfo, platform: string, network: string, entity: string, query: ConseilQuery): Promise<any[]> {
         const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`
 
-        log.debug(`ConseilDataClient.executeEntityQuery request: ${url}`);
+        log.debug(`ConseilDataClient.executeEntityQuery request: ${url}, ${query}`);
 
         return fetch(url, {
             method: 'post',
