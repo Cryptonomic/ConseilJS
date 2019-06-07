@@ -51,7 +51,7 @@ If you want to skip straight to working on Michelson smart contracts simply foll
 
 ### Blockchain Analytics Lightning Route
 
-If your interests lay in statistics and business intelligence, ConseilJS has tools for that as well. While for heavier data extraction using [Conseil](https://cryptonomic.github.io/ConseilJS) directly may make more sense, if you are building user tools like dashboards ConseilJS will make the process vastly easier.
+If your interests lay in statistics and business intelligence, ConseilJS has tools for that as well. While for heavier data extraction using [Conseil](https://cryptonomic.github.io/Conseil) directly may make more sense, if you are building user tools like dashboards ConseilJS will make the process vastly easier.
 
 1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
 1. [Install ConseilJS](#Use-with-Nodejs)
