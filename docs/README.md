@@ -43,7 +43,7 @@ If you want to skip straight to working on Michelson smart contracts simply foll
 
 1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
 1. [Install ConseilJS](#Use-with-Nodejs)
-1. [Get an API key] (#API-Key)
+1. [Get an API key](#API-Key)
 1. [Create a Tezos alphanet account](#Create-an-Tezos-alphanet-account)
 1. [Initialize the account](#Initialize-the-account)
 1. [Deploy a contract](#Deploy-a-Contract)
