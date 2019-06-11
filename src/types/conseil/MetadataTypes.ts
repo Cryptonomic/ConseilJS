@@ -26,6 +26,7 @@ export interface AttributeDefinition {
     keyType: AttrbuteKeyType,
     entity: string,
     dataFormat: string,
+    visible: boolean,
     scale?: number,
     description?: string,
     placeholder?: string,
@@ -43,7 +44,8 @@ export enum AttrbuteDataType {
     DECIMAL = 'Decimal',
     BOOLEAN = 'Boolean',
     ACCOUNT_ADDRESS = 'AccountAddress',
-    HASH = 'Hash'
+    HASH = 'Hash',
+    DATETIME = 'DateTime'
 }
 
 export enum AttrbuteKeyType {
