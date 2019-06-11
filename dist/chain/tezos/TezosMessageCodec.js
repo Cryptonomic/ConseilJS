@@ -355,7 +355,7 @@ var TezosMessageCodec;
         const origination = {
             kind: "origination",
             source: source,
-            managerPubkey: publickeyhash,
+            manager_pubkey: publickeyhash,
             balance: balanceInfo.value + "",
             spendable: spendable,
             delegatable: delegatable,
@@ -379,7 +379,7 @@ var TezosMessageCodec;
         if (origination.kind !== 'origination') {
             throw new Error('Incorrect operation type');
         }
-        if (origination.managerPubkey === undefined) {
+        if (origination.manager_pubkey === undefined) {
             throw new Error('Missing manager address');
         }
         if (origination.balance === undefined) {
@@ -391,7 +391,7 @@ var TezosMessageCodec;
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(origination.counter));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(origination.gas_limit));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(origination.storage_limit));
-        hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(origination.managerPubkey).slice(2);
+        hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(origination.manager_pubkey).slice(2);
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(origination.balance));
         hex += origination.spendable !== undefined ? TezosMessageUtil_1.TezosMessageUtils.writeBoolean(origination.spendable) : '00';
         hex += origination.delegatable !== undefined ? TezosMessageUtil_1.TezosMessageUtils.writeBoolean(origination.delegatable) : '00';

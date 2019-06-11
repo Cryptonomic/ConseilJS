@@ -11,6 +11,7 @@ export interface NetworkDefinition {
 export interface EntityDefinition {
     name: string;
     displayName: string;
+    displayNamePlural: string;
     count: number;
     network: string;
 }
@@ -22,12 +23,23 @@ export interface AttributeDefinition {
     keyType: AttrbuteKeyType;
     entity: string;
     dataFormat: string;
+    visible: boolean;
+    scale?: number;
+    description?: string;
+    placeholder?: string;
+    reference?: AttributeReference;
+}
+export interface AttributeReference {
+    entity: string;
+    key: string;
 }
 export declare enum AttrbuteDataType {
     STRING = "String",
     INT = "Int",
     DECIMAL = "Decimal",
-    BOOLEAN = "Boolean"
+    BOOLEAN = "Boolean",
+    ACCOUNT_ADDRESS = "AccountAddress",
+    HASH = "Hash"
 }
 export declare enum AttrbuteKeyType {
     PRIMARYKEY = "PrimaryKey",

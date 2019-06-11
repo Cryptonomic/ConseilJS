@@ -45,7 +45,7 @@ var TezosNodeWriter;
                     const privateKeyBytes = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
                     opSignature = yield CryptoUtils_1.CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
             }
-            const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
+            const hexSignature = TezosMessageUtil_1.TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig').toString();
             const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
             return { bytes: signedOpBytes, signature: hexSignature.toString() };
         });
@@ -113,25 +113,25 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendOperation = sendOperation;
-    function appendRevealOperation(server, keyStore, account, operations) {
+    function appendRevealOperation(server, keyStore, accountHash, accountOperationIndex, operations) {
         return __awaiter(this, void 0, void 0, function* () {
-            const isManagerKeyRevealed = yield TezosNodeReader_1.TezosNodeReader.isManagerKeyRevealedForAccount(server, keyStore);
-            let returnedOperations = operations;
-            if (!isManagerKeyRevealed) {
+            const isKeyRevealed = yield TezosNodeReader_1.TezosNodeReader.isManagerKeyRevealedForAccount(server, accountHash);
+            if (!isKeyRevealed) {
                 const revealOp = {
-                    kind: "reveal",
-                    source: keyStore.publicKeyHash,
+                    kind: 'reveal',
+                    source: accountHash,
                     fee: '0',
-                    counter: (Number(account.counter) + 1).toString(),
+                    counter: (accountOperationIndex + 1).toString(),
                     gas_limit: '10000',
                     storage_limit: '0',
                     public_key: keyStore.publicKey
                 };
-                let operation = operations[0];
-                operation.counter = (Number(account.counter) + 2).toString();
-                returnedOperations = [revealOp, operation];
+                let c = accountOperationIndex;
+                c += 1;
+                operations.forEach((operation) => { c++; operation.counter = c.toString(); });
+                return [revealOp, ...operations];
             }
-            return returnedOperations;
+            return operations;
         });
     }
     TezosNodeWriter.appendRevealOperation = appendRevealOperation;
@@ -142,32 +142,32 @@ var TezosNodeWriter;
             const transaction = {
                 destination: to,
                 amount: amount.toString(),
-                storage_limit: "300",
-                gas_limit: "10300",
+                storage_limit: '300',
+                gas_limit: '10300',
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind: "transaction"
+                kind: 'transaction'
             };
-            const operations = yield appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
+            const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, sourceAccount.counter, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
     TezosNodeWriter.sendTransactionOperation = sendTransactionOperation;
-    function sendDelegationOperation(server, keyStore, delegate, fee, derivationPath) {
+    function sendDelegationOperation(server, keyStore, delegator, delegate, fee, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
-            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+            const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(server, blockHead.hash, delegator);
             const delegation = {
-                kind: "delegation",
-                source: keyStore.publicKeyHash,
+                kind: 'delegation',
+                source: delegator,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
                 storage_limit: '0',
                 gas_limit: '10000',
                 delegate: delegate
             };
-            const operations = yield appendRevealOperation(server, keyStore, account, [delegation]);
+            const operations = yield appendRevealOperation(server, keyStore, delegator, account.counter, [delegation]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
@@ -199,20 +199,20 @@ var TezosNodeWriter;
                 log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
             }
             const origination = {
-                kind: "origination",
+                kind: 'origination',
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
                 gas_limit: gas_limit,
                 storage_limit: storage_limit,
-                managerPubkey: keyStore.publicKeyHash,
+                manager_pubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable && !!delegate,
                 delegate: delegate,
                 script: code ? { code: parsedCode, storage: parsedStorage } : undefined
             };
-            const operations = yield appendRevealOperation(server, keyStore, account, [origination]);
+            const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, account.counter, [origination]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
@@ -228,13 +228,13 @@ var TezosNodeWriter;
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
-                kind: "transaction"
+                kind: 'transaction'
             };
             if (!!parameters) {
                 const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
                 transaction.parameters = JSON.parse(michelineParams);
             }
-            const operations = yield appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
+            const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, sourceAccount.counter, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
@@ -258,7 +258,7 @@ var TezosNodeWriter;
     }
     TezosNodeWriter.sendKeyRevealOperation = sendKeyRevealOperation;
     function sendIdentityActivationOperation(server, keyStore, activationCode, derivationPath) {
-        const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
+        const activation = { kind: 'activate_account', pkh: keyStore.publicKeyHash, secret: activationCode };
         return sendOperation(server, [activation], keyStore, derivationPath);
     }
     TezosNodeWriter.sendIdentityActivationOperation = sendIdentityActivationOperation;

@@ -152,7 +152,7 @@ var TezosMessageUtils;
             return "01" + hex + "00";
         }
         else {
-            throw new Error("Unrecognized address type");
+            throw new Error(`Unrecognized address prefix: ${address.substring(0, 3)}`);
         }
     }
     TezosMessageUtils.writeAddress = writeAddress;

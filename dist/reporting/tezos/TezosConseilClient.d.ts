@@ -4,6 +4,7 @@ export declare namespace TezosConseilClient {
     function getTezosEntityData(serverInfo: ConseilServerInfo, network: string, entity: string, query: ConseilQuery): Promise<any[]>;
     function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]>;
     function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any[]>;
+    function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any[]>;
     function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any[]>;
     function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]>;
     function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
@@ -14,4 +15,6 @@ export declare namespace TezosConseilClient {
     function getProposals(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getBakers(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
     function getBallots(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]>;
+    function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number): Promise<any[]>;
+    function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]>;
 }
