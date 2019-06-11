@@ -41,10 +41,22 @@ A fully functional sample [webpage example](https://github.com/Cryptonomic/Conse
 
 If you want to skip straight to working on Michelson smart contracts simply follow these instructions in the following order:
 
-1. [Create a chain identity](#Create-a-chain-identity)
-1. [Initialize a chain identity](#Initialize-a-chain-identity)
-1. [Deploy a Contract](#Deploy-a-Contract)
-1. [Invoke a Contract](#Invoke-a-Contract)
+1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
+1. [Install ConseilJS](#Use-with-Nodejs)
+1. [Get an API key](#API-Key)
+1. [Create a Tezos alphanet account](#Create-an-Tezos-alphanet-account)
+1. [Initialize the account](#Initialize-the-account)
+1. [Deploy a contract](#Deploy-a-Contract)
+1. [Invoke a contract](#Invoke-a-Contract)
+
+### Blockchain Analytics Lightning Route
+
+If your interests lay in statistics and business intelligence, ConseilJS has tools for that as well. While for heavier data extraction using [Conseil](https://cryptonomic.github.io/Conseil) directly may make more sense, if you are building user tools like dashboards ConseilJS will make the process vastly easier.
+
+1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
+1. [Install ConseilJS](#Use-with-Nodejs)
+1. [Get an API key](#API-Key)
+1. [Run reports](#reporting--analytics-functions)
 
 ### API Key
 
@@ -56,7 +68,7 @@ Obtaining a development key is easy. Hit us on the [Riot Dev Channel](https://ma
 
 To execute operations on the Tezos chain a link to a Tezos node is required. One can be found on the [tzscan public node page](https://tzscan.io/nodes). Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
 
-#### Create a chain identity
+#### Create a Tezos alphanet account
 
 Visit [Alphanet Faucet](https://faucet.tzalpha.net) to get a test account on the Tezos Alphanet. With this information we can create the public and private keys necessary to participate in the network. In the below examples, `alphanetFaucetAccount` is assigned the contents of the file the faucet produces.
 
@@ -83,7 +95,7 @@ initAccount();
 
 This produces a public key of `edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG` and secret key of `edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB`. **Secret keys must be kept secure!**
 
-#### Initialize a chain identity
+#### Initialize the account
 
 An account must be activated on the chain before it can be used. With the combination of the faucet output and the keys generated in the step above we can send an account activation operation.
 
