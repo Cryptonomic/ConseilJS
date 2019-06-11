@@ -1,10 +1,10 @@
-import {KeyStore, StoreType} from '../../types/wallet/KeyStore';
+import { KeyStore, StoreType } from '../../types/wallet/KeyStore';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
-import {TezosNodeReader} from './TezosNodeReader';
-import {TezosMessageCodec} from './TezosMessageCodec';
-import {TezosMessageUtils} from './TezosMessageUtil';
-import {TezosLanguageUtil} from './TezosLanguageUtil';
-import {CryptoUtils} from '../../utils/CryptoUtils';
+import { TezosNodeReader } from './TezosNodeReader';
+import { TezosMessageCodec } from './TezosMessageCodec';
+import { TezosMessageUtils } from './TezosMessageUtil';
+import { TezosLanguageUtil } from './TezosLanguageUtil';
+import { CryptoUtils } from '../../utils/CryptoUtils';
 
 import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.getFetch();
@@ -49,7 +49,7 @@ export namespace TezosNodeWriter {
         const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
 
         let opSignature: Buffer;
-        switch(keyStore.storeType) {
+        switch (keyStore.storeType) {
             case StoreType.Hardware:
                 opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
                 break;
@@ -60,10 +60,10 @@ export namespace TezosNodeWriter {
                 opSignature = await CryptoUtils.signDetached(hashedWatermarkedOpBytes, privateKeyBytes);
         }
 
-        const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, "edsig").toString();
+        const hexSignature: string = TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig').toString();
         const signedOpBytes = Buffer.concat([Buffer.from(forgedOperation, 'hex'), Buffer.from(opSignature)]);
 
-        return { bytes: signedOpBytes, signature: hexSignature.toString()};
+        return { bytes: signedOpBytes, signature: hexSignature.toString() };
     }
 
     /**
@@ -171,30 +171,33 @@ export namespace TezosNodeWriter {
      * Helper function for sending Delegations, Transactions, and Originations. Checks if manager's public key has been revealed for operation. If yes, do nothing, else, bundle a reveal operation before the input operation.
      *
      * @param {string} server Tezos node to connect to
-     * @param keyStore  Key pair along with public key hash
-     * @param fee Fee to use
-     * @param account Which account to use
+     * @param keyStore Key pair along with public key hash
+     * @param {string} accountHash Account address to reveal.
+     * @param {number} accountOperationIndex
      * @param operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    export async function appendRevealOperation (server: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]) {
-        const isManagerKeyRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount(server, keyStore)
-        let returnedOperations: TezosTypes.Operation[] = operations;
-        if (!isManagerKeyRevealed) {
+    export async function appendRevealOperation(server: string, keyStore: KeyStore, accountHash: string, accountOperationIndex: number, operations: TezosTypes.Operation[]) {
+        const isKeyRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount(server, accountHash);
+
+        if (!isKeyRevealed) {
             const revealOp: TezosTypes.Operation = {
-                kind: "reveal",
-                source: keyStore.publicKeyHash,
+                kind: 'reveal',
+                source: accountHash,
                 fee: '0', // Reveal Fee will be covered by the appended operation
-                counter: (Number(account.counter) + 1).toString(),
+                counter: (accountOperationIndex + 1).toString(),
                 gas_limit: '10000',
                 storage_limit: '0',
                 public_key: keyStore.publicKey
             };
-            let operation = operations[0];
-            operation.counter = (Number(account.counter) + 2).toString();
-            returnedOperations = [revealOp, operation];
+
+            let c = accountOperationIndex;
+            c += 1;
+            operations.forEach((operation) => { c++; operation.counter = c.toString(); });
+
+            return [revealOp, ...operations];
         }
 
-        return returnedOperations;
+        return operations;
     }
 
     /**
@@ -208,29 +211,22 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendTransactionOperation(
-        server: string,
-        keyStore: KeyStore,
-        to: string,
-        amount: number,
-        fee: number,
-        derivationPath: string
-    ) {
+    export async function sendTransactionOperation(server: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string) {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const sourceAccount = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
 
         const transaction: TezosTypes.Operation = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: "300",
-            gas_limit: "10300",
+            storage_limit: '300',
+            gas_limit: '10300',
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
-            kind: "transaction"
+            kind: 'transaction'
         };
 
-        const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction])
+        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, sourceAccount.counter, [transaction])
 
         return sendOperation(server, operations, keyStore, derivationPath);
     }
@@ -240,30 +236,25 @@ export namespace TezosNodeWriter {
      * 
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {String} delegate Account ID to delegate to
+     * @param {string} delegator Account address to delegate from
+     * @param {string} delegate Account address to delegate to
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendDelegationOperation(
-        server: string,
-        keyStore: KeyStore,
-        delegate: string,
-        fee: number,
-        derivationPath: string
-    ) {
+    export async function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee: number, derivationPath: string) {
         const blockHead = await TezosNodeReader.getBlockHead(server);
-        const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+        const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, delegator);
         const delegation: TezosTypes.Operation = {
-            kind: "delegation",
-            source: keyStore.publicKeyHash,
+            kind: 'delegation',
+            source: delegator,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
             storage_limit: '0',
             gas_limit: '10000',
             delegate: delegate
         }
-        const operations = await appendRevealOperation(server, keyStore, account, [delegation])
+        const operations = await appendRevealOperation(server, keyStore, delegator, account.counter, [delegation]);
 
         return sendOperation(server, operations, keyStore, derivationPath);
     }
@@ -273,24 +264,15 @@ export namespace TezosNodeWriter {
      *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to, blank if none
-     * @param {boolean} spendable Is account spendable?
+     * @param {number} amount Initial funding amount for the new account in uXTZ
+     * @param {string} delegate Account address to delegate to, blank if none
+     * @param {boolean} spendable Is the new account allowed to transact?
      * @param {boolean} delegatable Can the account be delegated?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendAccountOriginationOperation (
-        server: string,
-        keyStore: KeyStore,
-        amount: number,
-        delegate: string | undefined,
-        spendable: boolean,
-        delegatable: boolean,
-        fee: number,
-        derivationPath: string
-    ) {
+    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string) {
         return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
     }
 
@@ -375,7 +357,7 @@ export namespace TezosNodeWriter {
         }
 
         const origination: TezosTypes.Operation = {
-            kind: "origination",
+            kind: 'origination',
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: (Number(account.counter) + 1).toString(),
@@ -388,7 +370,7 @@ export namespace TezosNodeWriter {
             delegate: delegate,
             script: code ? { code: parsedCode, storage: parsedStorage } : undefined
         };
-        const operations = await appendRevealOperation(server, keyStore, account, [origination]);
+        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, account.counter, [origination]);
 
         return sendOperation(server, operations, keyStore, derivationPath);
     }
@@ -428,15 +410,15 @@ export namespace TezosNodeWriter {
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
-            kind: "transaction"
+            kind: 'transaction'
         };
 
         if (!!parameters) {
             const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-            (<TezosTypes.ContractInvocationOperation> transaction).parameters = JSON.parse(michelineParams);
+            (<TezosTypes.ContractInvocationOperation>transaction).parameters = JSON.parse(michelineParams);
         }
 
-        const operations = await appendRevealOperation(server, keyStore, sourceAccount, [transaction]);
+        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, sourceAccount.counter, [transaction]);
         return sendOperation(server, operations, keyStore, derivationPath);
     }
 
@@ -449,11 +431,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendKeyRevealOperation(
-        server: string,
-        keyStore: KeyStore,
-        fee: number = 1300,
-        derivationPath: string = '') {
+    export async function sendKeyRevealOperation(server: string, keyStore: KeyStore, fee: number = 1300, derivationPath: string = '') {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, keyStore.publicKeyHash);
         const revealOp: TezosTypes.Operation = {
@@ -480,7 +458,7 @@ export namespace TezosNodeWriter {
      * @returns {Promise<OperationResult>} Result of the operation
      */
     export function sendIdentityActivationOperation(server: string, keyStore: KeyStore, activationCode: string, derivationPath: string) {
-        const activation = { kind: "activate_account", pkh: keyStore.publicKeyHash, secret: activationCode };
+        const activation = { kind: 'activate_account', pkh: keyStore.publicKeyHash, secret: activationCode };
 
         return sendOperation(server, [activation], keyStore, derivationPath);
     }

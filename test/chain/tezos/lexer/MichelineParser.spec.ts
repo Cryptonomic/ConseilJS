@@ -24,7 +24,7 @@ describe('Micheline binary encoding tests', () => {
         expect(result).to.equal('00eccd6d');
     });
 
-    it('parse a listeral string', () => {
+    it('parse a literal string', () => {
         const result = TezosLanguageUtil.translateMichelineToHex('{ "string" : "abc" }');
         expect(result).to.equal('0100000003616263');
     });
