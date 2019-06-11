@@ -39,7 +39,8 @@ export declare enum AttrbuteDataType {
     DECIMAL = "Decimal",
     BOOLEAN = "Boolean",
     ACCOUNT_ADDRESS = "AccountAddress",
-    HASH = "Hash"
+    HASH = "Hash",
+    DATETIME = "DateTime"
 }
 export declare enum AttrbuteKeyType {
     PRIMARYKEY = "PrimaryKey",
