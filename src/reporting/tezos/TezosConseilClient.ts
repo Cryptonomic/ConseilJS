@@ -173,7 +173,7 @@ export namespace TezosConseilClient {
     }
 
     /**
-     * Get a block by hash from the Tezos platform given a network.
+     * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks.
      * 
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
@@ -188,12 +188,25 @@ export namespace TezosConseilClient {
 
         while (initialLevel + duration > currentLevel) {
             const group = await getTezosEntityData(serverInfo, network, OPERATIONS, query);
-            if (group.length > 0) { return group;}
+            if (group.length > 0) { return group; }
             currentLevel = (await getBlockHead(serverInfo, network))[0]['level'];
             if (initialLevel + duration < currentLevel) { break; }
             await new Promise(resolve => setTimeout(resolve, 60 * 1000));
         }
 
         throw new Error(`Did not observe ${hash} on ${network} in ${duration} block${duration > 1 ? 's' : ''} since ${initialLevel}`);
+    }
+
+    /**
+     * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks. Then wait for an additional `depth` blocks to ensure that a fork has not occurred.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param {string} hash Operation group hash of interest.
+     * @param {number} duration Number of blocks to wait.
+     * @param {number} depth Number of blocks to skip for fork validation.
+     */
+    export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]> {
+        throw new Error('Not implemented');
     }
 }

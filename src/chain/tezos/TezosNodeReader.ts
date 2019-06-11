@@ -1,6 +1,6 @@
 import * as TezosTypes from '../../types/tezos/TezosChainTypes'
-import {KeyStore} from "../../types/wallet/KeyStore";
-import {ServiceRequestError} from "../../types/conseil/ErrorTypes";
+import {KeyStore} from '../../types/wallet/KeyStore';
+import {ServiceRequestError} from '../../types/conseil/ErrorTypes';
 import FetchSelector from '../../utils/FetchSelector'
 import LogSelector from '../../utils/LoggerSelector';
 
@@ -44,7 +44,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<BlockMetadata>} Block
      */
     export function getBlock(server: string, hash: string): Promise<TezosTypes.BlockMetadata> {
-        return performGetRequest(server, `chains/main/blocks/${hash}`).then(json => {return <TezosTypes.BlockMetadata> json});
+        return performGetRequest(server, `chains/main/blocks/${hash}`).then(json => { return <TezosTypes.BlockMetadata> json });
     }
 
     /**
@@ -54,7 +54,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<BlockMetadata>} Block head
      */
     export function getBlockHead(server: string): Promise<TezosTypes.BlockMetadata> {
-        return getBlock(server, "head");
+        return getBlock(server, 'head');
     }
 
     /**
@@ -62,11 +62,11 @@ export namespace TezosNodeReader {
      * 
      * @param {string} server Which Tezos node to go against
      * @param {string} blockHash Hash of given block
-     * @param {string} accountID Account ID
+     * @param {string} accountHash Account address
      * @returns {Promise<Account>} The account
      */
-    export function getAccountForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.Account> {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
+    export function getAccountForBlock(server: string, blockHash: string, accountHash: string): Promise<TezosTypes.Account> {
+        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`)
             .then(json => <TezosTypes.Account> json);
     }
 
@@ -75,11 +75,11 @@ export namespace TezosNodeReader {
      * 
      * @param {string} server Which Tezos node to go against
      * @param {string} blockHash Hash of given block
-     * @param {string} accountID Account ID
+     * @param {string} accountHash Account address
      * @returns {Promise<ManagerKey>} The account
      */
-    export function getAccountManagerForBlock(server: string, blockHash: string, accountID: string): Promise<TezosTypes.ManagerKey> {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
+    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string): Promise<TezosTypes.ManagerKey> {
+        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
             .then(json => <TezosTypes.ManagerKey> json);
     }
 
@@ -91,10 +91,10 @@ export namespace TezosNodeReader {
      * @returns {Promise<boolean>} Result
      */
     export async function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean> {
-        const blockHead = await TezosNodeReader.getBlockHead(server);
-        const account = await TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
+        const blockHead = await getBlockHead(server);
+        const account = await getAccountForBlock(server, blockHead.hash, accountHash);
 
-        const isImplicit = accountHash.toLowerCase().startsWith("tz");
+        const isImplicit = accountHash.toLowerCase().startsWith('tz');
         const isEmpty = Number(account.balance) === 0;
 
         return (isImplicit && isEmpty);
@@ -104,12 +104,12 @@ export namespace TezosNodeReader {
      * Indicates whether a reveal operation has already been done for a given account.
      *
      * @param {string} server Tezos node to connect to
-     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} accountHash Account address to delegate from
      * @returns {Promise<boolean>} Result
      */
-    export async function isManagerKeyRevealedForAccount(server: string, keyStore: KeyStore): Promise<boolean> {
-        const blockHead = await TezosNodeReader.getBlockHead(server);
-        const managerKey = await TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+    export async function isManagerKeyRevealedForAccount(server: string, accountHash: string): Promise<boolean> {
+        const blockHead = await getBlockHead(server);
+        const managerKey = await getAccountManagerForBlock(server, blockHead.hash, accountHash);
 
         return managerKey.key != null;
     }
