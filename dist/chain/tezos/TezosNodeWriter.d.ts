@@ -7,9 +7,9 @@ export declare namespace TezosNodeWriter {
     function injectOperation(network: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string>;
     function sendOperation(network: string, operations: object[], keyStore: KeyStore, derivationPath: any): Promise<TezosTypes.OperationResult>;
     function appendRevealOperation(network: string, keyStore: KeyStore, account: TezosTypes.Account, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;
-    function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
-    function sendDelegationOperation(network: string, keyStore: KeyStore, delegate: string, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
-    function sendAccountOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
+    function sendTransactionOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
+    function sendDelegationOperation(network: string, keyStore: KeyStore, delegate: string, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
+    function sendAccountOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string, spendable: boolean, delegatable: boolean, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
     function sendContractOriginationOperation(network: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, code: Array<object>, storage: object): Promise<TezosTypes.OperationResult>;
     function sendContractInvocationOperation(network: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, parameters?: any): Promise<TezosTypes.OperationResult>;
     function isImplicitAndEmpty(network: string, accountHash: string): Promise<boolean>;

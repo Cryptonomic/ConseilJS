@@ -218,8 +218,8 @@ export namespace TezosNodeWriter {
         keyStore: KeyStore,
         to: string,
         amount: number,
-        fee: number,
-        derivationPath: string
+        fee: number = 1313,
+        derivationPath: string = ''
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const sourceAccount = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -228,7 +228,7 @@ export namespace TezosNodeWriter {
             destination: to,
             amount: amount.toString(),
             storage_limit: "300",
-            gas_limit: "10300",
+            gas_limit: "10600",
             counter: (Number(sourceAccount.counter) + 1).toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
@@ -253,8 +253,8 @@ export namespace TezosNodeWriter {
         network: string,
         keyStore: KeyStore,
         delegate: string,
-        fee: number,
-        derivationPath: string
+        fee: number = 1258,
+        derivationPath: string = ''
     ) {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const account = await TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -292,8 +292,8 @@ export namespace TezosNodeWriter {
         delegate: string,
         spendable: boolean,
         delegatable: boolean,
-        fee: number,
-        derivationPath: string
+        fee: number = 1266,
+        derivationPath: string = ''
     ) {
         return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
     }

@@ -141,7 +141,7 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.appendRevealOperation = appendRevealOperation;
-    function sendTransactionOperation(network, keyStore, to, amount, fee, derivationPath) {
+    function sendTransactionOperation(network, keyStore, to, amount, fee = 1313, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const sourceAccount = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -149,7 +149,7 @@ var TezosNodeWriter;
                 destination: to,
                 amount: amount.toString(),
                 storage_limit: "300",
-                gas_limit: "10300",
+                gas_limit: "10600",
                 counter: (Number(sourceAccount.counter) + 1).toString(),
                 fee: fee.toString(),
                 source: keyStore.publicKeyHash,
@@ -160,7 +160,7 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendTransactionOperation = sendTransactionOperation;
-    function sendDelegationOperation(network, keyStore, delegate, fee, derivationPath) {
+    function sendDelegationOperation(network, keyStore, delegate, fee = 1258, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(network);
             const account = yield TezosNodeReader_1.TezosNodeReader.getAccountForBlock(network, blockHead.hash, keyStore.publicKeyHash);
@@ -178,7 +178,7 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
-    function sendAccountOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath) {
+    function sendAccountOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee = 1266, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
         });
