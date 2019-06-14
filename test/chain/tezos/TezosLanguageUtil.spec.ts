@@ -120,9 +120,7 @@ describe("Tezos Micheline fragment decoding", () => {
     });
 
     it('Serialize Michelson directly to hex', () => {
-        const contract = `parameter (list int);
-                storage (list int);
-                code { CAR; MAP { PUSH int 1; ADD }; NIL operation; PAIR }`; // add1_list
+        const contract = 'parameter (list int);\nstorage (list int);\ncode { CAR; MAP { PUSH int 1; ADD }; NIL operation; PAIR };'; // add1_list
         const result = TezosLanguageUtil.translateMichelsonToHex(contract);
 
         expect(result).to.equal('0000001e050202000000170316053802000000080743035b00010312053d036d0342000000060501055f035b');
