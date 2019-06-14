@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
-    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 10000 -b false \"integration_test/**/*.spec.ts\"",
+    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
@@ -37,7 +37,7 @@
   "bugs": {
     "url": "https://github.com/Cryptonomic/ConseilJS/issues"
   },
-  "homepage": "https://github.com/Cryptonomic/ConseilJS#readme",
+  "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
     "include": [
       "src/**/*.ts"
@@ -57,17 +57,17 @@
   "dependencies": {
     "@ledgerhq/hw-transport": "4.24.0",
     "@ledgerhq/hw-transport-node-hid": "4.24.0",
-    "aws-sdk": "^2.466.0",
+    "aws-sdk": "^2.475.0",
     "babel-runtime": "6.26.0",
     "base-n": "git://github.com/yourcodesucks/base-n.git",
     "basil-tezos-ledger": "0.0.1",
-    "big-integer": "^1.6.43",
+    "big-integer": "^1.6.44",
     "bip39": "^3.0.2",
     "blakejs": "^1.1.0",
     "bs58check": "^2.1.2",
     "https": "^1.0.0",
     "libsodium-wrappers-sumo": "0.7.4",
-    "loglevel": "^1.6.2",
+    "loglevel": "^1.6.3",
     "moo": "^0.5.0",
     "nearley": "^2.16.0",
     "node-fetch": "^2.6.0",
@@ -78,16 +78,16 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/mocha": "^5.2.7",
     "@types/nock": "^10.0.3",
-    "@types/node": "^12.0.4",
-    "@types/node-fetch": "^2.3.4",
+    "@types/node": "^12.0.8",
+    "@types/node-fetch": "^2.3.6",
     "@types/zxcvbn": "^4.4.0",
-    "@typescript-eslint/eslint-plugin": "^1.9.0",
-    "@typescript-eslint/parser": "^1.9.0",
+    "@typescript-eslint/eslint-plugin": "^1.10.2",
+    "@typescript-eslint/parser": "^1.10.2",
     "awesome-typescript-loader": "^5.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "copyfiles": "^2.1.0",
-    "coveralls": "^3.0.3",
+    "coveralls": "^3.0.4",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
@@ -104,9 +104,9 @@
     "tsconfig-paths-webpack-plugin": "^3.2.0",
     "typedoc": "^0.14.2",
     "typedoc-plugin-markdown": "^1.2.1",
-    "typescript": "^3.4.5",
-    "webpack": "^4.32.0",
-    "webpack-cli": "^3.3.2",
+    "typescript": "^3.5.2",
+    "webpack": "^4.34.0",
+    "webpack-cli": "^3.3.4",
     "webpack-node-externals": "^1.7.2"
   },
   "eslintConfig": {
