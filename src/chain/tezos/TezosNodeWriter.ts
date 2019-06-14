@@ -74,11 +74,60 @@ export namespace TezosNodeWriter {
      *
      * @returns {string} Forged operation bytes (as a hex string)
      */
+    // TODO: move to an appropriate place
     export function forgeOperations(blockHead: TezosTypes.BlockMetadata, operations: object[]): string {
         let encoded = TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
         return encoded;
+    }
+
+    /**
+     * Forge an operation group using the Tezos RPC client. This is not a trustless path, but 'reveal', 'transaction', 'delegation', 'origination' operations are validated with a local parse.
+     * @deprecated
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {BlockMetadata} blockHead The block head
+     * @param {object[]} operations The operations being forged as part of this operation group
+     *
+     * @returns {Promise<string>} Forged operation bytes (as a hex string)
+     */
+    export async function forgeOperationsRemotely(server: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
+        log.warn('forgeOperationsRemotely() is not intrinsically trustless');
+        const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/forge/operations', { branch: blockHead.hash, contents: operations });
+        const forgedOperation = await response.text();
+        const ops = forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
+
+        let optypes = Array.from(operations.map(o => o["kind"]));
+        let validate = false;
+        for (let t in optypes) {
+            validate = ['reveal', 'transaction', 'delegation', 'origination'].includes(t);
+            if (validate) { break; }
+        }
+
+        if (validate) {
+            const decoded = TezosMessageCodec.parseOperationGroup(ops);
+
+            for (let i = 0; i < operations.length; i++) {
+                const clientop = operations[i];
+                const serverop = decoded[i];
+                if (clientop['kind'] === 'transaction') {
+                    if (serverop.kind !== clientop['kind'] || serverop.fee !== clientop['fee'] || serverop.amount !== clientop['amount'] || serverop.destination !== clientop['destination']) {
+                        throw new Error('Forged transaction failed validation.');
+                    }
+                } else if (clientop['kind'] === 'delegation') {
+                    if (serverop.kind !== clientop['kind'] || serverop.fee !== clientop['fee'] || serverop.delegate !== clientop['delegate']) {
+                        throw new Error('Forged delegation failed validation.');
+                    }
+                } else if (clientop['kind'] === 'origination') {
+                    if (serverop.kind !== clientop['kind'] || serverop.fee !== clientop['fee'] || serverop.balance !== clientop['balance'] || serverop.spendable !== clientop['spendable'] || serverop.delegatable !== clientop['delegatable'] || serverop.delegate !== clientop['delegate'] || serverop.script !== undefined) {
+                        throw new Error('Forged origination failed validation.');
+                    }
+                }
+            }
+        }
+
+        return ops;
     }
 
     /**
