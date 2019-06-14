@@ -170,7 +170,7 @@ var TezosNodeWriter;
                 fee: fee.toString(),
                 counter: (Number(account.counter) + 1).toString(),
                 storage_limit: '0',
-                gas_limit: '10000',
+                gas_limit: '10600',
                 delegate: delegate
             };
             const operations = yield appendRevealOperation(network, keyStore, account, [delegation]);
