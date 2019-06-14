@@ -151,11 +151,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(
-        network: string,
-        operations: object[],
-        keyStore: KeyStore,
-        derivationPath): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(network: string, operations: object[], keyStore: KeyStore, derivationPath): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockHead(network);
         const forgedOperationGroup = await forgeOperations(network, blockHead, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
@@ -295,7 +291,7 @@ export namespace TezosNodeWriter {
         fee: number = 1266,
         derivationPath: string = ''
     ) {
-        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10160');
+        return sendOriginationOperation(network, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10600');
     }
 
     /**
@@ -372,8 +368,7 @@ export namespace TezosNodeWriter {
             counter: (Number(account.counter) + 1).toString(),
             gas_limit: gas_limit,
             storage_limit: storage_limit,
-            manager_pubkey: keyStore.publicKeyHash, // mainnet, alphanet
-            //manager_pubkey: keyStore.publicKeyHash, // zeronet
+            manager_pubkey: keyStore.publicKeyHash,
             balance: amount.toString(),
             spendable: spendable,
             delegatable: delegatable,
