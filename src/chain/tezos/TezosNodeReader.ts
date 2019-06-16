@@ -14,7 +14,7 @@ export namespace TezosNodeReader {
     /**
      * Send a GET request to a Tezos node.
      * 
-     * @param {string} server Which Tezos node to go against
+     * @param {string} server Tezos node to query
      * @param {string} command RPC route to invoke
      * @returns {Promise<object>} JSON-encoded response
      */
@@ -39,7 +39,7 @@ export namespace TezosNodeReader {
     /**
      * Gets a block for a given hash.
      * 
-     * @param {string} server Which Tezos node to go against
+     * @param {string} server Tezos node to query
      * @param {String} hash Hash of the given block
      * @returns {Promise<BlockMetadata>} Block
      */
@@ -50,7 +50,7 @@ export namespace TezosNodeReader {
     /**
      * Gets the top block.
      * 
-     * @param {string} server Which Tezos node to go against
+     * @param {string} server Tezos node to query
      * @returns {Promise<BlockMetadata>} Block head
      */
     export function getBlockHead(server: string): Promise<TezosTypes.BlockMetadata> {
@@ -60,7 +60,7 @@ export namespace TezosNodeReader {
     /**
      * Fetches a specific account for a given block.
      * 
-     * @param {string} server Which Tezos node to go against
+     * @param {string} server Tezos node to query
      * @param {string} blockHash Hash of given block
      * @param {string} accountHash Account address
      * @returns {Promise<Account>} The account
@@ -71,9 +71,22 @@ export namespace TezosNodeReader {
     }
 
     /**
+     * Fetches the current counter for an account.
+     * 
+     * @param {string} server Tezos node to query
+     * @param {string} accountHash Account address
+     * @returns {Promise<Account>} The account
+     */
+    export async function getCounterForAccount(server: string, accountHash: string): Promise<number> {
+        const blockHash = (await getBlockHead(server)).hash;
+        const account = await performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`).then(json => <TezosTypes.Account> json);
+        return parseInt(account.counter.toString(), 10);
+    }
+
+    /**
      * Fetches the manager of a specific account for a given block.
      * 
-     * @param {string} server Which Tezos node to go against
+     * @param {string} server Tezos node to query
      * @param {string} blockHash Hash of given block
      * @param {string} accountHash Account address
      * @returns {Promise<ManagerKey>} The account

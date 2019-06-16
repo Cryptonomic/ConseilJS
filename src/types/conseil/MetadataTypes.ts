@@ -18,19 +18,27 @@ export interface EntityDefinition {
     network: string
 }
 
+/**
+ * 
+ */
 export interface AttributeDefinition {
-    name: string,
-    displayName: string,
-    dataType: AttrbuteDataType,
-    cardinality: number,
-    keyType: AttrbuteKeyType,
-    entity: string,
-    dataFormat: string,
-    visible: boolean,
-    scale?: number,
-    description?: string,
-    placeholder?: string,
-    reference?: AttributeReference
+    /**
+     * 
+     */
+    name: string;
+    displayName: string;
+    dataType: AttrbuteDataType;
+    cardinality: number;
+    keyType: AttrbuteKeyType;
+    entity: string;
+    dataFormat: string;
+    visible: boolean;
+    scale?: number;
+    description?: string;
+    placeholder?: string;
+    reference?: AttributeReference;
+    displayOrder?: number;
+    displayPriority?: number;
 }
 
 export interface AttributeReference {
