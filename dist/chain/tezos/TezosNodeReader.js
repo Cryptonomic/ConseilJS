@@ -47,6 +47,14 @@ var TezosNodeReader;
             .then(json => json);
     }
     TezosNodeReader.getAccountForBlock = getAccountForBlock;
+    function getCounterForAccount(server, accountHash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHash = (yield getBlockHead(server)).hash;
+            const account = yield performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`).then(json => json);
+            return parseInt(account.counter.toString(), 10);
+        });
+    }
+    TezosNodeReader.getCounterForAccount = getCounterForAccount;
     function getAccountManagerForBlock(server, blockHash, accountHash) {
         return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
             .then(json => json);

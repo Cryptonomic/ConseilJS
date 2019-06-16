@@ -28,6 +28,8 @@ export interface AttributeDefinition {
     description?: string;
     placeholder?: string;
     reference?: AttributeReference;
+    displayOrder?: number;
+    displayPriority?: number;
 }
 export interface AttributeReference {
     entity: string;
