@@ -16,7 +16,7 @@ import { KeyStore, StoreType } from '../../../src/types/wallet/KeyStore';
 import { ConseilServerInfo } from '../../../src/types/conseil/QueryTypes';
 import { servers } from '../../servers';
 
-const keys: KeyStore = {
+const keys: KeyStore = { // alphanet faucet account
     publicKey: 'edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa',
     privateKey: 'edskRpjW6egVEyFwQAttuHy8S5WLYqkpichsW2MzDpAQHWvunrr4ZVWRRQ6dx5y4G9S2s8Y4MDevmpavPVVYDN6egrbypcbWAc',
     publicKeyHash: 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2',
@@ -27,6 +27,10 @@ const tezosURL = servers.tezosServer;
 const conseilServer: ConseilServerInfo = {url: servers.conseilServer, apiKey: servers.conseilApiKey };
 
 describe('TezosNodeWriter integration test suite', () => {
+    it('Invoke a contract with a string literal parameter', async () => {
+        // TODO:
+    });
+
     it('Invoke a contract with a string literal parameter', async () => {
         const contractAddress = 'KT1XtauF2tnmAKBzbLA2gNoMji9zSzSyYq9w';
         const result = await TezosNodeWriter.sendContractInvocationOperation(tezosURL, keys, contractAddress, 10000, 1000, '', 1000, 100000, '"Cryptonomicon"');
