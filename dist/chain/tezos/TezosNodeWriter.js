@@ -15,7 +15,6 @@ const KeyStore_1 = require("../../types/wallet/KeyStore");
 const TezosNodeReader_1 = require("./TezosNodeReader");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
-const TezosLanguageUtil_1 = require("./TezosLanguageUtil");
 const CryptoUtils_1 = require("../../utils/CryptoUtils");
 const FetchSelector_1 = __importDefault(require("../../utils/FetchSelector"));
 const fetch = FetchSelector_1.default.getFetch();
@@ -230,16 +229,6 @@ var TezosNodeWriter;
     function sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage) {
         return __awaiter(this, void 0, void 0, function* () {
             const counter = (yield TezosNodeReader_1.TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash)) + 1;
-            let parsedCode = undefined;
-            if (!!code) {
-                parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
-                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
-            }
-            let parsedStorage = undefined;
-            if (!!storage) {
-                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
-                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
-            }
             const origination = {
                 kind: 'origination',
                 source: keyStore.publicKeyHash,
@@ -252,7 +241,7 @@ var TezosNodeWriter;
                 spendable: spendable,
                 delegatable: delegatable && !!delegate,
                 delegate: delegate,
-                script: code ? { code: parsedCode, storage: parsedStorage } : undefined
+                script: code ? { code: code, storage: storage } : undefined
             };
             const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
             return sendOperation(server, operations, keyStore, derivationPath);
@@ -272,8 +261,7 @@ var TezosNodeWriter;
                 kind: 'transaction'
             };
             if (!!parameters) {
-                const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-                transaction.parameters = JSON.parse(michelineParams);
+                transaction.parameters = JSON.parse(parameters);
             }
             const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);

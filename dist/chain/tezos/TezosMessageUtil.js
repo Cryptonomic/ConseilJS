@@ -164,7 +164,7 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readBranch = readBranch;
     function writeBranch(branch) {
-        return bs58check_1.default.decode(branch).toString("hex").slice(4);
+        return bs58check_1.default.decode(branch).slice(2).toString("hex");
     }
     TezosMessageUtils.writeBranch = writeBranch;
     function readPublicKey(hex) {
