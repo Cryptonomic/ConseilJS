@@ -5,10 +5,10 @@ var ConseilQueryBuilder;
 (function (ConseilQueryBuilder) {
     function blankQuery() {
         return {
-            'fields': [],
-            'predicates': [],
-            'orderBy': [],
-            'limit': 100
+            fields: [],
+            predicates: [],
+            orderBy: [],
+            limit: 100
         };
     }
     ConseilQueryBuilder.blankQuery = blankQuery;
@@ -64,7 +64,10 @@ var ConseilQueryBuilder;
             throw new Error('Cannot apply an aggregation function on the only field being returned.');
         }
         let q = Object.assign({}, query);
-        q.aggregation = { 'field': field, 'function': aggregationFunction };
+        if (q.aggregations === undefined) {
+            q.aggregations = [];
+        }
+        q.aggregations.push({ 'field': field, 'function': aggregationFunction });
         return q;
     }
     ConseilQueryBuilder.addAggregationFunction = addAggregationFunction;
