@@ -1,4 +1,4 @@
-import {ConseilQuery, ConseilOperator, ConseilSortDirection, ConseilFunction, ConseilOutput} from "../types/conseil/QueryTypes"
+import {ConseilQuery, ConseilOperator, ConseilSortDirection, ConseilFunction, ConseilAggregation, ConseilOutput} from "../types/conseil/QueryTypes"
 
 export namespace ConseilQueryBuilder {
     /**
@@ -6,10 +6,10 @@ export namespace ConseilQueryBuilder {
      */
     export function blankQuery(): ConseilQuery {
         return {
-            'fields': [],
-            'predicates': [],
-            'orderBy': [],
-            'limit': 100
+            fields: [],
+            predicates: [],
+            orderBy: [],
+            limit: 100
         }
     }
 
@@ -99,14 +99,16 @@ export namespace ConseilQueryBuilder {
      * Add an aggregation function on a field that is already part of the selection.
      * 
      * @param query Source query.
-     * @param limit Output type, 'json' (default), or 'csv'.
+     * @param field Field to aggregate.
+     * @param {ConseilFunction} aggregationFunction Aggregation function to apply, not that not all functions are applicable to all fields, depending on data type.
      */
     export function addAggregationFunction(query: ConseilQuery, field: string, aggregationFunction: ConseilFunction): ConseilQuery {
         if (!query.fields.includes(field)) { throw new Error('Cannot apply an aggregation function on a field not being returned.'); }
         if (query.fields.length === 1) { throw new Error('Cannot apply an aggregation function on the only field being returned.'); }
-        
+
         let q = {...query};
-        q.aggregation = { 'field': field, 'function': aggregationFunction };
+        if (q.aggregations === undefined) { q.aggregations = []; }
+        q.aggregations.push({ 'field': field, 'function': aggregationFunction });
 
         return q;
     }

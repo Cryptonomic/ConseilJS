@@ -52,6 +52,11 @@ export interface ConseilQuery {
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
-    aggregation?: any;
+    aggregations?: ConseilAggregation[];
     output?: string;
+}
+
+export interface ConseilAggregation {
+    field: string,
+    function: ConseilFunction
 }
