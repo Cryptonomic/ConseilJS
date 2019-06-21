@@ -30,6 +30,7 @@ export * from './reporting/ConseilDataClient';
 export * from './reporting/ConseilMetadataClient';
 export * from './reporting/ConseilQueryBuilder';
 
+export * from './types/conseil/MetadataTypes';
 export * from './types/conseil/QueryTypes';
 export * from './types/wallet/KeyStore';
 

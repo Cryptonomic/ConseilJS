@@ -6,6 +6,9 @@ var AttrbuteDataType;
     AttrbuteDataType["INT"] = "Int";
     AttrbuteDataType["DECIMAL"] = "Decimal";
     AttrbuteDataType["BOOLEAN"] = "Boolean";
+    AttrbuteDataType["ACCOUNT_ADDRESS"] = "AccountAddress";
+    AttrbuteDataType["HASH"] = "Hash";
+    AttrbuteDataType["DATETIME"] = "DateTime";
 })(AttrbuteDataType = exports.AttrbuteDataType || (exports.AttrbuteDataType = {}));
 var AttrbuteKeyType;
 (function (AttrbuteKeyType) {

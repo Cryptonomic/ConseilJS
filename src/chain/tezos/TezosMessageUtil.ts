@@ -188,7 +188,7 @@ export namespace TezosMessageUtils {
         } else if (address.startsWith("KT1")) {
             return "01" + hex + "00";
         } else {
-            throw new Error("Unrecognized address type");
+            throw new Error(`Unrecognized address prefix: ${address.substring(0, 3)}`);
         }
     }
 
@@ -205,10 +205,10 @@ export namespace TezosMessageUtils {
      * Encodes the branch hash to hex.
      * 
      * @param {string} branch Branch hash.
-     * @returns {string} Hex represntaton of the Base58-check branch hash.
+     * @returns {string} Hex representation of the Base58-check branch hash.
      */
     export function writeBranch(branch: string): string {
-        return base58check.decode(branch).toString("hex").slice(4);
+        return base58check.decode(branch).slice(2).toString("hex");
     }
 
     /**

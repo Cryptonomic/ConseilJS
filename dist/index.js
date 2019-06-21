@@ -38,6 +38,7 @@ __export(require("./reporting/tezos/TezosConseilClient"));
 __export(require("./reporting/ConseilDataClient"));
 __export(require("./reporting/ConseilMetadataClient"));
 __export(require("./reporting/ConseilQueryBuilder"));
+__export(require("./types/conseil/MetadataTypes"));
 __export(require("./types/conseil/QueryTypes"));
 __export(require("./types/wallet/KeyStore"));
 __export(require("./utils/CryptoUtils"));

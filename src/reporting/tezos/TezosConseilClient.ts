@@ -54,6 +54,19 @@ export namespace TezosConseilClient {
     }
 
     /**
+     * Get a block by hash from the Tezos platform given a network.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param {number} level Block level to query for.
+     */
+    export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any[]> {
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [level], false), 1);
+
+        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+    }
+
+    /**
      * Get an account from the Tezos platform given a network by account id.
      * 
      * @param serverInfo Conseil server connection definition.
@@ -128,7 +141,7 @@ export namespace TezosConseilClient {
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
      */
     export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
-        return getTezosEntityData(serverInfo, network, OPERATIONS, query)
+        return getTezosEntityData(serverInfo, network, OPERATIONS, query);
     }
 
     /**
@@ -148,14 +161,52 @@ export namespace TezosConseilClient {
     }
 
     export async function getProposals(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
-        return getTezosEntityData(serverInfo, network, PROPOSALS, query)
+        return getTezosEntityData(serverInfo, network, PROPOSALS, query);
     }
 
     export async function getBakers(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
-        return getTezosEntityData(serverInfo, network, BAKERS, query)
+        return getTezosEntityData(serverInfo, network, BAKERS, query);
     }
 
     export async function getBallots(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
-        return getTezosEntityData(serverInfo, network, BALLOTS, query)
+        return getTezosEntityData(serverInfo, network, BALLOTS, query);
+    }
+
+    /**
+     * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param {string} hash Operation group hash of interest.
+     * @param {number} duration Number of blocks to wait.
+     */
+    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number): Promise<any[]> {
+        if (duration <= 0) { throw new Error('Invalid duration'); }
+        const initialLevel = (await getBlockHead(serverInfo, network))[0]['level'];
+        let currentLevel = initialLevel;
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [hash], false), 1);
+
+        while (initialLevel + duration > currentLevel) {
+            const group = await getTezosEntityData(serverInfo, network, OPERATIONS, query);
+            if (group.length > 0) { return group; }
+            currentLevel = (await getBlockHead(serverInfo, network))[0]['level'];
+            if (initialLevel + duration < currentLevel) { break; }
+            await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+        }
+
+        throw new Error(`Did not observe ${hash} on ${network} in ${duration} block${duration > 1 ? 's' : ''} since ${initialLevel}`);
+    }
+
+    /**
+     * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks. Then wait for an additional `depth` blocks to ensure that a fork has not occurred.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param {string} hash Operation group hash of interest.
+     * @param {number} duration Number of blocks to wait.
+     * @param {number} depth Number of blocks to skip for fork validation.
+     */
+    export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]> {
+        throw new Error('Not implemented');
     }
 }

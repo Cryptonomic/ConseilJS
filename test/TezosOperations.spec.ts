@@ -137,7 +137,7 @@ describe('Tezos Operations Test', () => {
                 counter: "9",
                 storage_limit: "10001",
                 gas_limit: "10002",
-                managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
                 balance: "10003",
                 spendable: true,
                 delegatable: true,
@@ -218,12 +218,12 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
-            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore.publicKeyHash);
             expect(isManagerRevealed).to.be.true;
         }));
 
         it('isManagerKeyRevealedForAccount should be false', mochaAsync(async () => {
-            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore1);
+            const isManagerRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount('http://conseil.server', keyStore1.publicKeyHash);
             expect(isManagerRevealed).to.be.false;
         }));
 
@@ -304,10 +304,10 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('sendDelegationOperation', mochaAsync(async () => {
-            keyStore.publicKeyHash = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
+            const delegator = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
             const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
             const fee = 300000;
-            const delegationResult = await sendDelegationOperation('http://conseil.server', keyStore, bakerAddress, fee, '');
+            const delegationResult = await sendDelegationOperation('http://conseil.server', keyStore, delegator, bakerAddress, fee, '');
             expect(delegationResult).to.exist;
             expect(delegationResult.operationGroupID).to.be.a('string');
         }));
@@ -316,7 +316,7 @@ describe('Tezos Operations Test', () => {
             let result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000);
             expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
 
-            result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'parameter string; storage string; code {CAR; NIL operation; PAIR;};');
+            result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'Right (Left Unit)');
             expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
     });

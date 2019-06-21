@@ -152,7 +152,7 @@ var TezosMessageUtils;
             return "01" + hex + "00";
         }
         else {
-            throw new Error("Unrecognized address type");
+            throw new Error(`Unrecognized address prefix: ${address.substring(0, 3)}`);
         }
     }
     TezosMessageUtils.writeAddress = writeAddress;
@@ -164,7 +164,7 @@ var TezosMessageUtils;
     }
     TezosMessageUtils.readBranch = readBranch;
     function writeBranch(branch) {
-        return bs58check_1.default.decode(branch).toString("hex").slice(4);
+        return bs58check_1.default.decode(branch).slice(2).toString("hex");
     }
     TezosMessageUtils.writeBranch = writeBranch;
     function readPublicKey(hex) {

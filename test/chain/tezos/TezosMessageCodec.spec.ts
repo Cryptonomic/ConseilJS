@@ -99,7 +99,7 @@ describe("Tezos P2P message decoder test suite", () => {
             counter: "9",
             storage_limit: "10001",
             gas_limit: "10002",
-            managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             balance: "10003",
             spendable: true,
             delegatable: true,
@@ -124,7 +124,7 @@ describe("Tezos P2P message decoder test suite", () => {
             counter: "9",
             storage_limit: "10001",
             gas_limit: "10002",
-            managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             balance: "10003",
             spendable: false,
             delegatable: false,
@@ -161,7 +161,7 @@ describe("Tezos P2P message decoder test suite", () => {
         const result = TezosMessageCodec.parseOperation(forgedOrigination, 'origination');
         expect(result.operation.kind).to.equal("origination");
         expect(result.operation.source).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
-        expect(result.operation.managerPubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
+        expect(result.operation.manager_pubkey).to.equal("tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2");
         expect(result.operation.script).to.undefined;
         expect(result.operation.balance).to.equal('256000000'); // microtez
         expect(result.operation.spendable).to.equal(true);
@@ -178,7 +178,7 @@ describe("Tezos P2P message decoder test suite", () => {
         const result = TezosMessageCodec.parseOrigination(forgedOrigination);
         expect(result.operation.kind).to.equal("origination");
         expect(result.operation.source).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
-        expect(result.operation.managerPubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
+        expect(result.operation.manager_pubkey).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
         expect(result.operation.script).to.exist;
         expect(result.operation.balance).to.equal('2000000'); // microtez
         expect(result.operation.spendable).to.equal(true);
@@ -335,7 +335,7 @@ describe("Tezos P2P message decoder test suite", () => {
             counter: "9",
             storage_limit: "10001",
             gas_limit: "10002",
-            managerPubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             balance: "10003",
             spendable: true,
             delegatable: true,
@@ -344,10 +344,10 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Incorrect operation type');
 
         origination.kind = 'origination';
-        origination.managerPubkey = undefined
+        origination.manager_pubkey = undefined
         expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing manager address');
 
-        origination.managerPubkey = 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX'
+        origination.manager_pubkey = 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX'
         origination.balance = undefined
         expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing balance');
     });

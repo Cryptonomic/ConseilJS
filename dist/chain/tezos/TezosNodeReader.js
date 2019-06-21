@@ -35,38 +35,45 @@ var TezosNodeReader;
         });
     }
     function getBlock(server, hash) {
-        return performGetRequest(server, `chains/main/blocks/${hash}`)
-            .then(json => { return json; });
+        return performGetRequest(server, `chains/main/blocks/${hash}`).then(json => { return json; });
     }
     TezosNodeReader.getBlock = getBlock;
     function getBlockHead(server) {
-        return getBlock(server, "head");
+        return getBlock(server, 'head');
     }
     TezosNodeReader.getBlockHead = getBlockHead;
-    function getAccountForBlock(server, blockHash, accountID) {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}`)
+    function getAccountForBlock(server, blockHash, accountHash) {
+        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`)
             .then(json => json);
     }
     TezosNodeReader.getAccountForBlock = getAccountForBlock;
-    function getAccountManagerForBlock(server, blockHash, accountID) {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountID}/manager_key`)
+    function getCounterForAccount(server, accountHash) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const blockHash = (yield getBlockHead(server)).hash;
+            const account = yield performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`).then(json => json);
+            return parseInt(account.counter.toString(), 10);
+        });
+    }
+    TezosNodeReader.getCounterForAccount = getCounterForAccount;
+    function getAccountManagerForBlock(server, blockHash, accountHash) {
+        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
             .then(json => json);
     }
     TezosNodeReader.getAccountManagerForBlock = getAccountManagerForBlock;
     function isImplicitAndEmpty(server, accountHash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeReader.getBlockHead(server);
-            const account = yield TezosNodeReader.getAccountForBlock(server, blockHead.hash, accountHash);
-            const isImplicit = accountHash.toLowerCase().startsWith("tz");
+            const blockHead = yield getBlockHead(server);
+            const account = yield getAccountForBlock(server, blockHead.hash, accountHash);
+            const isImplicit = accountHash.toLowerCase().startsWith('tz');
             const isEmpty = Number(account.balance) === 0;
             return (isImplicit && isEmpty);
         });
     }
     TezosNodeReader.isImplicitAndEmpty = isImplicitAndEmpty;
-    function isManagerKeyRevealedForAccount(server, keyStore) {
+    function isManagerKeyRevealedForAccount(server, accountHash) {
         return __awaiter(this, void 0, void 0, function* () {
-            const blockHead = yield TezosNodeReader.getBlockHead(server);
-            const managerKey = yield TezosNodeReader.getAccountManagerForBlock(server, blockHead.hash, keyStore.publicKeyHash);
+            const blockHead = yield getBlockHead(server);
+            const managerKey = yield getAccountManagerForBlock(server, blockHead.hash, accountHash);
             return managerKey.key != null;
         });
     }

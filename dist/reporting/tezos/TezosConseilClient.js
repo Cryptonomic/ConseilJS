@@ -41,6 +41,13 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.getBlock = getBlock;
+    function getBlockByLevel(serverInfo, network, level) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'level', QueryTypes_1.ConseilOperator.EQ, [level], false), 1);
+            return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        });
+    }
+    TezosConseilClient.getBlockByLevel = getBlockByLevel;
     function getAccount(serverInfo, network, accountID) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'account_id', QueryTypes_1.ConseilOperator.EQ, [accountID], false), 1);
@@ -107,5 +114,34 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.getBallots = getBallots;
+    function awaitOperationConfirmation(serverInfo, network, hash, duration) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (duration <= 0) {
+                throw new Error('Invalid duration');
+            }
+            const initialLevel = (yield getBlockHead(serverInfo, network))[0]['level'];
+            let currentLevel = initialLevel;
+            const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'operation_group_hash', QueryTypes_1.ConseilOperator.EQ, [hash], false), 1);
+            while (initialLevel + duration > currentLevel) {
+                const group = yield getTezosEntityData(serverInfo, network, OPERATIONS, query);
+                if (group.length > 0) {
+                    return group;
+                }
+                currentLevel = (yield getBlockHead(serverInfo, network))[0]['level'];
+                if (initialLevel + duration < currentLevel) {
+                    break;
+                }
+                yield new Promise(resolve => setTimeout(resolve, 60 * 1000));
+            }
+            throw new Error(`Did not observe ${hash} on ${network} in ${duration} block${duration > 1 ? 's' : ''} since ${initialLevel}`);
+        });
+    }
+    TezosConseilClient.awaitOperationConfirmation = awaitOperationConfirmation;
+    function awaitOperationForkConfirmation(serverInfo, network, hash, duration, depth) {
+        return __awaiter(this, void 0, void 0, function* () {
+            throw new Error('Not implemented');
+        });
+    }
+    TezosConseilClient.awaitOperationForkConfirmation = awaitOperationForkConfirmation;
 })(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map

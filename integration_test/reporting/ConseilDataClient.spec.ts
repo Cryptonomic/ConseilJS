@@ -1,14 +1,14 @@
 import 'mocha';
-import {expect} from 'chai';
+import { expect } from 'chai';
 import fetch from 'node-fetch';
 
 import FetchSelector from '../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {ConseilQueryBuilder} from "../../src/reporting/ConseilQueryBuilder";
-import {ConseilOperator, ConseilSortDirection, ConseilOutput} from "../../src/types/conseil/QueryTypes"
-import {ConseilDataClient} from '../../src/reporting/ConseilDataClient'
-import {servers} from "../servers";
+import { ConseilQueryBuilder } from "../../src/reporting/ConseilQueryBuilder";
+import { ConseilOperator, ConseilSortDirection, ConseilOutput } from "../../src/types/conseil/QueryTypes"
+import { ConseilDataClient } from '../../src/reporting/ConseilDataClient'
+import { servers } from "../servers";
 
 const ConseilV2URL = servers.conseilServer;
 const ConseilV2APIKey = servers.conseilApiKey;

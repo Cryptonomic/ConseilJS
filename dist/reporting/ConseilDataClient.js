@@ -21,7 +21,7 @@ var ConseilDataClient;
     function executeEntityQuery(serverInfo, platform, network, entity, query) {
         return __awaiter(this, void 0, void 0, function* () {
             const url = `${serverInfo.url}/v2/data/${platform}/${network}/${entity}`;
-            log.debug(`ConseilDataClient.executeEntityQuery request: ${url}`);
+            log.debug(`ConseilDataClient.executeEntityQuery request: ${url}, ${JSON.stringify(query)}`);
             return fetch(url, {
                 method: 'post',
                 headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },

@@ -40,9 +40,6 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.writeAddress('tz3e75hU4EhDU3ukyJueh5v6UvEHzGwkg3yC');
     expect(result).to.equal('0002c2fe98642abd0b7dd4bc0fc42e0a5f7c87ba56fc');
 
-    result = TezosMessageUtils.writeAddress('tz3e75hU4EhDU3ukyJueh5v6UvEHzGwkg3yC');
-    expect(result).to.equal('0002c2fe98642abd0b7dd4bc0fc42e0a5f7c87ba56fc');
-
     result = TezosMessageUtils.writeAddress('KT1NrjjM791v7cyo6VGy7rrzB3Dg3p1mQki3');
     expect(result).to.equal('019c96e27f418b5db7c301147b3e941b41bd224fe400');
   });
@@ -132,6 +129,6 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(() => TezosMessageUtils.readBranch('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse a branch hash');
     expect(() => TezosMessageUtils.readSignatureWithHint(Buffer.from('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff', 'hex'), '')).to.throw('Unrecognized signature hint, \'\'');
     expect(() => TezosMessageUtils.writeInt(-1)).to.throw('Use writeSignedInt to encode negative numbers');
-    expect(() => TezosMessageUtils.writeAddress('4xSdkvbfRzd2kbD5REuf5ERr4n8yLV6EjKLCef')).to.throw('Unrecognized address type');
+    expect(() => TezosMessageUtils.writeAddress('4xSdkvbfRzd2kbD5REuf5ERr4n8yLV6EjKLCef')).to.throw('Unrecognized address prefix: 4xS');
   });  
 });

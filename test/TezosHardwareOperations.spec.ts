@@ -124,10 +124,10 @@ describe('Ledger Test', () => {
     }));
 
     it('sendDelegationOperation', mochaAsync(async () => {
-        keyStore.publicKeyHash = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
+        const delegator = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
         const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
         const fee = 300000;
-        const delegationResult = await sendDelegationOperation(tezosURL, keyStore, bakerAddress, fee, derivationPath);
+        const delegationResult = await sendDelegationOperation(tezosURL, keyStore, delegator, bakerAddress, fee, derivationPath);
 
         expect(delegationResult).to.exist;
         expect(delegationResult.operationGroupID).to.be.a('string');
