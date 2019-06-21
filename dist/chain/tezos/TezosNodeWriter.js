@@ -51,6 +51,8 @@ var TezosNodeWriter;
     }
     TezosNodeWriter.signOperationGroup = signOperationGroup;
     function forgeOperations(blockHead, operations) {
+        log.debug('TezosNodeWriter.forgeOperations:');
+        log.debug(operations);
         let encoded = TezosMessageUtil_1.TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec_1.TezosMessageCodec.encodeOperation(m));
         return encoded;
@@ -58,6 +60,8 @@ var TezosNodeWriter;
     TezosNodeWriter.forgeOperations = forgeOperations;
     function forgeOperationsRemotely(server, blockHead, operations) {
         return __awaiter(this, void 0, void 0, function* () {
+            log.debug('TezosNodeWriter.forgeOperations:');
+            log.debug(operations);
             log.warn('forgeOperationsRemotely() is not intrinsically trustless');
             const response = yield performPostRequest(server, 'chains/main/blocks/head/helpers/forge/operations', { branch: blockHead.hash, contents: operations });
             const forgedOperation = yield response.text();

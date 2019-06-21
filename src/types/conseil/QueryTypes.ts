@@ -52,7 +52,7 @@ export interface ConseilQuery {
     predicates: ConseilPredicate[];
     orderBy: ConseilOrdering[];
     limit: number;
-    aggregations?: ConseilAggregation[];
+    aggregation?: ConseilAggregation[];
     output?: string;
 }
 

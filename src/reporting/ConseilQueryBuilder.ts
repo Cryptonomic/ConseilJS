@@ -53,7 +53,7 @@ export namespace ConseilQueryBuilder {
     }
 
     /**
-     * Appends an ordering instructionc to the query. Ordering is possible on fields that are not part of the result set. A new query object is returned.
+     * Appends an ordering instruction to the query. Ordering is possible on fields that are not part of the result set. A new query object is returned.
      * 
      * @param query Source query.
      * @param field Field name to order by.
@@ -107,8 +107,8 @@ export namespace ConseilQueryBuilder {
         if (query.fields.length === 1) { throw new Error('Cannot apply an aggregation function on the only field being returned.'); }
 
         let q = {...query};
-        if (q.aggregations === undefined) { q.aggregations = []; }
-        q.aggregations.push({ 'field': field, 'function': aggregationFunction });
+        if (q.aggregation === undefined) { q.aggregation = []; }
+        q.aggregation.push({ 'field': field, 'function': aggregationFunction });
 
         return q;
     }

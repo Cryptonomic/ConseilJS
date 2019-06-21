@@ -64,10 +64,10 @@ var ConseilQueryBuilder;
             throw new Error('Cannot apply an aggregation function on the only field being returned.');
         }
         let q = Object.assign({}, query);
-        if (q.aggregations === undefined) {
-            q.aggregations = [];
+        if (q.aggregation === undefined) {
+            q.aggregation = [];
         }
-        q.aggregations.push({ 'field': field, 'function': aggregationFunction });
+        q.aggregation.push({ 'field': field, 'function': aggregationFunction });
         return q;
     }
     ConseilQueryBuilder.addAggregationFunction = addAggregationFunction;
