@@ -76,6 +76,8 @@ export namespace TezosNodeWriter {
      */
     // TODO: move to an appropriate place
     export function forgeOperations(blockHead: TezosTypes.BlockMetadata, operations: object[]): string {
+        log.debug('TezosNodeWriter.forgeOperations:');
+        log.debug(operations);
         let encoded = TezosMessageUtils.writeBranch(blockHead.hash);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
@@ -83,7 +85,7 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Forge an operation group using the Tezos RPC client. This is not a trustless path, but 'reveal', 'transaction', 'delegation', 'origination' operations are validated with a local parse.
+     * Forge an operation group using the Tezos RPC client. This is not a trustless path, but 'reveal', 'transaction', 'delegation', 'origination' operations are validated with a local parse. This method is available because the internal Michelson/Micheline converter is not yet 100% complete.
      * @deprecated
      *
      * @param {string} server Tezos node to connect to
@@ -93,6 +95,8 @@ export namespace TezosNodeWriter {
      * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
     export async function forgeOperationsRemotely(server: string, blockHead: TezosTypes.BlockMetadata, operations: object[]): Promise<string> {
+        log.debug('TezosNodeWriter.forgeOperations:');
+        log.debug(operations);
         log.warn('forgeOperationsRemotely() is not intrinsically trustless');
         const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/forge/operations', { branch: blockHead.hash, contents: operations });
         const forgedOperation = await response.text();
@@ -111,7 +115,7 @@ export namespace TezosNodeWriter {
             for (let i = 0; i < operations.length; i++) {
                 const clientop = operations[i];
                 const serverop = decoded[i];
-                if (clientop['kind'] === 'transaction') {
+                if (clientop['kind'] === 'transaction') { // Smart contract invocation parameters are not parsed due to limitations in the Michelson converter
                     if (serverop.kind !== clientop['kind'] || serverop.fee !== clientop['fee'] || serverop.amount !== clientop['amount'] || serverop.destination !== clientop['destination']) {
                         throw new Error('Forged transaction failed validation.');
                     }
