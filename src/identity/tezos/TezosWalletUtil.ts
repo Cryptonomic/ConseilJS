@@ -22,9 +22,11 @@ export namespace TezosWalletUtil {
 
     /**
      * Generates a fifteen word mnemonic phrase using the BIP39 standard.
+     * 
+     * @param {number} strength Mnemonic strength, defaults to 256/24-words. Tezos fundraiser mnemonics are 160/15-word.
      */
-    export function generateMnemonic(): string {
-        return bip39.generateMnemonic(160)
+    export function generateMnemonic(strength: number = 256): string {
+        return bip39.generateMnemonic(strength)
     }
 
     /**

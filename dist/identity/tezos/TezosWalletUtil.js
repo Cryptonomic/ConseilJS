@@ -27,8 +27,8 @@ var TezosWalletUtil;
         });
     }
     TezosWalletUtil.unlockFundraiserIdentity = unlockFundraiserIdentity;
-    function generateMnemonic() {
-        return bip39.generateMnemonic(160);
+    function generateMnemonic(strength = 256) {
+        return bip39.generateMnemonic(strength);
     }
     TezosWalletUtil.generateMnemonic = generateMnemonic;
     function unlockIdentityWithMnemonic(mnemonic, passphrase) {
