@@ -51,7 +51,7 @@ export namespace TezosWalletUtil {
      * @returns {Promise<KeyStore>} Generated keys
      */
     export async function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, storeType: StoreType, pkh?: string) : Promise<KeyStore> {
-        if (mnemonic.split(' ').length !== 15) { throw new Error('The mnemonic should be 15 words.'); }
+        if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) { throw new Error('Invalid mnemonic length.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
         const seed = (await bip39.mnemonicToSeed(mnemonic, passphrase)).slice(0, 32);

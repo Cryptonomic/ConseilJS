@@ -39,8 +39,8 @@ var TezosWalletUtil;
     TezosWalletUtil.unlockIdentityWithMnemonic = unlockIdentityWithMnemonic;
     function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, storeType, pkh) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (mnemonic.split(' ').length !== 15) {
-                throw new Error('The mnemonic should be 15 words.');
+            if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) {
+                throw new Error('Invalid mnemonic length.');
             }
             if (!bip39.validateMnemonic(mnemonic)) {
                 throw new Error('The given mnemonic could not be validated.');
