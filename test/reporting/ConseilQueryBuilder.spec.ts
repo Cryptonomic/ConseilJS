@@ -60,8 +60,10 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
     it('make a query with an aggregation function', async () => {
         const query = ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.addFields(ConseilQueryBuilder.blankQuery(), 'field 1', 'field 2'), 'field 1', ConseilFunction.sum);
 
-        expect(query.aggregation).to.be.not.null;
-        expect(query.aggregation.field).to.equals('field 1');
+        if (query.aggregation !== undefined) {
+            expect(query.aggregation).to.be.not.null;
+            expect(query.aggregation[0].field).to.equals('field 1');
+        }
     });
 
     it('aggregation creation error conditions', async () => {
