@@ -71,6 +71,12 @@ export namespace CryptoUtils {
         return { privateKey: k.privateKey, publicKey: k.publicKey };
     }
 
+    export async function recoverPublicKey(secretKey){
+        const k = await wrapper.publickey(secretKey);
+
+        return { privateKey: k.privateKey, publicKey: k.publicKey };
+    }
+
     export async function signDetached(payload: Buffer, secretKey: Buffer) : Promise<Buffer> {
         const b = await wrapper.sign(payload, secretKey)
         return Buffer.from(b);

@@ -9,5 +9,9 @@ export declare namespace CryptoUtils {
         privateKey: any;
         publicKey: any;
     }>;
+    function recoverPublicKey(secretKey: any): Promise<{
+        privateKey: any;
+        publicKey: any;
+    }>;
     function signDetached(payload: Buffer, secretKey: Buffer): Promise<Buffer>;
 }
