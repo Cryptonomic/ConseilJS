@@ -209,4 +209,32 @@ export namespace TezosConseilClient {
     export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]> {
         throw new Error('Not implemented');
     }
+
+    /**
+     * Returns an entity given an ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
+     * 
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param id 
+     */
+    export async function getEntityById(serverInfo: ConseilServerInfo, network: string, id: string | number): Promise<any[]> {
+        if (typeof(id) === 'number') {
+            const n = Number(id);
+            if (n < 0) { throw new Error('Invalid numeric id parameter'); }
+
+            return await getBlockByLevel(serverInfo, network, n);
+        } else if (typeof(id) === 'string') {
+            const s = String(id);
+
+            if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
+                return await getAccount(serverInfo, network, s);
+            } else if (s.startsWith('B')) {
+                return await getBlock(serverInfo, network, s);
+            } else if (s.startsWith('o')) {
+                return await getOperationGroup(serverInfo, network, s);
+            }
+        }
+
+        throw new Error('Invalid id parameter');
+    }
 }
