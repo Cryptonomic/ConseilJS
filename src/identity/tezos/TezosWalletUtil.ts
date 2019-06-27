@@ -10,14 +10,29 @@ export namespace TezosWalletUtil {
      * 
      * To get an account for testing on Tezos Alphanet go to https://faucet.tzalpha.net
      * 
-     * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
+     * @param {string} mnemonic Fifteen-word mnemonic phrase from fundraiser PDF.
      * @param {string} email Email address from fundraiser PDF.
      * @param {string} password Password from fundraiser PDF.
      * @param {string} pkh The public key hash supposedly produced by the given mnemonic and passphrase
      * @returns {Promise<KeyStore>} Wallet file
      */
-    export async function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string) : Promise<KeyStore> {
+    export async function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string): Promise<KeyStore> {
         return await getKeysFromMnemonicAndPassphrase(mnemonic, email + password, StoreType.Fundraiser, pkh);
+    }
+
+    /**
+     * Recover public key and public key hash (address) given a secret key.
+     * 
+     * @param secretKey A hex representation of a secret key starting with 'edsk'.
+     */
+    export async function restoreIdentityWithSecretKey(secretKey: string): Promise<KeyStore> {
+        const keys = await CryptoUtils.recoverPublicKey(secretKey);
+
+        const privateKey = TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
+        const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
+        const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
+
+        return { publicKey, privateKey, publicKeyHash, seed: '', storeType: StoreType.Mnemonic }
     }
 
     /**
