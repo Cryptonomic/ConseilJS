@@ -295,7 +295,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee: number = 1258, derivationPath: string = '') {
+    export async function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string | undefined, fee: number = 1258, derivationPath: string = '') {
         const counter = await TezosNodeReader.getCounterForAccount(server, delegator) + 1;
 
         const delegation: TezosTypes.Operation = {
@@ -310,6 +310,20 @@ export namespace TezosNodeWriter {
         const operations = await appendRevealOperation(server, keyStore, delegator, counter - 1, [delegation]);
 
         return sendOperation(server, operations, keyStore, derivationPath);
+    }
+
+    /**
+     * Internally calls sendDelegationOperation with a blank delegate.
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} delegator Account address to delegate from
+     * @param {number} fee Operation fee
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @returns {Promise<OperationResult>} Result of the operation
+     */
+    export async function sendUndelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee: number = 1258, derivationPath: string = '') {
+        return sendDelegationOperation(server, keyStore, delegator, undefined, fee, derivationPath);
     }
 
     /**

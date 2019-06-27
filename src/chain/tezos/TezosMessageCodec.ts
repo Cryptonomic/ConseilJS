@@ -616,7 +616,7 @@ export namespace TezosMessageCodec {
         hex += TezosMessageUtils.writeInt(parseInt(delegation.gas_limit));
         hex += TezosMessageUtils.writeInt(parseInt(delegation.storage_limit));
 
-        if (delegation.delegate !== undefined) {
+        if (delegation.delegate !== undefined && delegation.delegate !== '') {
             hex += TezosMessageUtils.writeBoolean(true);
             hex += TezosMessageUtils.writeAddress(delegation.delegate).slice(2);
         } else {

@@ -486,7 +486,7 @@ var TezosMessageCodec;
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(delegation.counter));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(delegation.gas_limit));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(delegation.storage_limit));
-        if (delegation.delegate !== undefined) {
+        if (delegation.delegate !== undefined && delegation.delegate !== '') {
             hex += TezosMessageUtil_1.TezosMessageUtils.writeBoolean(true);
             hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(delegation.delegate).slice(2);
         }
