@@ -73,7 +73,7 @@ describe('unlockFundraiserIdentity()', () => {
 describe('generateMnemonic()', () => {
     it('should produce a fifteen work bip39 mnemonic', () => {
         const result = TezosWalletUtil.generateMnemonic();
-        expect(result.split(' ').length).to.equal(15);
+        expect(result.split(' ').length).to.equal(24);
     });
 });
 
@@ -97,7 +97,7 @@ describe('getKeysFromMnemonicAndPassphrase()', () => {
     });
 
     it('should be 15 words', async () => {
-        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm', 'password', StoreType.Mnemonic)).be.rejectedWith("The mnemonic should be 15 words.");
+        await expect(TezosWalletUtil.getKeysFromMnemonicAndPassphrase('clerk rhythm', 'password', StoreType.Mnemonic)).be.rejectedWith("Invalid mnemonic length.");
     });
 
     it('should detect invalid mnemonics', async () => {
