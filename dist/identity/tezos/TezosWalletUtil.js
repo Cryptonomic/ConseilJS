@@ -27,6 +27,16 @@ var TezosWalletUtil;
         });
     }
     TezosWalletUtil.unlockFundraiserIdentity = unlockFundraiserIdentity;
+    function restoreIdentityWithSecretKey(secretKey) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const keys = yield CryptoUtils_1.CryptoUtils.recoverPublicKey(secretKey);
+            const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
+            const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
+            return { publicKey, privateKey, publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Mnemonic };
+        });
+    }
+    TezosWalletUtil.restoreIdentityWithSecretKey = restoreIdentityWithSecretKey;
     function generateMnemonic(strength = 256) {
         return bip39.generateMnemonic(strength);
     }

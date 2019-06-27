@@ -143,5 +143,30 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.awaitOperationForkConfirmation = awaitOperationForkConfirmation;
+    function getEntityById(serverInfo, network, id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof (id) === 'number') {
+                const n = Number(id);
+                if (n < 0) {
+                    throw new Error('Invalid numeric id parameter');
+                }
+                return yield getBlockByLevel(serverInfo, network, n);
+            }
+            else if (typeof (id) === 'string') {
+                const s = String(id);
+                if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
+                    return yield getAccount(serverInfo, network, s);
+                }
+                else if (s.startsWith('B')) {
+                    return yield getBlock(serverInfo, network, s);
+                }
+                else if (s.startsWith('o')) {
+                    return yield getOperationGroup(serverInfo, network, s);
+                }
+            }
+            throw new Error('Invalid id parameter');
+        });
+    }
+    TezosConseilClient.getEntityById = getEntityById;
 })(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map
