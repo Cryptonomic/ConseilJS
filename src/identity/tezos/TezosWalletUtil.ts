@@ -23,16 +23,16 @@ export namespace TezosWalletUtil {
     /**
      * Recover public key and public key hash (address) given a secret key.
      * 
-     * @param secretKey A hex representation of a secret key starting with 'edsk'.
+     * @param keyString A hex representation of a secret key starting with 'edsk'.
      */
-    export async function restoreIdentityWithSecretKey(secretKey: string): Promise<KeyStore> {
+    export async function restoreIdentityWithSecretKey(keyString: string): Promise<KeyStore> {
+        const secretKey = TezosMessageUtils.writeKeyWithHint(keyString, 'edsk');
         const keys = await CryptoUtils.recoverPublicKey(secretKey);
 
-        const privateKey = TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
 
-        return { publicKey, privateKey, publicKeyHash, seed: '', storeType: StoreType.Mnemonic }
+        return { publicKey, privateKey: keyString, publicKeyHash, seed: '', storeType: StoreType.Mnemonic }
     }
 
     /**

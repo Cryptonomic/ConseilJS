@@ -27,13 +27,13 @@ var TezosWalletUtil;
         });
     }
     TezosWalletUtil.unlockFundraiserIdentity = unlockFundraiserIdentity;
-    function restoreIdentityWithSecretKey(secretKey) {
+    function restoreIdentityWithSecretKey(keyString) {
         return __awaiter(this, void 0, void 0, function* () {
+            const secretKey = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyString, 'edsk');
             const keys = yield CryptoUtils_1.CryptoUtils.recoverPublicKey(secretKey);
-            const privateKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.privateKey, 'edsk');
             const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
             const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
-            return { publicKey, privateKey, publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Mnemonic };
+            return { publicKey, privateKey: keyString, publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Mnemonic };
         });
     }
     TezosWalletUtil.restoreIdentityWithSecretKey = restoreIdentityWithSecretKey;
