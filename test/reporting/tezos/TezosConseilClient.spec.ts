@@ -173,4 +173,18 @@ describe('TezosConseilClient tests', () => {
 
         expect(result.toString().split('\n').length).to.equal(6);
     }));
+
+    it('TezosConseilClient.getEntityQueryForId', () => {
+        const blockLevelQuery = TezosConseilClient.getEntityQueryForId(400000);
+        const blockHashQuery = TezosConseilClient.getEntityQueryForId('BLffwsPdeh6GMdF1d4i4awjzuYGuMfjVdFAsVenLBzD7nSd73tP');
+        const accountHashQuery = TezosConseilClient.getEntityQueryForId('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
+        const operationGroupHashQuery = TezosConseilClient.getEntityQueryForId('onkNHtq6KEzqRpdTzEUVVST67i3xrnBaDu3tP91ZRBtHLE5zaeo');
+
+        expect(blockLevelQuery.entity).to.equals('blocks');
+        expect(blockHashQuery.entity).to.equals('blocks');
+        expect(accountHashQuery.entity).to.equals('accounts');
+        expect(operationGroupHashQuery.entity).to.equals('operation_groups');
+
+        expect(() => TezosConseilClient.getEntityQueryForId('c0ff33c0ff33c0ff33c0ff33c0ff33c0ff33')).to.throw('Invalid id parameter');
+    });
 });

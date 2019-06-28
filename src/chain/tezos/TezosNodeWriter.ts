@@ -290,7 +290,7 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} delegator Account address to delegate from
-     * @param {string} delegate Account address to delegate to
+     * @param {string} delegate Account address to delegate to, alternatively, '' or undefined if removing delegation
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation

@@ -211,27 +211,28 @@ export namespace TezosConseilClient {
     }
 
     /**
-     * Returns an entity given an ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
+     * Returns an entity query for the given ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
      * 
-     * @param serverInfo Conseil server connection definition.
-     * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param id 
+     * @returns {{entity: string, query: ConseilQuery}} entity, query pair
      */
-    export async function getEntityById(serverInfo: ConseilServerInfo, network: string, id: string | number): Promise<any[]> {
+    export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {
+        let q = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 1);
+
         if (typeof(id) === 'number') {
             const n = Number(id);
             if (n < 0) { throw new Error('Invalid numeric id parameter'); }
 
-            return await getBlockByLevel(serverInfo, network, n);
+            return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'level', ConseilOperator.EQ, [id], false) };
         } else if (typeof(id) === 'string') {
             const s = String(id);
 
             if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
-                return await getAccount(serverInfo, network, s);
+                return { entity: ACCOUNTS, query: ConseilQueryBuilder.addPredicate(q, 'account_id', ConseilOperator.EQ, [id], false) };
             } else if (s.startsWith('B')) {
-                return await getBlock(serverInfo, network, s);
+                return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'hash', ConseilOperator.EQ, [id], false) };
             } else if (s.startsWith('o')) {
-                return await getOperationGroup(serverInfo, network, s);
+                return { entity: OPERATION_GROUPS, query: ConseilQueryBuilder.addPredicate(q, 'operation_id', ConseilOperator.EQ, [id], false) };
             }
         }
 
