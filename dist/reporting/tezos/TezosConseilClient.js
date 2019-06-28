@@ -143,5 +143,29 @@ var TezosConseilClient;
         });
     }
     TezosConseilClient.awaitOperationForkConfirmation = awaitOperationForkConfirmation;
+    function getEntityQueryForId(id) {
+        let q = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 1);
+        if (typeof (id) === 'number') {
+            const n = Number(id);
+            if (n < 0) {
+                throw new Error('Invalid numeric id parameter');
+            }
+            return { entity: BLOCKS, query: ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(q, 'level', QueryTypes_1.ConseilOperator.EQ, [id], false) };
+        }
+        else if (typeof (id) === 'string') {
+            const s = String(id);
+            if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
+                return { entity: ACCOUNTS, query: ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(q, 'account_id', QueryTypes_1.ConseilOperator.EQ, [id], false) };
+            }
+            else if (s.startsWith('B')) {
+                return { entity: BLOCKS, query: ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(q, 'hash', QueryTypes_1.ConseilOperator.EQ, [id], false) };
+            }
+            else if (s.startsWith('o')) {
+                return { entity: OPERATION_GROUPS, query: ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(q, 'operation_id', QueryTypes_1.ConseilOperator.EQ, [id], false) };
+            }
+        }
+        throw new Error('Invalid id parameter');
+    }
+    TezosConseilClient.getEntityQueryForId = getEntityQueryForId;
 })(TezosConseilClient = exports.TezosConseilClient || (exports.TezosConseilClient = {}));
 //# sourceMappingURL=TezosConseilClient.js.map

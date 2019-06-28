@@ -70,6 +70,13 @@ var CryptoUtils;
         });
     }
     CryptoUtils.generateKeys = generateKeys;
+    function recoverPublicKey(secretKey) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const k = yield wrapper.publickey(secretKey);
+            return { privateKey: k.privateKey, publicKey: k.publicKey };
+        });
+    }
+    CryptoUtils.recoverPublicKey = recoverPublicKey;
     function signDetached(payload, secretKey) {
         return __awaiter(this, void 0, void 0, function* () {
             const b = yield wrapper.sign(payload, secretKey);

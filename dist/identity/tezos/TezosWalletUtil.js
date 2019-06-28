@@ -27,8 +27,18 @@ var TezosWalletUtil;
         });
     }
     TezosWalletUtil.unlockFundraiserIdentity = unlockFundraiserIdentity;
-    function generateMnemonic() {
-        return bip39.generateMnemonic(160);
+    function restoreIdentityWithSecretKey(keyString) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const secretKey = TezosMessageUtil_1.TezosMessageUtils.writeKeyWithHint(keyString, 'edsk');
+            const keys = yield CryptoUtils_1.CryptoUtils.recoverPublicKey(secretKey);
+            const publicKey = TezosMessageUtil_1.TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
+            const publicKeyHash = TezosMessageUtil_1.TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
+            return { publicKey, privateKey: keyString, publicKeyHash, seed: '', storeType: KeyStore_1.StoreType.Mnemonic };
+        });
+    }
+    TezosWalletUtil.restoreIdentityWithSecretKey = restoreIdentityWithSecretKey;
+    function generateMnemonic(strength = 256) {
+        return bip39.generateMnemonic(strength);
     }
     TezosWalletUtil.generateMnemonic = generateMnemonic;
     function unlockIdentityWithMnemonic(mnemonic, passphrase) {
@@ -39,8 +49,8 @@ var TezosWalletUtil;
     TezosWalletUtil.unlockIdentityWithMnemonic = unlockIdentityWithMnemonic;
     function getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, storeType, pkh) {
         return __awaiter(this, void 0, void 0, function* () {
-            if (mnemonic.split(' ').length !== 15) {
-                throw new Error('The mnemonic should be 15 words.');
+            if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) {
+                throw new Error('Invalid mnemonic length.');
             }
             if (!bip39.validateMnemonic(mnemonic)) {
                 throw new Error('The given mnemonic could not be validated.');

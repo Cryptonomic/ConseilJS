@@ -215,6 +215,12 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
+    function sendUndelegationOperation(server, keyStore, delegator, delegate, fee = 1258, derivationPath = '') {
+        return __awaiter(this, void 0, void 0, function* () {
+            return sendDelegationOperation(server, keyStore, delegator, undefined, fee, derivationPath);
+        });
+    }
+    TezosNodeWriter.sendUndelegationOperation = sendUndelegationOperation;
     function sendAccountOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee = 1266, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10600');

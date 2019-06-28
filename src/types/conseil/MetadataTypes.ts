@@ -39,6 +39,8 @@ export interface AttributeDefinition {
     reference?: AttributeReference;
     displayOrder?: number;
     displayPriority?: number;
+    currencySymbol?: string;
+    currencySymbolCode?: number;
 }
 
 export interface AttributeReference {
@@ -53,7 +55,8 @@ export enum AttrbuteDataType {
     BOOLEAN = 'Boolean',
     ACCOUNT_ADDRESS = 'AccountAddress',
     HASH = 'Hash',
-    DATETIME = 'DateTime'
+    DATETIME = 'DateTime',
+    CURRENCY = 'Currency'
 }
 
 export enum AttrbuteKeyType {

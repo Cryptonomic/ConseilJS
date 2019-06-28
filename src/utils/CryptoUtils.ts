@@ -3,11 +3,12 @@ import zxcvbn from 'zxcvbn';
 const wrapper = require('./WrapperWrapper');
 
 /**
- * Cryptography helpers
+ * Tezos cryptography helpers for the ed25519 curve.
  */
 export namespace CryptoUtils {
     /**
      * Generates a salt for key derivation.
+     * 
      * @returns {Promise<Buffer>} Salt
      */
     export async function generateSaltForPwHash() : Promise<Buffer> {
@@ -17,6 +18,7 @@ export namespace CryptoUtils {
 
     /**
      * Encrypts a given message using a passphrase
+     * 
      * @param {string} message Message to encrypt
      * @param {string} passphrase User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
@@ -38,6 +40,7 @@ export namespace CryptoUtils {
 
     /**
      * Decrypts a given message using a passphrase
+     * 
      * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
      * @param {string} passphrase User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
@@ -58,6 +61,7 @@ export namespace CryptoUtils {
 
     /**
      * Checking the password strength using zxcvbn
+     * 
      * @returns {number} Password score
      */
     export function getPasswordStrength(password: string) : number {
@@ -65,12 +69,34 @@ export namespace CryptoUtils {
         return results.score;
     }
 
+    /**
+     * Generate key pair from seed.
+     * 
+     * @param seed 
+     */
     export async function generateKeys(seed: Buffer) {
         const k = await wrapper.keys(seed);
 
         return { privateKey: k.privateKey, publicKey: k.publicKey };
     }
 
+    /**
+     * Generate key pair from secret key by recovering the seed.
+     * 
+     * @param secretKey 
+     */
+    export async function recoverPublicKey(secretKey: Buffer) {
+        const k = await wrapper.publickey(secretKey);
+
+        return { privateKey: k.privateKey, publicKey: k.publicKey };
+    }
+
+    /**
+     * Sign arbitrary bytes with a secret key.
+     * 
+     * @param payload 
+     * @param secretKey 
+     */
     export async function signDetached(payload: Buffer, secretKey: Buffer) : Promise<Buffer> {
         const b = await wrapper.sign(payload, secretKey)
         return Buffer.from(b);

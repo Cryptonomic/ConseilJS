@@ -209,4 +209,33 @@ export namespace TezosConseilClient {
     export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]> {
         throw new Error('Not implemented');
     }
+
+    /**
+     * Returns an entity query for the given ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
+     * 
+     * @param id 
+     * @returns {{entity: string, query: ConseilQuery}} entity, query pair
+     */
+    export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {
+        let q = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 1);
+
+        if (typeof(id) === 'number') {
+            const n = Number(id);
+            if (n < 0) { throw new Error('Invalid numeric id parameter'); }
+
+            return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'level', ConseilOperator.EQ, [id], false) };
+        } else if (typeof(id) === 'string') {
+            const s = String(id);
+
+            if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
+                return { entity: ACCOUNTS, query: ConseilQueryBuilder.addPredicate(q, 'account_id', ConseilOperator.EQ, [id], false) };
+            } else if (s.startsWith('B')) {
+                return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'hash', ConseilOperator.EQ, [id], false) };
+            } else if (s.startsWith('o')) {
+                return { entity: OPERATION_GROUPS, query: ConseilQueryBuilder.addPredicate(q, 'operation_id', ConseilOperator.EQ, [id], false) };
+            }
+        }
+
+        throw new Error('Invalid id parameter');
+    }
 }

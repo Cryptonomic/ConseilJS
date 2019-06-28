@@ -9,7 +9,8 @@ export declare namespace TezosNodeWriter {
     function sendOperation(server: string, operations: object[], keyStore: KeyStore, derivationPath: any): Promise<TezosTypes.OperationResult>;
     function appendRevealOperation(server: string, keyStore: KeyStore, accountHash: string, accountOperationIndex: number, operations: TezosTypes.Operation[]): Promise<TezosTypes.Operation[]>;
     function sendTransactionOperation(server: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string): Promise<TezosTypes.OperationResult>;
-    function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
+    function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string | undefined, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
+    function sendUndelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
     function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee?: number, derivationPath?: string): Promise<TezosTypes.OperationResult>;
     function sendContractOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number, derivationPath: string, storage_limit: string, gas_limit: string, code: string, storage: string): Promise<TezosTypes.OperationResult>;
     function sendContractInvocationOperation(server: string, keyStore: KeyStore, to: string, amount: number, fee: number, derivationPath: string, storageLimit: number, gasLimit: number, parameters?: string): Promise<TezosTypes.OperationResult>;

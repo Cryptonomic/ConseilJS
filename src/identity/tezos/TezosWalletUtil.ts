@@ -10,21 +10,38 @@ export namespace TezosWalletUtil {
      * 
      * To get an account for testing on Tezos Alphanet go to https://faucet.tzalpha.net
      * 
-     * @param {string} mnemonic Fifteen word mnemonic phrase from fundraiser PDF.
+     * @param {string} mnemonic Fifteen-word mnemonic phrase from fundraiser PDF.
      * @param {string} email Email address from fundraiser PDF.
      * @param {string} password Password from fundraiser PDF.
      * @param {string} pkh The public key hash supposedly produced by the given mnemonic and passphrase
      * @returns {Promise<KeyStore>} Wallet file
      */
-    export async function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string) : Promise<KeyStore> {
+    export async function unlockFundraiserIdentity(mnemonic: string, email: string, password: string, pkh: string): Promise<KeyStore> {
         return await getKeysFromMnemonicAndPassphrase(mnemonic, email + password, StoreType.Fundraiser, pkh);
     }
 
     /**
-     * Generates a fifteen word mnemonic phrase using the BIP39 standard.
+     * Recover public key and public key hash (address) given a secret key.
+     * 
+     * @param keyString A hex representation of a secret key starting with 'edsk'.
      */
-    export function generateMnemonic(): string {
-        return bip39.generateMnemonic(160)
+    export async function restoreIdentityWithSecretKey(keyString: string): Promise<KeyStore> {
+        const secretKey = TezosMessageUtils.writeKeyWithHint(keyString, 'edsk');
+        const keys = await CryptoUtils.recoverPublicKey(secretKey);
+
+        const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
+        const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
+
+        return { publicKey, privateKey: keyString, publicKeyHash, seed: '', storeType: StoreType.Mnemonic }
+    }
+
+    /**
+     * Generates a fifteen word mnemonic phrase using the BIP39 standard.
+     * 
+     * @param {number} strength Mnemonic strength, defaults to 256/24-words. Tezos fundraiser mnemonics are 160/15-word.
+     */
+    export function generateMnemonic(strength: number = 256): string {
+        return bip39.generateMnemonic(strength)
     }
 
     /**
@@ -49,7 +66,7 @@ export namespace TezosWalletUtil {
      * @returns {Promise<KeyStore>} Generated keys
      */
     export async function getKeysFromMnemonicAndPassphrase(mnemonic: string, passphrase: string, storeType: StoreType, pkh?: string) : Promise<KeyStore> {
-        if (mnemonic.split(' ').length !== 15) { throw new Error('The mnemonic should be 15 words.'); }
+        if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) { throw new Error('Invalid mnemonic length.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
         const seed = (await bip39.mnemonicToSeed(mnemonic, passphrase)).slice(0, 32);
