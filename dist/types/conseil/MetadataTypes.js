@@ -9,6 +9,7 @@ var AttrbuteDataType;
     AttrbuteDataType["ACCOUNT_ADDRESS"] = "AccountAddress";
     AttrbuteDataType["HASH"] = "Hash";
     AttrbuteDataType["DATETIME"] = "DateTime";
+    AttrbuteDataType["CURRENCY"] = "Currency";
 })(AttrbuteDataType = exports.AttrbuteDataType || (exports.AttrbuteDataType = {}));
 var AttrbuteKeyType;
 (function (AttrbuteKeyType) {
