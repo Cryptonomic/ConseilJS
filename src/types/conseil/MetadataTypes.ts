@@ -53,7 +53,8 @@ export enum AttrbuteDataType {
     BOOLEAN = 'Boolean',
     ACCOUNT_ADDRESS = 'AccountAddress',
     HASH = 'Hash',
-    DATETIME = 'DateTime'
+    DATETIME = 'DateTime',
+    CURRENCY = 'Currency'
 }
 
 export enum AttrbuteKeyType {
