@@ -39,6 +39,8 @@ export interface AttributeDefinition {
     reference?: AttributeReference;
     displayOrder?: number;
     displayPriority?: number;
+    currencySymbol?: string;
+    currencySymbolCode?: number;
 }
 
 export interface AttributeReference {
