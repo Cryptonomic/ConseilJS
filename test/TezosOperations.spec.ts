@@ -316,9 +316,8 @@ describe('Tezos Operations Test', () => {
             let result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000);
             expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
 
-            // TODO: pending full local forging
-            //result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'Right (Left Unit)');
-            //expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
+            result = await sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'Right (Left Unit)');
+            expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
     });
 

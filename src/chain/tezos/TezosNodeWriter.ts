@@ -411,17 +411,17 @@ export namespace TezosNodeWriter {
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
-        /*let parsedCode: any = undefined;
+        let parsedCode: any = undefined;
         if (!!code) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
             log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
-        }*/
+        }
 
-        /*let parsedStorage: any = undefined;
+        let parsedStorage: any = undefined;
         if (!!storage) {
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
             log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
-        }*/
+        }
 
         const origination: TezosTypes.Operation = {
             kind: 'origination',
@@ -435,8 +435,7 @@ export namespace TezosNodeWriter {
             spendable: spendable,
             delegatable: delegatable && !!delegate,
             delegate: delegate,
-            //script: code ? { code: parsedCode, storage: parsedStorage } : undefined
-            script: code ? { code: code, storage: storage } : undefined
+            script: code ? { code: parsedCode, storage: parsedStorage } : undefined
         };
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
 
@@ -481,9 +480,8 @@ export namespace TezosNodeWriter {
         };
 
         if (!!parameters) {
-            //const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-            //(<TezosTypes.ContractInvocationOperation>transaction).parameters = JSON.parse(michelineParams);
-            (<TezosTypes.ContractInvocationOperation>transaction).parameters = JSON.parse(parameters);
+            const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+            (<TezosTypes.ContractInvocationOperation>transaction).parameters = JSON.parse(michelineParams);
         }
 
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
