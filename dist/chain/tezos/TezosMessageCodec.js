@@ -336,7 +336,7 @@ var TezosMessageCodec;
         }
         let hasScript = TezosMessageUtil_1.TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
         fieldoffset += 2;
-        let script = '';
+        let script = {};
         if (hasScript) {
             let codesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
             fieldoffset += 8;
@@ -346,7 +346,7 @@ var TezosMessageCodec;
             fieldoffset += 8;
             const storage = TezosLanguageUtil_1.TezosLanguageUtil.hexToMicheline(originationMessage.substring(fieldoffset, fieldoffset + storagesize * 2)).code;
             fieldoffset += storagesize * 2;
-            script = `{ "script": [ ${code}, ${storage} ] }`;
+            script = JSON.parse(`{ "script": [ ${code}, ${storage} ] }`);
         }
         let next;
         if (originationMessage.length > fieldoffset) {
@@ -406,11 +406,11 @@ var TezosMessageCodec;
             hex += 'ff';
             let container = origination.script;
             try {
-                container = JSON.parse(origination.script);
+                container = JSON.parse(JSON.stringify(origination.script));
             }
             catch (_a) { }
             let parts = [];
-            parts.push(JSON.stringify(container['code'], null, 1));
+            parts.push(JSON.stringify(JSON.parse(container['code'])));
             parts.push(JSON.stringify(container['storage'], null, 1));
             hex += parts
                 .map(p => TezosLanguageUtil_1.TezosLanguageUtil.normalizeMichelineWhiteSpace(p))
