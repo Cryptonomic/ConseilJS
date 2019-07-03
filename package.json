@@ -1,13 +1,11 @@
 {
   "name": "conseiljs",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": [ "dist" ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
@@ -40,18 +38,10 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [
-      "src/**/*.ts"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "text-lcov"
-    ],
+    "include": [ "src/**/*.ts" ],
+    "extension": [ ".ts" ],
+    "require": [ "ts-node/register" ],
+    "reporter": [ "text-lcov" ],
     "sourceMap": true,
     "instrument": true
   },
