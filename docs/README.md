@@ -203,10 +203,56 @@ The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alp
 
 #### Deploy a Contract
 
-Deploying a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+A note of warning, as of Tezos Protocol 4, deployed in the spring of 2019, originated accounts with code (smart contracts) are no longer 'spendable'. What this means is, deploying a contract with an initial balance that does not have functionality internally that enables transfer of this balance, will permanently lock that amount of XTZ.
+
+Deploying a contract with Micheline code is possible with local forging as of ConseilJS 0.2.5.
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+
+const tezosNode = '';
+
+async function deployContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contract = `[
+        {
+           "prim":"parameter",
+           "args":[ { "prim":"string" } ]
+        },
+        {
+           "prim":"storage",
+           "args":[ { "prim":"string" } ]
+        },
+        {
+           "prim":"code",
+           "args":[
+              [  
+                 { "prim":"CAR" },
+                 { "prim":"NIL", "args":[ { "prim":"operation" } ] },
+                 { "prim":"PAIR" }
+              ]
+           ]
+        }
+     ]`;
+    const storage = '"Sample"';
+
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+deployContract();
+```
+
+It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7.
+
+```typescript
+import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
 
 const tezosNode = '';
 
@@ -227,7 +273,7 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 10000, undefined, false, false, 100000, '', '10000', '10000', contract, storage);
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -238,10 +284,10 @@ The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://alp
 
 #### Invoke a Contract
 
-Invoking a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
 
 const tezosNode = '';
 
@@ -255,7 +301,7 @@ async function invokeContract() {
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"');
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', , TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -263,6 +309,50 @@ invokeContract();
 ```
 
 The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://alphanet.tzscan.io/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
+
+```typescript
+import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+
+const tezosNode = '';
+
+async function invokeContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
+
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '{"string": "Cryptonomicon"}', TezosParameterFormat.Micheline);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+invokeContract();
+```
+
+```typescript
+import { StoreType, TezosNodeWriter } from 'conseiljs';
+
+const tezosNode = '';
+
+async function pingContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
+
+    const result = await TezosNodeWriter.sendContractPing(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+pingContract();
+```
 
 ### Metadata Discovery Functions
 
