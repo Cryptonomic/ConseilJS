@@ -9,6 +9,7 @@ export namespace ConseilQueryBuilder {
             fields: [],
             predicates: [],
             orderBy: [],
+            aggregation: [],
             limit: 100
         }
     }
@@ -107,7 +108,6 @@ export namespace ConseilQueryBuilder {
         if (query.fields.length === 1) { throw new Error('Cannot apply an aggregation function on the only field being returned.'); }
 
         let q = {...query};
-        if (q.aggregation === undefined) { q.aggregation = []; }
         q.aggregation.push({ 'field': field, 'function': aggregationFunction });
 
         return q;

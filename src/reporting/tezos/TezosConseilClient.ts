@@ -34,10 +34,11 @@ export namespace TezosConseilClient {
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
-    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]> {
+    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.blankQuery(), 'level', ConseilSortDirection.DESC), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
