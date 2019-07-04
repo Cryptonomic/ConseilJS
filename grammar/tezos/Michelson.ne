@@ -34,34 +34,37 @@ const lexer = moo.compile({
     rparen: ')',
     lbrace: '{',
     rbrace: '}',
+    ws: /[ \t]+/,
     semicolon: ";",
-    identifiers: {match: /"(?:\\["\\]|[^\n"\\])*"/, type: moo.keywords({
-      comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
-      constantType: ['key', 'unit', 'signature', 'operation', 'address'],
-      singleArgType: ['option', 'list', 'set', 'contract'],
-      doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
-      type: ['key', 'unit', 'signature', 'option', 'list', 'set', 'operation', 'address', 'contract', 'pair', 'or', 'lambda', 'map', 'big_map'],
-      instruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
+    number: /-?[0-9]+/,
+    wordNumber: {match: /[a-zA-Z_0-9]+/, type: moo.keywords({
+      'parameter': [ 'parameter' , 'Parameter'],
+      'storage' : ['Storage', 'storage'],
+      'code' : ['Code', 'code'],
+      'comparableType': ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
+      'constantType': ['key', 'unit', 'signature', 'operation', 'address'],
+      'singleArgType': ['option', 'list', 'set', 'contract'],
+      'doubleArgType': ['pair', 'or', 'lambda', 'map', 'big_map'],
+      'instruction': ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
       'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
       'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
       'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
       'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-      'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
-      'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
-      'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
-      'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
-      'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
-      'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'CADR' ],
-      data: ['Unit', 'True', 'False', 'Left', 'Right', 'Pair', 'Some', 'None', 'instruction'],
-      constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
-      singleArgData: ['Left', 'Right', 'Some'],
-      doubleArgData: ['Pair'],
-      singleArgTypeData: ['option', 'list', 'set', 'contract', 'Left', 'Right', 'Some'],
-      doubleArgTypeData: ['pair', 'or', 'lambda', 'map', 'big_map', 'Pair'],
-      elt: "Elt",
+       'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
+       'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
+       'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
+       'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
+       'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
+       'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'CADR', 'ASSERT', 'ASSERT_CMPLE',
+       'ASSERT_CMPGE' ],
+      'constantData': ['Unit', 'True', 'False', 'None', 'instruction'],
+      'singleArgData': ['Left', 'Right', 'Some'],
+      'doubleArgData': ['Pair'],
+      'singleArgTypeData': ['Left', 'Right', 'Some'],
+      'doubleArgTypeData': ['Pair'],
+      'elt': "Elt",
     })},
-    number: /-?[0-9]+/,
-    word: /[a-zA-z_0-9]+/
+    string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 %}
 
@@ -72,16 +75,16 @@ const lexer = moo.compile({
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %} | parameterValue {% id %} | storageValue {% id %} | typeData {% id %}
 script -> parameter _ storage _ code {% scriptToJson %} 
 
-parameter -> "parameter" | "Parameter"
-storage -> "Storage" | "storage"
-code -> "Code" | "code"
+#parameter -> "parameter" | "Parameter"
+#storage -> "Storage" | "storage"
+#code -> "Code" | "code"
 
-parameterValue -> parameter _ typeData _ semicolons {% singleArgKeywordToJson %}
-storageValue -> storage _ typeData _ semicolons {% singleArgKeywordToJson %}
+parameterValue -> %parameter _ typeData _ semicolons {% singleArgKeywordToJson %}
+storageValue -> %storage _ typeData _ semicolons {% singleArgKeywordToJson %}
 
-parameter -> parameter _ type _ semicolons {% singleArgKeywordToJson %}
-storage -> storage _ type _ semicolons {% singleArgKeywordToJson %}
-code -> code _ subInstruction _ semicolons _ {% d => d[2] %}
+parameter -> %parameter _ type _ semicolons {% singleArgKeywordToJson %}
+storage -> %storage _ type _ semicolons {% singleArgKeywordToJson %}
+code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}
   | %code _ "{};" {% d => "code {}" %}
 
 # Grammar of a Michelson type
@@ -92,30 +95,30 @@ type ->
   | %lparen _ %singleArgType _ type _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | %comparableType (_ %annot (%storage|%string|%word)):+ {% keywordToJson %} 
-  | %constantType (_ %annot (%storage|%string|%word)):+ {% keywordToJson %}
-  | %lparen _ %comparableType (_ %annot (%storage|%string|%word)):+ _ %rparen {% comparableTypeToJson %}
-  | %lparen _ %constantType (_ %annot (%storage|%string|%word)):+ _ %rparen {% comparableTypeToJson %}
-  | %lparen _ %singleArgType (_ %annot (%storage|%string|%word)):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
-  | %lparen _ %doubleArgType (_ %annot (%storage|%string|%word)):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
+  | %comparableType (_ %annot %wordNumber):+ {% keywordToJson %} 
+  | %constantType (_ %annot %wordNumber):+ {% keywordToJson %}
+  | %lparen _ %comparableType (_ %annot %wordNumber):+ _ %rparen {% comparableTypeToJson %}
+  | %lparen _ %constantType (_ %annot %wordNumber):+ _ %rparen {% comparableTypeToJson %}
+  | %lparen _ %singleArgType (_ %annot %wordNumber):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %doubleArgType (_ %annot %wordNumber):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
 #  | %singleArgType _ type {% singleArgKeywordToJson %}
 #  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
 #  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
 #  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}  
 
 typeData -> 
-    %singleArgTypeData _ typeData {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgTypeData _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
-  | %doubleArgTypeData _ typeData _ typeData {% doubleArgKeywordToJson %}
-  | %lparen _ %doubleArgTypeData _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | %data {% keywordToJson %}
-  | %data _ typeData {% singleArgKeywordToJson %}
-  | %data _ typeData _ typeData {% doubleArgKeywordToJson %}
+    (%singleArgTypeData|%singleArgType) _ typeData {% singleArgKeywordToJson %}
+  | %lparen _ (%singleArgTypeData|%singleArgType) _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
+  | (%doubleArgTypeData|%doubleArgType) _ typeData _ typeData {% doubleArgKeywordToJson %}
+  | %lparen _ (%doubleArgTypeData|%doubleArgType) _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
+  | (%constantData|%singleArgData|%doubleArgData) {% keywordToJson %}
+  | (%constantData|%singleArgData|%doubleArgData) _ typeData {% singleArgKeywordToJson %}
+  | (%constantData|%singleArgData|%doubleArgData) _ typeData _ typeData {% doubleArgKeywordToJson %}
   | subTypeData {% id %}
   | subTypeElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
-  | %word {% stringToJson %}
+#  | %word {% stringToJson %}
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subTypeData -> 
@@ -137,35 +140,35 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
 instruction ->
     subInstruction {% id %}
   | %instruction {% keywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ {% keywordToJson %}
+  | %instruction (_ %annot %wordNumber):+ {% keywordToJson %}
   | %instruction _ subInstruction {% singleArgInstrKeywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ subInstruction {% singleArgTypeKeywordToJson %} 
+  | %instruction (_ %annot %wordNumber):+ _ subInstruction {% singleArgTypeKeywordToJson %} 
   | %instruction _ type {% singleArgKeywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ type {% singleArgTypeKeywordToJson %} 
+  | %instruction (_ %annot %wordNumber):+ _ type {% singleArgTypeKeywordToJson %} 
   | %instruction _ data {% singleArgKeywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ data {% singleArgTypeKeywordToJson %} 
+  | %instruction (_ %annot %wordNumber):+ _ data {% singleArgTypeKeywordToJson %} 
   | %instruction _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ type _ type _ subInstruction {% tripleArgTypeKeyWordToJson %}
+  | %instruction (_ %annot %wordNumber):+ _ type _ type _ subInstruction {% tripleArgTypeKeyWordToJson %}
   | %instruction _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ subInstruction _ subInstruction {% doubleArgTypeKeywordToJson %}
+  | %instruction (_ %annot %wordNumber):+ _ subInstruction _ subInstruction {% doubleArgTypeKeywordToJson %}
   | %instruction _ type _ type {% doubleArgKeywordToJson %}
-  | %instruction (_ %annot (%parameter|storage|%word|%string)):+ _ type _ type {% doubleArgTypeKeywordToJson %}
+  | %instruction (_ %annot %wordNumber):+ _ type _ type {% doubleArgTypeKeywordToJson %}
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %} 
-  | "PUSH" (_ %annot (%parameter|%storage|%word)):+ _ type _ data {% pushWithAnnotsToJson %}
+  | "PUSH" (_ %annot %wordNumber):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
 
 # Grammar for michelson data.
 data ->
-    %data {% keywordToJson %}
-  | %data _ data {% singleArgKeywordToJson %}
-  | %data _ data _ data {% doubleArgKeywordToJson  %}
-  | %lparen _ %data _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
+    (%constantData|%singleArgData|%doubleArgData) {% keywordToJson %}
+  | (%constantData|%singleArgData|%doubleArgData) _ data {% singleArgKeywordToJson %}
+  | (%constantData|%singleArgData|%doubleArgData) _ data _ data {% doubleArgKeywordToJson  %}
+  | %lparen _ (%constantData|%singleArgData|%doubleArgData) _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
-  | %word {% stringToJson %}
+#  | %word {% stringToJson %}
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subData -> 
@@ -570,13 +573,22 @@ semicolons -> null | semicolons ";"
       return word == "UNPAIR" || word == "UNPAPAIR"  
     }
 
+    //UNPAIR and annotations follows a nonstandard format described in docs, and is dependent on the number of
+    //annotations given to the command, right now we're hard coding to fix the multisig contract swiftly, but a
+    //more general solution is required in the longterm.
     const expand_other = (word, annot) => {
       if (word == 'UNPAIR') {
         if (annot == null) {
           return '[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ]'
         }
+        else if (annot.length == 1) {
+          return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ]  } ] ]`
+        }
+        else if (annot.length == 2) {
+          return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot[0]}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR", "annots": [${annot[1]}] } ] ]  } ] ]`
+        }
         else {
-          return `[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ], "annots": [${annot}]  } ] ]`
+          return ``
         }
       }
       if (word == 'UNPAPAIR') {
