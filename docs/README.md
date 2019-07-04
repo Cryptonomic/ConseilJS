@@ -198,7 +198,8 @@ async function originateAccount() {
 originateAccount();
 ```
 
-The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA).
+The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+
 
 #### Deploy a Contract
 
@@ -627,17 +628,119 @@ A collection of functions to encode and decode various Tezos P2P message compone
 
 Utility functions for interacting with the Tezos node.
 
+##### getBlock(server: string, hash: string)
+
+Gets a block directly from the specified Tezos node by block hash.
+
+##### getBlockHead(server: string)
+
+Gets the most-recent block.
+
+##### getAccountForBlock(server: string, blockHash: string, accountHash: string)
+
+Returns account status as of a specific block.
+
+##### getCounterForAccount(server: string, accountHash: string)
+
+Gets the current account operation counter. This index must be incremented with each successive operation being submitted by the account.
+
+##### getAccountManagerForBlock(server: string, blockHash: string, accountHash: string)
+
+Retrieves the account manager information as of a given block.
+
+##### isImplicitAndEmpty(server: string, accountHash: string)
+
+Identifies the account as implicit and empty - 0 balance. This has bearing on the cost of certain transactions.
+
+##### isManagerKeyRevealedForAccount(server: string, accountHash: string)
+
+A key reveal operation is required, this verifies if the account has already sent one.
+
 #### TezosNodeWriter
 
-Functions for sending operations on the Tezos network.
+Functions for sending operations on the Tezos network via a node. Most of these methods take many parameters that include server URL, key pair and address structure, and fee, among other things. Parameters have been omitted for brevity, but all of these methods and more are documented in the code using TSDoc.
+
+Several of these functions accept an optional derivation path parameter that is defaulted to blank for signing with a Ledger device.
+
+The various send functions return an operation group hash which can be passed to [TezosConseilClient.awaitOperationConfirmation(...)](#awaitOperationConfirmationserverInfo-network-hash-duration) to await its appearance on the chain.
+
+##### signOperationGroup
+
+Generates a signature for the hex representation of the proposed operation group based on account keys.
+
+##### forgeOperations
+
+Forges an operation group - converts it to hex in preparation for inclusion on the chain. This function will encode operations locally.
+
+##### forgeOperationsRemotely
+
+ConseilJS is able to encode locally operations in many cases, for the occasions where that fails, this function will forge an operation remotely on the specified Tezos node. This operation is not trustless.
+
+##### applyOperation
+
+Sends the operation group to the Tezos node for validation. The RPC payload is JSON, but the attached signature is based on the (potentially) locally created hex equivalent.
+
+##### injectOperation
+
+Submits the binary content of the operation group for inclusion on the chain.
+
+##### sendOperation
+
+Assembles, signs, forges, validates and submits an operation group to the chain.
+
+##### appendRevealOperation
+
+Account public key must be revealed for it to participate in transactions. This method will check the account status and add a Reveal operation to the operation group going out.
+
+##### sendTransactionOperation
+
+Sends the basic value transfer operation.
+
+##### sendDelegationOperation
+
+Updates the account's delegate.
+
+##### sendUndelegationOperation
+
+A convenience function to remove the delagate from an account. Calls [sendDelegationOperation](#sendDelegationOperation) internally
+
+##### sendAccountOriginationOperation
+
+Creates an originated account (KT1), without a script. These types of accounts allow participation in the delegation process.
+
+##### sendContractOriginationOperation
+
+Attempts to deploy a contract on the chain. `code` and initial `storage` are required parameters the content of which is specified by `codeFormat`. For operation submission Tezos converts the Michelson code into a JSON format known as Micheline before finally writing it as hex. Setting `codeFormat` to 'Micheline' will skip the Michelson-Micheline conversion.
+
+##### sendContractInvocationOperation
+
+Like [sendContractOriginationOperation](#sendContractOriginationOperation), parameters can be in Michelson or Micheline. It's possible to pass undefined or blank parameters.
+
+##### sendContractPing
+
+Invokes a contract with a 0 transaction amount and no parameters.
+
+##### sendKeyRevealOperation
+
+A key reveal operation can be sent separately as well. For a more efficient way to reveal an account, see [appendRevealOperation](#appendRevealOperation).
+
+##### sendIdentityActivationOperation
+
+Sends an account activation operation. These are preformed for fundraiser accounts.
 
 #### TezosFileWallet
 
 Functions for Tezos wallet functionality.
 
-#### TezosTypes
+#### TezosChainTypes
 
-Types used to process data returned from Conseil server.
+#### TezosP2PMessageTypes
+
+JSON message definitions for operation submission.
+
+#### TezosRPCResponseTypes
+
+JSON message definitions for RPC service responses.
 
 ## Contribute
 
