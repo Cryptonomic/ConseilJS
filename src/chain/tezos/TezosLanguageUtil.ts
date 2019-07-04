@@ -278,7 +278,9 @@ export namespace TezosLanguageUtil {
             .replace(/"}/g, '" }')
             .replace(/","/g, '", "')
             .replace(/\[\[/g, '[ [')
-            .replace(/\]\]/g, '] ]');
+            .replace(/\]\]/g, '] ]')
+            .replace(/\["/g, '\[ "')
+            .replace(/"\]/g, '" \]');
     }
 
     interface codeEnvelope {

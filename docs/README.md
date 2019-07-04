@@ -37,6 +37,18 @@ A fully functional sample [webpage example](https://github.com/Cryptonomic/Conse
 
 ## API Overview and Examples
 
+### Logs
+
+When using ConseilJS in the context of Nodejs, it's possible to control how verbose the logs are.
+
+```
+import { setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+```
+
+Default log level is 'info', the library used internally for logging is [logleve](https://www.npmjs.com/package/loglevel).
+
 ### Contract Development Lightning Route
 
 If you want to skip straight to working on Michelson smart contracts simply follow these instructions in the following order:
@@ -208,7 +220,9 @@ A note of warning, as of Tezos Protocol 4, deployed in the spring of 2019, origi
 Deploying a contract with Micheline code is possible with local forging as of ConseilJS 0.2.5.
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -252,7 +266,9 @@ deployContract();
 It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7.
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -287,7 +303,9 @@ The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://alp
 Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -311,7 +329,9 @@ invokeContract();
 The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://alphanet.tzscan.io/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
