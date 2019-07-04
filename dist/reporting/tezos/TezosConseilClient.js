@@ -30,7 +30,8 @@ var TezosConseilClient;
     function getBlockHead(serverInfo, network) {
         return __awaiter(this, void 0, void 0, function* () {
             const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addOrdering(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'level', QueryTypes_1.ConseilSortDirection.DESC), 1);
-            return getTezosEntityData(serverInfo, network, BLOCKS, query);
+            const r = yield getTezosEntityData(serverInfo, network, BLOCKS, query);
+            return r[0];
         });
     }
     TezosConseilClient.getBlockHead = getBlockHead;

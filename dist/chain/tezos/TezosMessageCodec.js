@@ -61,16 +61,16 @@ var TezosMessageCodec;
         if (message.hasOwnProperty('kind')) {
             const operation = message;
             if (operation.kind === 'reveal') {
-                return encodeReveal(operation);
+                return encodeReveal(message);
             }
             if (operation.kind === 'transaction') {
-                return encodeTransaction(operation);
+                return encodeTransaction(message);
             }
             if (operation.kind === 'origination') {
-                return encodeOrigination(operation);
+                return encodeOrigination(message);
             }
             if (operation.kind === 'delegation') {
-                return encodeDelegation(operation);
+                return encodeDelegation(message);
             }
         }
         if (message.hasOwnProperty('vote')) {
@@ -188,9 +188,6 @@ var TezosMessageCodec;
         if (reveal.kind !== 'reveal') {
             throw new Error('Incorrect operation type.');
         }
-        if (reveal.public_key === undefined) {
-            throw new Error('Missing public key.');
-        }
         let hex = TezosMessageUtil_1.TezosMessageUtils.writeInt(operationTypes.indexOf('reveal'));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(reveal.source);
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(reveal.fee));
@@ -269,12 +266,6 @@ var TezosMessageCodec;
     function encodeTransaction(transaction) {
         if (transaction.kind !== 'transaction') {
             throw new Error('Incorrect operation type');
-        }
-        if (transaction.amount === undefined) {
-            throw new Error('Missing amount');
-        }
-        if (transaction.destination === undefined) {
-            throw new Error('Missing destination');
         }
         let hex = TezosMessageUtil_1.TezosMessageUtils.writeInt(operationTypes.indexOf('transaction'));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(transaction.source);
@@ -379,12 +370,6 @@ var TezosMessageCodec;
         if (origination.kind !== 'origination') {
             throw new Error('Incorrect operation type');
         }
-        if (origination.manager_pubkey === undefined) {
-            throw new Error('Missing manager address');
-        }
-        if (origination.balance === undefined) {
-            throw new Error('Missing balance');
-        }
         let hex = TezosMessageUtil_1.TezosMessageUtils.writeInt(operationTypes.indexOf('origination'));
         hex += TezosMessageUtil_1.TezosMessageUtils.writeAddress(origination.source);
         hex += TezosMessageUtil_1.TezosMessageUtils.writeInt(parseInt(origination.fee));
@@ -404,16 +389,11 @@ var TezosMessageCodec;
         }
         if (!!origination.script) {
             hex += 'ff';
-            let container = origination.script;
-            try {
-                container = JSON.parse(JSON.stringify(origination.script));
-            }
-            catch (_a) { }
             let parts = [];
-            parts.push(JSON.stringify(JSON.parse(container['code'])));
-            parts.push(JSON.stringify(container['storage'], null, 1));
+            parts.push(origination.script['code']);
+            parts.push(origination.script['storage']);
             hex += parts
-                .map(p => TezosLanguageUtil_1.TezosLanguageUtil.normalizeMichelineWhiteSpace(p))
+                .map(p => TezosLanguageUtil_1.TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(p)))
                 .map(p => TezosLanguageUtil_1.TezosLanguageUtil.translateMichelineToHex(p))
                 .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
         }

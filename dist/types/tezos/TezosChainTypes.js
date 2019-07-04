@@ -11,10 +11,9 @@ var OperationKindType;
     OperationKindType["Endorsement"] = "endorsement";
     OperationKindType["Ballot"] = "ballot";
 })(OperationKindType = exports.OperationKindType || (exports.OperationKindType = {}));
-var BallotVote;
-(function (BallotVote) {
-    BallotVote[BallotVote["Yay"] = 0] = "Yay";
-    BallotVote[BallotVote["Nay"] = 1] = "Nay";
-    BallotVote[BallotVote["Pass"] = 2] = "Pass";
-})(BallotVote = exports.BallotVote || (exports.BallotVote = {}));
+var TezosParameterFormat;
+(function (TezosParameterFormat) {
+    TezosParameterFormat["Michelson"] = "michelson";
+    TezosParameterFormat["Micheline"] = "micheline";
+})(TezosParameterFormat = exports.TezosParameterFormat || (exports.TezosParameterFormat = {}));
 //# sourceMappingURL=TezosChainTypes.js.map

@@ -7,11 +7,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const KeyStore_1 = require("../../types/wallet/KeyStore");
+const TezosTypes = __importStar(require("../../types/tezos/TezosChainTypes"));
 const TezosNodeReader_1 = require("./TezosNodeReader");
 const TezosMessageCodec_1 = require("./TezosMessageCodec");
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
@@ -51,10 +59,10 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.signOperationGroup = signOperationGroup;
-    function forgeOperations(blockHead, operations) {
+    function forgeOperations(branch, operations) {
         log.debug('TezosNodeWriter.forgeOperations:');
         log.debug(operations);
-        let encoded = TezosMessageUtil_1.TezosMessageUtils.writeBranch(blockHead.hash);
+        let encoded = TezosMessageUtil_1.TezosMessageUtils.writeBranch(branch);
         operations.forEach(m => encoded += TezosMessageCodec_1.TezosMessageCodec.encodeOperation(m));
         return encoded;
     }
@@ -101,11 +109,11 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.forgeOperationsRemotely = forgeOperationsRemotely;
-    function applyOperation(server, blockHead, operations, signedOpGroup) {
+    function applyOperation(server, branch, protocol, operations, signedOpGroup) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = [{
-                    protocol: blockHead.protocol,
-                    branch: blockHead.hash,
+                    protocol: protocol,
+                    branch: branch,
                     contents: operations,
                     signature: signedOpGroup.signature
                 }];
@@ -148,9 +156,9 @@ var TezosNodeWriter;
     function sendOperation(server, operations, keyStore, derivationPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const blockHead = yield TezosNodeReader_1.TezosNodeReader.getBlockHead(server);
-            const forgedOperationGroup = forgeOperations(blockHead, operations);
+            const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
             const signedOpGroup = yield signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
-            const appliedOp = yield applyOperation(server, blockHead, operations, signedOpGroup);
+            const appliedOp = yield applyOperation(server, blockHead.hash, blockHead.protocol, operations, signedOpGroup);
             checkAppliedOperationResults(appliedOp);
             const injectedOperation = yield injectOperation(server, signedOpGroup);
             return { results: appliedOp[0], operationGroupID: injectedOperation };
@@ -181,7 +189,7 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.appendRevealOperation = appendRevealOperation;
-    function sendTransactionOperation(server, keyStore, to, amount, fee, derivationPath) {
+    function sendTransactionOperation(server, keyStore, to, amount, fee, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const counter = (yield TezosNodeReader_1.TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash)) + 1;
             const transaction = {
@@ -216,7 +224,7 @@ var TezosNodeWriter;
         });
     }
     TezosNodeWriter.sendDelegationOperation = sendDelegationOperation;
-    function sendUndelegationOperation(server, keyStore, delegator, delegate, fee = 1258, derivationPath = '') {
+    function sendUndelegationOperation(server, keyStore, delegator, fee = 1258, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             return sendDelegationOperation(server, keyStore, delegator, undefined, fee, derivationPath);
         });
@@ -224,51 +232,53 @@ var TezosNodeWriter;
     TezosNodeWriter.sendUndelegationOperation = sendUndelegationOperation;
     function sendAccountOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee = 1266, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
-            return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, '277', '10600');
+            return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, 277, 10600);
         });
     }
     TezosNodeWriter.sendAccountOriginationOperation = sendAccountOriginationOperation;
-    function sendContractOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage) {
+    function sendContractOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage, codeFormat = TezosTypes.TezosParameterFormat.Micheline) {
         return __awaiter(this, void 0, void 0, function* () {
             if (spendable) {
                 log.warn('As of protocol 004-Pt24m4xi, contracts with code cannot be "spendable"');
             }
-            return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage);
+            let parsedCode = undefined;
+            let parsedStorage = undefined;
+            if (codeFormat === TezosTypes.TezosParameterFormat.Michelson) {
+                parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
+                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
+                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
+                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
+            }
+            else if (codeFormat === TezosTypes.TezosParameterFormat.Micheline) {
+                parsedCode = JSON.parse(code);
+                parsedStorage = JSON.parse(storage);
+            }
+            return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, parsedCode, parsedStorage);
         });
     }
     TezosNodeWriter.sendContractOriginationOperation = sendContractOriginationOperation;
     function sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, code, storage) {
         return __awaiter(this, void 0, void 0, function* () {
             const counter = (yield TezosNodeReader_1.TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash)) + 1;
-            let parsedCode = undefined;
-            if (!!code) {
-                parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
-                log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
-            }
-            let parsedStorage = undefined;
-            if (!!storage) {
-                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
-                log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
-            }
             const origination = {
                 kind: 'origination',
                 source: keyStore.publicKeyHash,
                 fee: fee.toString(),
                 counter: counter.toString(),
-                gas_limit: gas_limit,
-                storage_limit: storage_limit,
+                gas_limit: gas_limit.toString(),
+                storage_limit: storage_limit.toString(),
                 manager_pubkey: keyStore.publicKeyHash,
                 balance: amount.toString(),
                 spendable: spendable,
                 delegatable: delegatable && !!delegate,
                 delegate: delegate,
-                script: code ? { code: parsedCode, storage: parsedStorage } : undefined
+                script: code ? { code, storage } : undefined
             };
             const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
-    function sendContractInvocationOperation(server, keyStore, to, amount, fee, derivationPath, storageLimit, gasLimit, parameters) {
+    function sendContractInvocationOperation(server, keyStore, to, amount, fee, derivationPath, storageLimit, gasLimit, parameters, parameterFormat = TezosTypes.TezosParameterFormat.Micheline) {
         return __awaiter(this, void 0, void 0, function* () {
             const counter = (yield TezosNodeReader_1.TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash)) + 1;
             let transaction = {
@@ -281,15 +291,26 @@ var TezosNodeWriter;
                 source: keyStore.publicKeyHash,
                 kind: 'transaction'
             };
-            if (!!parameters) {
-                const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-                transaction.parameters = JSON.parse(michelineParams);
+            if (!!parameters && parameters.trim().length > 0) {
+                if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
+                    const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+                    transaction.parameters = JSON.parse(michelineParams);
+                }
+                else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
+                    transaction.parameters = JSON.parse(parameters);
+                }
             }
             const operations = yield appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
             return sendOperation(server, operations, keyStore, derivationPath);
         });
     }
     TezosNodeWriter.sendContractInvocationOperation = sendContractInvocationOperation;
+    function sendContractPing(server, keyStore, to, fee, derivationPath, storageLimit, gasLimit) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return sendContractInvocationOperation(server, keyStore, to, 0, fee, derivationPath, storageLimit, gasLimit, '');
+        });
+    }
+    TezosNodeWriter.sendContractPing = sendContractPing;
     function sendKeyRevealOperation(server, keyStore, fee = 1270, derivationPath = '') {
         return __awaiter(this, void 0, void 0, function* () {
             const counter = (yield TezosNodeReader_1.TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash)) + 1;

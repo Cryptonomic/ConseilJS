@@ -1,39 +1,4 @@
 /// <reference types="node" />
-export interface BlockHeader {
-    level: number;
-    proto: number;
-    predecessor: string;
-    timestamp: string;
-    validation_pass: number;
-    operations_hash: string;
-    fitness: string[];
-    context: string;
-    priority: number;
-    proof_of_work_nonce: string;
-    signature: string;
-}
-export interface BlockMetadata {
-    protocol: string;
-    chain_id: string;
-    hash: string;
-    metadata: BlockHeader;
-}
-export interface AccountDelegate {
-    setable: boolean;
-    value: string;
-}
-export interface Account {
-    manager: string;
-    balance: number;
-    spendable: boolean;
-    delegate: AccountDelegate;
-    script: string;
-    counter: number;
-}
-export interface ManagerKey {
-    manager: string;
-    key: string;
-}
 export interface AlphaOperationResult {
     status: string;
     originated_contracts: string[];
@@ -53,36 +18,6 @@ export interface AlphaOperationsWithMetadata {
 export interface InjectedOperation {
     injectedOperation: string;
 }
-export interface Operation {
-    kind: string;
-    source: string;
-    fee: string;
-    counter: string;
-    storage_limit: string;
-    gas_limit: string;
-    delegate?: string;
-    public_key?: string;
-    manager_pubkey?: string;
-    balance?: string;
-    spendable?: boolean;
-    delegatable?: boolean;
-    destination?: string;
-    amount?: string;
-    script?: object;
-    parameters?: string;
-}
-export interface Ballot {
-    source: string;
-    period: number;
-    proposal: string;
-    vote: BallotVote;
-}
-export interface ContractOriginationOperation extends Operation {
-    script: object;
-}
-export interface ContractInvocationOperation extends Operation {
-    parameters: string;
-}
 export interface SignedOperationGroup {
     bytes: Buffer;
     signature: string;
@@ -101,12 +36,7 @@ export declare enum OperationKindType {
     Endorsement = "endorsement",
     Ballot = "ballot"
 }
-export declare enum BallotVote {
-    Yay = 0,
-    Nay = 1,
-    Pass = 2
-}
-export interface Activation {
-    pkh: string;
-    secret: string;
+export declare enum TezosParameterFormat {
+    Michelson = "michelson",
+    Micheline = "micheline"
 }
