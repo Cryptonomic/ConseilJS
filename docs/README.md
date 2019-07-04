@@ -547,6 +547,10 @@ Returns the most recent block on the chain for a given `network`. Internally thi
 
 Returns a specific block with the given `hash` and `network`. All block entity fields are returned. To get just a subset of fields, use `getBlocks(serverInfo, network, query)`.
 
+##### getBlockByLevel(serverInfo, network level)
+
+Returns a specific block at the provided `level` from the `network`. All block entity fields are returned.
+
 ##### getAccount(serverInfo, network, accountID)
 
 Returns a specific account on the given `network` with the provided `accountID`. In Tezos account id, account address, public key hash (phk) all refer to the same thing. All account entity fields are returned. To get just a subset of fields, use `getAccounts(serverInfo, network, query)`.
@@ -587,9 +591,33 @@ Returns ballot information subject to the provided `query` on a given `network`.
 
 Conseil indexer calculates running average fees by operation type. This is a convenience method to get that information. [Tezori](https://github.com/Cryptonomic/Tezori/blob/master/app/utils/general.js#L168) for example uses this information to suggest an appropriate fee to the user via a drop-down.
 
-#### TezosHardwareWallet
+##### awaitOperationConfirmation(serverInfo, network, hash, duration)
 
-Functions for interaction with the Tezos node via a Hardware wallet. (Only Ledger Nano S for now)
+This function will monitor the chain for an operation with the given `hash` for up a `duration` blocks on some `network`. If the operation is found, it will be returned, otherwise an `Error` is thrown.
+
+##### getEntityQueryForId(id)
+
+A conveniences function that enabled dynamic id-based search. For a specified `id`, it returns the entity type and a query necessary to get it from the service. Numeric ids are assumed to be block level.
+
+#### TezosLedgerWallet
+
+Identity management and signing functions to enable Tezos node interactions with the Ledger Nano S hardware wallet.
+
+##### initLedgerTransport
+
+Before the Ledger device can be used, the connection must be initialized with this call.
+
+##### unlockAddress(deviceType, derivationPath)
+
+Returns a partial `KeyStore` container public key and public key hash (address) for a given `derivationPath`. The private key does not leave the device. `deviceType` must be `HardwareDeviceType.LedgerNanoS`.
+
+##### getTezosPublicKey(derivationPath: string): Promise<string> 
+
+Returns just the public key for a given `derivationPath`.
+
+##### signTezosOperation(derivationPath, watermarkedOpInHex)
+
+Returns signature bytes resulting from signing the provided transaction expressed in bytes using the private key at the specified `derivationPath`.
 
 #### TezosMessageCodec
 
