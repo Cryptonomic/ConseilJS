@@ -1,6 +1,6 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
 import { TezosLanguageUtil } from "./TezosLanguageUtil";
-import { Activation, Ballot, BallotVote, Operation } from "../../types/tezos/TezosChainTypes";
+import { Activation, Ballot, BallotVote, Transaction, Delegation, Origination, Reveal, Operation } from "../../types/tezos/TezosP2PMessageTypes";
 
 const operationTypes: Array<string> = [
     "endorsement",
@@ -83,10 +83,10 @@ export namespace TezosMessageCodec {
 
         if (message.hasOwnProperty('kind')) {
             const operation = message as Operation;
-            if (operation.kind === 'reveal') { return encodeReveal(operation); }
-            if (operation.kind === 'transaction') { return encodeTransaction(operation); }
-            if (operation.kind === 'origination') { return encodeOrigination(operation); }
-            if (operation.kind === 'delegation') { return encodeDelegation(operation); }
+            if (operation.kind === 'reveal') { return encodeReveal(message as Reveal); }
+            if (operation.kind === 'transaction') { return encodeTransaction(message as Transaction); }
+            if (operation.kind === 'origination') { return encodeOrigination(message as Origination); }
+            if (operation.kind === 'delegation') { return encodeDelegation(message as Delegation); }
         }
 
         if (message.hasOwnProperty('vote')) {
@@ -248,9 +248,8 @@ export namespace TezosMessageCodec {
      * 
      * @param {string} reveal A reveal operation to be encoded.
      */
-    export function encodeReveal(reveal: Operation): string {
+    export function encodeReveal(reveal: Reveal): string {
         if (reveal.kind !== 'reveal') { throw new Error('Incorrect operation type.'); }
-        if (reveal.public_key === undefined) { throw new Error('Missing public key.'); }
 
         let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('reveal'));
         hex += TezosMessageUtils.writeAddress(reveal.source);
@@ -352,10 +351,8 @@ export namespace TezosMessageCodec {
      * 
      * @see {@link https://tezos.gitlab.io/mainnet/api/p2p.html#transaction-tag-8|Tezos P2P message format}
      */
-    export function encodeTransaction(transaction: Operation): string {
+    export function encodeTransaction(transaction: Transaction): string {
         if (transaction.kind !== 'transaction') { throw new Error('Incorrect operation type'); }
-        if (transaction.amount === undefined) { throw new Error('Missing amount'); }
-        if (transaction.destination === undefined) { throw new Error('Missing destination'); }
 
         let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('transaction'));
         hex += TezosMessageUtils.writeAddress(transaction.source);
@@ -488,10 +485,8 @@ export namespace TezosMessageCodec {
      * 
      * @param origination Message to encode
      */
-    export function encodeOrigination(origination: Operation): string {
+    export function encodeOrigination(origination: Origination): string {
         if (origination.kind !== 'origination') { throw new Error('Incorrect operation type'); }
-        if (origination.manager_pubkey === undefined) { throw new Error('Missing manager address'); }
-        if (origination.balance === undefined) { throw new Error('Missing balance'); }
 
         let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('origination'));
         hex += TezosMessageUtils.writeAddress(origination.source);
@@ -513,15 +508,13 @@ export namespace TezosMessageCodec {
 
         if (!!origination.script) {
             hex += 'ff';
-            let container: any = origination.script;
-            try { container = JSON.parse(JSON.stringify(origination.script)); } catch { }
 
             let parts: string[] = [];
-            parts.push(JSON.stringify(JSON.parse(container['code']))); // full contract definition containing code, storage and parameters properties
-            parts.push(JSON.stringify(container['storage'], null, 1)); // initial storage
+            parts.push(origination.script['code']); // full contract definition containing code, storage and parameters properties
+            parts.push(origination.script['storage']); // initial storage
 
             hex += parts
-                .map(p => TezosLanguageUtil.normalizeMichelineWhiteSpace(p))
+                .map(p => TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(p)))
                 .map(p =>  TezosLanguageUtil.translateMichelineToHex(p))
                 .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
         } else {
@@ -606,7 +599,7 @@ export namespace TezosMessageCodec {
      * 
      * @param delegation Message to encode
      */
-    export function encodeDelegation(delegation: Operation): string {
+    export function encodeDelegation(delegation: Delegation): string {
         if (delegation.kind !== 'delegation') { throw new Error('Incorrect operation type'); }
 
         let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('delegation'));
