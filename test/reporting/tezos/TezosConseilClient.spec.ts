@@ -31,8 +31,7 @@ describe('TezosConseilClient tests', () => {
 
         const result = await TezosConseilClient.getBlockHead({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet');
 
-        expect(result.length).to.equal(1);
-        expect(result[0]['level']).to.equal(173066);
+        expect(result['level']).to.equal(173066);
     }));
 
     it('TezosConseilClient.getBlock', mochaAsync(async () => {
@@ -40,6 +39,16 @@ describe('TezosConseilClient tests', () => {
         nockedserver.post('/v2/data/tezos/alphanet/blocks').reply(200, block);
 
         const result = await TezosConseilClient.getBlock({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', 'BL5zoNBN17j2AcUrs8mqSKSMcEiuBKkd9RB6uZ6CgYE2Xyb2ybV');
+
+        expect(result.length).to.equal(1);
+        expect(result[0]['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
+    }));
+
+    it('TezosConseilClient.getBlockByLevel', mochaAsync(async () => {
+        const nockedserver = nock('http://conseil.server');
+        nockedserver.post('/v2/data/tezos/alphanet/blocks').reply(200, block);
+
+        const result = await TezosConseilClient.getBlockByLevel({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'alphanet', 173137);
 
         expect(result.length).to.equal(1);
         expect(result[0]['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
@@ -186,5 +195,6 @@ describe('TezosConseilClient tests', () => {
         expect(operationGroupHashQuery.entity).to.equals('operation_groups');
 
         expect(() => TezosConseilClient.getEntityQueryForId('c0ff33c0ff33c0ff33c0ff33c0ff33c0ff33')).to.throw('Invalid id parameter');
+        expect(() => TezosConseilClient.getEntityQueryForId(-1)).to.throw('Invalid numeric id parameter');
     });
 });
