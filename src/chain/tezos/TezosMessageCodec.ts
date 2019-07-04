@@ -148,6 +148,7 @@ export namespace TezosMessageCodec {
         }
 
         const ballot: Ballot = {
+            kind: 'ballot',
             source: source,
             period: period,
             proposal: proposal,

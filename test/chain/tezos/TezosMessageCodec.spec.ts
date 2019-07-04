@@ -250,6 +250,7 @@ describe("Tezos P2P message decoder test suite", () => {
 
     it("correctly encode a ballot operation", () => {
         const ballot: Ballot = {
+            kind: 'ballot',
             source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
             period: 10,
             proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',

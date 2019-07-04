@@ -113,6 +113,7 @@ var TezosMessageCodec;
             next = getOperationType(ballotMessage.substring(fieldoffset, fieldoffset + 2));
         }
         const ballot = {
+            kind: 'ballot',
             source: source,
             period: period,
             proposal: proposal,

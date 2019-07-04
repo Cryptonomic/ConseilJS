@@ -4,6 +4,7 @@ export interface Activation {
     secret: string;
 }
 export interface Ballot {
+    kind: string;
     source: string;
     period: number;
     proposal: string;
@@ -63,5 +64,5 @@ export interface ContractOrigination extends Origination {
 export interface ContractInvocation extends Transaction {
     parameters: string;
 }
-export declare type Operation = Activation | Transaction | ContractInvocation | Delegation | Reveal | Origination | ContractOrigination;
+export declare type Operation = Activation | Ballot | Transaction | ContractInvocation | Delegation | Reveal | Origination | ContractOrigination;
 export declare type StackableOperation = Transaction | ContractInvocation | Delegation | Origination | ContractOrigination;

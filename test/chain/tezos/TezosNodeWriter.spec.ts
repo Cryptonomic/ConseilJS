@@ -141,6 +141,7 @@ describe('Tezos Operations Test', () => {
 
         it("correctly encode ballot locally", () => {
             const message: Ballot = {
+                kind: 'ballot',
                 source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
                 period: 10,
                 proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',

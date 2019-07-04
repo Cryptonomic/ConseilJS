@@ -9,10 +9,11 @@ export interface Activation {
 }
 
 export interface Ballot {
-    source: string,
-    period: number,
-    proposal: string,
-    vote: BallotVote
+    kind: string;
+    source: string;
+    period: number;
+    proposal: string;
+    vote: BallotVote;
 }
 
 export enum BallotVote {
@@ -76,6 +77,6 @@ export interface ContractInvocation extends Transaction {
     parameters: string;
 }
 
-export type Operation = Activation | Transaction | ContractInvocation | Delegation | Reveal | Origination | ContractOrigination;
+export type Operation = Activation | Ballot | Transaction | ContractInvocation | Delegation | Reveal | Origination | ContractOrigination;
 
 export type StackableOperation =  Transaction | ContractInvocation | Delegation | Origination | ContractOrigination;
