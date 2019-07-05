@@ -29,7 +29,8 @@ const moo = require("moo");
   Lexer to parse keywords more efficiently.
 */
 const lexer = moo.compile({
-    annot: ["%",":","@"],
+    annot: /[\@\%\:][a-z_A-Z0-9]+/,
+    //annot: ["%",":","@"],
     lparen: '(',
     rparen: ')',
     lbrace: '{',
@@ -37,33 +38,33 @@ const lexer = moo.compile({
     ws: /[ \t]+/,
     semicolon: ";",
     number: /-?[0-9]+/,
-    wordNumber: {match: /[a-zA-Z_0-9]+/, type: moo.keywords({
-      'parameter': [ 'parameter' , 'Parameter'],
-      'storage' : ['Storage', 'storage'],
-      'code' : ['Code', 'code'],
-      'comparableType': ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
-      'constantType': ['key', 'unit', 'signature', 'operation', 'address'],
-      'singleArgType': ['option', 'list', 'set', 'contract'],
-      'doubleArgType': ['pair', 'or', 'lambda', 'map', 'big_map'],
-      'instruction': ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
-      'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
-      'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
-      'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
-      'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-       'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
-       'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
-       'CMPLE', 'CMPGE', 'UNPAPAIR', 'CAAR', 'CDDDDADR', 'CDDADDR', 'CDADDR', 'CDADAR', 'IFCMPEQ', 'CDDDADR', 'CADAR', 'CDDDAAR',
-       'CADDR', 'CDDDDR', 'CDDAAR', 'CDDADAR', 'CDDDDDR', 'CDDDDAAR', 'ASSERT_CMPGE', 'CDAAR', 'CDADR', 'CDDAR', 'CDDDR', 
-       'CMPEQ', 'CAAR', 'CAAAR', 'CAAAAR', 'CAAAAAR', 'CAAAAAAR', 'CAAAAAAAR', 'CDDR', 'CDDDR', 'CDDDDR', 'CDDDDDR', 'CDDDDDDR', 'CDDDDDDDR',
-       'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'CADR', 'ASSERT', 'ASSERT_CMPLE',
-       'ASSERT_CMPGE' ],
-      'constantData': ['Unit', 'True', 'False', 'None', 'instruction'],
-      'singleArgData': ['Left', 'Right', 'Some'],
-      'doubleArgData': ['Pair'],
-      'singleArgTypeData': ['Left', 'Right', 'Some'],
-      'doubleArgTypeData': ['Pair'],
-      'elt': "Elt",
-    })},
+    parameter: [ 'parameter' , 'Parameter'],
+    storage: ['Storage', 'storage'],
+    code: ['Code', 'code'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
+    constantType: ['key', 'unit', 'signature', 'operation', 'address'],
+    singleArgType: ['option', 'list', 'set', 'contract'],
+    doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
+    baseInstruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
+    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
+    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
+    'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
+    'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
+    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
+    'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
+    'CMPLE', 'CMPGE', 'UNPAPAIR', 'IFCMPEQ',
+    'ASSERT_CMPGE', 
+    'CMPEQ',
+    'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'ASSERT', 'ASSERT_CMPLE',
+    'ASSERT_CMPGE' ],
+    macroCADR : /C[AD]+R/,
+    constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
+    singleArgData: ['Left', 'Right', 'Some'],
+    doubleArgData: ['Pair'],
+    singleArgTypeData: ['Left', 'Right', 'Some'],
+    doubleArgTypeData: ['Pair'],
+    elt: "Elt",
+    word: /[a-zA-Z_0-9]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
 });
 %}
@@ -95,12 +96,12 @@ type ->
   | %lparen _ %singleArgType _ type _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | %comparableType (_ %annot %wordNumber):+ {% keywordToJson %} 
-  | %constantType (_ %annot %wordNumber):+ {% keywordToJson %}
-  | %lparen _ %comparableType (_ %annot %wordNumber):+ _ %rparen {% comparableTypeToJson %}
-  | %lparen _ %constantType (_ %annot %wordNumber):+ _ %rparen {% comparableTypeToJson %}
-  | %lparen _ %singleArgType (_ %annot %wordNumber):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
-  | %lparen _ %doubleArgType (_ %annot %wordNumber):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
+  | %comparableType (_ %annot):+ {% keywordToJson %} 
+  | %constantType (_ %annot):+ {% keywordToJson %}
+  | %lparen _ %comparableType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
+  | %lparen _ %constantType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
+  | %lparen _ %singleArgType (_ %annot):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
+  | %lparen _ %doubleArgType (_ %annot):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
 #  | %singleArgType _ type {% singleArgKeywordToJson %}
 #  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
 #  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
@@ -136,26 +137,28 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% d => "" %}
 
+instructions -> %baseInstruction | %macroCADR
+
 # Grammar for michelson instruction.   
 instruction ->
     subInstruction {% id %}
-  | %instruction {% keywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ {% keywordToJson %}
-  | %instruction _ subInstruction {% singleArgInstrKeywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ subInstruction {% singleArgTypeKeywordToJson %} 
-  | %instruction _ type {% singleArgKeywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ type {% singleArgTypeKeywordToJson %} 
-  | %instruction _ data {% singleArgKeywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ data {% singleArgTypeKeywordToJson %} 
-  | %instruction _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ type _ type _ subInstruction {% tripleArgTypeKeyWordToJson %}
-  | %instruction _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ subInstruction _ subInstruction {% doubleArgTypeKeywordToJson %}
-  | %instruction _ type _ type {% doubleArgKeywordToJson %}
-  | %instruction (_ %annot %wordNumber):+ _ type _ type {% doubleArgTypeKeywordToJson %}
+  | instructions {% keywordToJson %}
+  | instructions (_ %annot):+ _ {% keywordToJson %}
+  | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
+  | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %} 
+  | instructions _ type {% singleArgKeywordToJson %}
+  | instructions (_ %annot):+ _ type {% singleArgTypeKeywordToJson %} 
+  | instructions _ data {% singleArgKeywordToJson %}
+  | instructions (_ %annot):+ _ data {% singleArgTypeKeywordToJson %} 
+  | instructions _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
+  | instructions (_ %annot):+ _ type _ type _ subInstruction {% tripleArgTypeKeyWordToJson %}
+  | instructions _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
+  | instructions (_ %annot):+ _ subInstruction _ subInstruction {% doubleArgTypeKeywordToJson %}
+  | instructions _ type _ type {% doubleArgKeywordToJson %}
+  | instructions (_ %annot):+ _ type _ type {% doubleArgTypeKeywordToJson %}
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %} 
-  | "PUSH" (_ %annot %wordNumber):+ _ type _ data {% pushWithAnnotsToJson %}
+  | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
 
 # Grammar for michelson data.
@@ -672,7 +675,7 @@ semicolons -> null | semicolons ";"
         }
       }
       else {
-        const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+        const annot = d[1].map(x => `"${x[1]}"`)
         if (checkKeyword(word)) {
           return [expandKeyword(word, annot)] 
         }
@@ -697,12 +700,12 @@ semicolons -> null | semicolons ";"
     //changed 5 secs ago
 
     const comparableTypeToJson = d => {
-      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[3].map(x => `"${x[1]}"`)
       return `{ "prim": "${d[2]}", "annots": [${annot}]  }`;
     }
 
     const singleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[3].map(x => `"${x[1]}"`)
       return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
     }
 
@@ -718,7 +721,7 @@ semicolons -> null | semicolons ";"
 
     const singleArgTypeKeywordToJson = d => {
       const word = `${d[0].toString()}`
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[1].map(x => `"${x[1]}"`)
       if (check_dip(word)) {
         return expandDIP(word, d[2], annot)
       }
@@ -799,17 +802,17 @@ semicolons -> null | semicolons ";"
     }
 
     const doubleArgTypeKeywordToJson = d => {
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[1].map(x => `"${x[1]}"`)
       return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": [${annot}]  }`;
     }
 
     const doubleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[3].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[3].map(x => `"${x[1]}"`)
       return `{ "prim": "${d[2]}", "args": [ ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
     }
 
     const tripleArgTypeKeyWordToJson = d => {
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[1].map(x => `"${x[1]}"`)
       return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;  
     }
 
@@ -818,7 +821,7 @@ semicolons -> null | semicolons ";"
     }
 
     const pushWithAnnotsToJson = d => {
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
+      const annot = d[1].map(x => `"${x[1]}"`)
       return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
