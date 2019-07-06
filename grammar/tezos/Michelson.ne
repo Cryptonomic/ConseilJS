@@ -260,19 +260,21 @@ semicolons -> null | semicolons ";"
 
     //currently does not handle annotations
     const expand_dup = (dup, annot) => {
-      if (DUPmatcher.test(dup)) {
-        var newDup = dup.substring(0,1) + dup.substring(2)
-        var innerDup = expand_dup(newDup, annot)
-        return `[{ "prim": "DIP", "args": [  ${innerDup}  ] },{"prim":"SWAP"}]`;
-      }
-      else {
-        if (annot == null) {
-          return `[{ "prim": "DUP" }]`;
+        let t = '';
+        if (DUPmatcher.test(dup)) {
+            const c = dup.length - 3;
+            for (let i = 0; i < c; i++) { t += '[{ "prim": "DIP", "args": [ '; }
+
+            if (annot == null) {
+                t += `[{ "prim": "DUP" }]`;
+            } else {
+                t += `[{ "prim": "DUP", "annots": [${annot}] }]`;
+            }
+
+            for (let i = 0; i < c; i++) { t += ' ] },{"prim":"SWAP"}]'; }
+            return t;
         }
-        else {
-          return `[{ "prim": "DUP", "annots": [${annot}] }]`;
-        }
-      }
+        throw new Error(``);
       /*
 
       if (dup == "DUP") {
@@ -445,7 +447,7 @@ semicolons -> null | semicolons ";"
     }
 
     const check_if = ifStatement => {
-      var pattern = new RegExp('^IF(EQ|NEQ|GT|LT|GE|LE|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
+      var pattern = new RegExp('^IF(EQ|NEQ|GT|LT|GE|LE|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE|_SOME)$')
       return pattern.test(ifStatement)
     }
 
@@ -537,12 +539,17 @@ semicolons -> null | semicolons ";"
           else {
             return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
           }
+        case 'IF_SOME':
+          if (annot == null) {
+            return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]}]`
+          }
+          else {
+            return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}] ], "annots": [${annot}]}]`
+          }
       }
     }
 
-    const check_dip = dip => {
-      return DIPmatcher.test(dip)
-    }
+    const check_dip = dip => DIPmatcher.test(dip);
 
     const expandDIP = (dip, instruction, annot) => {
       //switch (dip) {
