@@ -27,17 +27,21 @@ const moo = require("moo");
 
 
 const macroCADR = /C[AD]+R/;
+const macroSETCADR = /SET_C[AD]+R/;
 const macroDIP = /DII+P/;
 const macroDUP = /DUU+P/;
 const DIPmatcher = new RegExp(macroDIP);
 const DUPmatcher = new RegExp(macroDUP);
+const macroASSERTlist = ['ASSERT', 'ASSERT_EQ', 'ASSERT_NEQ', 'ASSERT_GT', 'ASSERT_LT', 'ASSERT_GE', 'ASSERT_LE', 'ASSERT_NONE', 'ASSERT_SOME', 'ASSERT_LEFT', 'ASSERT_RIGHT', 'ASSERT_CMPEQ', 'ASSERT_CMPNEQ', 'ASSERT_CMPGT', 'ASSERT_CMPLT', 'ASSERT_CMPGE', 'ASSERT_CMPLE'];
+const macroIFCMPlist = ['IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE'];
+const macroCMPlist = ['CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE', 'CMPGE'];
+const macroIFlist = ['IFEQ', 'IFNEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE'];
 
 /*
   Lexer to parse keywords more efficiently.
 */
 const lexer = moo.compile({
     annot: /[\@\%\:][a-z_A-Z0-9]+/,
-    //annot: ["%",":","@"],
     lparen: '(',
     rparen: ')',
     lbrace: '{',
@@ -53,19 +57,17 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT',
-    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',
-    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',
+    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET', 'UPDATE', 'IF', 'LOOP', 'LOOP_LEFT',
+    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD', 'SUB', 'MUL', 'EDIV', 'ABS', 'NEG',
     'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS',
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
-    'CMPLE', 'CMPGE', 'UNPAPAIR', 'IFCMPEQ', 'INT',
-    'ASSERT_CMPGE',
-    'CMPEQ',
-    'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'ASSERT', 'ASSERT_CMPLE',
-    'ASSERT_CMPGE' ],
+    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'REDUCE', 'UNPAIR',
+    'UNPAPAIR', 'INT', 'ISNAT', 'IF_SOME', 'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE', 'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE'],
     macroCADR: macroCADR,
     macroDIP: macroDIP,
     macroDUP: macroDUP,
+    macroSETCADR: macroSETCADR,
+    macroASSERTlist: macroASSERTlist,
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
@@ -145,7 +147,7 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% d => "" %}
 
-instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP
+instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSETCADR | %macroASSERTlist
 
 # Grammar for michelson instruction.
 instruction ->
@@ -199,22 +201,13 @@ semicolons -> null | semicolons ";"
 
 @{%
     const checkC_R = c_r => {
-      var pattern = new RegExp('^C(A|D)(A|D)+R$')
-      return pattern.test(c_r)
-    }
-
-    const mapper = a_or_d => {
-      switch(a_or_d) {
-        case "A":
-          return keywordToJson(['CAR'])
-        case "D":
-          return keywordToJson(['CDR'])
-      }
+      var pattern = new RegExp('^C(A|D)(A|D)+R$'); // TODO
+      return pattern.test(c_r);
     }
 
     const expandC_R = (c_r, annot) => {
-      var as_and_ds = c_r.substring(1,c_r.length-1)
-      var expandedC_R = as_and_ds.split('').map(x => mapper(x))
+      var as_and_ds = c_r.substring(1, c_r.length-1)
+      var expandedC_R = as_and_ds.split('').map(c => (c === 'A' ? '{ "prim": "CAR" }' : '{ "prim": "CDR" }'));
       //if annotations, put in last element of array
       if (annot != null) {
         const lastChar = as_and_ds[as_and_ds.length-1]
@@ -225,7 +218,7 @@ semicolons -> null | semicolons ";"
           expandedC_R[expandedC_R.length-1] = `{ "prim": "CDR", "annots": [${annot}] }`
         }
       }
-      return `[${expandedC_R}]`
+      return `[${expandedC_R}]`;
     }
 
       //input: C*R
@@ -235,11 +228,7 @@ semicolons -> null | semicolons ";"
       // if annotations, put in last element of array
       //return `${mappedArray}`
 
-    const check_compare = cmp =>
-    {
-      var pattern = new RegExp('^CMP(NEQ|EQ|GT|LT|GE|LE)$')
-      return pattern.test(cmp)
-    }
+    const check_compare = cmp => macroCMPlist.includes(cmp);
 
     const expand_cmp = (cmp, annot) => {
       var op = cmp.substring(3)
@@ -320,11 +309,7 @@ semicolons -> null | semicolons ";"
       // DU(U+)P -> n = |U+|, repeat n keywordToJson(['DIP']); keywordToJson(['DUP']); repeat n keywordToJson(['SWAP']);
       // // if no annot, return duuuup put annot in swap otherwise
 
-    const check_assert = assert =>
-    {
-      var pattern = new RegExp('^ASSERT$|^ASSERT_(EQ|NEQ|GT|LT|GE|LE|NONE|SOME|LEFT|RIGHT|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE)$')
-      return pattern.test(assert)
-    }
+    const check_assert = assert => macroASSERTlist.includes(assert);
 
     const expand_assert = (assert, annot) => {
       //input : ASSERT_CMP**
@@ -432,9 +417,7 @@ semicolons -> null | semicolons ";"
       }
     }
 
-    const check_fail = fail => {
-      return fail == "FAIL";
-    }
+    const check_fail = fail => fail === "FAIL";
 
     const expand_fail = (fail, annot) => {
       // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
@@ -446,10 +429,7 @@ semicolons -> null | semicolons ";"
       }
     }
 
-    const check_if = ifStatement => {
-      var pattern = new RegExp('^IF(EQ|NEQ|GT|LT|GE|LE|CMPEQ|CMPNEQ|CMPGT|CMPLT|CMPGE|CMPLE|_SOME)$')
-      return pattern.test(ifStatement)
-    }
+    const check_if = ifStatement => (macroIFCMPlist.includes(ifStatement) || macroIFlist.includes(ifStatement) || ifStatement === 'IF_SOME'); // TODO: IF_SOME
 
     const expandIF = (ifInstr, ifTrue, ifFalse, annot) => {
       //IFEQ, IFGE, IFGT, IFLE, IFLT : EXACTLY THE SAME AS IFCMP, JUST REMOVE COMPARE
@@ -574,10 +554,7 @@ semicolons -> null | semicolons ";"
         throw new Error(``);
     }
 
-    //until we have proper checks for these cases
-    const check_other = word => {
-      return word == "UNPAIR" || word == "UNPAPAIR"
-    }
+    const check_other = word => (word == "UNPAIR" || word == "UNPAPAIR"); // TODO: dynamic matching
 
     //UNPAIR and annotations follows a nonstandard format described in docs, and is dependent on the number of
     //annotations given to the command, right now we're hard coding to fix the multisig contract swiftly, but a
@@ -771,20 +748,14 @@ semicolons -> null | semicolons ";"
      * Given a keyword with three arguments and parentheses, convert it into JSON.
      * Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
      */
-    const tripleArgKeyWordWithParenToJson = d =>  { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
+    const tripleArgKeyWordWithParenToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
 
     const nestedArrayChecker = x => {
-      if (Array.isArray(x)) {
-        if (Array.isArray(x[0])) {
-          return x[0]
+        if (Array.isArray(x) && Array.isArray(x[0])) {
+            return x[0];
+        } else {
+            return x
         }
-        else {
-          return x
-        }
-      }
-      else {
-        return x
-      }
     }
 
     /**
@@ -827,5 +798,4 @@ semicolons -> null | semicolons ";"
       const annot = d[1].map(x => `"${x[1]}"`)
       return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
-
 %}
