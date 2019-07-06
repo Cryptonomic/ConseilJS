@@ -11,7 +11,7 @@ const moo = require("moo");
     "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
   - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
   - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested, 
+  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
     need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
     last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
     in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
@@ -24,6 +24,13 @@ const moo = require("moo");
     storage, and code definitions. We do not handle this nesting, as we do a lot of preprocessing outside of the grammar.
   - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
+
+
+const macroCADR = /C[AD]+R/;
+const macroDIP = /DII+P/;
+const macroDUP = /DUU+P/;
+const DIPmatcher = new RegExp(macroDIP);
+const DUPmatcher = new RegExp(macroDUP);
 
 /*
   Lexer to parse keywords more efficiently.
@@ -45,19 +52,20 @@ const lexer = moo.compile({
     constantType: ['key', 'unit', 'signature', 'operation', 'address'],
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
-    baseInstruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT', 
-    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',  
-    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',   
-    'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS', 
+    baseInstruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT',
+    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET',  'UPDATE',  'IF',  'LOOP',  'LOOP_LEFT',
+    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD',  'SUB',  'MUL', 'EDIV', 'ABS', 'NEG',
+    'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS',
     'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'CDAR', 'CDDR', 'DUUP', 'DUUUP', 'DUUUUP', 
-    'DUUUUUP', 'DUUUUUUP', 'DUUUUUUUP', 'DIIP', 'DIIIP', 'DIIIIP', 'DIIIIIP', 'DIIIIIIP', 'DIIIIIIIP', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
-    'CMPLE', 'CMPGE', 'UNPAPAIR', 'IFCMPEQ',
-    'ASSERT_CMPGE', 
+    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'REDUCE', 'CMPLT', 'UNPAIR', 'CMPGT',
+    'CMPLE', 'CMPGE', 'UNPAPAIR', 'IFCMPEQ', 'INT',
+    'ASSERT_CMPGE',
     'CMPEQ',
     'ASSERT_CMPEQ', 'ASSERT_CMPLT', 'ISNAT', 'IFCMPGT', 'IFCMPGE', 'IFCMPLT', 'IFCMPLE', 'IF_SOME', 'ASSERT', 'ASSERT_CMPLE',
     'ASSERT_CMPGE' ],
-    macroCADR : /C[AD]+R/,
+    macroCADR: macroCADR,
+    macroDIP: macroDIP,
+    macroDUP: macroDUP,
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
@@ -74,7 +82,7 @@ const lexer = moo.compile({
 
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %} | parameterValue {% id %} | storageValue {% id %} | typeData {% id %}
-script -> parameter _ storage _ code {% scriptToJson %} 
+script -> parameter _ storage _ code {% scriptToJson %}
 
 #parameter -> "parameter" | "Parameter"
 #storage -> "Storage" | "storage"
@@ -89,14 +97,14 @@ code -> %code _ subInstruction _ semicolons _ {% d => d[2] %}
   | %code _ "{};" {% d => "code {}" %}
 
 # Grammar of a Michelson type
-type -> 
-    %comparableType {% keywordToJson %} 
-  | %constantType {% keywordToJson %} 
+type ->
+    %comparableType {% keywordToJson %}
+  | %constantType {% keywordToJson %}
   | %singleArgType _ type {% singleArgKeywordToJson %}
   | %lparen _ %singleArgType _ type _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | %comparableType (_ %annot):+ {% keywordToJson %} 
+  | %comparableType (_ %annot):+ {% keywordToJson %}
   | %constantType (_ %annot):+ {% keywordToJson %}
   | %lparen _ %comparableType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
   | %lparen _ %constantType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
@@ -105,9 +113,9 @@ type ->
 #  | %singleArgType _ type {% singleArgKeywordToJson %}
 #  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
 #  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
-#  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}  
+#  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
-typeData -> 
+typeData ->
     (%singleArgTypeData|%singleArgType) _ typeData {% singleArgKeywordToJson %}
   | %lparen _ (%singleArgTypeData|%singleArgType) _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
   | (%doubleArgTypeData|%doubleArgType) _ typeData _ typeData {% doubleArgKeywordToJson %}
@@ -122,11 +130,11 @@ typeData ->
 #  | %word {% stringToJson %}
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
-subTypeData -> 
+subTypeData ->
     "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
-subTypeElt -> 
+subTypeElt ->
     "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
@@ -137,19 +145,19 @@ subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ %rbrace {% d => "" %}
 
-instructions -> %baseInstruction | %macroCADR
+instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP
 
-# Grammar for michelson instruction.   
+# Grammar for michelson instruction.
 instruction ->
     subInstruction {% id %}
   | instructions {% keywordToJson %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
-  | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %} 
+  | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}
   | instructions _ type {% singleArgKeywordToJson %}
-  | instructions (_ %annot):+ _ type {% singleArgTypeKeywordToJson %} 
+  | instructions (_ %annot):+ _ type {% singleArgTypeKeywordToJson %}
   | instructions _ data {% singleArgKeywordToJson %}
-  | instructions (_ %annot):+ _ data {% singleArgTypeKeywordToJson %} 
+  | instructions (_ %annot):+ _ data {% singleArgTypeKeywordToJson %}
   | instructions _ type _ type _ subInstruction {% tripleArgKeyWordToJson %}
   | instructions (_ %annot):+ _ type _ type _ subInstruction {% tripleArgTypeKeyWordToJson %}
   | instructions _ subInstruction _ subInstruction {% doubleArgInstrKeywordToJson %}
@@ -157,7 +165,7 @@ instruction ->
   | instructions _ type _ type {% doubleArgKeywordToJson %}
   | instructions (_ %annot):+ _ type _ type {% doubleArgTypeKeywordToJson %}
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
-  | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %} 
+  | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
 
@@ -174,11 +182,11 @@ data ->
 #  | %word {% stringToJson %}
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
-subData -> 
+subData ->
     "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
-subElt -> 
+subElt ->
     "{" _ (elt ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (elt ";" _):+ ")" {% instructionSetToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson  %}
@@ -190,7 +198,6 @@ _ -> [\s]:*
 semicolons -> null | semicolons ";"
 
 @{%
-
     const checkC_R = c_r => {
       var pattern = new RegExp('^C(A|D)(A|D)+R$')
       return pattern.test(c_r)
@@ -206,7 +213,7 @@ semicolons -> null | semicolons ";"
     }
 
     const expandC_R = (c_r, annot) => {
-      var as_and_ds = c_r.substring(1,c_r.length-1) 
+      var as_and_ds = c_r.substring(1,c_r.length-1)
       var expandedC_R = as_and_ds.split('').map(x => mapper(x))
       //if annotations, put in last element of array
       if (annot != null) {
@@ -228,13 +235,13 @@ semicolons -> null | semicolons ";"
       // if annotations, put in last element of array
       //return `${mappedArray}`
 
-    const check_compare = cmp => 
+    const check_compare = cmp =>
     {
       var pattern = new RegExp('^CMP(NEQ|EQ|GT|LT|GE|LE)$')
       return pattern.test(cmp)
     }
 
-    const expand_cmp = (cmp, annot) => { 
+    const expand_cmp = (cmp, annot) => {
       var op = cmp.substring(3)
       var binary_op = keywordToJson([`${op}`])
       var compare = keywordToJson(['COMPARE'])
@@ -249,33 +256,28 @@ semicolons -> null | semicolons ";"
       // if annotations, put in last element of array
       //return '${[keywordToJson(['COMPARE'])], ^}
 
-    const check_dup = dup =>
-    {
-      var pattern = new RegExp('^DUU+P$')
-      return pattern.test(dup)
-    }
+    const check_dup = dup => DUPmatcher.test(dup);
 
     //currently does not handle annotations
     const expand_dup = (dup, annot) => {
-      var pattern = new RegExp('^DUU+P$')
-      if (pattern.test(dup)) {
+      if (DUPmatcher.test(dup)) {
         var newDup = dup.substring(0,1) + dup.substring(2)
         var innerDup = expand_dup(newDup, annot)
-        return `[{ "prim": "DIP", "args": [  ${innerDup}  ] },{"prim":"SWAP"}]`; 
+        return `[{ "prim": "DIP", "args": [  ${innerDup}  ] },{"prim":"SWAP"}]`;
       }
       else {
         if (annot == null) {
-          return `[{ "prim": "DUP" }]`; 
+          return `[{ "prim": "DUP" }]`;
         }
         else {
-          return `[{ "prim": "DUP", "annots": [${annot}] }]`; 
+          return `[{ "prim": "DUP", "annots": [${annot}] }]`;
         }
       }
       /*
 
       if (dup == "DUP") {
           return `{ "prim": "${dup}" }`;
-  
+
       }
 
       if (dup == "DUUP") {
@@ -284,7 +286,7 @@ semicolons -> null | semicolons ";"
         }
         else {
 
-        }  
+        }
       }
 
 
@@ -343,59 +345,59 @@ semicolons -> null | semicolons ";"
           }
         case 'ASSERT_CMPEQ':
           if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`  
+            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_CMPGE':
           if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`  
+            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_CMPGT':
           if (annot == null) {
             return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`            
+            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_CMPLE':
           if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`              
+            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_CMPLT':
           if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`                 
+            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
-        case 'ASSERT_CMPNEQ': 
+        case 'ASSERT_CMPNEQ':
           if (annot == null) {
             return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`            
+            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_EQ':
           if (annot == null) {
             return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`
           }
           else {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`          
+            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_GE':
           if (annot == null) {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`  
+            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`              
+            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_GT':
           if (annot == null) {
@@ -409,37 +411,37 @@ semicolons -> null | semicolons ";"
             return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`          
+            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_LT':
           if (annot == null) {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`   
+            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`               
+            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
           }
         case 'ASSERT_NEQ':
           if (annot == null) {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`        
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
           }
           else {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`                    
-          } 
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
+          }
       }
     }
 
     const check_fail = fail => {
       return fail == "FAIL";
-    } 
+    }
 
     const expand_fail = (fail, annot) => {
       // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
       if (annot == null) {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]`   
+        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]`
       }
       else {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}]} ]`  
-      } 
+        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}]} ]`
+      }
     }
 
     const check_if = ifStatement => {
@@ -460,120 +462,114 @@ semicolons -> null | semicolons ";"
           }
         case 'IFCMPGE':
           if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
+            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
           }
         case 'IFCMPGT':
           if (annot == null) {
             return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`         
+            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
           }
         case 'IFCMPLE':
           if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
-          }       
+            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFCMPLT':
           if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`             
-          }        
-        case 'IFCMPNEQ': 
+            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
+        case 'IFCMPNEQ':
           if (annot == null) {
             return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
-          }        
+            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFEQ':
           if (annot == null) {
             return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`            
-          }        
+            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFGE':
           if (annot == null) {
-            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
-          }        
+            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFGT':
           if (annot == null) {
             return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`          
-          }        
+            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFLE':
           if (annot == null) {
-            return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`  
+            return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-           return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
-          }        
+           return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
         case 'IFLT':
           if (annot == null) {
-            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`   
+            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`              
-          }        
-        case 'IFNEQ': 
+            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
+        case 'IFNEQ':
           if (annot == null) {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`        
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
           }
           else {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`                  
-          }        
+            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
+          }
       }
-    }   
-
-    const check_dip = dip => {
-      var pattern = new RegExp('^DII+P$')
-      return pattern.test(dip)
     }
 
-    const expandDIP = (dip, instruction, annot) => { 
+    const check_dip = dip => {
+      return DIPmatcher.test(dip)
+    }
+
+    const expandDIP = (dip, instruction, annot) => {
       //switch (dip) {
       //  case 'DIIP':
       //    return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
-      //}  
+      //}
 
       // ANNOTATION LAST ONE
-      // DIP code -> return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`; 
-      // DI(I+)P code -> return `{ "prim": "DIP", "args": [ [ ${expandDIP(D(I+)P, instruction)} ] ] }`; 
-      
-      var pattern = new RegExp('^DII+P$')
-      if (pattern.test(dip)) {
-        var newDip = dip.substring(0,1) + dip.substring(2)
-        var innerDip = expandDIP(newDip, instruction, annot)
-        return `[{ "prim": "DIP", "args": [  ${innerDip}  ] }]`; 
-      }
-      else {
-        //add annotation in this branch
-        if (annot == null) {
-          return `[{ "prim": "DIP", "args": [ [ ${instruction} ] ] }]`; 
+      // DIP code -> return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`;
+      // DI(I+)P code -> return `{ "prim": "DIP", "args": [ [ ${expandDIP(D(I+)P, instruction)} ] ] }`;
+
+      let t = '';
+        if (DIPmatcher.test(dip)) {
+            const c = dip.length - 2;;
+            for (let i = 0; i < c; i++) { t += '[{ "prim": "DIP", "args": [ '; }
+            t = `${t} [ ${instruction} ] ]`;
+            if (!!annot) { t = `${t}, "annots": [${annot}]`; }
+            t += ' }]';
+            for (let i = 0; i < c - 1; i++) { t += ' ] }]'; }
+            return t;
         }
-        else {
-          return `[{ "prim": "DIP", "args": [ [ ${instruction} ] ], "annots": [${annot}] }]`; 
-        }
-      }
-      
+        throw new Error(``);
     }
 
     //until we have proper checks for these cases
     const check_other = word => {
-      return word == "UNPAIR" || word == "UNPAPAIR"  
+      return word == "UNPAIR" || word == "UNPAPAIR"
     }
 
     //UNPAIR and annotations follows a nonstandard format described in docs, and is dependent on the number of
@@ -611,7 +607,7 @@ semicolons -> null | semicolons ";"
     }
 
     const checkKeyword = word => {
-      return check_assert(word) 
+      return check_assert(word)
              || check_compare(word)
              || check_dip(word)
              || check_dup(word)
@@ -664,31 +660,31 @@ semicolons -> null | semicolons ";"
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
-    const keywordToJson = d => { 
+    const keywordToJson = d => {
       const word = d[0].toString()
       if (d.length == 1) {
         if (checkKeyword(word)) {
-          return [expandKeyword(word, null)] 
+          return [expandKeyword(word, null)]
         }
         else {
-          return `{ "prim": "${d[0]}" }`; 
+          return `{ "prim": "${d[0]}" }`;
         }
       }
       else {
         const annot = d[1].map(x => `"${x[1]}"`)
         if (checkKeyword(word)) {
-          return [expandKeyword(word, annot)] 
+          return [expandKeyword(word, annot)]
         }
         else {
-          return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
+          return `{ "prim": "${d[0]}", "annots": [${annot}] }`;
         }
       }
     }
 
     /*
-    const typeKeywordToJson = d => {   
+    const typeKeywordToJson = d => {
       const annot = d[1].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;  
+      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;
     }
     */
 
@@ -709,13 +705,13 @@ semicolons -> null | semicolons ";"
       return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
     }
 
-    const singleArgInstrKeywordToJson = d => { 
+    const singleArgInstrKeywordToJson = d => {
       const word = `${d[0].toString()}`
       if (check_dip(word)) {
         return expandDIP(word, d[2])
       }
       else {
-        return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; 
+        return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`;
       }
     }
 
@@ -726,8 +722,8 @@ semicolons -> null | semicolons ";"
         return expandDIP(word, d[2], annot)
       }
       else {
-        return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`; 
-      }  
+        return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+      }
     }
 
     /**
@@ -742,13 +738,13 @@ semicolons -> null | semicolons ";"
      */
     const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
 
-    const doubleArgInstrKeywordToJson = d => { 
+    const doubleArgInstrKeywordToJson = d => {
       const word = `${d[0].toString()}`
       if (check_if(word)) {
         return expandIF(word, d[2], d[4])
       }
       else {
-        return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; 
+        return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`;
       }
     }
 
@@ -778,15 +774,15 @@ semicolons -> null | semicolons ";"
         else {
           return x
         }
-      } 
+      }
       else {
         return x
-      } 
+      }
     }
 
     /**
      * Given a list of michelson instructions, convert it into JSON.
-     * Example: "{CAR; NIL operation; PAIR;}" -> 
+     * Example: "{CAR; NIL operation; PAIR;}" ->
      * [ '{ prim: CAR }',
      * '{ prim: NIL, args: [{ prim: operation }] }',
      * '{ prim: PAIR }' ]
@@ -813,7 +809,7 @@ semicolons -> null | semicolons ";"
 
     const tripleArgTypeKeyWordToJson = d => {
       const annot = d[1].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;  
+      return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
     }
 
     const pushToJson = d => {
