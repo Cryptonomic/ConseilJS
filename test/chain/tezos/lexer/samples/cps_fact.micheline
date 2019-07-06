@@ -1,7 +1,7 @@
 {  
-   "script":[  
+   "script":[
       {  
-         "prim":"storage",
+         "prim":"parameter",
          "args":[  
             {  
                "prim":"nat"
@@ -9,7 +9,7 @@
          ]
       },
       {  
-         "prim":"parameter",
+         "prim":"storage",
          "args":[  
             {  
                "prim":"nat"
