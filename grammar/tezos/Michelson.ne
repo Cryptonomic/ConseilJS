@@ -156,8 +156,8 @@ instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSE
 
 # Grammar for michelson instruction.
 instruction ->
-    subInstruction {% id %}
-  | instructions {% keywordToJson %}
+  # subInstruction {% id %}
+    instructions {% keywordToJson %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
   | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}
@@ -175,6 +175,7 @@ instruction ->
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
+  #| %lbrace (_ instruction _ %semicolon:? _):+ _ %rbrace {% id %}
 
 # Grammar for michelson data.
 data ->
