@@ -56,13 +56,18 @@ const lexer = moo.compile({
     constantType: ['key', 'unit', 'signature', 'operation', 'address'],
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
-    baseInstruction: ['DROP', 'DUP', 'SWAP', 'SOME', 'NONE', 'UNIT', 'IF_NONE', 'PAIR', 'CAR', 'CDR', 'LEFT', 'RIGHT', 'IF_LEFT', 'IF_RIGHT',
-    'NIL', 'CONS', 'IF_CONS', 'SIZE', 'EMPTY_SET', 'EMPTY_MAP', 'MAP',  'ITER', 'MEM',  'GET', 'UPDATE', 'IF', 'LOOP', 'LOOP_LEFT',
-    'LAMBDA', 'EXEC', 'DIP', 'FAILWITH', 'CAST', 'RENAME', 'CONCAT', 'SLICE', 'PACK', 'UNPACK', 'ADD', 'SUB', 'MUL', 'EDIV', 'ABS', 'NEG',
-    'LSL', 'LSR', 'OR', 'AND', 'XOR', 'NOT', 'COMPARE', 'EQ', 'NEQ', 'LT', 'GT', 'LE', 'GE', 'SELF', 'CONTRACT', 'TRANSFER_TOKENS',
-    'SET_DELEGATE', 'CREATE_CONTRACT', 'IMPLICIT_ACCOUNT', 'NOW', 'AMOUNT', 'BALANCE', 'CHECK_SIGNATURE', 'BLAKE2B', 'SHA256',
-    'SHA512', 'HASH_KEY', 'STEPS_TO_QUOTA', 'SOURCE', 'SENDER', 'ADDRESS', 'FAIL', 'REDUCE', 'UNPAIR',
-    'UNPAPAIR', 'INT', 'ISNAT', 'IF_SOME', 'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE', 'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE'],
+    baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_ACCOUNT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
+        'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
+        'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
+        'SENDER', 'SET_DELEGATE', 'SHA256', 'SHA512', 'SIZE', 'SLICE', 'SOME', 'SOURCE', 'STEPS_TO_QUOTA', 'SUB', 'SWAP',
+        'TRANSFER_TOKENS', 'UNIT', 'UNPACK', 'UPDATE', 'XOR',
+        'UNPAIR', 'UNPAPAIR', // TODO: macro
+        'IF_SOME', // TODO: macro
+        'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
+        'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE' // TODO: should be separate
+        ],
     macroCADR: macroCADR,
     macroDIP: macroDIP,
     macroDUP: macroDUP,
@@ -133,8 +138,8 @@ typeData ->
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subTypeData ->
-    "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
+    "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
@@ -189,9 +194,9 @@ subData ->
   | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subElt ->
-    "{" _ (elt ";" _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (elt ";" _):+ ")" {% instructionSetToJsonSemi %}
-elt -> %elt _ data _ data {% doubleArgKeywordToJson  %}
+    "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
+elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 
 # Helper grammar for whitespace.
