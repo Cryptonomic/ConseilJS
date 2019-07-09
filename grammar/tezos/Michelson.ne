@@ -147,17 +147,19 @@ subTypeElt ->
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
 # Helper pattern for lists of michelson instructions
-subInstruction -> %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
+subInstruction ->
+    %lbrace _ %rbrace {% d => "" %}
+  | %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
   | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJsonSemi %} #If last instruction has semicolon
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
-  | %lbrace _ %rbrace {% d => "" %}
+  # %lbrace _ instruction (_ ";" _ instruction):* _ ";":? _ %rbrace {% instructionListToJson %}
 
 instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSETCADR | %macroASSERTlist
 
 # Grammar for michelson instruction.
 instruction ->
-    subInstruction {% id %}
-  | instructions {% keywordToJson %}
+  # subInstruction {% id %}
+    instructions {% keywordToJson %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
   | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}
@@ -806,4 +808,10 @@ semicolons -> null | semicolons ";"
     }
 
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
+
+    const instructionListToJson = d => {
+        const instructionOne = [d[2]]
+        const instructionList = d[3].map(x => x[3])
+        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
+    }
 %}

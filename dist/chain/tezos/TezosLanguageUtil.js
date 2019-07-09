@@ -147,7 +147,12 @@ var TezosLanguageUtil;
     TezosLanguageUtil.hexToMicheline = hexToMicheline;
     function translateMichelsonToMicheline(code) {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
-        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+        try {
+            parser.feed(preProcessMichelsonScript(code).join(' '));
+        }
+        catch (err) {
+            console.log(err);
+        }
         return parser.results[0];
     }
     TezosLanguageUtil.translateMichelsonToMicheline = translateMichelsonToMicheline;
@@ -223,7 +228,6 @@ var TezosLanguageUtil;
             .replace(/{"/g, '{ "')
             .replace(/"}/g, '" }')
             .replace(/","/g, '", "')
-            .replace(/\],"/g, '\], "')
             .replace(/\[\[/g, '[ [')
             .replace(/\]\]/g, '] ]')
             .replace(/\["/g, '\[ "')
