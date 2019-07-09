@@ -60,7 +60,7 @@ const lexer = moo.compile({
         'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_ACCOUNT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
-        'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
+        'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
         'SENDER', 'SET_DELEGATE', 'SHA256', 'SHA512', 'SIZE', 'SLICE', 'SOME', 'SOURCE', 'STEPS_TO_QUOTA', 'SUB', 'SWAP',
         'TRANSFER_TOKENS', 'UNIT', 'UNPACK', 'UPDATE', 'XOR',
         'UNPAIR', 'UNPAPAIR', // TODO: macro
@@ -175,6 +175,7 @@ instruction ->
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | %lbrace _ %rbrace {% d => "" %}
+  | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
 
 # Grammar for michelson data.
 data ->
@@ -803,4 +804,6 @@ semicolons -> null | semicolons ";"
       const annot = d[1].map(x => `"${x[1]}"`)
       return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
+
+    const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
 %}
