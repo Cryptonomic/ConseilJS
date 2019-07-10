@@ -138,11 +138,13 @@ typeData ->
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subTypeData ->
-    "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
+    "{}" {% d => "[]" %}
+  | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
-    "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
+    "{}" {% d => "[]" %}
+  | "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
@@ -193,11 +195,13 @@ data ->
   #| %lbrace _ %rbrace {% d => [] %}
 # Helper grammar for list of michelson data types.
 subData ->
-    "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
+    "{}" {% d => "[]" %}
+  | "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subElt ->
-    "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
+    "{}" {% d => "[]" %}
+  | "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
