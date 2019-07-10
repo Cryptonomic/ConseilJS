@@ -158,8 +158,8 @@ instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSE
 
 # Grammar for michelson instruction.
 instruction ->
-    subInstruction {% id %}
-  | instructions {% keywordToJson %}
+  # subInstruction {% id %}
+    instructions {% keywordToJson %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
   | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}

@@ -1,0 +1,17 @@
+{ "script":
+      [ { "prim": "parameter",
+          "args": [ { "prim": "list", "args": [ { "prim": "int" } ] } ] },
+        { "prim": "storage",
+          "args": [ { "prim": "list", "args": [ { "prim": "int" } ] } ] },
+        { "prim": "code",
+          "args":
+            [ [ { "prim": "CAR" },
+                { "prim": "MAP",
+                  "args":
+                    [ [ { "prim": "PUSH",
+                          "args": [ { "prim": "int" }, { "int": "1" } ] },
+                        { "prim": "ADD" } ] ] },
+                { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+                { "prim": "PAIR" } ] ] } ],
+    "storage": { "string": "before" }, "input": { "string": "after" },
+    "amount": "50000" }

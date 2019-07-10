@@ -4,25 +4,22 @@ import { expect } from 'chai';
 import { TezosLanguageUtil } from "../../../../src/chain/tezos/TezosLanguageUtil";
 import * as fs from 'fs';
 import * as path from 'path';
-import { parse } from 'url';
+import glob from 'glob';
 
-describe('Michelson/Micheline official contract tests', async () => {
+describe('Michelson/Micheline contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
-    const p = new Promise<string[]>((resolve, reject) => {
-        fs.readdir(contractSampleRoot, function(err, items) {
-            if (!!err) { reject(err); return; }
-            resolve([... new Set(items.map(f => path.basename(f, path.extname(f))))]);
-        });
-    });
-    const samples = await p;
+    let samples: string[] = glob.sync(`${contractSampleRoot}/**/*.michelson`);
 
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
-        if(!fs.existsSync(`${contractSampleRoot}/${contractName}.michelson`)) { continue; }
-          it(`Michelson/Micheline contract test: ${contractName}`, () => {
-            let michelson = fs.readFileSync(`${contractSampleRoot}/${contractName}.michelson`, 'utf8');
-            let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
-            
+        const d = path.dirname(contractName);
+        const t = path.basename(d, path.extname(d));
+        const f = path.basename(contractName, path.extname(contractName));
+
+        it(`Michelson/Micheline contract test: ${t}${path.sep}${f}`, () => {
+            let michelson = fs.readFileSync(`${d}${path.sep}${f}.michelson`, 'utf8');
+            let micheline = fs.readFileSync(`${d}${path.sep}${f}.micheline`, 'utf8');
+
             let michelineObject = JSON.parse(micheline)
             delete michelineObject.storage
             delete michelineObject.input

@@ -1,4 +1,4 @@
- { "script":
+{ "script":
       [ { "prim": "parameter", "args": [ { "prim": "int" } ] },
         { "prim": "storage", "args": [ { "prim": "int" } ] },
         { "prim": "code",

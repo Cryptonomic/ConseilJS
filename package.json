@@ -5,7 +5,9 @@
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
@@ -38,10 +40,18 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [ "src/**/*.ts" ],
-    "extension": [ ".ts" ],
-    "require": [ "ts-node/register" ],
-    "reporter": [ "text-lcov" ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -83,6 +93,7 @@
     "eslint-config-airbnb-base": "^13.1.0",
     "eslint-plugin-import": "^2.17.2",
     "eslint-plugin-typescript": "^0.14.0",
+    "glob": "7.1.4",
     "mocha": "^6.1.4",
     "nock": "^10.0.6",
     "nyc": "^14.1.1",

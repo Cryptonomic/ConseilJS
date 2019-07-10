@@ -1,0 +1,28 @@
+# Title: Tezos Proxy Redirect
+# Author: Teckhua Chiang
+# Company: Cryptonomic Inc.
+
+parameter address;
+storage (pair :storage (address %owner) (pair (address %destination) (string %stamp)));
+code { DUP ;
+       DIP { CDR @storage_slash_1 } ;
+       CAR @destination_slash_2 ;
+       DUUP @storage ;
+       CAR %owner ;
+       SENDER ;
+       COMPARE ;
+       EQ ;
+       IF { DUUP @storage ;
+            DUP ;
+            CAR %owner ;
+            SWAP ;
+            CDR ;
+            CDR %stamp ;
+            DUUUP @destination ;
+            PAIR %destination %stamp ;
+            SWAP ;
+            PAIR @storage %owner ;
+            NIL operation ;
+            PAIR }
+          { PUSH string "You do not own this proxy contract" ; FAILWITH } ;
+       DIP { DROP ; DROP } };

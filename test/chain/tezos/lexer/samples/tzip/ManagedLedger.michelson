@@ -157,7 +157,7 @@ code { DUP ;
                       ISNAT ;
                       IF_NONE
                         { PUSH string
-                               "Unexpected failure: Negative total supply\nCallStack (from HasCallStack):\n  failUnexpected, called at src/Lorentz/Contracts/ManagedLedger.hs:313:27 in lorentz-contracts-0.2.0.1-HpDIkWsKofu3zAjntLgs8J:Lorentz.Contracts.ManagedLedger" ;
+                               "Unexpected failure: Negative total supply" ;
                           FAILWITH }
                         {} ;
                       DIP { DUP ; DIP { CAR } ; CDR } ;
@@ -240,7 +240,7 @@ code { DUP ;
                       ISNAT ;
                       IF_NONE
                         { PUSH string
-                               "Unexpected failure: Negative total supply\nCallStack (from HasCallStack):\n  failUnexpected, called at src/Lorentz/Contracts/ManagedLedger.hs:313:27 in lorentz-contracts-0.2.0.1-HpDIkWsKofu3zAjntLgs8J:Lorentz.Contracts.ManagedLedger" ;
+                               "Unexpected failure: Negative total supply" ;
                           FAILWITH }
                         {} ;
                       DIP { DUP ; DIP { CAR } ; CDR } ;
@@ -485,7 +485,7 @@ code { DUP ;
                                                  ISNAT ;
                                                  IF_NONE
                                                    { PUSH string
-                                                          "Unexpected failure: Negative total supply\nCallStack (from HasCallStack):\n  failUnexpected, called at src/Lorentz/Contracts/ManagedLedger.hs:313:27 in lorentz-contracts-0.2.0.1-HpDIkWsKofu3zAjntLgs8J:Lorentz.Contracts.ManagedLedger" ;
+                                                          "Unexpected failure: Negative total supply" ;
                                                      FAILWITH }
                                                    {} ;
                                                  DIP { DUP ; DIP { CAR } ; CDR } ;
@@ -574,7 +574,7 @@ code { DUP ;
                                                  ISNAT ;
                                                  IF_NONE
                                                    { PUSH string
-                                                          "Unexpected failure: Negative total supply\nCallStack (from HasCallStack):\n  failUnexpected, called at src/Lorentz/Contracts/ManagedLedger.hs:313:27 in lorentz-contracts-0.2.0.1-HpDIkWsKofu3zAjntLgs8J:Lorentz.Contracts.ManagedLedger" ;
+                                                          "Unexpected failure: Negative total supply" ;
                                                      FAILWITH }
                                                    {} ;
                                                  DIP { DUP ; DIP { CAR } ; CDR } ;
