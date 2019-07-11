@@ -3,7 +3,8 @@
 # Company: Cryptonomic Inc.
 
 parameter address;
-storage (pair :storage (address %owner) (pair (address %destination) (string %stamp)));
+storage
+  (pair :storage (address %owner) (pair (address %destination) (string %stamp)));
 code { DUP ;
        DIP { CDR @storage_slash_1 } ;
        CAR @destination_slash_2 ;

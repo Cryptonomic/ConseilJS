@@ -1,0 +1,20 @@
+# Title: Tezos Tutorial Contract 2
+# Author: Teckhua Chiang
+# Company: Cryptonomic Inc.
+
+parameter (pair int int);
+storage (pair :storage (int %sum) (string %stamp));
+code { DUP ;
+       DIP { CDR @storage_slash_1 } ;
+       CAR @_addend1_addend2_slash_2 ;
+       SWAP ;
+       CDR %stamp ;
+       DUUP ;
+       CDR @addend2 ;
+       DUUUP ;
+       DIIIP { DROP } ;
+       CAR @addend1 ;
+       ADD @sum ;
+       PAIR @storage %sum %stamp ;
+       NIL operation ;
+       PAIR };

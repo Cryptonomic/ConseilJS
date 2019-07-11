@@ -1,0 +1,69 @@
+{ "script":
+    [ { "prim": "parameter", "args": [ { "prim": "string" } ] },
+        { "prim": "storage",
+        "args":
+            [ { "prim": "pair",
+                "args":
+                [ { "prim": "map",
+                    "args":
+                        [ { "prim": "address" },
+                        { "prim": "string" } ],
+                    "annots": [ "%record" ] },
+                    { "prim": "string", "annots": [ "%stamp" ] } ],
+                "annots": [ ":storage" ] } ] },
+        { "prim": "code",
+        "args":
+            [ [ { "prim": "DUP" },
+                { "prim": "DIP",
+                "args":
+                    [ [ { "prim": "CDR",
+                        "annots": [ "@storage_slash_1" ] } ] ] },
+                { "prim": "CAR", "annots": [ "@mark_slash_2" ] },
+                [ { "prim": "DIP",
+                    "args":
+                    [ [ { "prim": "DUP",
+                            "annots": [ "@storage" ] } ] ] },
+                { "prim": "SWAP" } ],
+                { "prim": "CDR", "annots": [ "%stamp" ] },
+                [ { "prim": "DIP",
+                    "args":
+                    [ [ { "prim": "DIP",
+                            "args":
+                            [ [ { "prim": "DUP",
+                                    "annots": [ "@storage" ] } ] ] },
+                        { "prim": "SWAP" } ] ] },
+                { "prim": "SWAP" } ],
+                { "prim": "CAR", "annots": [ "%record" ] },
+                [ { "prim": "DIP",
+                    "args":
+                    [ [ { "prim": "DIP",
+                            "args":
+                            [ [ { "prim": "DUP",
+                                    "annots": [ "@mark" ] } ] ] },
+                        { "prim": "SWAP" } ] ] },
+                { "prim": "SWAP" } ],
+                { "prim": "SENDER", "annots": [ "@sender" ] },
+                { "prim": "DIP",
+                "args": [ [ { "prim": "SOME" } ] ] },
+                [ { "prim": "DIP",
+                    "args":
+                    [ [ { "prim": "DIP",
+                            "args":
+                            [ [ { "prim": "DIP",
+                                    "args":
+                                    [ [ { "prim": "DIP",
+                                            "args":
+                                            [ [ { "prim": "DROP" },
+                                                { "prim": "DROP" } ] ] } ] ] } ] ] } ] ] } ],
+                { "prim": "UPDATE" },
+                { "prim": "PAIR",
+                "annots": [ "@storage", "%record", "%stamp" ] },
+                { "prim": "NIL",
+                "args": [ { "prim": "operation" } ] },
+                { "prim": "PAIR" } ] ] } ],
+    "storage":
+    { "prim": "Pair",
+        "args":
+        [ [],
+            { "string":
+                "Author: Teckhua Chiang, Company: Cryptonomic" } ] } }
