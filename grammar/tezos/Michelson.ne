@@ -134,16 +134,16 @@ typeData ->
   | subTypeElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
-#  | %word {% stringToJson %}
-  #| %lbrace _ %rbrace {% d => [] %}
+  | %lbrace _ %rbrace {% d => [] %}
+
 # Helper grammar for list of michelson data types.
 subTypeData ->
-    "{}" {% d => "[]" %}
+    %lbrace _ %rbrace {% d => "[]" %}
   | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
-    "{}" {% d => "[]" %}
+    %lbrace _ %rbrace {% d => "[]" %}
   | "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
@@ -191,16 +191,16 @@ data ->
   | subElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
-#  | %word {% stringToJson %}
-  #| %lbrace _ %rbrace {% d => [] %}
+  # %lbrace _ %rbrace {% d => [] %}
+
 # Helper grammar for list of michelson data types.
 subData ->
-    "{}" {% d => "[]" %}
+    %lbrace _ %rbrace {% d => "[]" %}
   | "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
 # Helper grammar for list of pairs of michelson data types.
 subElt ->
-    "{}" {% d => "[]" %}
+    %lbrace _ %rbrace {% d => "[]" %}
   | "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
@@ -732,7 +732,7 @@ semicolons -> null | semicolons ";"
      * Given a keyword with two arguments, convert it into JSON.
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
+    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`; }
 
     const doubleArgInstrKeywordToJson = d => {
       const word = `${d[0].toString()}`

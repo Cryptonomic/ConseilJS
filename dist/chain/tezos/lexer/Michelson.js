@@ -608,7 +608,7 @@ const lexer = moo.compile({
      * Given a keyword with two arguments, convert it into JSON.
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
+    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`; }
 
     const doubleArgInstrKeywordToJson = d => {
       const word = `${d[0].toString()}`
@@ -778,6 +778,8 @@ var grammar = {
     {"name": "typeData", "symbols": ["subTypeElt"], "postprocess": id},
     {"name": "typeData", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "typeData", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "typeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => []},
+    {"name": "subTypeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "subTypeData$ebnf$1$subexpression$1", "symbols": ["data", "subTypeData$ebnf$1$subexpression$1$ebnf$1", "_"]},
@@ -796,6 +798,7 @@ var grammar = {
     {"name": "subTypeData$ebnf$2$subexpression$2", "symbols": ["data", "subTypeData$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeData$ebnf$2", "symbols": ["subTypeData$ebnf$2", "subTypeData$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "subTypeData", "symbols": [{"literal":"("}, "_", "subTypeData$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeElt$ebnf$1$subexpression$1", "symbols": ["typeElt", {"literal":";"}, "_"]},
     {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1$subexpression$1"]},
     {"name": "subTypeElt$ebnf$1$subexpression$2", "symbols": ["typeElt", {"literal":";"}, "_"]},
@@ -896,6 +899,7 @@ var grammar = {
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
     {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
     {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},
@@ -906,6 +910,7 @@ var grammar = {
     {"name": "subData$ebnf$2$subexpression$2", "symbols": ["data", {"literal":";"}, "_"]},
     {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2", "subData$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
     {"name": "subElt$ebnf$1$subexpression$1", "symbols": ["elt", "subElt$ebnf$1$subexpression$1$ebnf$1", "_"]},

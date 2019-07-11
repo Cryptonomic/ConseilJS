@@ -1,6 +1,9 @@
 parameter (pair (pair (int %i) (int %j)) (int %move));
+
 storage (pair (pair (pair (pair (map %deck int (map int int)) (bool %draw)) (int %nbMoves)) (int %nextPlayer)) (int %winner));
-code {
+
+code
+  {
     # Entry point: play # pair(params, storage)
     # sp.verify((self.data.winner == 0) & (~ self.data.draw)) # pair(params, storage)
     DUP;        # pair(params, storage).pair(params, storage)

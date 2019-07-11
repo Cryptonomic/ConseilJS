@@ -114,7 +114,7 @@ describe("Tezos Micheline fragment decoding", () => {
         expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@red", "@green", "@blue" ] }');
     });
 
-    it("test various parsing and encoding failures", () => {
+    it("Various parsing and encoding failures", () => {
         expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type \'c0\'');
         expect(() => TezosLanguageUtil.hexToMicheline('c')).to.throw('Malformed Micheline fragment \'c\'');
     });
@@ -125,6 +125,13 @@ describe("Tezos Micheline fragment decoding", () => {
 
         expect(result).to.equal('0000001e050202000000170316053802000000080743035b00010312053d036d0342000000060501055f035b');
     });
+
+    it('Serialize Michelson parameters', () => {
+        let params = 'Pair {} (Pair "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z" (Pair False 1000000))';
+        let result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ [], { "prim": "Pair", "args": [ { "string": "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z" }, { "prim": "Pair", "args": [ { "prim": "False" }, { "int": "1000000" } ] } ] } ] }');
+    });
+    
 });
 
 function preProcessMicheline(code: string): string[] {
