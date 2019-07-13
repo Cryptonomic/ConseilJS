@@ -9,11 +9,13 @@ const lexer = moo.compile({
   ws: /[ \t]+/,
   lparen: '(',
   rparen: ')',
+  lbrace: '{',
+  rbrace: '}',
   keyword: ['Unit', 'True', 'False', 'None'],
   singleArgData: ['Left', 'Right', 'Some'],
   doubleArgData: ['Pair'],
   number: /-?[0-9]+/,
-  string: /\"[a-zA-z0-9]+\"/
+  string: /\".+\"/
 });
 
 
@@ -63,6 +65,7 @@ var grammar = {
     ParserRules: [
     {"name": "data", "symbols": [(lexer.has("keyword") ? {type: "keyword"} : keyword)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "data", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data"], "postprocess": singleArgDataToJson},
     {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgDataWithParenToJson},

@@ -5,11 +5,13 @@ const lexer = moo.compile({
   ws: /[ \t]+/,
   lparen: '(',
   rparen: ')',
+  lbrace: '{',
+  rbrace: '}',
   keyword: ['Unit', 'True', 'False', 'None'],
   singleArgData: ['Left', 'Right', 'Some'],
   doubleArgData: ['Pair'],
   number: /-?[0-9]+/,
-  string: /\"[a-zA-z0-9]+\"/
+  string: /\".+\"/
 });
 %}
 
@@ -20,6 +22,7 @@ const lexer = moo.compile({
 data ->
     %keyword {% keywordToJson %}
   | %string {% stringToJson %}
+  | %lbrace _ %rbrace {% d => "[]" %}
   | %number {% intToJson %}
   | %singleArgData _ data {% singleArgDataToJson %}
   | %lparen _ %singleArgData _ data _ %rparen {% singleArgDataWithParenToJson %}
