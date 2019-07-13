@@ -293,7 +293,7 @@ var TezosNodeWriter;
             };
             if (!!parameters && parameters.trim().length > 0) {
                 if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
-                    const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+                    const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonParametersToMicheline(parameters);
                     transaction.parameters = JSON.parse(michelineParams);
                 }
                 else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {

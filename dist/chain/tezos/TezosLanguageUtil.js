@@ -9,6 +9,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const Micheline = __importStar(require("./lexer/Micheline"));
 const Michelson = __importStar(require("./lexer/Michelson"));
+const MichelsonParameters = __importStar(require("./lexer/MichelsonParameters"));
 const nearley = __importStar(require("nearley"));
 const TezosMessageUtil_1 = require("./TezosMessageUtil");
 const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DEFAULT_ACCOUNT"', '"tez"'];
@@ -151,6 +152,12 @@ var TezosLanguageUtil;
         return parser.results[0];
     }
     TezosLanguageUtil.translateMichelsonToMicheline = translateMichelsonToMicheline;
+    function translateMichelsonParametersToMicheline(code) {
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
+        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+        return parser.results[0];
+    }
+    TezosLanguageUtil.translateMichelsonParametersToMicheline = translateMichelsonParametersToMicheline;
     function translateMichelsonToHex(code) {
         return preProcessMicheline(translateMichelsonToMicheline(code))
             .map(p => { var c = normalizeMichelineWhiteSpace(p); return c; })
