@@ -11,7 +11,7 @@ const lexer = moo.compile({
   singleArgData: ['Left', 'Right', 'Some'],
   doubleArgData: ['Pair'],
   number: /-?[0-9]+/,
-  string: /\".+\"/
+  string: /\"[^"]+\"/
 });
 %}
 
