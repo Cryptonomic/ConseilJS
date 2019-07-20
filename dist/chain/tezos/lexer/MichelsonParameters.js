@@ -35,7 +35,7 @@ const lexer = moo.compile({
     * Given a keyword with two arguments, convert it into JSON.
     * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
     */
-  const doubleArgDataToJson = d => { return `{ "prim": "${d[0]}", "args": [${d[2]}, ${d[4]}] }`; }
+  const doubleArgDataToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`; }
 
   /**
     * Given a keyword with two arguments and parentheses, convert it into JSON.

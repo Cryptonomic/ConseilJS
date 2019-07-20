@@ -246,7 +246,7 @@ var TezosNodeWriter;
             if (codeFormat === TezosTypes.TezosParameterFormat.Michelson) {
                 parsedCode = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(code));
                 log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
-                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonParametersToMicheline(storage));
+                parsedStorage = JSON.parse(TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(storage));
                 log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
             }
             else if (codeFormat === TezosTypes.TezosParameterFormat.Micheline) {
@@ -293,7 +293,7 @@ var TezosNodeWriter;
             };
             if (!!parameters && parameters.trim().length > 0) {
                 if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
-                    const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonParametersToMicheline(parameters);
+                    const michelineParams = TezosLanguageUtil_1.TezosLanguageUtil.translateMichelsonToMicheline(parameters);
                     transaction.parameters = JSON.parse(michelineParams);
                 }
                 else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {

@@ -124,11 +124,11 @@ var TezosConseilClient;
             let currentLevel = initialLevel;
             const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'operation_group_hash', QueryTypes_1.ConseilOperator.EQ, [hash], false), 1);
             while (initialLevel + duration > currentLevel) {
-                const group = yield getTezosEntityData(serverInfo, network, OPERATIONS, query);
+                const group = yield getOperations(serverInfo, network, query);
                 if (group.length > 0) {
                     return group;
                 }
-                currentLevel = (yield getBlockHead(serverInfo, network))[0]['level'];
+                currentLevel = (yield getBlockHead(serverInfo, network))['level'];
                 if (initialLevel + duration < currentLevel) {
                     break;
                 }
@@ -140,7 +140,23 @@ var TezosConseilClient;
     TezosConseilClient.awaitOperationConfirmation = awaitOperationConfirmation;
     function awaitOperationForkConfirmation(serverInfo, network, hash, duration, depth) {
         return __awaiter(this, void 0, void 0, function* () {
-            throw new Error('Not implemented');
+            const op = yield awaitOperationConfirmation(serverInfo, network, hash, duration);
+            const query = ConseilQueryBuilder_1.ConseilQueryBuilder.setLimit(ConseilQueryBuilder_1.ConseilQueryBuilder.addPredicate(ConseilQueryBuilder_1.ConseilQueryBuilder.blankQuery(), 'level', QueryTypes_1.ConseilOperator.EQ, [op['block_level']], false), 1);
+            const block = yield getBlocks(serverInfo, network, query);
+            const opchainid = block['chain_id'];
+            const initialLevel = block['level'];
+            let currentLevel = initialLevel;
+            let lastchainid = '';
+            while (initialLevel + duration > currentLevel) {
+                const currentBlock = yield getBlockHead(serverInfo, network);
+                currentLevel = currentBlock['level'];
+                lastchainid = currentBlock['chain_id'];
+                if (initialLevel + duration < currentLevel) {
+                    break;
+                }
+                yield new Promise(resolve => setTimeout(resolve, 60 * 1000));
+            }
+            return opchainid === lastchainid;
         });
     }
     TezosConseilClient.awaitOperationForkConfirmation = awaitOperationForkConfirmation;
