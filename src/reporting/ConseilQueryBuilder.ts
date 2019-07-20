@@ -105,7 +105,6 @@ export namespace ConseilQueryBuilder {
      */
     export function addAggregationFunction(query: ConseilQuery, field: string, aggregationFunction: ConseilFunction): ConseilQuery {
         if (!query.fields.includes(field)) { throw new Error('Cannot apply an aggregation function on a field not being returned.'); }
-        if (query.fields.length === 1) { throw new Error('Cannot apply an aggregation function on the only field being returned.'); }
 
         let q = {...query};
         q.aggregation.push({ 'field': field, 'function': aggregationFunction });
