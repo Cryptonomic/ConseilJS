@@ -38,9 +38,6 @@ const macroIFCMPlist = ['IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 
 const macroCMPlist = ['CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE', 'CMPGE'];
 const macroIFlist = ['IFEQ', 'IFNEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE'];
 
-/*
-  Lexer to parse keywords more efficiently.
-*/
 const lexer = moo.compile({
     annot: /[\@\%\:][a-z_A-Z0-9]+/,
     lparen: '(',
@@ -169,117 +166,55 @@ const lexer = moo.compile({
             case 'ASSERT_NEQ':
                 return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             default:
-                break;
+                return '';
         }
     }
 
     const check_fail = fail => fail === "FAIL";
 
     const expand_fail = (fail, annot) => {
-      if (annot == null) {
-          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH" } ]`;
-      } else {
-          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}] } ]`;
-      }
+        if (annot == null) {
+            return '[ { "prim": "UNIT" }, { "prim": "FAILWITH" } ]';
+        } else {
+            return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}] } ]`;
+        }
     }
 
     const check_if = ifStatement => (macroIFCMPlist.includes(ifStatement) || macroIFlist.includes(ifStatement) || ifStatement === 'IF_SOME'); // TODO: IF_SOME
 
     const expandIF = (ifInstr, ifTrue, ifFalse, annot) => {
-      //IFEQ, IFGE, IFGT, IFLE, IFLT : EXACTLY THE SAME AS IFCMP, JUST REMOVE COMPARE
-      // if annotations, put in last element of array
-      switch (ifInstr) {
-        case 'IFCMPEQ':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFCMPGE':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFCMPGT':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFCMPLE':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFCMPLT':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFCMPNEQ':
-          if (annot == null) {
-            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFEQ':
-          if (annot == null) {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFGE':
-          if (annot == null) {
-            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFGT':
-          if (annot == null) {
-            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFLE':
-          if (annot == null) {
-            return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-           return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFLT':
-          if (annot == null) {
-            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IFNEQ':
-          if (annot == null) {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]}]`
-          }
-          else {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
-          }
-        case 'IF_SOME':
-            if (annot == null) {
-                return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]}]`
-            } else {
-                return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}] ], "annots": [${annot}]}]`
-            }
-      }
+        const annotation = !!annot ? `, "annots": [${annot}]` : '';
+
+        switch (ifInstr) {
+            case 'IFCMPEQ':
+                return `[{"prim":"COMPARE"},{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFCMPGE':
+                return `[{"prim":"COMPARE"},{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFCMPGT':
+                return `[{"prim":"COMPARE"},{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFCMPLE':
+                return `[{"prim":"COMPARE"},{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFCMPLT':
+                return `[{"prim":"COMPARE"},{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFCMPNEQ':
+                return `[{"prim":"COMPARE"},{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFEQ':
+                return `[{"prim":"EQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFGE':
+                return `[{"prim":"GE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFGT':
+                return `[{"prim":"GT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFLE':
+                return `[{"prim":"LE"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFLT':
+                return `[{"prim":"LT"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IFNEQ':
+                return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]]${annotation}}]`;
+            case 'IF_SOME':
+                return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]${annotation}}]`;
+            default:
+                return '';
+        }
     }
 
     const check_dip = dip => DIPmatcher.test(dip);
@@ -296,7 +231,7 @@ const lexer = moo.compile({
             return t;
         }
 
-        throw new Error(``);
+        throw new Error(`Unexpected parameter for DIP processing: ${dip}`);
     }
 
     const check_other = word => (word == "UNPAIR" || word == "UNPAPAIR"); // TODO: dynamic matching
@@ -383,13 +318,13 @@ const lexer = moo.compile({
      * Given a int, convert it to JSON.
      * Example: "3" -> { "int": "3" }
      */
-    const intToJson = d => { return `{ "int": "${parseInt(d[0])}" }`; }
+    const intToJson = d => `{ "int": "${parseInt(d[0])}" }`;
 
     /**
      * Given a string, convert it to JSON.
      * Example: "string" -> "{ "string": "blah" }"
      */
-    const stringToJson = d => { return `{ "string": ${d[0]} }`; }
+    const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
      * Given a keyword, convert it to JSON.
@@ -454,7 +389,7 @@ const lexer = moo.compile({
      * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
      */
     const singleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`;
-    //changed 5 secs ago
+
     /**
      * Given a keyword with two arguments, convert it into JSON.
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
@@ -489,7 +424,7 @@ const lexer = moo.compile({
     const tripleArgKeyWordWithParenToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`;
 
     const nestedArrayChecker = x => {
-        if (Array.isArray(x) && Array.isArray(x[0])) {
+        if (Array.isArray(x) && Array.isArray(x[0])) { // handles double array nesting
             return x[0];
         } else {
             return x;
@@ -503,15 +438,13 @@ const lexer = moo.compile({
      * '{ prim: NIL, args: [{ prim: operation }] }',
      * '{ prim: PAIR }' ]
      */
-     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-     const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
 
-    const scriptToJson = d => {
-        const parameterJson = d[0];
-        const storageJson = d[2];
-        const codeJson = `{ "prim": "code", "args": [ [ ${d[4]} ] ] }`;
-        return `[ ${parameterJson}, ${storageJson}, ${codeJson} ]`;
-    }
+    /**
+     * parameter, storage, code
+     */
+    const scriptToJson = d => `[ ${d[0]}, ${d[2]}, { "prim": "code", "args": [ [ ${d[4]} ] ] } ]`;
 
     const doubleArgTypeKeywordToJson = d => {
         const annot = d[1].map(x => `"${x[1]}"`)
@@ -650,6 +583,7 @@ var grammar = {
     {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
     {"name": "typeElt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
+    {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instruction", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => d[2]},
     {"name": "subInstruction$ebnf$1$subexpression$1", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
     {"name": "subInstruction$ebnf$1", "symbols": ["subInstruction$ebnf$1$subexpression$1"]},
     {"name": "subInstruction$ebnf$1$subexpression$2", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
@@ -660,7 +594,6 @@ var grammar = {
     {"name": "subInstruction$ebnf$2$subexpression$2", "symbols": ["instruction", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon), "_"]},
     {"name": "subInstruction$ebnf$2", "symbols": ["subInstruction$ebnf$2", "subInstruction$ebnf$2$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "subInstruction$ebnf$2", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": instructionSetToJsonSemi},
-    {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instruction", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => d[2]},
     {"name": "instructions", "symbols": [(lexer.has("baseInstruction") ? {type: "baseInstruction"} : baseInstruction)]},
     {"name": "instructions", "symbols": [(lexer.has("macroCADR") ? {type: "macroCADR"} : macroCADR)]},
     {"name": "instructions", "symbols": [(lexer.has("macroDIP") ? {type: "macroDIP"} : macroDIP)]},
