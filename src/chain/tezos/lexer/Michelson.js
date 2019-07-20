@@ -140,98 +140,34 @@ const lexer = moo.compile({
     const check_assert = assert => macroASSERTlist.includes(assert);
 
     const expand_assert = (assert, annot) => {
+        const annotation = !!annot ? `, "annots": [${annot}]` : '';
         switch (assert) {
             case 'ASSERT':
-                if (annot == null) {
-                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPEQ':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPGE':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPGT':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPLE':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPLT':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_CMPNEQ':
-                if (annot == null) {
-                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_EQ':
-                if (annot == null) {
-                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`;
-                } else {
-                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]]`;
             case 'ASSERT_GE':
-                if (annot == null) {
-                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_GT':
-                if (annot == null) {
-                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_LE':
-                if (annot == null) {
-                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_LT':
-                if (annot == null) {
-                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_NEQ':
-                if (annot == null) {
-                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
-                } else {
-                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
-                }
-                break;
+                return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             default:
                 break;
         }
