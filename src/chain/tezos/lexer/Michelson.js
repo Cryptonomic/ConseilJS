@@ -88,7 +88,7 @@ const lexer = moo.compile({
 });
 
 
-    const checkC_R = c_r => {
+     const checkC_R = c_r => {
       var pattern = new RegExp('^C(A|D)(A|D)+R$'); // TODO
       return pattern.test(c_r);
     }
@@ -96,7 +96,7 @@ const lexer = moo.compile({
     const expandC_R = (c_r, annot) => {
       var as_and_ds = c_r.substring(1, c_r.length-1)
       var expandedC_R = as_and_ds.split('').map(c => (c === 'A' ? '{ "prim": "CAR" }' : '{ "prim": "CDR" }'));
-      //if annotations, put in last element of array
+
       if (annot != null) {
         const lastChar = as_and_ds[as_and_ds.length-1]
         if (lastChar == 'A') {
@@ -135,7 +135,6 @@ const lexer = moo.compile({
 
     const check_dup = dup => DUPmatcher.test(dup);
 
-    //currently does not handle annotations
     const expand_dup = (dup, annot) => {
         let t = '';
         if (DUPmatcher.test(dup)) {
@@ -152,50 +151,7 @@ const lexer = moo.compile({
             return t;
         }
         throw new Error(``);
-      /*
-
-      if (dup == "DUP") {
-          return `{ "prim": "${dup}" }`;
-
-      }
-
-      if (dup == "DUUP") {
-        if (annot == null) {
-
-        }
-        else {
-
-        }
-      }
-
-
-      const newDup = dup.substring(1,dup.length-1)
-
-      const dip = keywordToJson(['DIP']);
-      var dips = []
-
-      const swap = keywordToJson(['SWAP']);
-      var finalSwap = swap
-      if (annot != null) {
-        finalSwap = `{ "prim": "SWAP", "annots": [${annot}] }`
-      }
-      var swaps = []
-
-      for (let i = 0; i < newDup.length; i++) {
-        dips.push(dip);
-        swaps.push(swap);
-      }
-
-      swaps[swaps.length-1] = finalSwap
-
-      return `[${dips}, ${[keywordToJson(['DUP'])]}, ${swaps}]`
-      */
-
     }
-      //input : D(U*)P
-      // DUP -> DUP
-      // DU(U+)P -> n = |U+|, repeat n keywordToJson(['DIP']); keywordToJson(['DUP']); repeat n keywordToJson(['SWAP']);
-      // // if no annot, return duuuup put annot in swap otherwise
 
     const check_assert = assert => macroASSERTlist.includes(assert);
 
@@ -478,42 +434,72 @@ const lexer = moo.compile({
       }
     }
 
+
+    const checkSetCadr = s => macroSETCADR.test(s);
+
+    const expandSetCadr = (word, annot) => {
+        console.log(`nesting ${word.slice(5, -1)} for ${word}`)
+        return nestSetCadr(word.slice(5, -1));
+    }
+
+    const nestSetCadr = r => {
+        if (r.length === 0) { return ''; }
+
+        const c = r.charAt(0);
+        if (r.length === 1) {
+            if (c === 'A') {
+                return '[{"prim": "CDR","annots":["@%%"]}, {"prim": "SWAP"}, {"prim": "PAIR","annots":["%","%@"]}]';
+            } else if (c === 'D'){
+                return '[{"prim": "CAR","annots":["@%%"]}, {"prim": "PAIR","annots":["%@","%"]}]';
+            }
+        }
+
+        if (c === 'A') {
+            return `[{"prim": "DUP"}, {"prim": "DIP", "args": [[{"prim": "CAR","annots":["@%%"]}, ${nestSetCadr(r.slice(1))}]]}, {"prim": "CDR","annots":["@%%"]}, {"prim": "SWAP"}, {"prim": "PAIR","annots":["%@","%@"]}]`;
+        } else if (c === 'D') {
+            return `[{"prim": "DUP"}, {"prim": "DIP", "args": [[{"prim": "CDR","annots":["@%%"]}, ${nestSetCadr(r.slice(1))}]]}, {"prim": "CAR","annots":["@%%"]}, {"prim": "PAIR","annots":["%@","%@"]}]`;
+        }
+    }
+
     const checkKeyword = word => {
-      return check_assert(word)
-             || check_compare(word)
-             || check_dip(word)
-             || check_dup(word)
-             || check_fail(word)
-             || check_if(word)
-             || checkC_R(word)
-             || check_other(word)
+        if (check_assert(word)) { return true; }
+        if (check_compare(word)) { return true; }
+        if (check_dip(word)) { return true; }
+        if (check_dup(word)) { return true; }
+        if (check_fail(word)) { return true; }
+        if (check_if(word)) { return true; }
+        if (checkC_R(word)) { return true; }
+        if (check_other(word)) { return true; }
+        if (checkSetCadr(word)) { return true; }
     }
 
     const expandKeyword = (word, annot) => {
       if (checkC_R(word)) {
-        return expandC_R(word, annot)
+        return expandC_R(word, annot);
       }
       if (check_assert(word)) {
-        return expand_assert(word, annot)
+        return expand_assert(word, annot);
       }
       if (check_compare(word)) {
-        return expand_cmp(word, annot)
+        return expand_cmp(word, annot);
       }
       if (check_dip(word)) {
-        return expandDIP(word, annot)
+        return expandDIP(word, annot);
       }
       if (check_dup(word)) {
-        return expand_dup(word, annot)
+        return expand_dup(word, annot);
       }
       if (check_fail(word)) {
-        return expand_fail(word, annot)
+        return expand_fail(word, annot);
       }
       if (check_if(word)) {
-        return expandIF(word, annot)
+        return expandIF(word, annot);
       }
       if (check_other(word)) {
-        return expand_other(word, annot)
+        return expand_other(word, annot);
       }
+
+      if (checkSetCadr(word)) { return expandSetCadr(word, annot); }
     }
 
     /**
@@ -639,6 +625,13 @@ const lexer = moo.compile({
     const tripleArgKeyWordWithParenToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
 
     const nestedArrayChecker = x => {
+        /*if (Array.isArray(x) && Array.isArray(x[0])) {
+            return x[0][0];
+        } else if (Array.isArray(x)) {
+            return x[0];
+        } else {
+            return x;
+        }*/
         if (Array.isArray(x) && Array.isArray(x[0])) {
             return x[0];
         } else {
