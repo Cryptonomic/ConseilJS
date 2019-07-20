@@ -19,12 +19,9 @@ const moo = require("moo");
   - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
   - of inputs, accounting for that in the lexer is necessary
   - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a separate order
-  - There is a function called CREATE_CONTRACT which can create a contract inside of a contract, including the parameter,
-    storage, and code definitions. We do not handle this nesting, as we do a lot of preprocessing outside of the grammar.
+  - We do not handle instances where parameter, storage, and code are given in a different order
   - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
-
 
 const macroCADR = /C[AD]+R/;
 const macroSETCADR = /SET_C[AD]+R/;
@@ -76,8 +73,6 @@ const lexer = moo.compile({
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
-    singleArgTypeData: ['Left', 'Right', 'Some'],
-    doubleArgTypeData: ['Pair'],
     elt: "Elt",
     word: /[a-zA-Z_0-9]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
@@ -90,10 +85,6 @@ const lexer = moo.compile({
 # Main endpoint, parameter, storage, and code are necessary for user usage. Instruction, data, and type are for testing purposes.
 main -> instruction {% id %} | data {% id %} | type {% id %} | parameter {% id %} | storage {% id %} | code {% id %} | script {% id %} | parameterValue {% id %} | storageValue {% id %} | typeData {% id %}
 script -> parameter _ storage _ code {% scriptToJson %}
-
-#parameter -> "parameter" | "Parameter"
-#storage -> "Storage" | "storage"
-#code -> "Code" | "code"
 
 parameterValue -> %parameter _ typeData _ semicolons {% singleArgKeywordToJson %}
 storageValue -> %storage _ typeData _ semicolons {% singleArgKeywordToJson %}
@@ -117,30 +108,37 @@ type ->
   | %lparen _ %constantType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
   | %lparen _ %singleArgType (_ %annot):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
   | %lparen _ %doubleArgType (_ %annot):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
-#  | %singleArgType _ type {% singleArgKeywordToJson %}
-#  | %lparen _ %singleArgType _ type %rparen {% singleArgKeywordWithParenToJson %}
-#  | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
-#  | %lparen _ %doubleArgType _ type _ type %rparen {% doubleArgKeywordWithParenToJson %}
 
 typeData ->
-    (%singleArgTypeData|%singleArgType) _ typeData {% singleArgKeywordToJson %}
-  | %lparen _ (%singleArgTypeData|%singleArgType) _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
-  | (%doubleArgTypeData|%doubleArgType) _ typeData _ typeData {% doubleArgKeywordToJson %}
-  | %lparen _ (%doubleArgTypeData|%doubleArgType) _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | (%constantData|%singleArgData|%doubleArgData) {% keywordToJson %}
-  | (%constantData|%singleArgData|%doubleArgData) _ typeData {% singleArgKeywordToJson %}
-  | (%constantData|%singleArgData|%doubleArgData) _ typeData _ typeData {% doubleArgKeywordToJson %}
+    %singleArgType _ typeData {% singleArgKeywordToJson %}
+  | %lparen _ %singleArgType _ typeData _ %rparen {% singleArgKeywordWithParenToJson %}
+  | %doubleArgType _ typeData _ typeData {% doubleArgKeywordToJson %}
+  | %lparen _ %doubleArgType _ typeData _ typeData _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subTypeData {% id %}
   | subTypeElt {% id %}
   | %number {% intToJson %}
   | %string {% stringToJson %}
   | %lbrace _ %rbrace {% d => [] %}
 
+# Grammar for michelson data.
+data ->
+    %constantData {% keywordToJson %}
+  | %singleArgData _ data {% singleArgKeywordToJson %}
+  | %lparen _ %singleArgData _ data _ %rparen {% singleArgKeywordWithParenToJson %}
+  | %doubleArgData _ data _ data {% doubleArgKeywordToJson  %}
+  | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
+  | subData {% id %}
+  | subElt {% id %}
+  | %number {% intToJson %}
+  | %string {% stringToJson %}
+  # %lbrace _ %rbrace {% d => [] %}
+
 # Helper grammar for list of michelson data types.
 subTypeData ->
     %lbrace _ %rbrace {% d => "[]" %}
   | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
+
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     %lbrace _ %rbrace {% d => "[]" %}
@@ -160,7 +158,6 @@ instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSE
 
 # Grammar for michelson instruction.
 instruction ->
-  # subInstruction {% id %}
     instructions {% keywordToJson %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
@@ -181,18 +178,6 @@ instruction ->
   | %lbrace _ %rbrace {% d => "" %}
   | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
 
-# Grammar for michelson data.
-data ->
-    (%constantData|%singleArgData|%doubleArgData) {% keywordToJson %}
-  | (%constantData|%singleArgData|%doubleArgData) _ data {% singleArgKeywordToJson %}
-  | (%constantData|%singleArgData|%doubleArgData) _ data _ data {% doubleArgKeywordToJson  %}
-  | %lparen _ (%constantData|%singleArgData|%doubleArgData) _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
-  | subData {% id %}
-  | subElt {% id %}
-  | %number {% intToJson %}
-  | %string {% stringToJson %}
-  # %lbrace _ %rbrace {% d => [] %}
-
 # Helper grammar for list of michelson data types.
 subData ->
     %lbrace _ %rbrace {% d => "[]" %}
@@ -208,8 +193,9 @@ elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for whitespace.
 _ -> [\s]:*
+
 # Helper grammar for semicolons.
-semicolons -> null | semicolons ";"
+semicolons -> [;]:?
 
 @{%
     const checkC_R = c_r => {
@@ -269,120 +255,110 @@ semicolons -> null | semicolons ";"
     const check_assert = assert => macroASSERTlist.includes(assert);
 
     const expand_assert = (assert, annot) => {
-      //input : ASSERT_CMP**
-      //ASSERT -> {"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}
-      //ASSERT_* -> same as above, but [] -> expand * (comparison ops, CMP_comparison ops)
-      //ASSERT_NONE  =>  IF_NONE {} {FAIL}
-      //ASSERT_SOME  =>  IF_NONE {FAIL} {}
-      //ASSERT_LEFT  =>  IF_LEFT {} {FAIL}
-      //ASSERT_RIGHT  =>  IF_LEFT {FAIL} {}
-      // last five characters -> expand_cmp
-      // return [expand_cmp, assert]  if no annot, put annot in assert otherwise
-      // if annotations, put in last element of array
-      switch (assert) {
-        case 'ASSERT':
-          if (annot == null) {
-            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPEQ':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPGE':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPGT':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPLE':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPLT':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPNEQ':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_EQ':
-          if (annot == null) {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`
-          }
-          else {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_GE':
-          if (annot == null) {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_GT':
-          if (annot == null) {
-            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_LE':
-          if (annot == null) {
-            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_LT':
-          if (annot == null) {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_NEQ':
-          if (annot == null) {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-      }
+        switch (assert) {
+            case 'ASSERT':
+                if (annot == null) {
+                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPEQ':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPGE':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPGT':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPLE':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPLT':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPNEQ':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_EQ':
+                if (annot == null) {
+                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`;
+                } else {
+                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_GE':
+                if (annot == null) {
+                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_GT':
+                if (annot == null) {
+                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_LE':
+                if (annot == null) {
+                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_LT':
+                if (annot == null) {
+                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_NEQ':
+                if (annot == null) {
+                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     const check_fail = fail => fail === "FAIL";
 
     const expand_fail = (fail, annot) => {
-      // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
       if (annot == null) {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]`
-      }
-      else {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}]} ]`
+          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH" } ]`;
+      } else {
+          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}] } ]`;
       }
     }
 
@@ -525,12 +501,12 @@ semicolons -> null | semicolons ";"
                 return `[ [ { "prim": "DUP" },
                             { "prim": "CAR" },
                             { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}]`;
             } else {
                 return `[ [ { "prim": "DUP" },
                             { "prim": "CAR" },
                             { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}] `
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}]`;
             }
         }
     }

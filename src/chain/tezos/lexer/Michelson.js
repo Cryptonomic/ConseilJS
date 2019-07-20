@@ -23,12 +23,9 @@ const moo = require("moo");
   - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
   - of inputs, accounting for that in the lexer is necessary
   - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a separate order
-  - There is a function called CREATE_CONTRACT which can create a contract inside of a contract, including the parameter,
-    storage, and code definitions. We do not handle this nesting, as we do a lot of preprocessing outside of the grammar.
+  - We do not handle instances where parameter, storage, and code are given in a different order
   - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
-
 
 const macroCADR = /C[AD]+R/;
 const macroSETCADR = /SET_C[AD]+R/;
@@ -80,8 +77,6 @@ const lexer = moo.compile({
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
-    singleArgTypeData: ['Left', 'Right', 'Some'],
-    doubleArgTypeData: ['Pair'],
     elt: "Elt",
     word: /[a-zA-Z_0-9]+/,
     string: /"(?:\\["\\]|[^\n"\\])*"/
@@ -108,13 +103,6 @@ const lexer = moo.compile({
         return `[${expandedC_R.join(', ')}]`;
     }
 
-      //input: C*R
-      //remove first and last characters from string
-      //A -> keywordToJson(['CAR'])
-      //D -> keywordToJson(['CDR'])
-      // if annotations, put in last element of array
-      //return `${mappedArray}`
-
     const check_compare = cmp => macroCMPlist.includes(cmp);
 
     const expand_cmp = (cmp, annot) => {
@@ -127,10 +115,6 @@ const lexer = moo.compile({
 
         return `[${compare}, ${binary_op}]`;
     }
-      //input : CMP*
-      //take last characters of string that aren't CMP -> keywordToJson([last])
-      // if annotations, put in last element of array
-      //return '${[keywordToJson(['COMPARE'])], ^}
 
     const check_dup = dup => DUPmatcher.test(dup);
 
@@ -149,126 +133,117 @@ const lexer = moo.compile({
             for (let i = 0; i < c; i++) { t += ' ] },{"prim":"SWAP"}]'; }
             return t;
         }
-        throw new Error(``);
+
+        throw new Error('');
     }
 
     const check_assert = assert => macroASSERTlist.includes(assert);
 
     const expand_assert = (assert, annot) => {
-      //input : ASSERT_CMP**
-      //ASSERT -> {"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}
-      //ASSERT_* -> same as above, but [] -> expand * (comparison ops, CMP_comparison ops)
-      //ASSERT_NONE  =>  IF_NONE {} {FAIL}
-      //ASSERT_SOME  =>  IF_NONE {FAIL} {}
-      //ASSERT_LEFT  =>  IF_LEFT {} {FAIL}
-      //ASSERT_RIGHT  =>  IF_LEFT {FAIL} {}
-      // last five characters -> expand_cmp
-      // return [expand_cmp, assert]  if no annot, put annot in assert otherwise
-      // if annotations, put in last element of array
-      switch (assert) {
-        case 'ASSERT':
-          if (annot == null) {
-            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPEQ':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPGE':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPGT':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPLE':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPLT':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_CMPNEQ':
-          if (annot == null) {
-            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_EQ':
-          if (annot == null) {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`
-          }
-          else {
-            return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_GE':
-          if (annot == null) {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_GT':
-          if (annot == null) {
-            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_LE':
-          if (annot == null) {
-            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_LT':
-          if (annot == null) {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-        case 'ASSERT_NEQ':
-          if (annot == null) {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`
-          }
-          else {
-            return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`
-          }
-      }
+        switch (assert) {
+            case 'ASSERT':
+                if (annot == null) {
+                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPEQ':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"EQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPGE':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"GE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPGT':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"GT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPLE':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"LE"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPLT':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"LT"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_CMPNEQ':
+                if (annot == null) {
+                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[[{"prim":"COMPARE"},{"prim":"NEQ"}],{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_EQ':
+                if (annot == null) {
+                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]]`;
+                } else {
+                    return `[{"prim":"EQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_GE':
+                if (annot == null) {
+                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"GE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_GT':
+                if (annot == null) {
+                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"GT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_LE':
+                if (annot == null) {
+                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"LE"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_LT':
+                if (annot == null) {
+                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            case 'ASSERT_NEQ':
+                if (annot == null) {
+                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]`;
+                } else {
+                    return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH", "annots": [${annot}]}]]]}]`;
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     const check_fail = fail => fail === "FAIL";
 
     const expand_fail = (fail, annot) => {
-      // if annotations, put in last element of array, if no annot, put annot in FAILWITH otherwise
       if (annot == null) {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH"} ]`
-      }
-      else {
-        return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}]} ]`
+          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH" } ]`;
+      } else {
+          return `[ { "prim": "UNIT" }, { "prim": "FAILWITH", "annots": [${annot}] } ]`;
       }
     }
 
@@ -411,12 +386,12 @@ const lexer = moo.compile({
                 return `[ [ { "prim": "DUP" },
                             { "prim": "CAR" },
                             { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}]`;
             } else {
                 return `[ [ { "prim": "DUP" },
                             { "prim": "CAR" },
                             { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}] `
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}]`;
             }
         }
     }
@@ -689,35 +664,24 @@ var grammar = {
     {"name": "type$ebnf$6$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "type$ebnf$6", "symbols": ["type$ebnf$6", "type$ebnf$6$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "type$ebnf$6", "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgTypeKeywordWithParenToJson},
-    {"name": "typeData$subexpression$1", "symbols": [(lexer.has("singleArgTypeData") ? {type: "singleArgTypeData"} : singleArgTypeData)]},
-    {"name": "typeData$subexpression$1", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType)]},
-    {"name": "typeData", "symbols": ["typeData$subexpression$1", "_", "typeData"], "postprocess": singleArgKeywordToJson},
-    {"name": "typeData$subexpression$2", "symbols": [(lexer.has("singleArgTypeData") ? {type: "singleArgTypeData"} : singleArgTypeData)]},
-    {"name": "typeData$subexpression$2", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType)]},
-    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "typeData$subexpression$2", "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
-    {"name": "typeData$subexpression$3", "symbols": [(lexer.has("doubleArgTypeData") ? {type: "doubleArgTypeData"} : doubleArgTypeData)]},
-    {"name": "typeData$subexpression$3", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType)]},
-    {"name": "typeData", "symbols": ["typeData$subexpression$3", "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
-    {"name": "typeData$subexpression$4", "symbols": [(lexer.has("doubleArgTypeData") ? {type: "doubleArgTypeData"} : doubleArgTypeData)]},
-    {"name": "typeData$subexpression$4", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType)]},
-    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "typeData$subexpression$4", "_", "typeData", "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
-    {"name": "typeData$subexpression$5", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "typeData$subexpression$5", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "typeData$subexpression$5", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "typeData", "symbols": ["typeData$subexpression$5"], "postprocess": keywordToJson},
-    {"name": "typeData$subexpression$6", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "typeData$subexpression$6", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "typeData$subexpression$6", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "typeData", "symbols": ["typeData$subexpression$6", "_", "typeData"], "postprocess": singleArgKeywordToJson},
-    {"name": "typeData$subexpression$7", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "typeData$subexpression$7", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "typeData$subexpression$7", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "typeData", "symbols": ["typeData$subexpression$7", "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData"], "postprocess": singleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
+    {"name": "typeData", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
+    {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "typeData", "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "typeData", "symbols": ["subTypeData"], "postprocess": id},
     {"name": "typeData", "symbols": ["subTypeElt"], "postprocess": id},
     {"name": "typeData", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "typeData", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "typeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => []},
+    {"name": "data", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)], "postprocess": keywordToJson},
+    {"name": "data", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data"], "postprocess": singleArgKeywordToJson},
+    {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
+    {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
+    {"name": "data", "symbols": ["subData"], "postprocess": id},
+    {"name": "data", "symbols": ["subElt"], "postprocess": id},
+    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
+    {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "subTypeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
@@ -818,26 +782,6 @@ var grammar = {
     {"name": "instruction", "symbols": [{"literal":"PUSH"}, "instruction$ebnf$8", "_", "type", "_", "data"], "postprocess": pushWithAnnotsToJson},
     {"name": "instruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "instruction", "symbols": [{"literal":"CREATE_CONTRACT"}, "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "parameter", "_", "storage", "_", "code", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": subContractToJson},
-    {"name": "data$subexpression$1", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "data$subexpression$1", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "data$subexpression$1", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "data", "symbols": ["data$subexpression$1"], "postprocess": keywordToJson},
-    {"name": "data$subexpression$2", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "data$subexpression$2", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "data$subexpression$2", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "data", "symbols": ["data$subexpression$2", "_", "data"], "postprocess": singleArgKeywordToJson},
-    {"name": "data$subexpression$3", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "data$subexpression$3", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "data$subexpression$3", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "data", "symbols": ["data$subexpression$3", "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
-    {"name": "data$subexpression$4", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)]},
-    {"name": "data$subexpression$4", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData)]},
-    {"name": "data$subexpression$4", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData)]},
-    {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "data$subexpression$4", "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
-    {"name": "data", "symbols": ["subData"], "postprocess": id},
-    {"name": "data", "symbols": ["subElt"], "postprocess": id},
-    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
-    {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", {"literal":";"}, "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
@@ -872,8 +816,9 @@ var grammar = {
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
     {"name": "_", "symbols": ["_$ebnf$1"]},
-    {"name": "semicolons", "symbols": []},
-    {"name": "semicolons", "symbols": ["semicolons", {"literal":";"}]}
+    {"name": "semicolons$ebnf$1", "symbols": [/[;]/], "postprocess": id},
+    {"name": "semicolons$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "semicolons", "symbols": ["semicolons$ebnf$1"]}
 ]
   , ParserStart: "main"
 }
