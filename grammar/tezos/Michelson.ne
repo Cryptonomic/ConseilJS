@@ -212,50 +212,38 @@ _ -> [\s]:*
 semicolons -> null | semicolons ";"
 
 @{%
-     const checkC_R = c_r => {
-      var pattern = new RegExp('^C(A|D)(A|D)+R$'); // TODO
-      return pattern.test(c_r);
+    const checkC_R = c_r => {
+        var pattern = new RegExp('^C(A|D)(A|D)+R$'); // TODO
+        return pattern.test(c_r);
     }
 
-    const expandC_R = (c_r, annot) => {
-      var as_and_ds = c_r.substring(1, c_r.length-1)
-      var expandedC_R = as_and_ds.split('').map(c => (c === 'A' ? '{ "prim": "CAR" }' : '{ "prim": "CDR" }'));
+    const expandC_R = (word, annot) => {
+        var expandedC_R = word.slice(1, -1).split('').map(c => (c === 'A' ? '{ "prim": "CAR" }' : '{ "prim": "CDR" }'));
 
-      if (annot != null) {
-        const lastChar = as_and_ds[as_and_ds.length-1]
-        if (lastChar == 'A') {
-          expandedC_R[expandedC_R.length-1] = `{ "prim": "CAR", "annots": [${annot}] }`
+        if (annot != null) {
+            const lastChar = word.slice(-2, -1);
+            if (lastChar === 'A') {
+                expandedC_R[expandedC_R.length-1] = `{ "prim": "CAR", "annots": [${annot}] }`
+            } else if (lastChar === 'D') {
+                expandedC_R[expandedC_R.length-1] = `{ "prim": "CDR", "annots": [${annot}] }`
+            }
         }
-        if (lastChar == 'D') {
-          expandedC_R[expandedC_R.length-1] = `{ "prim": "CDR", "annots": [${annot}] }`
-        }
-      }
-      return `[${expandedC_R}]`;
+
+        return `[${expandedC_R.join(', ')}]`;
     }
-
-      //input: C*R
-      //remove first and last characters from string
-      //A -> keywordToJson(['CAR'])
-      //D -> keywordToJson(['CDR'])
-      // if annotations, put in last element of array
-      //return `${mappedArray}`
 
     const check_compare = cmp => macroCMPlist.includes(cmp);
 
     const expand_cmp = (cmp, annot) => {
-      var op = cmp.substring(3)
-      var binary_op = keywordToJson([`${op}`])
-      var compare = keywordToJson(['COMPARE'])
-      if (annot != null) {
-        binary_op = `{ "prim": "${op}", "annots": [${annot}] }`;
-      }
-      var result = [compare, binary_op]
-      return `[${result}]`
+        var op = cmp.substring(3)
+        var binary_op = keywordToJson([`${op}`])
+        var compare = keywordToJson(['COMPARE'])
+        if (annot != null) {
+            binary_op = `{ "prim": "${op}", "annots": [${annot}] }`;
+        }
+
+        return `[${compare}, ${binary_op}]`;
     }
-      //input : CMP*
-      //take last characters of string that aren't CMP -> keywordToJson([last])
-      // if annotations, put in last element of array
-      //return '${[keywordToJson(['COMPARE'])], ^}
 
     const check_dup = dup => DUPmatcher.test(dup);
 
@@ -274,7 +262,8 @@ semicolons -> null | semicolons ";"
             for (let i = 0; i < c; i++) { t += ' ] },{"prim":"SWAP"}]'; }
             return t;
         }
-        throw new Error(``);
+
+        throw new Error('');
     }
 
     const check_assert = assert => macroASSERTlist.includes(assert);
@@ -488,30 +477,20 @@ semicolons -> null | semicolons ";"
             return `[{"prim":"NEQ"},{"prim":"IF","args":[ [${ifTrue}] , [${ifFalse}]], "annots": [${annot}]}]`
           }
         case 'IF_SOME':
-          if (annot == null) {
-            return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]}]`
-          }
-          else {
-            return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}] ], "annots": [${annot}]}]`
-          }
+            if (annot == null) {
+                return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]}]`
+            } else {
+                return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}] ], "annots": [${annot}]}]`
+            }
       }
     }
 
     const check_dip = dip => DIPmatcher.test(dip);
 
     const expandDIP = (dip, instruction, annot) => {
-      //switch (dip) {
-      //  case 'DIIP':
-      //    return `[{ "prim": "DIP", "args": [ [ { "prim": "DIP", "args": [ [ ${instruction} ] ] } ] ] }]`;
-      //}
-
-      // ANNOTATION LAST ONE
-      // DIP code -> return `{ "prim": "DIP", "args": [ [ ${code} ] ] }`;
-      // DI(I+)P code -> return `{ "prim": "DIP", "args": [ [ ${expandDIP(D(I+)P, instruction)} ] ] }`;
-
-      let t = '';
+        let t = '';
         if (DIPmatcher.test(dip)) {
-            const c = dip.length - 2;;
+            const c = dip.length - 2;
             for (let i = 0; i < c; i++) { t += '[{ "prim": "DIP", "args": [ '; }
             t = `${t} [ ${instruction} ] ]`;
             if (!!annot) { t = `${t}, "annots": [${annot}]`; }
@@ -519,6 +498,7 @@ semicolons -> null | semicolons ";"
             for (let i = 0; i < c - 1; i++) { t += ' ] }]'; }
             return t;
         }
+
         throw new Error(``);
     }
 
@@ -528,34 +508,31 @@ semicolons -> null | semicolons ";"
     //annotations given to the command, right now we're hard coding to fix the multisig contract swiftly, but a
     //more general solution is required in the longterm.
     const expand_other = (word, annot) => {
-      if (word == 'UNPAIR') {
-        if (annot == null) {
-          return '[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ]'
+        if (word == 'UNPAIR') {
+            if (annot == null) {
+                return '[ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ] ]'
+            } else if (annot.length == 1) {
+                return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ]  } ] ]`
+            } else if (annot.length == 2) {
+                return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot[0]}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR", "annots": [${annot[1]}] } ] ]  } ] ]`
+            } else {
+                return '';
+            }
         }
-        else if (annot.length == 1) {
-          return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ]  } ] ]`
+
+        if (word == 'UNPAPAIR') {
+            if (annot == null) {
+                return `[ [ { "prim": "DUP" },
+                            { "prim": "CAR" },
+                            { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
+            } else {
+                return `[ [ { "prim": "DUP" },
+                            { "prim": "CAR" },
+                            { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
+                            {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}] `
+            }
         }
-        else if (annot.length == 2) {
-          return `[ [ { "prim": "DUP" }, { "prim": "CAR", "annots": [${annot[0]}] }, { "prim": "DIP", "args": [ [ { "prim": "CDR", "annots": [${annot[1]}] } ] ]  } ] ]`
-        }
-        else {
-          return ``
-        }
-      }
-      if (word == 'UNPAPAIR') {
-        if (annot == null) {
-          return `[ [ { "prim": "DUP" },
-                     { "prim": "CAR" },
-                     { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                     {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]]}]]]}] `
-        }
-        else {
-          return `[ [ { "prim": "DUP" },
-                     { "prim": "CAR" },
-                     { "prim": "DIP", "args": [ [ { "prim": "CDR" } ] ] } ],
-                     {"prim":"DIP","args":[[[{"prim":"DUP"},{"prim":"CAR"},{"prim":"DIP","args":[[{"prim":"CDR"}]],"annots": [${annot}]}]]]}] `
-        }
-      }
     }
 
     const checkSetCadr = s => macroSETCADR.test(s);
@@ -594,32 +571,15 @@ semicolons -> null | semicolons ";"
     }
 
     const expandKeyword = (word, annot) => {
-      if (checkC_R(word)) {
-        return expandC_R(word, annot);
-      }
-      if (check_assert(word)) {
-        return expand_assert(word, annot);
-      }
-      if (check_compare(word)) {
-        return expand_cmp(word, annot);
-      }
-      if (check_dip(word)) {
-        return expandDIP(word, annot);
-      }
-      if (check_dup(word)) {
-        return expand_dup(word, annot);
-      }
-      if (check_fail(word)) {
-        return expand_fail(word, annot);
-      }
-      if (check_if(word)) {
-        return expandIF(word, annot);
-      }
-      if (check_other(word)) {
-        return expand_other(word, annot);
-      }
-
-      if (checkSetCadr(word)) { return expandSetCadr(word, annot); }
+        if (checkC_R(word)) { return expandC_R(word, annot); }
+        if (check_assert(word)) { return expand_assert(word, annot); }
+        if (check_compare(word)) { return expand_cmp(word, annot); }
+        if (check_dip(word)) { return expandDIP(word, annot); }
+        if (check_dup(word)) { return expand_dup(word, annot); }
+        if (check_fail(word)) { return expand_fail(word, annot); }
+        if (check_if(word)) { return expandIF(word, annot); }
+        if (check_other(word)) { return expand_other(word, annot); }
+        if (checkSetCadr(word)) { return expandSetCadr(word, annot); }
     }
 
     /**
@@ -639,123 +599,103 @@ semicolons -> null | semicolons ";"
      * Example: "int" -> "{ "prim" : "int" }"
      */
     const keywordToJson = d => {
-      const word = d[0].toString()
-      if (d.length == 1) {
-        if (checkKeyword(word)) {
-          return [expandKeyword(word, null)]
-        }
-        else {
-          return `{ "prim": "${d[0]}" }`;
-        }
-      }
-      else {
-        const annot = d[1].map(x => `"${x[1]}"`)
-        if (checkKeyword(word)) {
-          return [expandKeyword(word, annot)]
-        }
-        else {
-          return `{ "prim": "${d[0]}", "annots": [${annot}] }`;
-        }
-      }
-    }
+        const word = d[0].toString();
 
-    /*
-    const typeKeywordToJson = d => {
-      const annot = d[1].map(x => `"${x[1] + x[2]}"`)
-      return `{ "prim": "${d[0]}", "annots": [${annot}] }`;
+        if (d.length == 1) {
+            if (checkKeyword(word)) {
+                return [expandKeyword(word, null)];
+            } else {
+                return `{ "prim": "${d[0]}" }`;
+            }
+        } else {
+            const annot = d[1].map(x => `"${x[1]}"`);
+            if (checkKeyword(word)) {
+                return [expandKeyword(word, annot)];
+            } else {
+                return `{ "prim": "${d[0]}", "annots": [${annot}] }`;
+            }
+        }
     }
-    */
 
     /**
      * Given a keyword with one argument, convert it to JSON.
      * Example: "option int" -> "{ prim: option, args: [int] }"
      */
-    const singleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`; }
-    //changed 5 secs ago
+    const singleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
 
     const comparableTypeToJson = d => {
-      const annot = d[3].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[2]}", "annots": [${annot}]  }`;
+        const annot = d[3].map(x => `"${x[1]}"`)
+        return `{ "prim": "${d[2]}", "annots": [${annot}]  }`;
     }
 
     const singleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[3].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
+         const annot = d[3].map(x => `"${x[1]}"`)
+         return `{ "prim": "${d[2]}", "args": [ ${d[5]} ], "annots": [${annot}]  }`;
     }
 
     const singleArgInstrKeywordToJson = d => {
-      const word = `${d[0].toString()}`
-      if (check_dip(word)) {
-        return expandDIP(word, d[2])
-      }
-      else {
-        return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`;
-      }
+        const word = `${d[0].toString()}`
+        if (check_dip(word)) {
+            return expandDIP(word, d[2])
+        } else {
+            return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`;
+        }
     }
 
     const singleArgTypeKeywordToJson = d => {
-      const word = `${d[0].toString()}`
-      const annot = d[1].map(x => `"${x[1]}"`)
-      if (check_dip(word)) {
-        return expandDIP(word, d[2], annot)
-      }
-      else {
-        return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
-      }
+        const word = `${d[0].toString()}`
+        const annot = d[1].map(x => `"${x[1]}"`)
+        if (check_dip(word)) {
+            return expandDIP(word, d[2], annot)
+        } else {
+            return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+        }
     }
 
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
      * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
      */
-    const singleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`; }
+    const singleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`;
     //changed 5 secs ago
     /**
      * Given a keyword with two arguments, convert it into JSON.
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`; }
+    const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
-      const word = `${d[0].toString()}`
-      if (check_if(word)) {
-        return expandIF(word, d[2], d[4])
-      }
-      else {
-        return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`;
-      }
+        const word = `${d[0].toString()}`
+        if (check_if(word)) {
+            return expandIF(word, d[2], d[4])
+        } else {
+            return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`;
+        }
     }
 
     /**
      * Given a keyword with two arguments and parentheses, convert it into JSON.
      * Example: "(Pair unit instruction)" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordWithParenToJson = d => { return `{ "prim": "${d[2]}", "args": [ ${d[4]}, ${d[6]} ] }`; }
+    const doubleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[4]}, ${d[6]} ] }`;
 
     /**
      * Given a keyword with three arguments, convert it into JSON.
      * Example: "LAMBDA key unit {DIP;}" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
      */
-    const tripleArgKeyWordToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, [${d[6]}] ] }`; }
+    const tripleArgKeyWordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, [${d[6]}] ] }`;
 
     /**
      * Given a keyword with three arguments and parentheses, convert it into JSON.
      * Example: "(LAMBDA key unit {DIP;})" -> "{ prim: LAMBDA, args: [{prim: key}, {prim: unit}, {prim: DIP}] }"
      */
-    const tripleArgKeyWordWithParenToJson = d => { return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`; }
+    const tripleArgKeyWordWithParenToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]}, ${d[6]} ] }`;
 
     const nestedArrayChecker = x => {
-        /*if (Array.isArray(x) && Array.isArray(x[0])) {
-            return x[0][0];
-        } else if (Array.isArray(x)) {
-            return x[0];
-        } else {
-            return x;
-        }*/
         if (Array.isArray(x) && Array.isArray(x[0])) {
             return x[0];
         } else {
-            return x
+            return x;
         }
     }
 
@@ -777,27 +717,27 @@ semicolons -> null | semicolons ";"
     }
 
     const doubleArgTypeKeywordToJson = d => {
-      const annot = d[1].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": [${annot}]  }`;
+        const annot = d[1].map(x => `"${x[1]}"`)
+        return `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[6]} ], "annots": [${annot}]  }`;
     }
 
     const doubleArgTypeKeywordWithParenToJson = d => {
-      const annot = d[3].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[2]}", "args": [ ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
+        const annot = d[3].map(x => `"${x[1]}"`)
+        return `{ "prim": "${d[2]}", "args": [ ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
     }
 
     const tripleArgTypeKeyWordToJson = d => {
-      const annot = d[1].map(x => `"${x[1]}"`)
-      return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
+        const annot = d[1].map(x => `"${x[1]}"`)
+        return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
     }
 
     const pushToJson = d => {
-      return `{ "prim": "${d[0]}", "args": [${d[2]}, []] }`;
+        return `{ "prim": "${d[0]}", "args": [${d[2]}, []] }`;
     }
 
     const pushWithAnnotsToJson = d => {
-      const annot = d[1].map(x => `"${x[1]}"`)
-      return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
+        const annot = d[1].map(x => `"${x[1]}"`)
+        return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
