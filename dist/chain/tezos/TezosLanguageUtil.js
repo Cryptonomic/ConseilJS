@@ -222,6 +222,7 @@ var TezosLanguageUtil;
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
             .replace(/"}/g, '" }')
+            .replace(/,"/g, ', "')
             .replace(/","/g, '", "')
             .replace(/\[\[/g, '[ [')
             .replace(/\]\]/g, '] ]')

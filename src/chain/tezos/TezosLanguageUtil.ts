@@ -158,7 +158,6 @@ export namespace TezosLanguageUtil {
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
-        //TODO: parser.results[0] is a workaround to a bug which causes duplicate matches
 
         return parser.results[0];
     }
@@ -276,6 +275,7 @@ export namespace TezosLanguageUtil {
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
             .replace(/"}/g, '" }')
+            .replace(/,"/g, ', "')
             .replace(/","/g, '", "')
             .replace(/\[\[/g, '[ [')
             .replace(/\]\]/g, '] ]')
