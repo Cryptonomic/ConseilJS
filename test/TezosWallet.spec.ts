@@ -71,7 +71,7 @@ describe('unlockFundraiserIdentity()', () => {
 });
 
 describe('generateMnemonic()', () => {
-    it('should produce a fifteen work bip39 mnemonic', () => {
+    it('should produce a 24-word bip39 mnemonic', () => {
         const result = TezosWalletUtil.generateMnemonic();
         expect(result.split(' ').length).to.equal(24);
     });
@@ -84,6 +84,16 @@ describe('unlockIdentityWithMnemonic()', () => {
             'password'
         );
         expect(result.publicKeyHash).to.equal('tz1frMTRzFcEwTXC8WGZzkfZs1CfSL1F4Mnc');
+    });
+});
+
+
+describe('generateMnemonic()', () => {
+    it('should produce a 24-word bip39 mnemonic', async () => {
+        const result = await TezosWalletUtil.restoreIdentityWithSecretKey('edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi');
+
+        expect(result.publicKey).to.equal('edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9');
+        expect(result.publicKeyHash).to.equal('tz1hcXqtiMYFhvuirD4guE7ts4yDuCAmtD95');
     });
 });
 

@@ -34,10 +34,11 @@ export namespace TezosConseilClient {
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
-    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any[]> {
+    export async function getBlockHead(serverInfo: ConseilServerInfo, network: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addOrdering(ConseilQueryBuilder.blankQuery(), 'level', ConseilSortDirection.DESC), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
@@ -179,6 +180,8 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
+     * 
+     * @returns Operation record
      */
     export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number): Promise<any[]> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
@@ -187,9 +190,9 @@ export namespace TezosConseilClient {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [hash], false), 1);
 
         while (initialLevel + duration > currentLevel) {
-            const group = await getTezosEntityData(serverInfo, network, OPERATIONS, query);
+            const group = await getOperations(serverInfo, network, query);
             if (group.length > 0) { return group; }
-            currentLevel = (await getBlockHead(serverInfo, network))[0]['level'];
+            currentLevel = (await getBlockHead(serverInfo, network))['level'];
             if (initialLevel + duration < currentLevel) { break; }
             await new Promise(resolve => setTimeout(resolve, 60 * 1000));
         }
@@ -205,9 +208,28 @@ export namespace TezosConseilClient {
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
      * @param {number} depth Number of blocks to skip for fork validation.
+     * 
+     * @returns `true` if the chain ids match between the original operation block and the current head, false otherwise.
      */
-    export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<any[]> {
-        throw new Error('Not implemented');
+    export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<boolean> {
+        const op = await awaitOperationConfirmation(serverInfo, network, hash, duration);
+
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [op['block_level']], false), 1);
+        const block = await getBlocks(serverInfo, network, query);
+        const opchainid = block['chain_id'];
+
+        const initialLevel = block['level'];
+        let currentLevel = initialLevel;
+        let lastchainid = '';
+        while (initialLevel + duration > currentLevel) {
+            const currentBlock = await getBlockHead(serverInfo, network);
+            currentLevel = currentBlock['level'];
+            lastchainid = currentBlock['chain_id'];
+            if (initialLevel + duration < currentLevel) { break; }
+            await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+        }
+
+        return opchainid === lastchainid;
     }
 
     /**

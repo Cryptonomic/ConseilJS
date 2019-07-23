@@ -8,6 +8,7 @@ var ConseilQueryBuilder;
             fields: [],
             predicates: [],
             orderBy: [],
+            aggregation: [],
             limit: 100
         };
     }
@@ -60,13 +61,7 @@ var ConseilQueryBuilder;
         if (!query.fields.includes(field)) {
             throw new Error('Cannot apply an aggregation function on a field not being returned.');
         }
-        if (query.fields.length === 1) {
-            throw new Error('Cannot apply an aggregation function on the only field being returned.');
-        }
         let q = Object.assign({}, query);
-        if (q.aggregation === undefined) {
-            q.aggregation = [];
-        }
         q.aggregation.push({ 'field': field, 'function': aggregationFunction });
         return q;
     }

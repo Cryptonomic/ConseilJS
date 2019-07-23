@@ -22,6 +22,8 @@ __export(require("./reporting/ConseilMetadataClient"));
 __export(require("./reporting/ConseilQueryBuilder"));
 __export(require("./types/conseil/MetadataTypes"));
 __export(require("./types/conseil/QueryTypes"));
+__export(require("./types/tezos/TezosChainTypes"));
+__export(require("./types/tezos/TezosP2PMessageTypes"));
 __export(require("./types/wallet/KeyStore"));
 __export(require("./utils/CryptoUtils"));
 //# sourceMappingURL=index-web.js.map

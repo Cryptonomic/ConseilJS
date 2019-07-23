@@ -20,6 +20,9 @@ export * from './reporting/ConseilQueryBuilder';
 
 export * from './types/conseil/MetadataTypes';
 export * from './types/conseil/QueryTypes';
+export * from './types/tezos/TezosChainTypes';
+export * from './types/tezos/TezosP2PMessageTypes';
+export * from './types/tezos/TezosRPCResponseTypes';
 export * from './types/wallet/KeyStore';
 
 export * from './utils/CryptoUtils';

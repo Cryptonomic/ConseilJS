@@ -29,13 +29,25 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 ## Use with Web
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-3vWGg6X0pApkEvkzE8ZQozQ1/7P3VFDuSNYoFNQky8yA/Jm02p3gGUQuxXfqXsKd"
+        integrity="sha384-1kvOwCh/yy4syOo9jLBT9RU6xhA2TSS6pzwm6eceb4fN/WlCgjDkQFW4xksK/2DV"
         crossorigin="anonymous"></script>
 ```
 
 A fully functional sample [webpage example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
 
 ## API Overview and Examples
+
+### Logs
+
+When using ConseilJS in the context of Nodejs, it's possible to control how verbose the logs are.
+
+```
+import { setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+```
+
+Default log level is 'info', the library used internally for logging is [logleve](https://www.npmjs.com/package/loglevel).
 
 ### Contract Development Lightning Route
 
@@ -198,14 +210,65 @@ async function originateAccount() {
 originateAccount();
 ```
 
-The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA).
+The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+
 
 #### Deploy a Contract
 
-Deploying a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+A note of warning, as of Tezos Protocol 4, deployed in the spring of 2019, originated accounts with code (smart contracts) are no longer 'spendable'. What this means is, deploying a contract with an initial balance that does not have functionality internally that enables transfer of this balance, will permanently lock that amount of XTZ.
+
+Deploying a contract with Micheline code is possible with local forging as of ConseilJS 0.2.5.
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+
+const tezosNode = '';
+
+async function deployContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contract = `[
+        {
+           "prim":"parameter",
+           "args":[ { "prim":"string" } ]
+        },
+        {
+           "prim":"storage",
+           "args":[ { "prim":"string" } ]
+        },
+        {
+           "prim":"code",
+           "args":[
+              [  
+                 { "prim":"CAR" },
+                 { "prim":"NIL", "args":[ { "prim":"operation" } ] },
+                 { "prim":"PAIR" }
+              ]
+           ]
+        }
+     ]`;
+    const storage = '"Sample"';
+
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+deployContract();
+```
+
+It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7.
+
+```typescript
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -226,7 +289,7 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 10000, undefined, false, false, 100000, '', '10000', '10000', contract, storage);
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -237,10 +300,12 @@ The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://alp
 
 #### Invoke a Contract
 
-Invoking a smart contract with Michelson syntax works with [ConseilJS v0.2.3](https://www.npmjs.com/package/conseiljs/v/0.2.3) and later.
+Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -254,7 +319,7 @@ async function invokeContract() {
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"');
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', , TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -262,6 +327,52 @@ invokeContract();
 ```
 
 The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://alphanet.tzscan.io/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
+
+```typescript
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+
+const tezosNode = '';
+
+async function invokeContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
+
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '{"string": "Cryptonomicon"}', TezosParameterFormat.Micheline);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+invokeContract();
+```
+
+```typescript
+import { StoreType, TezosNodeWriter } from 'conseiljs';
+
+const tezosNode = '';
+
+async function pingContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
+
+    const result = await TezosNodeWriter.sendContractPing(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+pingContract();
+```
 
 ### Metadata Discovery Functions
 
@@ -627,17 +738,119 @@ A collection of functions to encode and decode various Tezos P2P message compone
 
 Utility functions for interacting with the Tezos node.
 
+##### getBlock(server: string, hash: string)
+
+Gets a block directly from the specified Tezos node by block hash.
+
+##### getBlockHead(server: string)
+
+Gets the most-recent block.
+
+##### getAccountForBlock(server: string, blockHash: string, accountHash: string)
+
+Returns account status as of a specific block.
+
+##### getCounterForAccount(server: string, accountHash: string)
+
+Gets the current account operation counter. This index must be incremented with each successive operation being submitted by the account.
+
+##### getAccountManagerForBlock(server: string, blockHash: string, accountHash: string)
+
+Retrieves the account manager information as of a given block.
+
+##### isImplicitAndEmpty(server: string, accountHash: string)
+
+Identifies the account as implicit and empty - 0 balance. This has bearing on the cost of certain transactions.
+
+##### isManagerKeyRevealedForAccount(server: string, accountHash: string)
+
+A key reveal operation is required, this verifies if the account has already sent one.
+
 #### TezosNodeWriter
 
-Functions for sending operations on the Tezos network.
+Functions for sending operations on the Tezos network via a node. Most of these methods take many parameters that include server URL, key pair and address structure, and fee, among other things. Parameters have been omitted for brevity, but all of these methods and more are documented in the code using TSDoc.
+
+Several of these functions accept an optional derivation path parameter that is defaulted to blank for signing with a Ledger device.
+
+The various send functions return an operation group hash which can be passed to [TezosConseilClient.awaitOperationConfirmation(...)](#awaitOperationConfirmationserverInfo-network-hash-duration) to await its appearance on the chain.
+
+##### signOperationGroup
+
+Generates a signature for the hex representation of the proposed operation group based on account keys.
+
+##### forgeOperations
+
+Forges an operation group - converts it to hex in preparation for inclusion on the chain. This function will encode operations locally.
+
+##### forgeOperationsRemotely
+
+ConseilJS is able to encode locally operations in many cases, for the occasions where that fails, this function will forge an operation remotely on the specified Tezos node. This operation is not trustless.
+
+##### applyOperation
+
+Sends the operation group to the Tezos node for validation. The RPC payload is JSON, but the attached signature is based on the (potentially) locally created hex equivalent.
+
+##### injectOperation
+
+Submits the binary content of the operation group for inclusion on the chain.
+
+##### sendOperation
+
+Assembles, signs, forges, validates and submits an operation group to the chain.
+
+##### appendRevealOperation
+
+Account public key must be revealed for it to participate in transactions. This method will check the account status and add a Reveal operation to the operation group going out.
+
+##### sendTransactionOperation
+
+Sends the basic value transfer operation.
+
+##### sendDelegationOperation
+
+Updates the account's delegate.
+
+##### sendUndelegationOperation
+
+A convenience function to remove the delagate from an account. Calls [sendDelegationOperation](#sendDelegationOperation) internally
+
+##### sendAccountOriginationOperation
+
+Creates an originated account (KT1), without a script. These types of accounts allow participation in the delegation process.
+
+##### sendContractOriginationOperation
+
+Attempts to deploy a contract on the chain. `code` and initial `storage` are required parameters the content of which is specified by `codeFormat`. For operation submission Tezos converts the Michelson code into a JSON format known as Micheline before finally writing it as hex. Setting `codeFormat` to 'Micheline' will skip the Michelson-Micheline conversion.
+
+##### sendContractInvocationOperation
+
+Like [sendContractOriginationOperation](#sendContractOriginationOperation), parameters can be in Michelson or Micheline. It's possible to pass undefined or blank parameters.
+
+##### sendContractPing
+
+Invokes a contract with a 0 transaction amount and no parameters.
+
+##### sendKeyRevealOperation
+
+A key reveal operation can be sent separately as well. For a more efficient way to reveal an account, see [appendRevealOperation](#appendRevealOperation).
+
+##### sendIdentityActivationOperation
+
+Sends an account activation operation. These are preformed for fundraiser accounts.
 
 #### TezosFileWallet
 
 Functions for Tezos wallet functionality.
 
-#### TezosTypes
+#### TezosChainTypes
 
-Types used to process data returned from Conseil server.
+#### TezosP2PMessageTypes
+
+JSON message definitions for operation submission.
+
+#### TezosRPCResponseTypes
+
+JSON message definitions for RPC service responses.
 
 ## Contribute
 

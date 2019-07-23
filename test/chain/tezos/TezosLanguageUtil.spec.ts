@@ -114,18 +114,31 @@ describe("Tezos Micheline fragment decoding", () => {
         expect(result.code).to.equal('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@red", "@green", "@blue" ] }');
     });
 
-    it("test various parsing and encoding failures", () => {
+    it("Various parsing and encoding failures", () => {
         expect(() => TezosLanguageUtil.hexToMicheline('c0ffee')).to.throw('Unknown Micheline field type \'c0\'');
         expect(() => TezosLanguageUtil.hexToMicheline('c')).to.throw('Malformed Micheline fragment \'c\'');
     });
 
-    // TODO: pending full local forging
-    /*it('Serialize Michelson directly to hex', () => {
+    it('Serialize Michelson directly to hex', () => {
         const contract = 'parameter (list int);\nstorage (list int);\ncode { CAR; MAP { PUSH int 1; ADD }; NIL operation; PAIR };'; // add1_list
         const result = TezosLanguageUtil.translateMichelsonToHex(contract);
 
         expect(result).to.equal('0000001e050202000000170316053802000000080743035b00010312053d036d0342000000060501055f035b');
-    });*/
+    });
+
+    it('Serialize Michelson parameters', () => {
+        let params = 'Pair {} (Pair "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z" (Pair False 1000000))';
+        let result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ [], { "prim": "Pair", "args": [ { "string": "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z" }, { "prim": "Pair", "args": [ { "prim": "False" }, { "int": "1000000" } ] } ] } ] }');
+
+        params = 'Right (Right (Right (Right (Right (Right (Right (Right (Left (Pair "KT1DhPDy765YJwPRY8fRupSZQ3SjuxVvoUYd" 1000)))))))))';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Left", "args": [ { "prim": "Pair", "args": [ { "string": "KT1DhPDy765YJwPRY8fRupSZQ3SjuxVvoUYd" }, { "int": "1000" } ] } ] } ] } ] } ] } ] } ] } ] } ] } ] }');
+
+        params = 'Left (Pair "test" 123)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Left", "args": [ { "prim": "Pair", "args": [ { "string": "test" }, { "int": "123" } ] } ] }');
+    });
 });
 
 function preProcessMicheline(code: string): string[] {

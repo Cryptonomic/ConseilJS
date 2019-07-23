@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../../../src/chain/tezos/TezosMessageCodec";
-import { Activation, Ballot, BallotVote, Operation } from "../../../src/types/tezos/TezosChainTypes";
+import { Activation, Ballot, BallotVote, Operation, Reveal, Origination, Transaction } from "../../../src/types/tezos/TezosP2PMessageTypes";
+import { OperationKindType } from "../../../src/types/tezos/TezosChainTypes";
 import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
@@ -117,7 +118,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a contract origination operation", () => {
-        let origination: Operation = {
+        /*let origination: Operation = {
             kind: "origination",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -128,11 +129,11 @@ describe("Tezos P2P message decoder test suite", () => {
             balance: "10003",
             spendable: false,
             delegatable: false,
-            script: '{ "code": [ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "PUSH", "args": [ { "prim": "bytes" }, { "bytes": "0123456789abcdef" } ] }, { "prim": "DROP" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ], "storage": { "int": "30" } }'
+            script: { "code": [ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "PUSH", "args": [ { "prim": "bytes" }, { "bytes": "0123456789abcdef" } ] }, { "prim": "DROP" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ], "storage": { "int": "30" } }
         };
 
         let result = TezosMessageCodec.encodeOrigination(origination);
-        expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e000000ff0000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
+        expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e000000ff0000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");*/
     });
 
     it("correctly parse a reveal/transaction operation group", () => {
@@ -249,6 +250,7 @@ describe("Tezos P2P message decoder test suite", () => {
 
     it("correctly encode a ballot operation", () => {
         const ballot: Ballot = {
+            kind: 'ballot',
             source: 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX',
             period: 10,
             proposal: 'Pt24m4xiPbLDhVgVfABUjirbmda3yohdN82Sp9FeuAXJ4eV9otd',
@@ -270,6 +272,7 @@ describe("Tezos P2P message decoder test suite", () => {
 
     it("correctly encode an activation operation", () => {
         const activation: Activation = {
+            kind: OperationKindType.AccountActivation,
             pkh: "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
             secret: "9b7f631e52f877a1d363474404da8130b0b940ee"
         };
@@ -289,7 +292,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("fail reveal encoding errors", () => {
-        let reveal: Operation = {
+        let reveal: Reveal = {
             kind: "c0ffee",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "0",
@@ -299,14 +302,10 @@ describe("Tezos P2P message decoder test suite", () => {
             public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
         };
         expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Incorrect operation type.');
-
-        reveal.kind = 'reveal';
-        reveal.public_key = undefined;
-        expect(() => TezosMessageCodec.encodeReveal(reveal)).to.throw('Missing public key.');
     });
 
     it("fail transaction encoding errors", () => {
-        let transaction: Operation = {
+        let transaction: Transaction = {
             kind: "c0ff33",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -317,18 +316,10 @@ describe("Tezos P2P message decoder test suite", () => {
             destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
         };
         expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Incorrect operation type');
-
-        transaction.kind = 'transaction';
-        transaction.amount = undefined;
-        expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Missing amount');
-
-        transaction.amount = '1000000';
-        transaction.destination = undefined;
-        expect(() => TezosMessageCodec.encodeTransaction(transaction)).to.throw('Missing destination');
     });
 
     it("fail origination encoding errors", () => {
-        let origination: Operation = {
+        let origination: Origination = {
             kind: "c0ff33",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -342,14 +333,6 @@ describe("Tezos P2P message decoder test suite", () => {
             delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
         };
         expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Incorrect operation type');
-
-        origination.kind = 'origination';
-        origination.manager_pubkey = undefined
-        expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing manager address');
-
-        origination.manager_pubkey = 'tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX'
-        origination.balance = undefined
-        expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Missing balance');
     });
 
     it("fail delegation encoding errors", () => {

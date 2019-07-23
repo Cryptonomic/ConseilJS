@@ -11,7 +11,9 @@ parameter (pair
                          (nat %threshold)         # new threshold
                          (list %keys key)))))     # new list of keys
              (list %sigs (option signature)));    # signatures
+
 storage (pair (nat %stored_counter) (pair (nat %threshold) (list %keys key))) ;
+
 code
   {
     UNPAIR ; SWAP ; DUP ; DIP { SWAP } ;

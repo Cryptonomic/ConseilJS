@@ -222,9 +222,12 @@ var TezosLanguageUtil;
             .replace(/":\[/g, '": [')
             .replace(/{"/g, '{ "')
             .replace(/"}/g, '" }')
+            .replace(/,"/g, ', "')
             .replace(/","/g, '", "')
             .replace(/\[\[/g, '[ [')
-            .replace(/\]\]/g, '] ]');
+            .replace(/\]\]/g, '] ]')
+            .replace(/\["/g, '\[ "')
+            .replace(/"\]/g, '" \]');
     }
     TezosLanguageUtil.normalizeMichelineWhiteSpace = normalizeMichelineWhiteSpace;
 })(TezosLanguageUtil = exports.TezosLanguageUtil || (exports.TezosLanguageUtil = {}));
