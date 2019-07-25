@@ -35,7 +35,7 @@ declare var data: any;
     }
 
     interface Entrypoint {
-        name: string,
+        name?: string,
         parameters: Parameter[],
         structure: string
     }
@@ -120,7 +120,7 @@ declare var data: any;
         for (let firstEntrypoint of firstEntrypoints) {
             for (let secondEntrypoint of secondEntrypoints) {
                 let pairedEntrypoint: Entrypoint = {
-                    name: "",
+                    name: undefined,
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                     structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
                 }
@@ -160,7 +160,7 @@ declare var data: any;
             type: d[0].toString()
         }
         let entrypoint: Entrypoint = {
-            name: "",
+            name: undefined,
             parameters: [parameter],
             structure: `(${d[0]} ${d[2]})`
         }
@@ -173,7 +173,7 @@ declare var data: any;
             type: d[0].toString()
         }
         let entrypoint: Entrypoint = {
-            name: "",
+            name: undefined,
             parameters: [parameter],
             structure: `(${d[0]})`
         }

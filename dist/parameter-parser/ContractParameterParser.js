@@ -83,7 +83,7 @@ const mergePair = (d) => {
     for (let firstEntrypoint of firstEntrypoints) {
         for (let secondEntrypoint of secondEntrypoints) {
             let pairedEntrypoint = {
-                name: "",
+                name: undefined,
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                 structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
             };
@@ -115,7 +115,7 @@ const recordDataWithAnnot = (d) => {
         type: d[0].toString()
     };
     let entrypoint = {
-        name: "",
+        name: undefined,
         parameters: [parameter],
         structure: `(${d[0]} ${d[2]})`
     };
@@ -127,7 +127,7 @@ const recordData = (d) => {
         type: d[0].toString()
     };
     let entrypoint = {
-        name: "",
+        name: undefined,
         parameters: [parameter],
         structure: `(${d[0]})`
     };
