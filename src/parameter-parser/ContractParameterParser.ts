@@ -92,7 +92,7 @@ declare var data: any;
         return branchedEntrypoints;
     }
 
-    const processPairWithAnnot = (d: any): Entrypoint[] => {
+    const mergePairWithAnnot = (d: any): Entrypoint[] => {
         const annot: string = d[4];
         const firstEntrypoints: Entrypoint[] = d[6];
         const secondEntrypoints: Entrypoint[] = d[8];
@@ -112,7 +112,7 @@ declare var data: any;
         return pairedEntrypoints;
     }
 
-    const processPair = (d: any): Entrypoint[] => {
+    const mergePair = (d: any): Entrypoint[] => {
         const firstEntrypoints: Entrypoint[] = d[4];
         const secondEntrypoints: Entrypoint[] = d[6];
         let pairedEntrypoints: Entrypoint[] = [];
@@ -204,8 +204,8 @@ export var ParserRules: NearleyRule[] = [
     {"name": "entry", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter), "_", "parameters", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon)], "postprocess": breakParameter},
     {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("or") ? {type: "or"} : or), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": branchOrWithAnnot},
     {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("or") ? {type: "or"} : or), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": branchOr},
-    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": processPairWithAnnot},
-    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": processPair},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": mergePairWithAnnot},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": mergePair},
     {"name": "parameters", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters"], "postprocess": recordSingleArgTypeWithAnnot},
     {"name": "parameters", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "parameters"], "postprocess": recordSingleArgType},
     {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": stripParen},
