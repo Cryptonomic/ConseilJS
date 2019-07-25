@@ -5,56 +5,176 @@
 function id(d: any[]): any { return d[0]; }
 declare var parameter: any;
 declare var semicolon: any;
-declare var data: any;
-declare var annot: any;
-declare var singleArgType: any;
 declare var lparen: any;
-declare var pair: any;
-declare var rparen: any;
 declare var or: any;
+declare var annot: any;
+declare var rparen: any;
+declare var pair: any;
+declare var singleArgType: any;
+declare var data: any;
 
-  const moo = require("moo");
+    const moo = require("moo");
 
-  const lexer = moo.compile({
-      wspace: /[ \t]+/,
-      lparen: '(',
-      rparen: ')',
-      annot: /:[^ )]+|%[^ )]+/,
-      parameter: 'parameter',
-      or: 'or',
-      pair: 'pair',
-      data: ['int', 'nat', 'bool', 'string', 'timestamp', 'signature', 'key', 'key_hash', 'mutez', 'address', 'unit'],
-      singleArgType: ['option', 'list', 'contract'],
-      semicolon: ';'
-  });
+    const lexer = moo.compile({
+        wspace: /[ \t]+/,
+        lparen: '(',
+        rparen: ')',
+        annot: /:[^ );]+|%[^ );]+/,
+        parameter: 'parameter',
+        or: 'or',
+        pair: 'pair',
+        data: ['int', 'nat', 'bool', 'string', 'timestamp', 'signature', 'key', 'key_hash', 'mutez', 'address', 'unit'],
+        singleArgType: ['option', 'list', 'contract'],
+        semicolon: ';'
+    });
 
 
-    const breakParameter = (d: string[][]) => { return d[2]; }
-
-    const recordData = (d: string[][]) => { return [`([${d[0]}!${d[2]}])`]; }
-    const recordSingleArgType = (d: string[][]) => { return `([${d[0]} ${d[2]} ${d[4]}])`; }
-    const stripParen = (d: string[][]) => { return [d[2]]; }
-    const processPair = (d: string[][]) => {
-      if (d[4] === null) {
-        return [`(Pair ${d[6]} ${d[8]})`];
-      } else {
-        return [`(Pair ${d[4]} ${d[6]} ${d[8]})`];
-      }
+    interface Parameter {
+      name?: string,
+      type: string
     }
 
-    const splitOr = (d: string[][]) => {
-      let result: string[] = [];
-      const leftBranch: string[] = d[6];
-      const rightBranch: string[] = d[8];
+    interface Entrypoint {
+      name: string,
+      parameters: Parameter[],
+      structure: string
+    }
 
-      for (let leftNode of leftBranch) {
-          result.push('(Left ' + leftNode + ')');
-      }
-      for (let rightNode of rightBranch) {
-          result.push('(Right ' + rightNode + ')');
-      }
-      
-      return result;
+    const breakParameter = (d: any): Entrypoint[] => { return d[2]; }
+
+    const splitOrWithAnnot = (d: any): Entrypoint[] => {
+        let result: Entrypoint[] = [];
+        const leftBranch: Entrypoint[] = d[6];
+        const rightBranch: Entrypoint[] = d[8];
+
+        for (let leftNode of leftBranch) {
+            let leftEntrypoint: Entrypoint = {
+                name: leftNode.name,
+                parameters: leftNode.parameters,
+                structure: '(Left ' + leftNode.structure + ')'
+            }
+            result.push(leftEntrypoint);
+        }
+        for (let rightNode of rightBranch) {
+            let rightEntrypoint: Entrypoint = {
+                name: rightNode.name,
+                parameters: rightNode.parameters,
+                structure: '(Right ' + rightNode.structure + ')'
+            }
+            result.push(rightEntrypoint);
+        }
+        return result;
+    }
+
+    const splitOr = (d: any): Entrypoint[] => {
+        let result: Entrypoint[] = [];
+        const leftBranch: Entrypoint[] = d[4];
+        const rightBranch: Entrypoint[] = d[6];
+
+        for (let leftNode of leftBranch) {
+            let leftEntrypoint: Entrypoint = {
+                name: leftNode.name,
+                parameters: leftNode.parameters,
+                structure: '(Left ' + leftNode.structure + ')'
+            }
+            result.push(leftEntrypoint);
+        }
+        for (let rightNode of rightBranch) {
+            let rightEntrypoint: Entrypoint = {
+                name: rightNode.name,
+                parameters: rightNode.parameters,
+                structure: '(Right ' + rightNode.structure + ')'
+            }
+            result.push(rightEntrypoint);
+        }
+        return result;
+    }
+
+    const processPairWithAnnot = (d: any): Entrypoint[] => {
+        const annot: string = d[4];
+        const firstElement: Entrypoint[] = d[6];
+        const secondElement: Entrypoint[] = d[8];
+        const entrypoints: Entrypoint[] = firstElement.concat(secondElement);
+
+        let pairedEntrypoint: Entrypoint = {
+            name: annot.toString(),
+            parameters: [],
+            structure: `(Pair ${annot} ${d[6][0].structure} ${d[8][0].structure})`
+        }
+
+        for (let entrypoint of entrypoints) {
+            pairedEntrypoint.parameters = pairedEntrypoint.parameters.concat(entrypoint.parameters);
+        }
+
+        return [pairedEntrypoint];
+    }
+
+    const processPair = (d: any): Entrypoint[] => {
+        const firstElement: Entrypoint[] = d[4];
+        const secondElement: Entrypoint[] = d[6];
+        const entrypoints: Entrypoint[] = firstElement.concat(secondElement);
+
+        let pairedEntrypoint: Entrypoint = {
+            name: "",
+            parameters: [],
+            structure: `(Pair ${d[4][0].structure} ${d[6][0].structure})`
+        }
+
+        for (let entrypoint of entrypoints) {
+
+            pairedEntrypoint.parameters = pairedEntrypoint.parameters.concat(entrypoint.parameters);
+        }
+
+        return [pairedEntrypoint];
+    }
+
+    const recordSingleArgTypeWithAnnot = (d: any): Entrypoint[] => {
+        const singleArgType: string = d[0].toString();
+        const annot: string = d[2].toString();
+        const entrypoints: Entrypoint[] = d[4];
+
+        entrypoints[0].parameters[0].name = annot;
+        entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
+        entrypoints[0].structure = `(${singleArgType} ${annot} ${entrypoints[0].structure})`;
+
+        return entrypoints;
+    }
+    const recordSingleArgType = (d: any): Entrypoint[] => {
+        const singleArgType: string = d[0].toString();
+        const entrypoints: Entrypoint[] = d[2];
+
+        entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
+        entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
+
+        return entrypoints;
+    }
+
+    const stripParen = (d: any): Entrypoint[] => { return d[2]; }
+
+    const recordDataWithAnnot = (d: string[]): Entrypoint[] => { 
+        let parameter: Parameter = {
+            name: d[2].toString(),
+            type: d[0].toString()
+        }
+        let entrypoint: Entrypoint = {
+            name: "",
+            parameters: [parameter],
+            structure: `(${d[0]} ${d[2]})`
+        }
+        return [entrypoint];
+    }
+
+    const recordData = (d: string[]): Entrypoint[] => { 
+        let parameter: Parameter = {
+            name: undefined,
+            type: d[0].toString()
+        }
+        let entrypoint: Entrypoint = {
+            name: "",
+            parameters: [parameter],
+            structure: `(${d[0]})`
+        }
+        return [entrypoint];
     }
 
 export interface Token { value: any; [key: string]: any };
@@ -79,19 +199,15 @@ export var Lexer: Lexer | undefined = lexer;
 
 export var ParserRules: NearleyRule[] = [
     {"name": "entry", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter), "_", "parameters", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon)], "postprocess": breakParameter},
-    {"name": "parameters$ebnf$1", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot)], "postprocess": id},
-    {"name": "parameters$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "parameters", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", "parameters$ebnf$1"], "postprocess": recordData},
-    {"name": "parameters$ebnf$2", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot)], "postprocess": id},
-    {"name": "parameters$ebnf$2", "symbols": [], "postprocess": () => null},
-    {"name": "parameters", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "parameters$ebnf$2", "_", "parameters"], "postprocess": recordSingleArgType},
-    {"name": "parameters$ebnf$3", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot)], "postprocess": id},
-    {"name": "parameters$ebnf$3", "symbols": [], "postprocess": () => null},
-    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", "parameters$ebnf$3", "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": processPair},
-    {"name": "parameters$ebnf$4", "symbols": [(lexer.has("annot") ? {type: "annot"} : annot)], "postprocess": id},
-    {"name": "parameters$ebnf$4", "symbols": [], "postprocess": () => null},
-    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("or") ? {type: "or"} : or), "_", "parameters$ebnf$4", "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": splitOr},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("or") ? {type: "or"} : or), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": splitOrWithAnnot},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("or") ? {type: "or"} : or), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": splitOr},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": processPairWithAnnot},
+    {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("pair") ? {type: "pair"} : pair), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": processPair},
+    {"name": "parameters", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", (lexer.has("annot") ? {type: "annot"} : annot), "_", "parameters"], "postprocess": recordSingleArgTypeWithAnnot},
+    {"name": "parameters", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "parameters"], "postprocess": recordSingleArgType},
     {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": stripParen},
+    {"name": "parameters", "symbols": [(lexer.has("data") ? {type: "data"} : data), "_", (lexer.has("annot") ? {type: "annot"} : annot)], "postprocess": recordDataWithAnnot},
+    {"name": "parameters", "symbols": [(lexer.has("data") ? {type: "data"} : data)], "postprocess": recordData},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "_", "symbols": ["_$ebnf$1"]}
