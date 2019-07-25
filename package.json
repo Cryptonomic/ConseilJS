@@ -9,6 +9,7 @@
     "dist"
   ],
   "scripts": {
+    "build": "nearleyc src/parameter-parser/ContractParameterParser.ne -o src/parameter-parser/ContractParameterParser.ts && tsc",
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",

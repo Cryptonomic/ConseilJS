@@ -15,78 +15,82 @@ const lexer = moo.compile({
     semicolon: ';'
 });
 const breakParameter = (d) => { return d[2]; };
-const splitOrWithAnnot = (d) => {
-    let result = [];
-    const leftBranch = d[6];
-    const rightBranch = d[8];
-    for (let leftNode of leftBranch) {
-        let leftEntrypoint = {
-            name: leftNode.name,
-            parameters: leftNode.parameters,
-            structure: '(Left ' + leftNode.structure + ')'
+const branchOrWithAnnot = (d) => {
+    const leftEntrypoints = d[6];
+    const rightEntrypoints = d[8];
+    let branchedEntrypoints = [];
+    for (let leftEntrypoint of leftEntrypoints) {
+        let branchedEntrypoint = {
+            name: leftEntrypoint.name,
+            parameters: leftEntrypoint.parameters,
+            structure: '(Left ' + leftEntrypoint.structure + ')'
         };
-        result.push(leftEntrypoint);
+        branchedEntrypoints.push(branchedEntrypoint);
     }
-    for (let rightNode of rightBranch) {
-        let rightEntrypoint = {
-            name: rightNode.name,
-            parameters: rightNode.parameters,
-            structure: '(Right ' + rightNode.structure + ')'
+    for (let rightEntrypoint of rightEntrypoints) {
+        let branchedEntrypoint = {
+            name: rightEntrypoint.name,
+            parameters: rightEntrypoint.parameters,
+            structure: '(Right ' + rightEntrypoint.structure + ')'
         };
-        result.push(rightEntrypoint);
+        branchedEntrypoints.push(branchedEntrypoint);
     }
-    return result;
+    return branchedEntrypoints;
 };
-const splitOr = (d) => {
-    let result = [];
-    const leftBranch = d[4];
-    const rightBranch = d[6];
-    for (let leftNode of leftBranch) {
-        let leftEntrypoint = {
-            name: leftNode.name,
-            parameters: leftNode.parameters,
-            structure: '(Left ' + leftNode.structure + ')'
+const branchOr = (d) => {
+    const leftEntrypoints = d[4];
+    const rightEntrypoints = d[6];
+    let branchedEntrypoints = [];
+    for (let leftEntrypoint of leftEntrypoints) {
+        let branchedEntrypoint = {
+            name: leftEntrypoint.name,
+            parameters: leftEntrypoint.parameters,
+            structure: '(Left ' + leftEntrypoint.structure + ')'
         };
-        result.push(leftEntrypoint);
+        branchedEntrypoints.push(branchedEntrypoint);
     }
-    for (let rightNode of rightBranch) {
-        let rightEntrypoint = {
-            name: rightNode.name,
-            parameters: rightNode.parameters,
-            structure: '(Right ' + rightNode.structure + ')'
+    for (let rightEntrypoint of rightEntrypoints) {
+        let branchedEntrypoint = {
+            name: rightEntrypoint.name,
+            parameters: rightEntrypoint.parameters,
+            structure: '(Right ' + rightEntrypoint.structure + ')'
         };
-        result.push(rightEntrypoint);
+        branchedEntrypoints.push(branchedEntrypoint);
     }
-    return result;
+    return branchedEntrypoints;
 };
 const processPairWithAnnot = (d) => {
     const annot = d[4];
-    const firstElement = d[6];
-    const secondElement = d[8];
-    const entrypoints = firstElement.concat(secondElement);
-    let pairedEntrypoint = {
-        name: annot.toString(),
-        parameters: [],
-        structure: `(Pair ${annot} ${d[6][0].structure} ${d[8][0].structure})`
-    };
-    for (let entrypoint of entrypoints) {
-        pairedEntrypoint.parameters = pairedEntrypoint.parameters.concat(entrypoint.parameters);
+    const firstEntrypoints = d[6];
+    const secondEntrypoints = d[8];
+    let pairedEntrypoints = [];
+    for (let firstEntrypoint of firstEntrypoints) {
+        for (let secondEntrypoint of secondEntrypoints) {
+            let pairedEntrypoint = {
+                name: annot.toString(),
+                parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
+                structure: `(Pair ${annot} ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+            };
+            pairedEntrypoints.push(pairedEntrypoint);
+        }
     }
-    return [pairedEntrypoint];
+    return pairedEntrypoints;
 };
 const processPair = (d) => {
-    const firstElement = d[4];
-    const secondElement = d[6];
-    const entrypoints = firstElement.concat(secondElement);
-    let pairedEntrypoint = {
-        name: "",
-        parameters: [],
-        structure: `(Pair ${d[4][0].structure} ${d[6][0].structure})`
-    };
-    for (let entrypoint of entrypoints) {
-        pairedEntrypoint.parameters = pairedEntrypoint.parameters.concat(entrypoint.parameters);
+    const firstEntrypoints = d[4];
+    const secondEntrypoints = d[6];
+    let pairedEntrypoints = [];
+    for (let firstEntrypoint of firstEntrypoints) {
+        for (let secondEntrypoint of secondEntrypoints) {
+            let pairedEntrypoint = {
+                name: "",
+                parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
+                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+            };
+            pairedEntrypoints.push(pairedEntrypoint);
+        }
     }
-    return [pairedEntrypoint];
+    return pairedEntrypoints;
 };
 const recordSingleArgTypeWithAnnot = (d) => {
     const singleArgType = d[0].toString();
@@ -135,8 +139,8 @@ const recordData = (d) => {
 exports.Lexer = lexer;
 exports.ParserRules = [
     { "name": "entry", "symbols": [(lexer.has("parameter") ? { type: "parameter" } : parameter), "_", "parameters", "_", (lexer.has("semicolon") ? { type: "semicolon" } : semicolon)], "postprocess": breakParameter },
-    { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("or") ? { type: "or" } : or), "_", (lexer.has("annot") ? { type: "annot" } : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": splitOrWithAnnot },
-    { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("or") ? { type: "or" } : or), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": splitOr },
+    { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("or") ? { type: "or" } : or), "_", (lexer.has("annot") ? { type: "annot" } : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": branchOrWithAnnot },
+    { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("or") ? { type: "or" } : or), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": branchOr },
     { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("pair") ? { type: "pair" } : pair), "_", (lexer.has("annot") ? { type: "annot" } : annot), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": processPairWithAnnot },
     { "name": "parameters", "symbols": [(lexer.has("lparen") ? { type: "lparen" } : lparen), "_", (lexer.has("pair") ? { type: "pair" } : pair), "_", "parameters", "_", "parameters", "_", (lexer.has("rparen") ? { type: "rparen" } : rparen)], "postprocess": processPair },
     { "name": "parameters", "symbols": [(lexer.has("singleArgType") ? { type: "singleArgType" } : singleArgType), "_", (lexer.has("annot") ? { type: "annot" } : annot), "_", "parameters"], "postprocess": recordSingleArgTypeWithAnnot },
