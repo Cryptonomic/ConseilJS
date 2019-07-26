@@ -54,7 +54,7 @@ _ -> [\s]:*
     const breakParameter = (d: any): Entrypoint[] => {
         const entrypoints: Entrypoint[] = d[2];
         for (const entrypoint of entrypoints) {
-            entrypoint.generateParameter = function(... vars): string {
+            entrypoint.generateParameter = function(... vars: any[]): string {
                 let invocationParameter: string = this.structure;
                 for (let i = 0 ; i < this.parameters.length; i++) {
                     invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
@@ -178,14 +178,22 @@ _ -> [\s]:*
     const stripParen = (d: any): Entrypoint[] => { return d[2]; }
 
     const recordDataWithAnnot = (d: string[]): Entrypoint[] => { 
+        const annot = d[2].toString();
+        let parameterName: string | undefined = undefined;
+        let entrypointName: string | undefined = undefined;
+        if (annot.charAt(0) === '%') {
+            entrypointName = annot;
+        } else {
+            parameterName = annot;
+        }
         const parameter: Parameter = {
-            name: d[2].toString(),
+            name: parameterName,
             type: d[0].toString()
         }
         const entrypoint: Entrypoint = {
-            name: undefined,
+            name: entrypointName,
             parameters: [parameter],
-            structure: `$PARAM`
+            structure: '$PARAM'
         }
         return [entrypoint];
     }
@@ -198,7 +206,7 @@ _ -> [\s]:*
         const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: `$PARAM`
+            structure: '$PARAM'
         }
         return [entrypoint];
     }

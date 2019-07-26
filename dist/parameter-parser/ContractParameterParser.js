@@ -122,14 +122,23 @@ const recordSingleArgType = (d) => {
 };
 const stripParen = (d) => { return d[2]; };
 const recordDataWithAnnot = (d) => {
+    const annot = d[2].toString();
+    let parameterName = undefined;
+    let entrypointName = undefined;
+    if (annot.charAt(0) === '%') {
+        entrypointName = annot;
+    }
+    else {
+        parameterName = annot;
+    }
     const parameter = {
-        name: d[2].toString(),
+        name: parameterName,
         type: d[0].toString()
     };
     const entrypoint = {
-        name: undefined,
+        name: entrypointName,
         parameters: [parameter],
-        structure: `$PARAM`
+        structure: '$PARAM'
     };
     return [entrypoint];
 };
@@ -141,7 +150,7 @@ const recordData = (d) => {
     const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: `$PARAM`
+        structure: '$PARAM'
     };
     return [entrypoint];
 };
