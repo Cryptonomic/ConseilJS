@@ -81,7 +81,7 @@ const mergePairWithAnnot = (d) => {
             const pairedEntrypoint = {
                 name: annot.toString(),
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                structure: `(Pair ${annot} ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
             };
             pairedEntrypoints.push(pairedEntrypoint);
         }

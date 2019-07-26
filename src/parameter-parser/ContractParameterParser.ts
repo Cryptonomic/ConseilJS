@@ -116,7 +116,7 @@ declare var data: any;
                 const pairedEntrypoint: Entrypoint = {
                     name: annot.toString(),
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                    structure: `(Pair ${annot} ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                    structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
                 }
                 pairedEntrypoints.push(pairedEntrypoint);
             }
