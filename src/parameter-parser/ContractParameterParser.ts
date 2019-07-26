@@ -30,14 +30,15 @@ declare var data: any;
 
 
     interface Parameter {
-        name?: string,
-        type: string
+        name?: string;
+        type: string;
     }
 
     interface Entrypoint {
-        name?: string,
-        parameters: Parameter[],
-        structure: string
+        name?: string;
+        parameters: Parameter[];
+        structure: string;
+        generateParameter?(... vars): string;
     }
 
     const breakParameter = (d: any): Entrypoint[] => { return d[2]; }
@@ -45,18 +46,18 @@ declare var data: any;
     const branchOrWithAnnot = (d: any): Entrypoint[] => {
         const leftEntrypoints: Entrypoint[] = d[6];
         const rightEntrypoints: Entrypoint[] = d[8];
-        let branchedEntrypoints: Entrypoint[] = [];
+        const branchedEntrypoints: Entrypoint[] = [];
 
-        for (let leftEntrypoint of leftEntrypoints) {
-            let branchedEntrypoint: Entrypoint = {
+        for (const leftEntrypoint of leftEntrypoints) {
+            const branchedEntrypoint: Entrypoint = {
                 name: leftEntrypoint.name,
                 parameters: leftEntrypoint.parameters,
                 structure: '(Left ' + leftEntrypoint.structure + ')'
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
-        for (let rightEntrypoint of rightEntrypoints) {
-            let branchedEntrypoint: Entrypoint = {
+        for (const rightEntrypoint of rightEntrypoints) {
+            const branchedEntrypoint: Entrypoint = {
                 name: rightEntrypoint.name,
                 parameters: rightEntrypoint.parameters,
                 structure: '(Right ' + rightEntrypoint.structure + ')'
@@ -70,18 +71,18 @@ declare var data: any;
     const branchOr = (d: any): Entrypoint[] => {
         const leftEntrypoints: Entrypoint[] = d[4];
         const rightEntrypoints: Entrypoint[] = d[6];
-        let branchedEntrypoints: Entrypoint[] = [];
+        const branchedEntrypoints: Entrypoint[] = [];
 
-        for (let leftEntrypoint of leftEntrypoints) {
-            let branchedEntrypoint: Entrypoint = {
+        for (const leftEntrypoint of leftEntrypoints) {
+            const branchedEntrypoint: Entrypoint = {
                 name: leftEntrypoint.name,
                 parameters: leftEntrypoint.parameters,
                 structure: '(Left ' + leftEntrypoint.structure + ')'
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
-        for (let rightEntrypoint of rightEntrypoints) {
-            let branchedEntrypoint: Entrypoint = {
+        for (const rightEntrypoint of rightEntrypoints) {
+            const branchedEntrypoint: Entrypoint = {
                 name: rightEntrypoint.name,
                 parameters: rightEntrypoint.parameters,
                 structure: '(Right ' + rightEntrypoint.structure + ')'
@@ -96,11 +97,11 @@ declare var data: any;
         const annot: string = d[4];
         const firstEntrypoints: Entrypoint[] = d[6];
         const secondEntrypoints: Entrypoint[] = d[8];
-        let pairedEntrypoints: Entrypoint[] = [];
+        const pairedEntrypoints: Entrypoint[] = [];
 
-        for (let firstEntrypoint of firstEntrypoints) {
-            for (let secondEntrypoint of secondEntrypoints) {
-                let pairedEntrypoint: Entrypoint = {
+        for (const firstEntrypoint of firstEntrypoints) {
+            for (const secondEntrypoint of secondEntrypoints) {
+                const pairedEntrypoint: Entrypoint = {
                     name: annot.toString(),
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                     structure: `(Pair ${annot} ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
@@ -115,11 +116,11 @@ declare var data: any;
     const mergePair = (d: any): Entrypoint[] => {
         const firstEntrypoints: Entrypoint[] = d[4];
         const secondEntrypoints: Entrypoint[] = d[6];
-        let pairedEntrypoints: Entrypoint[] = [];
+        const pairedEntrypoints: Entrypoint[] = [];
 
-        for (let firstEntrypoint of firstEntrypoints) {
-            for (let secondEntrypoint of secondEntrypoints) {
-                let pairedEntrypoint: Entrypoint = {
+        for (const firstEntrypoint of firstEntrypoints) {
+            for (const secondEntrypoint of secondEntrypoints) {
+                const pairedEntrypoint: Entrypoint = {
                     name: undefined,
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                     structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
@@ -155,27 +156,27 @@ declare var data: any;
     const stripParen = (d: any): Entrypoint[] => { return d[2]; }
 
     const recordDataWithAnnot = (d: string[]): Entrypoint[] => { 
-        let parameter: Parameter = {
+        const parameter: Parameter = {
             name: d[2].toString(),
             type: d[0].toString()
         }
-        let entrypoint: Entrypoint = {
+        const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: `(${d[0]} ${d[2]})`
+            structure: `$`
         }
         return [entrypoint];
     }
 
     const recordData = (d: string[]): Entrypoint[] => { 
-        let parameter: Parameter = {
+        const parameter: Parameter = {
             name: undefined,
             type: d[0].toString()
         }
-        let entrypoint: Entrypoint = {
+        const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: `(${d[0]})`
+            structure: `$`
         }
         return [entrypoint];
     }

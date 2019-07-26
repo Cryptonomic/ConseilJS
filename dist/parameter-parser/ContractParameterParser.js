@@ -18,17 +18,17 @@ const breakParameter = (d) => { return d[2]; };
 const branchOrWithAnnot = (d) => {
     const leftEntrypoints = d[6];
     const rightEntrypoints = d[8];
-    let branchedEntrypoints = [];
-    for (let leftEntrypoint of leftEntrypoints) {
-        let branchedEntrypoint = {
+    const branchedEntrypoints = [];
+    for (const leftEntrypoint of leftEntrypoints) {
+        const branchedEntrypoint = {
             name: leftEntrypoint.name,
             parameters: leftEntrypoint.parameters,
             structure: '(Left ' + leftEntrypoint.structure + ')'
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
-    for (let rightEntrypoint of rightEntrypoints) {
-        let branchedEntrypoint = {
+    for (const rightEntrypoint of rightEntrypoints) {
+        const branchedEntrypoint = {
             name: rightEntrypoint.name,
             parameters: rightEntrypoint.parameters,
             structure: '(Right ' + rightEntrypoint.structure + ')'
@@ -40,17 +40,17 @@ const branchOrWithAnnot = (d) => {
 const branchOr = (d) => {
     const leftEntrypoints = d[4];
     const rightEntrypoints = d[6];
-    let branchedEntrypoints = [];
-    for (let leftEntrypoint of leftEntrypoints) {
-        let branchedEntrypoint = {
+    const branchedEntrypoints = [];
+    for (const leftEntrypoint of leftEntrypoints) {
+        const branchedEntrypoint = {
             name: leftEntrypoint.name,
             parameters: leftEntrypoint.parameters,
             structure: '(Left ' + leftEntrypoint.structure + ')'
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
-    for (let rightEntrypoint of rightEntrypoints) {
-        let branchedEntrypoint = {
+    for (const rightEntrypoint of rightEntrypoints) {
+        const branchedEntrypoint = {
             name: rightEntrypoint.name,
             parameters: rightEntrypoint.parameters,
             structure: '(Right ' + rightEntrypoint.structure + ')'
@@ -63,10 +63,10 @@ const mergePairWithAnnot = (d) => {
     const annot = d[4];
     const firstEntrypoints = d[6];
     const secondEntrypoints = d[8];
-    let pairedEntrypoints = [];
-    for (let firstEntrypoint of firstEntrypoints) {
-        for (let secondEntrypoint of secondEntrypoints) {
-            let pairedEntrypoint = {
+    const pairedEntrypoints = [];
+    for (const firstEntrypoint of firstEntrypoints) {
+        for (const secondEntrypoint of secondEntrypoints) {
+            const pairedEntrypoint = {
                 name: annot.toString(),
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                 structure: `(Pair ${annot} ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
@@ -79,10 +79,10 @@ const mergePairWithAnnot = (d) => {
 const mergePair = (d) => {
     const firstEntrypoints = d[4];
     const secondEntrypoints = d[6];
-    let pairedEntrypoints = [];
-    for (let firstEntrypoint of firstEntrypoints) {
-        for (let secondEntrypoint of secondEntrypoints) {
-            let pairedEntrypoint = {
+    const pairedEntrypoints = [];
+    for (const firstEntrypoint of firstEntrypoints) {
+        for (const secondEntrypoint of secondEntrypoints) {
+            const pairedEntrypoint = {
                 name: undefined,
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                 structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
@@ -110,26 +110,26 @@ const recordSingleArgType = (d) => {
 };
 const stripParen = (d) => { return d[2]; };
 const recordDataWithAnnot = (d) => {
-    let parameter = {
+    const parameter = {
         name: d[2].toString(),
         type: d[0].toString()
     };
-    let entrypoint = {
+    const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: `(${d[0]} ${d[2]})`
+        structure: `$`
     };
     return [entrypoint];
 };
 const recordData = (d) => {
-    let parameter = {
+    const parameter = {
         name: undefined,
         type: d[0].toString()
     };
-    let entrypoint = {
+    const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: `(${d[0]})`
+        structure: `$`
     };
     return [entrypoint];
 };
