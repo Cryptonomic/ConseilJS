@@ -51,7 +51,19 @@ _ -> [\s]:*
         generateParameter?(... vars): string;
     }
 
-    const breakParameter = (d: any): Entrypoint[] => { return d[2]; }
+    const breakParameter = (d: any): Entrypoint[] => {
+        const entrypoints: Entrypoint[] = d[2];
+        for (const entrypoint of entrypoints) {
+            entrypoint.generateParameter = function(... vars): string {
+                let invocationParameter: string = this.structure;
+                for (let i = 0 ; i < this.parameters.length; i++) {
+                    invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+                }
+                return invocationParameter;
+            };
+        }
+        return entrypoints;
+    }
 
     const branchOrWithAnnot = (d: any): Entrypoint[] => {
         const leftEntrypoints: Entrypoint[] = d[6];
@@ -173,7 +185,7 @@ _ -> [\s]:*
         const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: `$`
+            structure: `$PARAM`
         }
         return [entrypoint];
     }
@@ -186,7 +198,7 @@ _ -> [\s]:*
         const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: `$`
+            structure: `$PARAM`
         }
         return [entrypoint];
     }

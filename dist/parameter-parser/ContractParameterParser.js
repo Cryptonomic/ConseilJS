@@ -14,7 +14,19 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'contract'],
     semicolon: ';'
 });
-const breakParameter = (d) => { return d[2]; };
+const breakParameter = (d) => {
+    const entrypoints = d[2];
+    for (const entrypoint of entrypoints) {
+        entrypoint.generateParameter = function (...vars) {
+            let invocationParameter = this.structure;
+            for (let i = 0; i < this.parameters.length; i++) {
+                invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+            }
+            return invocationParameter;
+        };
+    }
+    return entrypoints;
+};
 const branchOrWithAnnot = (d) => {
     const leftEntrypoints = d[6];
     const rightEntrypoints = d[8];
@@ -117,7 +129,7 @@ const recordDataWithAnnot = (d) => {
     const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: `$`
+        structure: `$PARAM`
     };
     return [entrypoint];
 };
@@ -129,7 +141,7 @@ const recordData = (d) => {
     const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: `$`
+        structure: `$PARAM`
     };
     return [entrypoint];
 };
