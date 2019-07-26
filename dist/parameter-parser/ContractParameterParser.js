@@ -94,8 +94,15 @@ const mergePair = (d) => {
     const pairedEntrypoints = [];
     for (const firstEntrypoint of firstEntrypoints) {
         for (const secondEntrypoint of secondEntrypoints) {
+            let pairedEntrypointName = undefined;
+            if (firstEntrypoint.name != undefined) {
+                pairedEntrypointName = firstEntrypoint.name;
+            }
+            else if (secondEntrypoint.name != undefined) {
+                pairedEntrypointName = secondEntrypoint.name;
+            }
             const pairedEntrypoint = {
-                name: undefined,
+                name: pairedEntrypointName,
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                 structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
             };
@@ -110,14 +117,14 @@ const recordSingleArgTypeWithAnnot = (d) => {
     const entrypoints = d[4];
     entrypoints[0].parameters[0].name = annot;
     entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
-    entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
+    entrypoints[0].structure = `(${entrypoints[0].structure})`;
     return entrypoints;
 };
 const recordSingleArgType = (d) => {
     const singleArgType = d[0].toString();
     const entrypoints = d[2];
     entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
-    entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
+    entrypoints[0].structure = `(${entrypoints[0].structure})`;
     return entrypoints;
 };
 const stripParen = (d) => { return d[2]; };

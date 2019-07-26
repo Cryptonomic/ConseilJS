@@ -142,8 +142,14 @@ _ -> [\s]:*
 
         for (const firstEntrypoint of firstEntrypoints) {
             for (const secondEntrypoint of secondEntrypoints) {
+                let pairedEntrypointName: string | undefined = undefined;
+                if (firstEntrypoint.name != undefined) {
+                    pairedEntrypointName = firstEntrypoint.name;
+                } else if (secondEntrypoint.name != undefined) {
+                    pairedEntrypointName = secondEntrypoint.name;
+                }
                 const pairedEntrypoint: Entrypoint = {
-                    name: undefined,
+                    name: pairedEntrypointName,
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
                     structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
                 }
@@ -161,7 +167,7 @@ _ -> [\s]:*
 
         entrypoints[0].parameters[0].name = annot;
         entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
-        entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
+        entrypoints[0].structure = `(${entrypoints[0].structure})`;
 
         return entrypoints;
     }
@@ -170,7 +176,7 @@ _ -> [\s]:*
         const entrypoints: Entrypoint[] = d[2];
 
         entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
-        entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
+        entrypoints[0].structure = `(${entrypoints[0].structure})`;
 
         return entrypoints;
     }
