@@ -39,11 +39,12 @@ export namespace TezosNodeReader {
      * Gets a block for a given hash.
      * 
      * @param {string} server Tezos node to query
-     * @param {String} hash Hash of the given block
+     * @param {string} hash Hash of the given block
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
      * @returns {Promise<TezosRPCTypes.TezosBlock>} Block
      */
-    export function getBlock(server: string, hash: string): Promise<TezosRPCTypes.TezosBlock> {
-        return performGetRequest(server, `chains/main/blocks/${hash}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+    export function getBlock(server: string, hash: string, chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${hash}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
     }
 
     /**
@@ -62,10 +63,11 @@ export namespace TezosNodeReader {
      * @param {string} server Tezos node to query
      * @param {string} blockHash Hash of given block
      * @param {string} accountHash Account address
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
      * @returns {Promise<Account>} The account
      */
-    export function getAccountForBlock(server: string, blockHash: string, accountHash: string): Promise<TezosRPCTypes.Contract> {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`)
+    export function getAccountForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<TezosRPCTypes.Contract> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
     }
 
@@ -74,11 +76,13 @@ export namespace TezosNodeReader {
      * 
      * @param {string} server Tezos node to query
      * @param {string} accountHash Account address
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
      * @returns {Promise<number>} Current account counter
      */
-    export async function getCounterForAccount(server: string, accountHash: string): Promise<number> {
+    export async function getCounterForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const blockHash = (await getBlockHead(server)).hash;
-        const account = await performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}`).then(json => <TezosRPCTypes.Contract> json);
+        const account = await performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`) // TODO: chain parameter
+            .then(json => <TezosRPCTypes.Contract> json);
         return parseInt(account.counter.toString(), 10);
     }
 
@@ -88,10 +92,11 @@ export namespace TezosNodeReader {
      * @param {string} server Tezos node to query
      * @param {string} blockHash Hash of given block
      * @param {string} accountHash Account address
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      * @returns {Promise<TezosRPCTypes.ManagerKey>} The account
      */
-    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string): Promise<TezosRPCTypes.ManagerKey> {
-        return performGetRequest(server, `chains/main/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
+    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<TezosRPCTypes.ManagerKey> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`) // TODO: chain parameter
             .then(json => <TezosRPCTypes.ManagerKey> json);
     }
 
