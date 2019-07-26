@@ -9,5 +9,4 @@ export namespace TezosConstants {
     export const DefaultAccountOriginationFee = 1266;
     export const DefaultKeyRevealFee = 1270;
     export const DefaultDelegationFee = 1258;
-    
 }

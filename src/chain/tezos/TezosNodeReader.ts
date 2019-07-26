@@ -81,7 +81,7 @@ export namespace TezosNodeReader {
      */
     export async function getCounterForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const blockHash = (await getBlockHead(server)).hash;
-        const account = await performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`) // TODO: chain parameter
+        const account = await performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
         return parseInt(account.counter.toString(), 10);
     }
@@ -96,7 +96,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<TezosRPCTypes.ManagerKey>} The account
      */
     export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<TezosRPCTypes.ManagerKey> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`) // TODO: chain parameter
+        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
             .then(json => <TezosRPCTypes.ManagerKey> json);
     }
 
