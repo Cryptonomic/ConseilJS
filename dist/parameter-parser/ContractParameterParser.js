@@ -110,7 +110,7 @@ const recordSingleArgTypeWithAnnot = (d) => {
     const entrypoints = d[4];
     entrypoints[0].parameters[0].name = annot;
     entrypoints[0].parameters[0].type = `${singleArgType} (${entrypoints[0].parameters[0].type})`;
-    entrypoints[0].structure = `(${singleArgType} ${annot} ${entrypoints[0].structure})`;
+    entrypoints[0].structure = `(${singleArgType} ${entrypoints[0].structure})`;
     return entrypoints;
 };
 const recordSingleArgType = (d) => {
