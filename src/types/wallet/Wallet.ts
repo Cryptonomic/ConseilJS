@@ -1,10 +1,12 @@
-import {KeyStore} from "./KeyStore";
+import { KeyStore } from "./KeyStore";
+import { AddressBookEntry } from "./AddressBookEntry";
 
 /**
  * Represents a generic cryptocurrency wallet.
  */
 export interface Wallet {
-    identities: KeyStore[]
+    identities: KeyStore[],
+    knownAddresses: { [label: string]: AddressBookEntry }
 }
 
 /**
