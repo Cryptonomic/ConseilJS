@@ -1,1 +1,0 @@
-{"version":3,"file":"DeviceSelector.js","sourceRoot":"","sources":["../../src/utils/DeviceSelector.ts"],"names":[],"mappings":";;AAQA,MAAqB,cAAc;IAE/B,MAAM,CAAC,cAAc,CAAC,MAAW;QAC7B,IAAI,CAAC,WAAW,GAAG,MAAM,CAAC;IAC9B,CAAC;IAED,MAAM,CAAC,cAAc;QACjB,OAAO,IAAI,CAAC,WAAW,CAAC;IAC5B,CAAC;;AAPM,0BAAW,GAAQ,IAAI,CAAC;AADnC,iCASC"}
