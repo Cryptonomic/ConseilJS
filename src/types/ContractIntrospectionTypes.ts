@@ -7,5 +7,5 @@ export interface Entrypoint {
     name?: string;
     parameters: Parameter[];
     structure: string;
-    generateParameter?(... vars: any[]): string;
+    generateParameter(... vars: any[]): string;
 }
