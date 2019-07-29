@@ -27,11 +27,11 @@ function setLogLevel(level) {
     LoggerSelector_1.default.setLevel(level);
 }
 exports.setLogLevel = setLogLevel;
+__export(require("./chain/tezos/TezosContractIntrospector"));
 __export(require("./chain/tezos/TezosLanguageUtil"));
 __export(require("./chain/tezos/TezosMessageUtil"));
 __export(require("./chain/tezos/TezosNodeReader"));
 __export(require("./chain/tezos/TezosNodeWriter"));
-__export(require("./chain/tezos/lexer/EntrypointTemplate"));
 __export(require("./identity/tezos/TezosFileWallet"));
 __export(require("./identity/tezos/TezosLedgerWallet"));
 __export(require("./identity/tezos/TezosWalletUtil"));

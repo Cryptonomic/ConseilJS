@@ -15,12 +15,11 @@ export function setLogLevel(level: string) {
     LogSelector.setLevel(level);
 }
 
+export * from './chain/tezos/TezosContractIntrospector';
 export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';
 export * from "./chain/tezos/TezosNodeReader";
 export * from "./chain/tezos/TezosNodeWriter";
-
-export * from './chain/tezos/lexer/EntrypointTemplate';
 
 export * from "./identity/tezos/TezosFileWallet";
 export * from "./identity/tezos/TezosLedgerWallet";
@@ -32,6 +31,7 @@ export * from './reporting/ConseilDataClient';
 export * from './reporting/ConseilMetadataClient';
 export * from './reporting/ConseilQueryBuilder';
 
+export * from './types/ContractIntrospectionTypes';
 export * from './types/conseil/MetadataTypes';
 export * from './types/conseil/QueryTypes';
 export * from './types/tezos/TezosChainTypes';
