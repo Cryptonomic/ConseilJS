@@ -53,6 +53,7 @@ _ -> [\s]:*
 
     const breakParameter = (d: any): Entrypoint[] => {
         const entrypoints: Entrypoint[] = d[2];
+
         for (const entrypoint of entrypoints) {
             entrypoint.generateParameter = function(... vars: any[]): string {
                 let invocationParameter: string = this.structure;
@@ -62,6 +63,7 @@ _ -> [\s]:*
                 return invocationParameter;
             };
         }
+
         return entrypoints;
     }
 
@@ -187,20 +189,24 @@ _ -> [\s]:*
         const annot = d[2].toString();
         let parameterName: string | undefined = undefined;
         let entrypointName: string | undefined = undefined;
+
         if (annot.charAt(0) === '%') {
             entrypointName = annot;
         } else {
             parameterName = annot;
         }
+
         const parameter: Parameter = {
             name: parameterName,
             type: d[0].toString()
         }
+
         const entrypoint: Entrypoint = {
             name: entrypointName,
             parameters: [parameter],
             structure: '$PARAM'
         }
+
         return [entrypoint];
     }
 
@@ -209,11 +215,13 @@ _ -> [\s]:*
             name: undefined,
             type: d[0].toString()
         }
+
         const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
             structure: '$PARAM'
         }
+        
         return [entrypoint];
     }
 %}
