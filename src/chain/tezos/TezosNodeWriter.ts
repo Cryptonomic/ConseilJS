@@ -1,6 +1,7 @@
 import * as blakejs from 'blakejs';
 import { KeyStore, StoreType } from '../../types/wallet/KeyStore';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
+import { TezosConstants } from '../../types/tezos/TezosConstants';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes';
 import { TezosNodeReader } from './TezosNodeReader';
@@ -51,8 +52,7 @@ export namespace TezosNodeWriter {
      */
     // TODO: move this function to wallet files
     export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup> {
-        const watermark = '03';
-        const watermarkedForgedOperationBytesHex = watermark + forgedOperation;
+        const watermarkedForgedOperationBytesHex = TezosConstants.OperationGroupWatermark + forgedOperation;
 
         let opSignature: Buffer;
         switch (keyStore.storeType) {
@@ -297,8 +297,8 @@ export namespace TezosNodeWriter {
         const transaction: TezosP2PMessageTypes.Transaction = {
             destination: to,
             amount: amount.toString(),
-            storage_limit: '300',
-            gas_limit: '10600',
+            storage_limit: TezosConstants.DefaultTransactionStorageLimit + '',
+            gas_limit: TezosConstants.DefaultTransactionGasLimit + '',
             counter: counter.toString(),
             fee: fee.toString(),
             source: keyStore.publicKeyHash,
@@ -321,7 +321,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string | undefined, fee: number = 1258, derivationPath: string = '') {
+    export async function sendDelegationOperation(server: string, keyStore: KeyStore, delegator: string, delegate: string | undefined, fee: number = TezosConstants.DefaultDelegationFee, derivationPath: string = '') { // TODO: constants
         const counter = await TezosNodeReader.getCounterForAccount(server, delegator) + 1;
 
         const delegation: TezosP2PMessageTypes.Delegation = {
@@ -329,8 +329,8 @@ export namespace TezosNodeWriter {
             source: delegator,
             fee: fee.toString(),
             counter: counter.toString(),
-            storage_limit: '0',
-            gas_limit: '10000',
+            storage_limit: TezosConstants.DefaultDelegationStorageLimit + '',
+            gas_limit: TezosConstants.DefaultDelegationStorageLimit + '',
             delegate: delegate
         }
         const operations = await appendRevealOperation(server, keyStore, delegator, counter - 1, [delegation]);
@@ -348,7 +348,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendUndelegationOperation(server: string, keyStore: KeyStore, delegator: string, fee: number = 1258, derivationPath: string = '') {
+    export async function sendUndelegationOperation(server: string, keyStore: KeyStore, delegator: string, fee: number = TezosConstants.DefaultDelegationFee, derivationPath: string = '') {
         return sendDelegationOperation(server, keyStore, delegator, undefined, fee, derivationPath);
     }
 
@@ -365,8 +365,8 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number = 1266, derivationPath: string = '') {
-        return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, 277, 10600);
+    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number = TezosConstants.DefaultAccountOriginationFee, derivationPath: string = '') {
+        return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, TezosConstants.DefaultAccountOriginationStorageLimit, TezosConstants.DefaultAccountOriginationGasLimit);
     }
 
     /**
@@ -551,7 +551,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendKeyRevealOperation(server: string, keyStore: KeyStore, fee: number = 1270, derivationPath: string = '') {
+    export async function sendKeyRevealOperation(server: string, keyStore: KeyStore, fee: number = TezosConstants.DefaultKeyRevealFee, derivationPath: string = '') {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const revealOp: TezosP2PMessageTypes.Reveal = {
