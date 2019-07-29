@@ -3,6 +3,7 @@ export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';
 export * from "./chain/tezos/TezosNodeReader";
 export * from "./chain/tezos/TezosNodeWriter";
+export * from './chain/tezos/lexer/EntrypointTemplate';
 export * from "./identity/tezos/TezosFileWallet";
 export * from "./identity/tezos/TezosLedgerWallet";
 export * from "./identity/tezos/TezosWalletUtil";
