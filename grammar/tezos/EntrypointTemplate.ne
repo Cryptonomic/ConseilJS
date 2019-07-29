@@ -39,17 +39,7 @@ _ -> [\s]:*
 
 # Post Processors
 @{%
-    interface Parameter {
-        name?: string;
-        type: string;
-    }
-
-    interface Entrypoint {
-        name?: string;
-        parameters: Parameter[];
-        structure: string;
-        generateParameter?(... vars): string;
-    }
+    import { Parameter, Entrypoint } from '../../../types/ContractIntrospectionTypes';
 
     const breakParameter = (d: any): Entrypoint[] => {
         const entrypoints: Entrypoint[] = d[2];
@@ -221,7 +211,7 @@ _ -> [\s]:*
             parameters: [parameter],
             structure: '$PARAM'
         }
-        
+
         return [entrypoint];
     }
 %}
