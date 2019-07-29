@@ -16,26 +16,32 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const TezosConseilClient_1 = require("../../reporting/tezos/TezosConseilClient");
+const TezosChainTypes_1 = require("../../types/tezos/TezosChainTypes");
 const EntrypointTemplate = __importStar(require("./lexer/EntrypointTemplate"));
 const nearley = __importStar(require("nearley"));
 var TezosContractIntrospector;
 (function (TezosContractIntrospector) {
-    function generateEntrypoints(contractCode) {
+    function generateEntrypointsFromCode(contractCode, parameterFormat = TezosChainTypes_1.TezosParameterFormat.Michelson) {
         return __awaiter(this, void 0, void 0, function* () {
+            const contractParameter = retrieveParameter(contractCode);
             const parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntrypointTemplate));
-            parser.feed(contractCode);
-            const parserResult = parser.results[0];
-            console.log(parserResult);
-            return parserResult;
+            parser.feed(contractParameter);
+            return parser.results[0];
         });
     }
-    TezosContractIntrospector.generateEntrypoints = generateEntrypoints;
-    function retrieveParameter(contractAddress, conseilServer, network) {
+    TezosContractIntrospector.generateEntrypointsFromCode = generateEntrypointsFromCode;
+    function generateEntrypointsFromAddress(conseilServer, network, contractAddress, parameterFormat = TezosChainTypes_1.TezosParameterFormat.Michelson) {
         return __awaiter(this, void 0, void 0, function* () {
             const account = yield TezosConseilClient_1.TezosConseilClient.getAccount(conseilServer, network, contractAddress);
-            console.log(account[0]);
-            return account[0].script;
+            const contractCode = account[0].script;
+            return generateEntrypointsFromCode(contractCode);
         });
+    }
+    TezosContractIntrospector.generateEntrypointsFromAddress = generateEntrypointsFromAddress;
+    function retrieveParameter(contractCode) {
+        const parameterStartIndex = contractCode.indexOf('parameter');
+        const parameterEndIndex = contractCode.indexOf(';', parameterStartIndex) + 1;
+        return contractCode.substring(parameterStartIndex, parameterEndIndex).replace(/\s+/gm, ' ');
     }
 })(TezosContractIntrospector = exports.TezosContractIntrospector || (exports.TezosContractIntrospector = {}));
 //# sourceMappingURL=TezosContractIntrospector.js.map
