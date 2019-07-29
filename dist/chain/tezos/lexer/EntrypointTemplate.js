@@ -14,19 +14,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'contract'],
     semicolon: ';'
 });
-const breakParameter = (d) => {
-    const entrypoints = d[2];
-    for (const entrypoint of entrypoints) {
-        entrypoint.generateParameter = function (...vars) {
-            let invocationParameter = this.structure;
-            for (let i = 0; i < this.parameters.length; i++) {
-                invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
-            }
-            return invocationParameter;
-        };
-    }
-    return entrypoints;
-};
+const breakParameter = (d) => { return d[2]; };
 const branchOrWithAnnot = (d) => {
     const leftEntrypoints = d[6];
     const rightEntrypoints = d[8];
@@ -35,7 +23,8 @@ const branchOrWithAnnot = (d) => {
         const branchedEntrypoint = {
             name: leftEntrypoint.name,
             parameters: leftEntrypoint.parameters,
-            structure: '(Left ' + leftEntrypoint.structure + ')'
+            structure: '(Left ' + leftEntrypoint.structure + ')',
+            generateParameter: leftEntrypoint.generateParameter
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
@@ -43,7 +32,8 @@ const branchOrWithAnnot = (d) => {
         const branchedEntrypoint = {
             name: rightEntrypoint.name,
             parameters: rightEntrypoint.parameters,
-            structure: '(Right ' + rightEntrypoint.structure + ')'
+            structure: '(Right ' + rightEntrypoint.structure + ')',
+            generateParameter: rightEntrypoint.generateParameter
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
@@ -57,7 +47,8 @@ const branchOr = (d) => {
         const branchedEntrypoint = {
             name: leftEntrypoint.name,
             parameters: leftEntrypoint.parameters,
-            structure: '(Left ' + leftEntrypoint.structure + ')'
+            structure: '(Left ' + leftEntrypoint.structure + ')',
+            generateParameter: leftEntrypoint.generateParameter
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
@@ -65,7 +56,8 @@ const branchOr = (d) => {
         const branchedEntrypoint = {
             name: rightEntrypoint.name,
             parameters: rightEntrypoint.parameters,
-            structure: '(Right ' + rightEntrypoint.structure + ')'
+            structure: '(Right ' + rightEntrypoint.structure + ')',
+            generateParameter: rightEntrypoint.generateParameter
         };
         branchedEntrypoints.push(branchedEntrypoint);
     }
@@ -81,7 +73,8 @@ const mergePairWithAnnot = (d) => {
             const pairedEntrypoint = {
                 name: annot.toString(),
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`,
+                generateParameter: firstEntrypoint.generateParameter
             };
             pairedEntrypoints.push(pairedEntrypoint);
         }
@@ -104,7 +97,8 @@ const mergePair = (d) => {
             const pairedEntrypoint = {
                 name: pairedEntrypointName,
                 parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`,
+                generateParameter: firstEntrypoint.generateParameter
             };
             pairedEntrypoints.push(pairedEntrypoint);
         }
@@ -145,7 +139,14 @@ const recordDataWithAnnot = (d) => {
     const entrypoint = {
         name: entrypointName,
         parameters: [parameter],
-        structure: '$PARAM'
+        structure: '$PARAM',
+        generateParameter(...vars) {
+            let invocationParameter = this.structure;
+            for (let i = 0; i < this.parameters.length; i++) {
+                invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+            }
+            return invocationParameter;
+        }
     };
     return [entrypoint];
 };
@@ -157,7 +158,14 @@ const recordData = (d) => {
     const entrypoint = {
         name: undefined,
         parameters: [parameter],
-        structure: '$PARAM'
+        structure: '$PARAM',
+        generateParameter(...vars) {
+            let invocationParameter = this.structure;
+            for (let i = 0; i < this.parameters.length; i++) {
+                invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+            }
+            return invocationParameter;
+        }
     };
     return [entrypoint];
 };

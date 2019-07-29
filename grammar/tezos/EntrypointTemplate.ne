@@ -41,21 +41,7 @@ _ -> [\s]:*
 @{%
     import { Parameter, Entrypoint } from '../../../types/ContractIntrospectionTypes';
 
-    const breakParameter = (d: any): Entrypoint[] => {
-        const entrypoints: Entrypoint[] = d[2];
-
-        for (const entrypoint of entrypoints) {
-            entrypoint.generateParameter = function(... vars: any[]): string {
-                let invocationParameter: string = this.structure;
-                for (let i = 0 ; i < this.parameters.length; i++) {
-                    invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
-                }
-                return invocationParameter;
-            };
-        }
-
-        return entrypoints;
-    }
+    const breakParameter = (d: any): Entrypoint[] => { return d[2]; }
 
     const branchOrWithAnnot = (d: any): Entrypoint[] => {
         const leftEntrypoints: Entrypoint[] = d[6];
@@ -66,7 +52,8 @@ _ -> [\s]:*
             const branchedEntrypoint: Entrypoint = {
                 name: leftEntrypoint.name,
                 parameters: leftEntrypoint.parameters,
-                structure: '(Left ' + leftEntrypoint.structure + ')'
+                structure: '(Left ' + leftEntrypoint.structure + ')',
+                generateParameter: leftEntrypoint.generateParameter
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
@@ -74,7 +61,8 @@ _ -> [\s]:*
             const branchedEntrypoint: Entrypoint = {
                 name: rightEntrypoint.name,
                 parameters: rightEntrypoint.parameters,
-                structure: '(Right ' + rightEntrypoint.structure + ')'
+                structure: '(Right ' + rightEntrypoint.structure + ')',
+                generateParameter: rightEntrypoint.generateParameter
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
@@ -91,7 +79,8 @@ _ -> [\s]:*
             const branchedEntrypoint: Entrypoint = {
                 name: leftEntrypoint.name,
                 parameters: leftEntrypoint.parameters,
-                structure: '(Left ' + leftEntrypoint.structure + ')'
+                structure: '(Left ' + leftEntrypoint.structure + ')',
+                generateParameter: leftEntrypoint.generateParameter
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
@@ -99,7 +88,8 @@ _ -> [\s]:*
             const branchedEntrypoint: Entrypoint = {
                 name: rightEntrypoint.name,
                 parameters: rightEntrypoint.parameters,
-                structure: '(Right ' + rightEntrypoint.structure + ')'
+                structure: '(Right ' + rightEntrypoint.structure + ')',
+                generateParameter: rightEntrypoint.generateParameter
             }
             branchedEntrypoints.push(branchedEntrypoint);
         }
@@ -118,7 +108,8 @@ _ -> [\s]:*
                 const pairedEntrypoint: Entrypoint = {
                     name: annot.toString(),
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                    structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                    structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`,
+                    generateParameter: firstEntrypoint.generateParameter
                 }
                 pairedEntrypoints.push(pairedEntrypoint);
             }
@@ -143,7 +134,8 @@ _ -> [\s]:*
                 const pairedEntrypoint: Entrypoint = {
                     name: pairedEntrypointName,
                     parameters: firstEntrypoint.parameters.concat(secondEntrypoint.parameters),
-                    structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`
+                    structure: `(Pair ${firstEntrypoint.structure} ${secondEntrypoint.structure})`,
+                    generateParameter: firstEntrypoint.generateParameter
                 }
                 pairedEntrypoints.push(pairedEntrypoint);
             }
@@ -194,7 +186,14 @@ _ -> [\s]:*
         const entrypoint: Entrypoint = {
             name: entrypointName,
             parameters: [parameter],
-            structure: '$PARAM'
+            structure: '$PARAM',
+            generateParameter(... vars: any[]): string {
+                let invocationParameter: string = this.structure;
+                for (let i = 0 ; i < this.parameters.length; i++) {
+                    invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+                }
+                return invocationParameter;
+            }
         }
 
         return [entrypoint];
@@ -209,7 +208,14 @@ _ -> [\s]:*
         const entrypoint: Entrypoint = {
             name: undefined,
             parameters: [parameter],
-            structure: '$PARAM'
+            structure: '$PARAM',
+            generateParameter(... vars: any[]): string {
+                let invocationParameter: string = this.structure;
+                for (let i = 0 ; i < this.parameters.length; i++) {
+                    invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+                }
+                return invocationParameter;
+            }
         }
 
         return [entrypoint];
