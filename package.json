@@ -17,7 +17,7 @@
     "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"  && nyc report | coveralls",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.js && nearleyc grammar/tezos/EntrypointTemplate.ne -o src/chain/tezos/lexer/EntrypointTemplate.ts",
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.js && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
     "release-check": "npm run test && npm audit && npm outdated"
   },
   "repository": {
