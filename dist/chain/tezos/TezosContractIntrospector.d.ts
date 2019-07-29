@@ -1,7 +1,7 @@
 import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
-import { Entrypoint } from '../../types/ContractIntrospectionTypes';
+import { EntryPoint } from '../../types/tezos/ContractIntrospectionTypes';
 import { ConseilServerInfo } from '../../types/conseil/QueryTypes';
 export declare namespace TezosContractIntrospector {
-    function generateEntrypointsFromCode(contractCode: string, parameterFormat?: TezosParameterFormat): Promise<Entrypoint[]>;
-    function generateEntrypointsFromAddress(conseilServer: ConseilServerInfo, network: string, contractAddress: string, parameterFormat?: TezosParameterFormat): Promise<Entrypoint[]>;
+    function generateEntryPointsFromCode(contractCode: string, parameterFormat?: TezosParameterFormat): Promise<EntryPoint[]>;
+    function generateEntryPointsFromAddress(conseilServer: ConseilServerInfo, network: string, contractAddress: string, parameterFormat?: TezosParameterFormat): Promise<EntryPoint[]>;
 }

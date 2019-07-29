@@ -3,7 +3,7 @@ export interface Parameter {
     type: string;
 }
 
-export interface Entrypoint {
+export interface EntryPoint {
     name?: string;
     parameters: Parameter[];
     structure: string;

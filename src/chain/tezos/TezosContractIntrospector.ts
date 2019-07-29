@@ -1,8 +1,8 @@
 import { TezosConseilClient } from '../../reporting/tezos/TezosConseilClient';
 import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
-import { Entrypoint } from '../../types/ContractIntrospectionTypes';
+import { EntryPoint } from '../../types/tezos/ContractIntrospectionTypes';
 import { ConseilServerInfo } from '../../types/conseil/QueryTypes';
-import * as EntrypointTemplate from './lexer/EntrypointTemplate';
+import * as EntryPointTemplate from './lexer/EntryPointTemplate';
 import * as nearley from 'nearley';
 
 export namespace TezosContractIntrospector {
@@ -11,9 +11,9 @@ export namespace TezosContractIntrospector {
      * @param contractCode 
      * @param parameterFormat 
      */
-    export async function generateEntrypointsFromCode(contractCode: string, parameterFormat: TezosParameterFormat = TezosParameterFormat.Michelson): Promise<Entrypoint[]> {
+    export async function generateEntryPointsFromCode(contractCode: string, parameterFormat: TezosParameterFormat = TezosParameterFormat.Michelson): Promise<EntryPoint[]> {
         const contractParameter: string = retrieveParameter(contractCode);
-        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntrypointTemplate));
+        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
         parser.feed(contractParameter);
         return parser.results[0];
     }
@@ -25,10 +25,10 @@ export namespace TezosContractIntrospector {
      * @param contractAddress 
      * @param parameterFormat 
      */
-    export async function generateEntrypointsFromAddress(conseilServer: ConseilServerInfo, network: string, contractAddress: string, parameterFormat: TezosParameterFormat = TezosParameterFormat.Michelson): Promise<Entrypoint[]> {
+    export async function generateEntryPointsFromAddress(conseilServer: ConseilServerInfo, network: string, contractAddress: string, parameterFormat: TezosParameterFormat = TezosParameterFormat.Michelson): Promise<EntryPoint[]> {
         const account: any[] = await TezosConseilClient.getAccount(conseilServer, network, contractAddress);
         const contractCode = account[0].script;
-        return generateEntrypointsFromCode(contractCode);
+        return generateEntryPointsFromCode(contractCode);
     }
 
     function retrieveParameter(contractCode: string): string {
