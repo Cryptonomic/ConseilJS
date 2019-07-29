@@ -181,4 +181,4 @@ exports.ParserRules = [
     { "name": "_", "symbols": ["_$ebnf$1"] }
 ];
 exports.ParserStart = "entry";
-//# sourceMappingURL=ContractParameterParser.js.map
+//# sourceMappingURL=EntrypointTemplate.js.map
