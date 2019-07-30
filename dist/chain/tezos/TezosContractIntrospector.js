@@ -23,14 +23,14 @@ var TezosContractIntrospector;
 (function (TezosContractIntrospector) {
     function generateEntryPointsFromCode(contractCode, parameterFormat = TezosChainTypes_1.TezosParameterFormat.Michelson) {
         return __awaiter(this, void 0, void 0, function* () {
-            const contractParameter = retrieveParameter(contractCode);
+            const contractParameter = extractParameter(contractCode);
             const parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
             parser.feed(contractParameter);
             return parser.results[0];
         });
     }
     TezosContractIntrospector.generateEntryPointsFromCode = generateEntryPointsFromCode;
-    function generateEntryPointsFromAddress(conseilServer, network, contractAddress, parameterFormat = TezosChainTypes_1.TezosParameterFormat.Michelson) {
+    function generateEntryPointsFromAddress(conseilServer, network, contractAddress) {
         return __awaiter(this, void 0, void 0, function* () {
             const account = yield TezosConseilClient_1.TezosConseilClient.getAccount(conseilServer, network, contractAddress);
             const contractCode = account[0].script;
@@ -38,7 +38,7 @@ var TezosContractIntrospector;
         });
     }
     TezosContractIntrospector.generateEntryPointsFromAddress = generateEntryPointsFromAddress;
-    function retrieveParameter(contractCode) {
+    function extractParameter(contractCode) {
         let sections = new Map();
         sections['parameter'] = contractCode.search(/parameter/),
             sections['storage'] = contractCode.search(/storage/),
@@ -48,8 +48,8 @@ var TezosContractIntrospector;
         sections[Object.keys(sections).find(key => sections[key] === boundaries[1]) + ''] = contractCode.substring(boundaries[1], boundaries[2]);
         sections[Object.keys(sections).find(key => sections[key] === boundaries[2]) + ''] = contractCode.substring(boundaries[2]);
         const parts = [sections['parameter'], sections['storage'], sections['code']];
-        const process = parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
-        return process[0];
+        const processedParts = parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
+        return processedParts[0];
     }
 })(TezosContractIntrospector = exports.TezosContractIntrospector || (exports.TezosContractIntrospector = {}));
 //# sourceMappingURL=TezosContractIntrospector.js.map

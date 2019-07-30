@@ -10,7 +10,7 @@ import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import {TezosContractIntrospector} from '../../../src/chain/tezos/TezosContractIntrospector';
-import {Entrypoint} from '../../../src/types/ContractIntrospectionTypes';
+import {EntryPoint} from '../../../src/types/tezos/ContractIntrospectionTypes';
 import {KeyStore, StoreType} from '../../../src/types/wallet/KeyStore';
 import {servers} from '../../servers';
 
@@ -26,14 +26,14 @@ const ConseilV2APIKey = servers.conseilApiKey;
 
 describe('TezosNodeReader integration test suite', () => {
     it('Invoke a contract with a string literal parameter', async () => {
-        let result = await TezosContractIntrospector.generateEntrypointsFromAddress({ url: ConseilV2URL, apiKey: ConseilV2APIKey }, 'alphanet', 'KT1JfYDaNGwxVZB36SqeydVdBCVh6EVu93bP');
+        let result = await TezosContractIntrospector.generateEntryPointsFromAddress({ url: ConseilV2URL, apiKey: ConseilV2APIKey }, 'alphanet', 'KT1JfYDaNGwxVZB36SqeydVdBCVh6EVu93bP');
         for (let entry of result) {
             console.log(entry);
             console.log();
         }
         expect(result[0]).to.equal()
 
-        result = await TezosContractIntrospector.generateEntrypointsFromAddress({ url: ConseilV2URL, apiKey: ConseilV2APIKey }, 'alphanet', 'KT1XuBQ8FBEHSQU3jNQ8mwKpEado5djMdMtW');
+        result = await TezosContractIntrospector.generateEntryPointsFromAddress({ url: ConseilV2URL, apiKey: ConseilV2APIKey }, 'alphanet', 'KT1XuBQ8FBEHSQU3jNQ8mwKpEado5djMdMtW');
         for (let entry of result) {
             console.log(entry);
             console.log();
