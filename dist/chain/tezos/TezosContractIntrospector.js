@@ -39,9 +39,17 @@ var TezosContractIntrospector;
     }
     TezosContractIntrospector.generateEntryPointsFromAddress = generateEntryPointsFromAddress;
     function retrieveParameter(contractCode) {
-        const parameterStartIndex = contractCode.indexOf('parameter');
-        const parameterEndIndex = contractCode.indexOf(';', parameterStartIndex) + 1;
-        return contractCode.substring(parameterStartIndex, parameterEndIndex).replace(/\s+/gm, ' ');
+        let sections = new Map();
+        sections['parameter'] = contractCode.search(/parameter/),
+            sections['storage'] = contractCode.search(/storage/),
+            sections['code'] = contractCode.search(/code/);
+        const boundaries = Object.values(sections).sort((a, b) => Number(a) - Number(b));
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[0]) + ''] = contractCode.substring(boundaries[0], boundaries[1]);
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[1]) + ''] = contractCode.substring(boundaries[1], boundaries[2]);
+        sections[Object.keys(sections).find(key => sections[key] === boundaries[2]) + ''] = contractCode.substring(boundaries[2]);
+        const parts = [sections['parameter'], sections['storage'], sections['code']];
+        const process = parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
+        return process[0];
     }
 })(TezosContractIntrospector = exports.TezosContractIntrospector || (exports.TezosContractIntrospector = {}));
 //# sourceMappingURL=TezosContractIntrospector.js.map
