@@ -247,9 +247,9 @@ export namespace TezosLanguageUtil {
      */
     export function preProcessMichelsonScript(code: string): string[] {
         let sections = new Map<string, any>();
-        sections['parameter'] = code.search(/parameter/),
-        sections['storage'] = code.search(/storage/),
-        sections['code'] = code.search(/code/)
+        sections['parameter'] = code.search(/parameter/);
+        sections['storage'] = code.search(/storage/);
+        sections['code'] = code.search(/code/);
 
         const boundaries = Object.values(sections).sort((a, b) => Number(a) - Number(b) );
         sections[Object.keys(sections).find(key => sections[key] === boundaries[0]) + ''] = code.substring(boundaries[0], boundaries[1]);
