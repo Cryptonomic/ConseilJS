@@ -185,12 +185,15 @@ export namespace TezosConseilClient {
      */
     export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number): Promise<any[]> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
-        const initialLevel = (await getBlockHead(serverInfo, network))[0]['level'];
+        const initialLevel = (await getBlockHead(serverInfo, network))['level'];
         let currentLevel = initialLevel;
-        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [hash], false), 1);
+        let operationQuery = ConseilQueryBuilder.blankQuery();
+        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'operation_group_hash', ConseilOperator.EQ, [hash], false);
+        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'timestamp', ConseilOperator.AFTER, [(new Date).getTime() - 60000], false);
+        operationQuery = ConseilQueryBuilder.setLimit(operationQuery, 1);
 
         while (initialLevel + duration > currentLevel) {
-            const group = await getOperations(serverInfo, network, query);
+            const group = await getOperations(serverInfo, network, operationQuery);
             if (group.length > 0) { return group; }
             currentLevel = (await getBlockHead(serverInfo, network))['level'];
             if (initialLevel + duration < currentLevel) { break; }
