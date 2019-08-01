@@ -17,7 +17,7 @@
     "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"  && nyc report | coveralls",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.js",
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.js && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
     "release-check": "npm run test && npm audit && npm outdated"
   },
   "repository": {
@@ -104,7 +104,7 @@
     "ts-loader": "^6.0.4",
     "ts-node": "^8.3.0",
     "tsconfig-paths-webpack-plugin": "^3.2.0",
-    "typedoc": "^0.14.2",
+    "typedoc": "^0.15.0",
     "typedoc-plugin-markdown": "^2.0.10",
     "typescript": "^3.5.3",
     "webpack": "^4.36.1",
