@@ -5,7 +5,6 @@ import { ConseilServerInfo } from '../../types/conseil/QueryTypes';
 import * as EntryPointTemplate from './lexer/EntryPointTemplate';
 import * as nearley from 'nearley';
 
-
 /**
  * Functions for performing contract introspection, such as generating the entry points of a smart contract.
  */
@@ -14,9 +13,9 @@ export namespace TezosContractIntrospector {
      * Generates the entry points of the given smart contract code in Michelson.
      * 
      * @param {string} contractCode - The entire code of the smart contract.
-     * @returns {Promise<EntryPoint[]>} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
+     * @returns {EntryPoint[]} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
      */
-    export function generateEntryPointsFromCode(contractCode: string): Promise<EntryPoint[]> {
+    export function generateEntryPointsFromCode(contractCode: string): EntryPoint[] {
         const contractParameter: string = TezosLanguageUtil.preProcessMichelsonScript(contractCode)[0];
         const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
         parser.feed(contractParameter);
