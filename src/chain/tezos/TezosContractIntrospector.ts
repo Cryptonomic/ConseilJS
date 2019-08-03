@@ -14,10 +14,9 @@ export namespace TezosContractIntrospector {
      * Generates the entry points of the given smart contract code in Michelson.
      * 
      * @param {string} contractCode - The entire code of the smart contract.
-     * @param {TezosParameterFormat} parameterFormat - The format of the parameter.
      * @returns {Promise<EntryPoint[]>} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
      */
-    export async function generateEntryPointsFromCode(contractCode: string): Promise<EntryPoint[]> {
+    export function generateEntryPointsFromCode(contractCode: string): Promise<EntryPoint[]> {
         const contractParameter: string = TezosLanguageUtil.preProcessMichelsonScript(contractCode)[0];
         const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
         parser.feed(contractParameter);

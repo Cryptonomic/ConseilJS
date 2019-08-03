@@ -11,27 +11,16 @@ FetchSelector.setFetch(fetch);
 
 import {TezosContractIntrospector} from '../../../src/chain/tezos/TezosContractIntrospector';
 import {EntryPoint} from '../../../src/types/tezos/ContractIntrospectionTypes';
-import {KeyStore, StoreType} from '../../../src/types/wallet/KeyStore';
 import {servers} from '../../servers';
+import { ConseilQueryBuilder } from '../../../src/reporting/ConseilQueryBuilder';
+import { ConseilOperator, ConseilFunction, ConseilSortDirection } from '../../../src/types/conseil/QueryTypes';
+import { ConseilDataClient } from '../../../src/reporting/ConseilDataClient';
 
-const keys: KeyStore = { // alphanet faucet account
-    publicKey: 'edpkvMmmaxdUNWmxvnRUqbBfcdLLmANe4TUWucrE2GN75E4wMXUgJa',
-    privateKey: 'edskRpjW6egVEyFwQAttuHy8S5WLYqkpichsW2MzDpAQHWvunrr4ZVWRRQ6dx5y4G9S2s8Y4MDevmpavPVVYDN6egrbypcbWAc',
-    publicKeyHash: 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2',
-    seed: '',
-    storeType: StoreType.Mnemonic
-};
-const ConseilV2URL = servers.conseilServer;
-const ConseilV2APIKey = servers.conseilApiKey;
-
-const conseilServer = {
-    url: ConseilV2URL,
-    apiKey: ConseilV2APIKey
-}
+const conseilServer = { url: servers.conseilServer, apiKey: servers.conseilApiKey };
 
 describe('TezosContractIntrospector integration test suite', () => {
     it('Generate entry points for Tezos Baker Registry (Alphanet)', async () => {
-        let result: EntryPoint[] = await TezosContractIntrospector.generateEntryPointsFromAddress(conseilServer, 'alphanet', 'KT1NpCh6tNQDmbmAVbGLxwRBx8jJD4rEFnmC');
+        const result: EntryPoint[] = await TezosContractIntrospector.generateEntryPointsFromAddress(conseilServer, 'alphanet', 'KT1NpCh6tNQDmbmAVbGLxwRBx8jJD4rEFnmC');
 
         expect(result[0].name).to.equal('%_Liq_entry_updateName');
         expect(result[0].parameters.length).to.equal(1);
@@ -48,5 +37,27 @@ describe('TezosContractIntrospector integration test suite', () => {
         expect(result[3].name).to.equal('%_Liq_entry_deleteRegistration');
         expect(result[3].parameters.length).to.equal(1);
         expect(result[3].generateParameter('Unit')).to.equal('(Right (Right (Right Unit)))');
+    });
+
+    it('Process alphanet contracts', async () => {
+        let contractQuery = ConseilQueryBuilder.blankQuery();
+        contractQuery = ConseilQueryBuilder.addFields(contractQuery, 'account_id', 'script');
+        contractQuery = ConseilQueryBuilder.addPredicate(contractQuery, 'account_id', ConseilOperator.STARTSWITH, ['KT1']);
+        contractQuery = ConseilQueryBuilder.addPredicate(contractQuery, 'script', ConseilOperator.ISNULL, [], true);
+        contractQuery = ConseilQueryBuilder.addAggregationFunction(contractQuery, 'account_id', ConseilFunction.count);
+        contractQuery = ConseilQueryBuilder.addOrdering(contractQuery, 'count_account_id', ConseilSortDirection.DESC)
+        contractQuery = ConseilQueryBuilder.setLimit(contractQuery, 100);
+
+        const contractList = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', 'alphanet', 'accounts', contractQuery);
+
+        contractList.forEach(r => {
+            if (r['script'].startsWith('Unparsable code:')) { return; } // accounting for invalid Conseil results
+
+            try {
+                let p = TezosContractIntrospector.generateEntryPointsFromCode(r['script']);
+            } catch (error) {
+                console.log(`error ${error}\n----\n${r['script']}\n----\n`);
+            }
+        });
     });
 });
