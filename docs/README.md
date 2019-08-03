@@ -584,7 +584,36 @@ A result of that request might look like this.
     "fee": 1500 } ]
 ```
 
-#### List transactions for an account within a date range
+#### List transactions within a date range
+
+This query will return all successful transactions in the last four hours.
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'operations';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function listTransactions() {
+    let transactionQuery = ConseilQueryBuilder.blankQuery();
+    transactionQuery = ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'status', ConseilOperator.EQ, ['applied'], false);
+    transactionQuery = ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', ConseilSortDirection.DESC);
+    transactionQuery = ConseilQueryBuilder.setLimit(transactionQuery, 5000);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, transactionQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+listTransactions();
+```
 
 #### List all originated accounts
 
