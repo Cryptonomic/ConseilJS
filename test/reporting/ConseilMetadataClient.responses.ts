@@ -150,3 +150,5 @@ export const blockAttributeResponse = [
 export const accountAttributeValueResponse = [ "f", "t" ];
 
 export const accountAttributePrefixedValueResponse = [ "tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5", "tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB", "tz3NdTPb3Ax2rVW2Kq9QEdzfYFkRwhrQRPhX", "tz3SGu2Co6vjYEBv4C3bYTyRWZVfkdJ2uszd", "tz3Rkii4C4Jfqxp7LkdNnXhNPpw1hioxFfkV", "tz3XcVC3Z7W6Mfwo6UuzGgksHCgvs4Wt88mp", "tz3bkFdXym6mHqJPkHHqbQMbesU5EViHEKmb"];
+
+export const errorResponse = 'not JSON';

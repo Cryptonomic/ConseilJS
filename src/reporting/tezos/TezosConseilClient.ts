@@ -257,7 +257,7 @@ export namespace TezosConseilClient {
             } else if (s.startsWith('B')) {
                 return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'hash', ConseilOperator.EQ, [id], false) };
             } else if (s.startsWith('o')) {
-                return { entity: OPERATION_GROUPS, query: ConseilQueryBuilder.addPredicate(q, 'operation_group_hash', ConseilOperator.EQ, [id], false) };
+                return { entity: OPERATIONS, query: ConseilQueryBuilder.addPredicate(q, 'operation_group_hash', ConseilOperator.EQ, [id], false) };
             }
         }
 
