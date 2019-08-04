@@ -185,7 +185,6 @@ sendTransaction();
 
 The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://alphanet.tzscan.io/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
-
 #### Delegate
 
 One of the most exciting features of Tezos is delegation. To delegate tz, an account must be originated. We picked a random Alphanet baker to delegate to: `tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB`.
@@ -211,7 +210,6 @@ originateAccount();
 ```
 
 The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
-
 
 #### Deploy a Contract
 
@@ -254,7 +252,7 @@ async function deployContract() {
            ]
         }
      ]`;
-    const storage = '"Sample"';
+    const storage = '{"string": "Sample"}';
 
     const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
@@ -626,6 +624,92 @@ listTransactions();
 #### List top-10 bakers by delegator count
 
 #### Export a large dataset to csv
+
+### Common Wallet Queries
+
+#### Tezos Implicit Account Information
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountInfo(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'manager', 'delegate_value', 'balance', 'block_level');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'account_id', ConseilOperator.EQ, [address], false);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 1);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountInfo('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
+```
+
+#### Delegated Accounts with non-zero Balances
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountInfo(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'delegate_value', ConseilOperator.ISNULL, [], true);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'balance', ConseilOperator.GT, [0]);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 100);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountInfo('tz1PziRyFwu96Rw1vqgzEdd7SqMuT4hQaggz');
+```
+
+#### Total Balance for an Account
+
+This query returns the complete holdings under the control of the provided account.
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountInfo(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'manager', 'account_id');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'balance', ConseilOperator.GT, [0]);
+    accountQuery = ConseilQueryBuilder.addAggregationFunction(accountQuery, 'balance', ConseilFunction.sum);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 1);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountInfo('tz1aQuhhKCvjFZ4XbnvTU5BjaBiz3ceoMNag');
+```
 
 ### Namespaces
 
