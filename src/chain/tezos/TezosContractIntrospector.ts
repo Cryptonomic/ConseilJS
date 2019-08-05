@@ -32,8 +32,6 @@ export namespace TezosContractIntrospector {
         return generateEntryPointsFromParams(contractParameter);
     }
 
-
-
     /**
      * Generates the entry points of the smart contract at the given address.
      * 
