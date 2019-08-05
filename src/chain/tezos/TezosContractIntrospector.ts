@@ -10,6 +10,18 @@ import * as nearley from 'nearley';
  */
 export namespace TezosContractIntrospector {
     /**
+     * Generates invocation templates given Michelson contract parameter section.
+     * 
+     * @param {string} params - The parameters section of the smart contract in Michelson format.
+     * @returns {EntryPoint[]} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
+     */
+    export function generateEntryPointsFromParams(params: string): EntryPoint[] {
+        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
+        parser.feed(params);
+        return parser.results[0];
+    }
+
+    /**
      * Generates the entry points of the given smart contract code in Michelson.
      * 
      * @param {string} contractCode - The entire code of the smart contract.
@@ -17,10 +29,10 @@ export namespace TezosContractIntrospector {
      */
     export function generateEntryPointsFromCode(contractCode: string): EntryPoint[] {
         const contractParameter: string = TezosLanguageUtil.preProcessMichelsonScript(contractCode)[0];
-        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
-        parser.feed(contractParameter);
-        return parser.results[0];
+        return generateEntryPointsFromParams(contractParameter);
     }
+
+
 
     /**
      * Generates the entry points of the smart contract at the given address.
