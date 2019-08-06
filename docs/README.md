@@ -29,7 +29,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 ## Use with Web
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-1kvOwCh/yy4syOo9jLBT9RU6xhA2TSS6pzwm6eceb4fN/WlCgjDkQFW4xksK/2DV"
+        integrity="sha384-2Vr3C3i7dq94sKc7JerYrW/o6fjD42NgOgfqNlw7ntyCQ0eMqHAk1ENOyQsXtJXo"
         crossorigin="anonymous"></script>
 ```
 
@@ -695,7 +695,7 @@ const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '' };
 
-async function accountInfo(address: string) {
+async function accountBalance(address: string) {
     let accountQuery = ConseilQueryBuilder.blankQuery();
     accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'manager', 'account_id');
     accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
@@ -708,7 +708,7 @@ async function accountInfo(address: string) {
     console.log(`${util.inspect(result, false, 2, false)}`);
 }
 
-accountInfo('tz1aQuhhKCvjFZ4XbnvTU5BjaBiz3ceoMNag');
+accountBalance('tz1aQuhhKCvjFZ4XbnvTU5BjaBiz3ceoMNag');
 ```
 
 ### Namespaces
