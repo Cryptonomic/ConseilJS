@@ -11,6 +11,7 @@ import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import { TezosNodeWriter} from '../../../src/chain/tezos/TezosNodeWriter';
+import { TezosWalletUtil} from '../../../src/identity/tezos/TezosWalletUtil';
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient';
 import * as TezosTypes from '../../../src/types/tezos/TezosChainTypes';
 import { KeyStore, StoreType } from '../../../src/types/wallet/KeyStore';
@@ -24,6 +25,7 @@ const keys: KeyStore = { // alphanet faucet account
     seed: '',
     storeType: StoreType.Mnemonic
 };
+
 const tezosURL = servers.tezosServer;
 const conseilServer: ConseilServerInfo = {url: servers.conseilServer, apiKey: servers.conseilApiKey };
 
@@ -82,17 +84,22 @@ describe('TezosNodeWriter integration test suite', () => {
     });
 
     it('Send a batch of transactions', async () => {
+        const destinationA = (await TezosWalletUtil.restoreIdentityWithSecretKey('edskRfEbB2JJCffvCFSVCYvKhz2bdp97esBsuUuNLQYZkZu9gFRU3GbcGBs8zRyoJVYh1pkyWRZfHbASuWzrPLDx9tnRwCeUqZ')).publicKeyHash;
+        const destinationB = (await TezosWalletUtil.restoreIdentityWithSecretKey('edskRtkDq2Z2Z9jMfYjiBvwqky6E7xK8uXxBVnSTdUTALeyqckSdkaSnLSCpx4HCNBBMoLcLo9254tYvBVeoPzfb92xWSHhTSb')).publicKeyHash;
+
         let operations = [
-            { destination: '', amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' },
-            { destination: '', amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' }
+            { destination: destinationA, amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' },
+            { destination: destinationB, amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' }
         ];
-        TezosNodeWriter.queueOperation(tezosURL, operations, keys, '');
+        TezosNodeWriter.queueOperation(tezosURL, operations, keys);
 
         operations = [
-            { destination: '', amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' },
+            { destination: destinationA, amount: '100000', storage_limit: '300', gas_limit: '10600', counter: '0', fee: '10000', source: keys.publicKeyHash, kind: 'transaction' },
         ];
-        TezosNodeWriter.queueOperation(tezosURL, operations, keys, '');
+        TezosNodeWriter.queueOperation(tezosURL, operations, keys);
 
-        //expect
+        await new Promise(resolve => setTimeout(resolve, 40 * 1000));
+
+        expect(TezosNodeWriter.getQueueStatus(tezosURL, keys)).to.equal(0);
     });
 });

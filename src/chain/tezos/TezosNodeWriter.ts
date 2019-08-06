@@ -235,7 +235,7 @@ export namespace TezosNodeWriter {
      * @param derivationPath 
      * @param {number} batchDelay Number of seconds to wait before sending transactions off.
      */
-    export function queueOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string, batchDelay: number = 25): void {
+    export function queueOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', batchDelay: number = 25): void {
         const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}${derivationPath}`, null, 16);
 
         if (!!!operationQueues[k]) {
@@ -243,6 +243,16 @@ export namespace TezosNodeWriter {
         }
 
         operationQueues[k].addOperations(...operations);
+    }
+
+    export function getQueueStatus(server: string, keyStore: KeyStore, derivationPath: string = ''){
+        const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}${derivationPath}`, null, 16);
+
+        if (operationQueues[k]) {
+            return operationQueues[k].getStatus();
+        }
+
+        return -1;
     }
 
     /**
