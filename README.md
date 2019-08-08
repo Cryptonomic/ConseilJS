@@ -15,7 +15,7 @@ ConseilJS connects to Tezos nodes for live chain data and operations and to [Con
 Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: ``.
 
 ```bash
-$ npm i conseiljs
+npm i conseiljs
 ```
 
 If you are using webpack in your project, add below lines to your `webpack.config.js` file:
@@ -24,16 +24,17 @@ If you are using webpack in your project, add below lines to your `webpack.confi
 node: { fs: 'empty' }
 ```
 
-We have a complete [React application example](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
+We have a complete [React application tutorial](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
 
 ## Use with Web
+
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
         integrity="sha384-2Vr3C3i7dq94sKc7JerYrW/o6fjD42NgOgfqNlw7ntyCQ0eMqHAk1ENOyQsXtJXo"
         crossorigin="anonymous"></script>
 ```
 
-A fully functional sample [webpage example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
+A fully functional sample [html example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
 
 ## API Overview and Examples
 
@@ -48,6 +49,7 @@ There are many ways to contribute to this project. You can develop applications 
 - Some of the P2P messages are not implemented, specifically those used in baking operations.
 
 ### Dependency Requirements
+
 - AWS-SDK dependency must remain as the Ledger Connect feature requires it.
 
 ## Other references
