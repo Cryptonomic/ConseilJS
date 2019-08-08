@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 @{%
 const moo = require("moo");
 
