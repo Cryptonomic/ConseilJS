@@ -68,6 +68,5 @@ describe('ConseilJS query builder for Conseil protocol v2 test suite', () => {
 
     it('aggregation creation error conditions', () => {
         expect(() => ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.blankQuery(), 'field 1', ConseilFunction.sum)).to.throw('Cannot apply an aggregation function on a field not being returned.');
-        expect(() => ConseilQueryBuilder.addAggregationFunction(ConseilQueryBuilder.addFields(ConseilQueryBuilder.blankQuery(), 'field 1'), 'field 1', ConseilFunction.sum)).to.throw('Cannot apply an aggregation function on the only field being returned.');
     });
 });

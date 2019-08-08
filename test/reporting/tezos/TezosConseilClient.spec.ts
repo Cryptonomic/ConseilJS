@@ -192,7 +192,7 @@ describe('TezosConseilClient tests', () => {
         expect(blockLevelQuery.entity).to.equals('blocks');
         expect(blockHashQuery.entity).to.equals('blocks');
         expect(accountHashQuery.entity).to.equals('accounts');
-        expect(operationGroupHashQuery.entity).to.equals('operation_groups');
+        expect(operationGroupHashQuery.entity).to.equals('operations');
 
         expect(() => TezosConseilClient.getEntityQueryForId('c0ff33c0ff33c0ff33c0ff33c0ff33c0ff33')).to.throw('Invalid id parameter');
         expect(() => TezosConseilClient.getEntityQueryForId(-1)).to.throw('Invalid numeric id parameter');

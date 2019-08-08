@@ -1,0 +1,75 @@
+parameter (or (or (nat %divisor) (unit %double)) (nat %value));
+
+storage nat;
+
+code
+  {
+    DUP;        # pair(params, storage).pair(params, storage)
+    CDR;        # storage.pair(params, storage)
+    SWAP;       # pair(params, storage).storage
+    CAR;        # params.storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            # Entry point: divide # params.storage
+            PAIR;       # pair(params, storage)
+            # sp.verify(params.divisor > 5) # pair(params, storage)
+            DUP;        # pair(params, storage).pair(params, storage)
+            CAR;        # Rec(divisor = nat).pair(params, storage)
+            PUSH nat 5; # nat.Rec(divisor = nat).pair(params, storage)
+            SWAP;       # Rec(divisor = nat).nat.pair(params, storage)
+            COMPARE;    # int.pair(params, storage)
+            GT;         # bool.pair(params, storage)
+            IF
+              {}
+              {
+                PUSH string "WrongCondition: params.divisor > 5"; # string.pair(params, storage)
+                FAILWITH;   # pair(params, storage)
+              }; # pair(params, storage)
+            # self.data.storedValue //= params.divisor # pair(params, storage)
+            DUP;        # pair(params, storage).pair(params, storage)
+            CAR;        # params.pair(params, storage)
+            DUUP;       # pair(params, storage).nat.pair(params, storage)
+            CDR;        # storage.nat.pair(params, storage)
+            EDIV;       # option(pair(nat, nat)).pair(params, storage)
+            IF_SOME
+              {
+                CAR;        # nat.pair(params, storage)
+              }
+              {
+                PUSH string "division by zero"; # string.pair(params, storage)
+                FAILWITH;   # FAILED
+              }; # nat.pair(params, storage)
+            SWAP;       # pair(params, storage).storage
+            DROP;       # storage
+            NIL operation; # operations.storage
+            PAIR;       # pair(operations, storage)
+          }
+          {
+            # Entry point: double # params.storage
+            PAIR;       # pair(params, storage)
+            # self.data.storedValue *= 2 # pair(params, storage)
+            DUP;        # pair(params, storage).pair(params, storage)
+            CDR;        # Rec(storedValue = nat).pair(params, storage)
+            PUSH nat 2; # nat.Rec(storedValue = nat).pair(params, storage)
+            SWAP;       # Rec(storedValue = nat).nat.pair(params, storage)
+            MUL;        # nat.pair(params, storage)
+            SWAP;       # pair(params, storage).storage
+            DROP;       # storage
+            NIL operation; # operations.storage
+            PAIR;       # pair(operations, storage)
+          }; # pair(operations, storage)
+      }
+      {
+        # Entry point: replace # params.storage
+        PAIR;       # pair(params, storage)
+        # self.data.storedValue = params.value # pair(params, storage)
+        DUP;        # pair(params, storage).pair(params, storage)
+        CAR;        # params.pair(params, storage)
+        SWAP;       # pair(params, storage).storage
+        DROP;       # storage
+        NIL operation; # operations.storage
+        PAIR;       # pair(operations, storage)
+      }; # pair(operations, storage)
+  } # pair(operations, storage);

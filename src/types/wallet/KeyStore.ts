@@ -7,12 +7,10 @@ export interface KeyStore {
     privateKey: string,
     publicKeyHash: string,
     seed: string,
+    derivationPath?: string,
     storeType: StoreType
 }
 
-/**
- * Type of key store, i.e. whether it was generated from a fundraiser PDF or from a new mnemonic
- */
 export enum StoreType {
     Mnemonic,
     Fundraiser,

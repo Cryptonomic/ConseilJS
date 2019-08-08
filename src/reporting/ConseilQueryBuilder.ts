@@ -43,7 +43,7 @@ export namespace ConseilQueryBuilder {
             throw new Error('BETWEEN operation requires a list of two values.');
         } else if (operation === ConseilOperator.IN && values.length < 2) {
             throw new Error('IN operation requires a list of two or more values.');
-        } else if (values.length !== 1 && operation !== ConseilOperator.IN && operation !== ConseilOperator.BETWEEN) {
+        } else if (values.length !== 1 && operation !== ConseilOperator.IN && operation !== ConseilOperator.BETWEEN && operation !== ConseilOperator.ISNULL) {
             throw new Error(`invalid values list for ${operation}.`);
         }
 

@@ -1,0 +1,38 @@
+parameter int;
+
+storage (pair (int %myParameter1) (int %myParameter2));
+
+code
+  {
+    # Entry point: myEntryPoint # pair(params, storage)
+    # sp.verify(self.data.myParameter1 <= 123) # pair(params, storage)
+    DUP;        # pair(params, storage).pair(params, storage)
+    CDR;        # Rec(myParameter1 = intOrNat, myParameter2 = intOrNat).pair(params, storage)
+    CAR;        # intOrNat.pair(params, storage)
+    PUSH int 123; # intOrNat.intOrNat.pair(params, storage)
+    SWAP;       # intOrNat.intOrNat.pair(params, storage)
+    COMPARE;    # int.pair(params, storage)
+    LE;         # bool.pair(params, storage)
+    IF
+      {}
+      {
+        PUSH string "WrongCondition: self.data.myParameter1 <= 123"; # string.pair(params, storage)
+        FAILWITH;   # pair(params, storage)
+      }; # pair(params, storage)
+    # self.data.myParameter1 += params # pair(params, storage)
+    DUP;        # pair(params, storage).pair(params, storage)
+    CDR;        # storage.pair(params, storage)
+    DUUP;       # pair(params, storage).storage.pair(params, storage)
+    CAR;        # params.storage.pair(params, storage)
+    DUUP;       # storage.params.storage.pair(params, storage)
+    CAR;        # intOrNat.params.storage.pair(params, storage)
+    ADD;        # intOrNat.storage.pair(params, storage)
+    SWAP;       # storage.intOrNat.pair(params, storage)
+    CDR;        # intOrNat.intOrNat.pair(params, storage)
+    SWAP;       # intOrNat.intOrNat.pair(params, storage)
+    PAIR;       # pair(intOrNat, intOrNat).pair(params, storage)
+    SWAP;       # pair(params, storage).storage
+    DROP;       # storage
+    NIL operation; # operations.storage
+    PAIR;       # pair(operations, storage)
+  } # pair(operations, storage);

@@ -23,7 +23,8 @@ const keys: KeyStore = { // alphanet faucet account
 const tezosURL = servers.tezosServer;
 
 describe('TezosNodeReader integration test suite', () => {
-    it('Invoke a contract with a string literal parameter', async () => {
-        
+    it('Get chain head', async () => {
+        const result = await TezosNodeReader.getBlockHead(tezosURL);
+        console.log(result);
     });
 });

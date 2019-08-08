@@ -29,7 +29,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 ## Use with Web
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-1kvOwCh/yy4syOo9jLBT9RU6xhA2TSS6pzwm6eceb4fN/WlCgjDkQFW4xksK/2DV"
+        integrity="sha384-2Vr3C3i7dq94sKc7JerYrW/o6fjD42NgOgfqNlw7ntyCQ0eMqHAk1ENOyQsXtJXo"
         crossorigin="anonymous"></script>
 ```
 
@@ -185,7 +185,6 @@ sendTransaction();
 
 The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://alphanet.tzscan.io/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
-
 #### Delegate
 
 One of the most exciting features of Tezos is delegation. To delegate tz, an account must be originated. We picked a random Alphanet baker to delegate to: `tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB`.
@@ -211,7 +210,6 @@ originateAccount();
 ```
 
 The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
-
 
 #### Deploy a Contract
 
@@ -254,7 +252,7 @@ async function deployContract() {
            ]
         }
      ]`;
-    const storage = '"Sample"';
+    const storage = '{"string": "Sample"}';
 
     const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
@@ -584,7 +582,36 @@ A result of that request might look like this.
     "fee": 1500 } ]
 ```
 
-#### List transactions for an account within a date range
+#### List transactions within a date range
+
+This query will return all successful transactions in the last four hours.
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'operations';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function listTransactions() {
+    let transactionQuery = ConseilQueryBuilder.blankQuery();
+    transactionQuery = ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'status', ConseilOperator.EQ, ['applied'], false);
+    transactionQuery = ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', ConseilSortDirection.DESC);
+    transactionQuery = ConseilQueryBuilder.setLimit(transactionQuery, 5000);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, transactionQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+listTransactions();
+```
 
 #### List all originated accounts
 
@@ -597,6 +624,92 @@ A result of that request might look like this.
 #### List top-10 bakers by delegator count
 
 #### Export a large dataset to csv
+
+### Common Wallet Queries
+
+#### Tezos Implicit Account Information
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountInfo(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'manager', 'delegate_value', 'balance', 'block_level');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'account_id', ConseilOperator.EQ, [address], false);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 1);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountInfo('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
+```
+
+#### Delegated Accounts with non-zero Balances
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountInfo(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'delegate_value', ConseilOperator.ISNULL, [], true);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'balance', ConseilOperator.GT, [0]);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 100);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountInfo('tz1PziRyFwu96Rw1vqgzEdd7SqMuT4hQaggz');
+```
+
+#### Total Balance for an Account
+
+This query returns the complete holdings under the control of the provided account.
+
+```typescript
+import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOperator } from 'conseiljs';
+import * as util from 'util';
+
+const platform = 'tezos';
+const network = 'alphanet';
+const entity = 'accounts';
+
+const conseilServer = { url: '', apiKey: '' };
+
+async function accountBalance(address: string) {
+    let accountQuery = ConseilQueryBuilder.blankQuery();
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'manager', 'account_id');
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
+    accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'balance', ConseilOperator.GT, [0]);
+    accountQuery = ConseilQueryBuilder.addAggregationFunction(accountQuery, 'balance', ConseilFunction.sum);
+    accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 1);
+
+    const result = await ConseilDataClient.executeEntityQuery(conseilServer, platform, network, entity, accountQuery);
+
+    console.log(`${util.inspect(result, false, 2, false)}`);
+}
+
+accountBalance('tz1aQuhhKCvjFZ4XbnvTU5BjaBiz3ceoMNag');
+```
 
 ### Namespaces
 

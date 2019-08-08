@@ -1,7 +1,7 @@
 // Most unit tests are commented out as they can only be run one by one with delays.
 // Uncomment specific unit tests to test specific operation logic.
 import { expect } from "chai";
-import { TezosNodeWriter } from "../src";
+import { TezosNodeWriter, TezosParameterFormat } from "../src";
 import * as TezosMessageCodec from "../src/chain/tezos/TezosMessageCodec";
 import "mocha";
 import { servers } from "./servers";
@@ -340,7 +340,7 @@ describe("Tezos operation functions", () => {
       invalidDerivationPath,
       1000, // Storage Limit
       100000, // Gas Limit
-      { string: "Cryptonomicon" }
+      '{ string: "Cryptonomicon" }', TezosParameterFormat.Michelson
     );
     expect(contractInvocationResult["operationGroupID"]).to.exist;
 

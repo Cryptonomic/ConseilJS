@@ -1,0 +1,815 @@
+parameter (or (or (or (or (pair %breed (pair (pair (mutez %borrowPrice) (int %kittyId)) (int %parent1)) (int %parent2)) (pair %build (pair (pair (pair (pair (pair (pair (timestamp %auction) (mutez %borrowPrice)) (int %generation)) (timestamp %hatching)) (bool %isNew)) (int %kittyId)) (address %owner)) (mutez %price))) (pair %buy (int %kittyId) (mutez %price))) (pair %lend (pair (mutez %borrowPrice) (int %kittyId)) (mutez %price))) (pair %sell (pair (mutez %borrowPrice) (int %kittyId)) (mutez %price)));
+
+storage (pair (address %creator) (map %kitties int (pair (pair (pair (pair (pair (pair (pair (timestamp %auction) (mutez %borrowPrice)) (int %generation)) (timestamp %hatching)) (bool %isNew)) (int %kittyId)) (address %owner)) (mutez %price))));
+
+code
+  {
+    DUP;        # pair(params, storage).pair(params, storage)
+    CDR;        # storage.pair(params, storage)
+    SWAP;       # pair(params, storage).storage
+    CAR;        # params.storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            IF_LEFT
+              {
+                IF_LEFT
+                  {
+                    # Entry point: breed # params.storage
+                    PAIR;       # pair(params, storage)
+                    # sp.verify(params.parent1 != params.parent2) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CADR;       # int.pair(params, storage)
+                    DUUP;       # pair(params, storage).int.pair(params, storage)
+                    CAADR;      # int.int.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    NEQ;        # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: params.parent1 != params.parent2"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # sp.verify(self.data.kitties[params.parent1].auction < sp.currentTime) # pair(params, storage)
+                    NOW;        # timestamp.pair(params, storage)
+                    DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+                    CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                    CAAAAAAAR;  # timestamp.timestamp.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    LT;         # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: self.data.kitties[params.parent1].auction < sp.currentTime"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # sp.verify(self.data.kitties[params.parent1].hatching < sp.currentTime) # pair(params, storage)
+                    NOW;        # timestamp.pair(params, storage)
+                    DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+                    CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                    CAAAADR;    # timestamp.timestamp.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    LT;         # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: self.data.kitties[params.parent1].hatching < sp.currentTime"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    SENDER;     # address.pair(params, storage)
+                    DUUP;       # pair(params, storage).address.pair(params, storage)
+                    CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).address.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).address.pair(params, storage)
+                    CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).address.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).address.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).address.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).address.pair(params, storage)
+                    CADR;       # address.address.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    NEQ;        # bool.pair(params, storage)
+                    IF
+                      {
+                        # sp.verify(tez(0) < self.data.kitties[params.parent2].borrowPrice) # pair(params, storage)
+                        DUP;        # pair(params, storage).pair(params, storage)
+                        CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                        DUUP;       # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                        CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                        GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                        IF_SOME
+                          {}
+                          {
+                            FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                          }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                        CAAAAAADR;  # mutez.pair(params, storage)
+                        PUSH mutez 0; # mutez.mutez.pair(params, storage)
+                        COMPARE;    # int.pair(params, storage)
+                        LT;         # bool.pair(params, storage)
+                        IF
+                          {}
+                          {
+                            PUSH string "WrongCondition: tez(0) < self.data.kitties[params.parent2].borrowPrice"; # string.pair(params, storage)
+                            FAILWITH;   # pair(params, storage)
+                          }; # pair(params, storage)
+                        # sp.verify(self.data.kitties[params.parent2].borrowPrice < params.borrowPrice) # pair(params, storage)
+                        DUP;        # pair(params, storage).pair(params, storage)
+                        CAAAAR;     # mutez.pair(params, storage)
+                        DUUP;       # pair(params, storage).mutez.pair(params, storage)
+                        CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                        DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                        CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                        GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                        IF_SOME
+                          {}
+                          {
+                            FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.pair(params, storage)
+                          }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.pair(params, storage)
+                        CAAAAAADR;  # mutez.mutez.pair(params, storage)
+                        COMPARE;    # int.pair(params, storage)
+                        LT;         # bool.pair(params, storage)
+                        IF
+                          {}
+                          {
+                            PUSH string "WrongCondition: self.data.kitties[params.parent2].borrowPrice < params.borrowPrice"; # string.pair(params, storage)
+                            FAILWITH;   # pair(params, storage)
+                          }; # pair(params, storage)
+                        # sp.verify(sp.amount == params.borrowPrice) # pair(params, storage)
+                        DUP;        # pair(params, storage).pair(params, storage)
+                        CAAAAR;     # mutez.pair(params, storage)
+                        AMOUNT;     # mutez.mutez.pair(params, storage)
+                        COMPARE;    # int.pair(params, storage)
+                        EQ;         # bool.pair(params, storage)
+                        IF
+                          {}
+                          {
+                            PUSH string "WrongCondition: sp.amount == params.borrowPrice"; # string.pair(params, storage)
+                            FAILWITH;   # pair(params, storage)
+                          }; # pair(params, storage)
+                        # No conversion for command send(self.data.kitties[params.parent2].owner, params.borrowPrice) # pair(params, storage)
+                      }
+                      {}; # pair(params, storage)
+                    # sp.verify(self.data.kitties[params.parent2].auction < sp.currentTime) # pair(params, storage)
+                    NOW;        # timestamp.pair(params, storage)
+                    DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+                    CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                    CAAAAAAAR;  # timestamp.timestamp.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    LT;         # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: self.data.kitties[params.parent2].auction < sp.currentTime"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # sp.verify(self.data.kitties[params.parent2].hatching < sp.currentTime) # pair(params, storage)
+                    NOW;        # timestamp.pair(params, storage)
+                    DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+                    CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+                    CAAAADR;    # timestamp.timestamp.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    LT;         # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: self.data.kitties[params.parent2].hatching < sp.currentTime"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # self.data.kitties[params.parent1].hatching = addSeconds(sp.currentTime, 100) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DIP
+                      {
+                        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    NOW;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH int 100; # intOrNat.timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SET_CAAAADR; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    CAR;        # params.storage
+                    PAIR;       # pair(params, storage)
+                    # self.data.kitties[params.parent2].hatching = addSeconds(sp.currentTime, 100) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DIP
+                      {
+                        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    NOW;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH int 100; # intOrNat.timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SET_CAAAADR; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    CAR;        # params.storage
+                    PAIR;       # pair(params, storage)
+                    # self.data.kitties[params.kittyId] = Record(auction = timestamp(0), borrowPrice = tez(0), generation = 1 + max(self.data.kitties[params.parent1].generation, self.data.kitties[params.parent2].generation), hatching = addSeconds(sp.currentTime, 100), isNew = False, kittyId = params.kittyId, owner = sp.sender, price = tez(0)) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAADR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH mutez 0; # mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SENDER;     # address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUUP;   # pair(params, storage).address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAADR;     # int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH bool False; # bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    NOW;        # timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH int 100; # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUUUUP; # storage.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUUUUUUP; # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAAAADR;   # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUUUUUP; # storage.intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUUUUUUUP; # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CADR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAAAADR;   # intOrNat.intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(intOrNat, intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUP;        # pair(intOrNat, intOrNat).pair(intOrNat, intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # intOrNat.intOrNat.pair(intOrNat, intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    COMPARE;    # int.pair(intOrNat, intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    LE;         # bool.pair(intOrNat, intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF
+                      {
+                        CDR;        # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }
+                      {
+                        CAR;        # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH int 1; # intOrNat.intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH mutez 0; # mutez.intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH timestamp "0"; # timestamp.mutez.intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(timestamp, mutez).intOrNat.timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(timestamp, mutez), intOrNat).timestamp.bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(pair(timestamp, mutez), intOrNat), timestamp).bool.int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool).int.address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool), int).address.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool), int), address).mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(pair(pair(pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool), int), address), mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(pair(pair(pair(pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool), int), address), mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(pair(pair(pair(pair(pair(pair(pair(timestamp, mutez), intOrNat), timestamp), bool), int), address), mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    DROP;       # storage
+                    NIL operation; # operations.storage
+                    PAIR;       # pair(operations, storage)
+                  }
+                  {
+                    # Entry point: build # params.storage
+                    PAIR;       # pair(params, storage)
+                    # sp.verify(self.data.creator == sp.sender) # pair(params, storage)
+                    SENDER;     # address.pair(params, storage)
+                    DUUP;       # pair(params, storage).address.pair(params, storage)
+                    CDAR;       # address.address.pair(params, storage)
+                    COMPARE;    # int.pair(params, storage)
+                    EQ;         # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: self.data.creator == sp.sender"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # sp.verify(params.kitty.isNew) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CAAAADR;    # bool.pair(params, storage)
+                    IF
+                      {}
+                      {
+                        PUSH string "WrongCondition: params.kitty.isNew"; # string.pair(params, storage)
+                        FAILWITH;   # pair(params, storage)
+                      }; # pair(params, storage)
+                    # self.data.kitties[params.kitty.kittyId] = params.kitty # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAADR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUP;     # pair(params, storage).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAR;        # params.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    DROP;       # storage
+                    NIL operation; # operations.storage
+                    PAIR;       # pair(operations, storage)
+                  }; # pair(operations, storage)
+              }
+              {
+                # Entry point: buy # params.storage
+                PAIR;       # pair(params, storage)
+                # sp.verify(tez(0) < self.data.kitties[params.kittyId].price) # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                DUUP;       # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                CDR;        # mutez.pair(params, storage)
+                PUSH mutez 0; # mutez.mutez.pair(params, storage)
+                COMPARE;    # int.pair(params, storage)
+                LT;         # bool.pair(params, storage)
+                IF
+                  {}
+                  {
+                    PUSH string "WrongCondition: tez(0) < self.data.kitties[params.kittyId].price"; # string.pair(params, storage)
+                    FAILWITH;   # pair(params, storage)
+                  }; # pair(params, storage)
+                # sp.verify(self.data.kitties[params.kittyId].price <= params.price) # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CADR;       # mutez.pair(params, storage)
+                DUUP;       # pair(params, storage).mutez.pair(params, storage)
+                CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).mutez.pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.pair(params, storage)
+                CDR;        # mutez.mutez.pair(params, storage)
+                COMPARE;    # int.pair(params, storage)
+                LE;         # bool.pair(params, storage)
+                IF
+                  {}
+                  {
+                    PUSH string "WrongCondition: self.data.kitties[params.kittyId].price <= params.price"; # string.pair(params, storage)
+                    FAILWITH;   # pair(params, storage)
+                  }; # pair(params, storage)
+                # sp.verify(sp.amount == params.price) # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CADR;       # mutez.pair(params, storage)
+                AMOUNT;     # mutez.mutez.pair(params, storage)
+                COMPARE;    # int.pair(params, storage)
+                EQ;         # bool.pair(params, storage)
+                IF
+                  {}
+                  {
+                    PUSH string "WrongCondition: sp.amount == params.price"; # string.pair(params, storage)
+                    FAILWITH;   # pair(params, storage)
+                  }; # pair(params, storage)
+                # No conversion for command send(self.data.kitties[params.kittyId].owner, params.price) # pair(params, storage)
+                # self.data.kitties[params.kittyId].owner = sp.sender # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CDR;        # storage.pair(params, storage)
+                DUP;        # storage.storage.pair(params, storage)
+                CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                DIP
+                  {
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                  }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SENDER;     # address.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).address.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SET_CADR;   # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                SWAP;       # pair(params, storage).storage
+                CAR;        # params.storage
+                PAIR;       # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                DUUP;       # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                CAAADR;     # bool.pair(params, storage)
+                IF
+                  {
+                    # self.data.kitties[params.kittyId].isNew = False # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DIP
+                      {
+                        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH bool False; # bool.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).bool.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SET_CAAADR; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    CAR;        # params.storage
+                    PAIR;       # pair(params, storage)
+                    # self.data.kitties[params.kittyId].auction = addSeconds(sp.currentTime, 10) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DIP
+                      {
+                        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    NOW;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH int 10; # intOrNat.timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # timestamp.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SET_CAAAAAAAR; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    CAR;        # params.storage
+                    PAIR;       # pair(params, storage)
+                  }
+                  {}; # pair(params, storage)
+                # sp.verify(sp.currentTime <= self.data.kitties[params.kittyId].auction) # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                DUUP;       # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                CAAAAAAAR;  # timestamp.pair(params, storage)
+                NOW;        # timestamp.timestamp.pair(params, storage)
+                COMPARE;    # int.pair(params, storage)
+                LE;         # bool.pair(params, storage)
+                IF
+                  {}
+                  {
+                    PUSH string "WrongCondition: sp.currentTime <= self.data.kitties[params.kittyId].auction"; # string.pair(params, storage)
+                    FAILWITH;   # pair(params, storage)
+                  }; # pair(params, storage)
+                DUP;        # pair(params, storage).pair(params, storage)
+                CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                DUUP;       # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                IF_SOME
+                  {}
+                  {
+                    FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                  }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).pair(params, storage)
+                CAAAAAAAR;  # timestamp.pair(params, storage)
+                NOW;        # timestamp.timestamp.pair(params, storage)
+                COMPARE;    # int.pair(params, storage)
+                LE;         # bool.pair(params, storage)
+                IF
+                  {
+                    # self.data.kitties[params.kittyId].price = params.price + mutez(1) # pair(params, storage)
+                    DUP;        # pair(params, storage).pair(params, storage)
+                    CDR;        # storage.pair(params, storage)
+                    DUP;        # storage.storage.pair(params, storage)
+                    CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAAR;       # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+                    DIP
+                      {
+                        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    IF_SOME
+                      {}
+                      {
+                        FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                      }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    DUUUUUP;    # pair(params, storage).Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAR;        # Rec(kittyId = int, price = mutez).Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CDR;        # mutez.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PUSH mutez 1; # mutez.mutez.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    ADD;        # mutez.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    CAR;        # timestamp.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    PAIR;       # pair(timestamp, mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SOME;       # option(pair(timestamp, mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # int.option(pair(timestamp, mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+                    SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+                    PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+                    SWAP;       # pair(params, storage).storage
+                    CAR;        # params.storage
+                    PAIR;       # pair(params, storage)
+                  }
+                  {}; # pair(params, storage)
+                CDR;        # storage
+                NIL operation; # operations.storage
+                PAIR;       # pair(operations, storage)
+              }; # pair(operations, storage)
+          }
+          {
+            # Entry point: lend # params.storage
+            PAIR;       # pair(params, storage)
+            # sp.verify(tez(0) <= params.price) # pair(params, storage)
+            DUP;        # pair(params, storage).pair(params, storage)
+            CADR;       # mutez.pair(params, storage)
+            PUSH mutez 0; # mutez.mutez.pair(params, storage)
+            COMPARE;    # int.pair(params, storage)
+            LE;         # bool.pair(params, storage)
+            IF
+              {}
+              {
+                PUSH string "WrongCondition: tez(0) <= params.price"; # string.pair(params, storage)
+                FAILWITH;   # pair(params, storage)
+              }; # pair(params, storage)
+            # sp.verify(self.data.kitties[params.kittyId].auction < sp.currentTime) # pair(params, storage)
+            NOW;        # timestamp.pair(params, storage)
+            DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+            CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            IF_SOME
+              {}
+              {
+                FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+              }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+            CAAAAAAAR;  # timestamp.timestamp.pair(params, storage)
+            COMPARE;    # int.pair(params, storage)
+            LT;         # bool.pair(params, storage)
+            IF
+              {}
+              {
+                PUSH string "WrongCondition: self.data.kitties[params.kittyId].auction < sp.currentTime"; # string.pair(params, storage)
+                FAILWITH;   # pair(params, storage)
+              }; # pair(params, storage)
+            # sp.verify(self.data.kitties[params.kittyId].hatching < sp.currentTime) # pair(params, storage)
+            NOW;        # timestamp.pair(params, storage)
+            DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+            CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+            IF_SOME
+              {}
+              {
+                FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+              }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+            CAAAADR;    # timestamp.timestamp.pair(params, storage)
+            COMPARE;    # int.pair(params, storage)
+            LT;         # bool.pair(params, storage)
+            IF
+              {}
+              {
+                PUSH string "WrongCondition: self.data.kitties[params.kittyId].hatching < sp.currentTime"; # string.pair(params, storage)
+                FAILWITH;   # pair(params, storage)
+              }; # pair(params, storage)
+            # self.data.kitties[params.kittyId].borrowPrice = params.price # pair(params, storage)
+            DUP;        # pair(params, storage).pair(params, storage)
+            CDR;        # storage.pair(params, storage)
+            DUP;        # storage.storage.pair(params, storage)
+            CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+            DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+            DIP
+              {
+                UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+              }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            IF_SOME
+              {}
+              {
+                FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+              }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            DUUUUUP;    # pair(params, storage).Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            CADR;       # mutez.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            SET_CAAAAAADR; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            SOME;       # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            SWAP;       # int.option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+            SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+            CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+            PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+            SWAP;       # pair(params, storage).storage
+            DROP;       # storage
+            NIL operation; # operations.storage
+            PAIR;       # pair(operations, storage)
+          }; # pair(operations, storage)
+      }
+      {
+        # Entry point: sell # params.storage
+        PAIR;       # pair(params, storage)
+        # sp.verify(tez(0) <= params.price) # pair(params, storage)
+        DUP;        # pair(params, storage).pair(params, storage)
+        CADR;       # mutez.pair(params, storage)
+        PUSH mutez 0; # mutez.mutez.pair(params, storage)
+        COMPARE;    # int.pair(params, storage)
+        LE;         # bool.pair(params, storage)
+        IF
+          {}
+          {
+            PUSH string "WrongCondition: tez(0) <= params.price"; # string.pair(params, storage)
+            FAILWITH;   # pair(params, storage)
+          }; # pair(params, storage)
+        # sp.verify(self.data.kitties[params.kittyId].auction < sp.currentTime) # pair(params, storage)
+        NOW;        # timestamp.pair(params, storage)
+        DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+        CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        IF_SOME
+          {}
+          {
+            FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+          }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+        CAAAAAAAR;  # timestamp.timestamp.pair(params, storage)
+        COMPARE;    # int.pair(params, storage)
+        LT;         # bool.pair(params, storage)
+        IF
+          {}
+          {
+            PUSH string "WrongCondition: self.data.kitties[params.kittyId].auction < sp.currentTime"; # string.pair(params, storage)
+            FAILWITH;   # pair(params, storage)
+          }; # pair(params, storage)
+        # sp.verify(self.data.kitties[params.kittyId].hatching < sp.currentTime) # pair(params, storage)
+        NOW;        # timestamp.pair(params, storage)
+        DUUP;       # pair(params, storage).timestamp.pair(params, storage)
+        CDDR;       # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).timestamp.pair(params, storage)
+        IF_SOME
+          {}
+          {
+            FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+          }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).timestamp.pair(params, storage)
+        CAAAADR;    # timestamp.timestamp.pair(params, storage)
+        COMPARE;    # int.pair(params, storage)
+        LT;         # bool.pair(params, storage)
+        IF
+          {}
+          {
+            PUSH string "WrongCondition: self.data.kitties[params.kittyId].hatching < sp.currentTime"; # string.pair(params, storage)
+            FAILWITH;   # pair(params, storage)
+          }; # pair(params, storage)
+        # self.data.kitties[params.kittyId].price = params.price # pair(params, storage)
+        DUP;        # pair(params, storage).pair(params, storage)
+        CDR;        # storage.pair(params, storage)
+        DUP;        # storage.storage.pair(params, storage)
+        CDR;        # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        DUUUP;      # pair(params, storage).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        CAADR;      # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        PAIR;       # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+        DUP;        # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).storage.pair(params, storage)
+        DIP
+          {
+            UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+          }; # pair(int, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        UNPAIR;     # int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        GET;        # option(Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        IF_SOME
+          {}
+          {
+            FAIL;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+          }; # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        DUUUUUP;    # pair(params, storage).Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        CADR;       # mutez.Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        SWAP;       # Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez).mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        CAR;        # timestamp.mutez.int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        PAIR;       # pair(timestamp, mutez).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        SOME;       # option(pair(timestamp, mutez)).int.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        SWAP;       # int.option(pair(timestamp, mutez)).Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        UPDATE;     # Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).storage.pair(params, storage)
+        SWAP;       # storage.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+        CAR;        # address.Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez)).pair(params, storage)
+        PAIR;       # pair(address, Map(int, Rec(auction = timestamp, borrowPrice = mutez, generation = intOrNat, hatching = timestamp, isNew = bool, kittyId = int, owner = address, price = mutez))).pair(params, storage)
+        SWAP;       # pair(params, storage).storage
+        DROP;       # storage
+        NIL operation; # operations.storage
+        PAIR;       # pair(operations, storage)
+      }; # pair(operations, storage)
+  } # pair(operations, storage);

@@ -9,4 +9,14 @@ export namespace TezosConstants {
     export const DefaultAccountOriginationFee = 1266;
     export const DefaultKeyRevealFee = 1270;
     export const DefaultDelegationFee = 1258;
+
+    /**
+     * Outbound operation queue timeout in seconds. After this period, TezosOperationQueue will attempt to submit the transactions currently in queue.
+     */
+    export const DefaultBatchDelay: number = 25;
+
+    /**
+     * Mainnet block time in seconds.
+     */
+    export const DefaultBlockTime: number = 60;
 }

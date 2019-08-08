@@ -1,3 +1,4 @@
+import * as blakejs from 'blakejs';
 import { KeyStore, StoreType } from '../../types/wallet/KeyStore';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
@@ -7,6 +8,7 @@ import { TezosNodeReader } from './TezosNodeReader';
 import { TezosMessageCodec } from './TezosMessageCodec';
 import { TezosMessageUtils } from './TezosMessageUtil';
 import { TezosLanguageUtil } from './TezosLanguageUtil';
+import { TezosOperationQueue } from './TezosOperationQueue';
 import { CryptoUtils } from '../../utils/CryptoUtils';
 
 import FetchSelector from '../../utils/FetchSelector'
@@ -17,6 +19,8 @@ let LedgerUtils = DeviceSelector.getLedgerUtils();
 
 import LogSelector from '../../utils/LoggerSelector';
 const log = LogSelector.getLogger();
+
+let operationQueues = {}
 
 /**
  *  Functions for sending operations on the Tezos network.
@@ -212,7 +216,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
@@ -221,6 +225,34 @@ export namespace TezosNodeWriter {
         const injectedOperation = await injectOperation(server, signedOpGroup);
 
         return { results: appliedOp[0], operationGroupID: injectedOperation };
+    }
+
+    /**
+     * 
+     * @param server 
+     * @param operations 
+     * @param keyStore 
+     * @param derivationPath 
+     * @param {number} batchDelay Number of seconds to wait before sending transactions off.
+     */
+    export function queueOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', batchDelay: number = 25): void {
+        const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}${derivationPath}`, null, 16);
+
+        if (!!!operationQueues[k]) {
+            operationQueues[k] = TezosOperationQueue.createQueue(server, derivationPath, keyStore, batchDelay);
+        }
+
+        operationQueues[k].addOperations(...operations);
+    }
+
+    export function getQueueStatus(server: string, keyStore: KeyStore, derivationPath: string = ''){
+        const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}${derivationPath}`, null, 16);
+
+        if (operationQueues[k]) {
+            return operationQueues[k].getStatus();
+        }
+
+        return -1;
     }
 
     /**

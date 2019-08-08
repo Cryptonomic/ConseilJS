@@ -41,11 +41,18 @@ export interface AttributeDefinition {
     displayPriority?: number;
     currencySymbol?: string;
     currencySymbolCode?: number;
+    cacheConfig?: AttributeCacheConfig;
 }
 
 export interface AttributeReference {
     entity: string,
     key: string
+}
+
+export interface AttributeCacheConfig {
+    cached: boolean;
+    minMatchLength: number;
+    maxResultSize: number;
 }
 
 export enum AttrbuteDataType {
