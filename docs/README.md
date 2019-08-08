@@ -1061,7 +1061,7 @@ async function listTransactions() {
     let transactionQuery = ConseilQueryBuilder.blankQuery();
     transactionQuery = ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
-    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 48, Date.now()], false);
     transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'status', ConseilOperator.EQ, ['applied'], false);
     transactionQuery = ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', ConseilSortDirection.DESC);
     transactionQuery = ConseilQueryBuilder.setLimit(transactionQuery, 5000);
@@ -1089,7 +1089,7 @@ async function listTransactions() {
     let transactionQuery = conseiljs.ConseilQueryBuilder.blankQuery();
     transactionQuery = conseiljs.ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', conseiljs.ConseilOperator.EQ, ['transaction'], false);
-    transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', conseiljs.ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', conseiljs.ConseilOperator.BETWEEN, [Date.now() - 3600 * 48, Date.now()], false);
     transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'status', conseiljs.ConseilOperator.EQ, ['applied'], false);
     transactionQuery = conseiljs.ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', conseiljs.ConseilSortDirection.DESC);
     transactionQuery = conseiljs.ConseilQueryBuilder.setLimit(transactionQuery, 5000);
