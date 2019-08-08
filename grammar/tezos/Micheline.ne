@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 @{%
 const moo = require("moo");
 const bigInt = require("big-integer");
