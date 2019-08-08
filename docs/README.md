@@ -697,7 +697,7 @@ const conseilServer = { url: '', apiKey: '' };
 
 async function accountBalance(address: string) {
     let accountQuery = ConseilQueryBuilder.blankQuery();
-    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'manager', 'account_id');
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'manager', 'balance');
     accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'manager', ConseilOperator.EQ, [address]);
     accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'balance', ConseilOperator.GT, [0]);
     accountQuery = ConseilQueryBuilder.addAggregationFunction(accountQuery, 'balance', ConseilFunction.sum);
