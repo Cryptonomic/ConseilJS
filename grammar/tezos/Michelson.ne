@@ -300,7 +300,7 @@ semicolons -> [;]:?
 
     const check_if = ifStatement => (macroIFCMPlist.includes(ifStatement) || macroIFlist.includes(ifStatement) || ifStatement === 'IF_SOME'); // TODO: IF_SOME
 
-    const expandIF = (ifInstr, ifTrue, ifFalse, annot) => {
+    const expandIF = (ifInstr, ifTrue, ifFalse?, annot?) => {
         const annotation = !!annot ? `, "annots": [${annot}]` : '';
 
         switch (ifInstr) {
@@ -337,7 +337,7 @@ semicolons -> [;]:?
 
     const check_dip = dip => DIPmatcher.test(dip);
 
-    const expandDIP = (dip, instruction, annot) => {
+    const expandDIP = (dip, instruction, annot?) => {
         let t = '';
         if (DIPmatcher.test(dip)) {
             const c = dip.length - 2;
