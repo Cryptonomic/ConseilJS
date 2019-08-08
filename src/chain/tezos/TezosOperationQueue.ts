@@ -29,16 +29,20 @@ export class TezosOperationQueue {
     }
 
     /**
+     * Creates a queue that can send operations to the specified `server` with the provided account information (`derivationPath`, `keyStore`).
      * 
      * @param server 
      * @param derivationPath 
      * @param keyStore 
-     * @param delay 
+     * @param delay Number of seconds to wait before attempting to send the operations in queue
      */
     public static createQueue(server: string, derivationPath: string, keyStore: KeyStore, delay: number = TezosConstants.DefaultBatchDelay) {
         return new TezosOperationQueue(server, derivationPath, keyStore, delay);
     }
 
+    /**
+     * Enqueue operations and if not already running, trigger a timer specified in the prior `createQueue()` call.
+     */
     public addOperations(...operations: Operation[]) {
         if (this.operations.length === 0) {
             this.triggerTimestamp = Date.now();
@@ -48,7 +52,10 @@ export class TezosOperationQueue {
         operations.forEach(o => this.operations.push(o)); // TODO: consider resetting the timer for each addition up to 2x delay
     }
 
-    public getStatus() {
+    /**
+     * Returns the number of operations currently in queue.
+     */
+    public getStatus(): number {
         return this.operations.length;
     }
 

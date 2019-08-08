@@ -88,7 +88,7 @@ export namespace TezosConseilClient {
      * @param operationGroupID Operation group hash to query for.
      */
     export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]> {
-        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_id', ConseilOperator.EQ, [operationGroupID], false), 1);
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [operationGroupID], false), 1);
 
         return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
     }
@@ -216,23 +216,72 @@ export namespace TezosConseilClient {
      */
     export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<boolean> {
         const op = await awaitOperationConfirmation(serverInfo, network, hash, duration);
-
-        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [op['block_level']], false), 1);
-        const block = await getBlocks(serverInfo, network, query);
-        const opchainid = block['chain_id'];
-
-        const initialLevel = block['level'];
+        const initialLevel: number = op['block_level'];
+        const initialHash: string = op['block_hash'];
         let currentLevel = initialLevel;
-        let lastchainid = '';
-        while (initialLevel + duration > currentLevel) {
+
+        await new Promise(resolve => setTimeout(resolve, depth * 50 * 1000));
+
+        while (currentLevel < initialLevel + depth) {
             const currentBlock = await getBlockHead(serverInfo, network);
             currentLevel = currentBlock['level'];
-            lastchainid = currentBlock['chain_id'];
-            if (initialLevel + duration < currentLevel) { break; }
+            if (currentLevel >= initialLevel + depth) { break; }
             await new Promise(resolve => setTimeout(resolve, 60 * 1000));
         }
 
-        return opchainid === lastchainid;
+        let blockSequenceQuery = ConseilQueryBuilder.blankQuery();
+        blockSequenceQuery = ConseilQueryBuilder.addFields(blockSequenceQuery, 'level', 'hash', 'predecessor');
+        blockSequenceQuery = ConseilQueryBuilder.addPredicate(blockSequenceQuery, 'level', ConseilOperator.BETWEEN, [initialLevel - 1, initialLevel + depth]);
+        blockSequenceQuery = ConseilQueryBuilder.setLimit(blockSequenceQuery, depth * 2);
+        const blockSequenceResult = await getBlocks(serverInfo, network, blockSequenceQuery);
+
+        if (blockSequenceResult.length === depth + 2) {
+            return fastBlockContinuity(blockSequenceResult, initialLevel, initialHash);
+        } else {
+            return slowBlockContinuity(blockSequenceResult, initialLevel, initialHash, depth);
+        }
+    }
+
+    /**
+     * Confirms that the specified operation was recorded on a continuous block sequence starting with the level below the block where
+     * it appeared through the end of the sequence from `awaitOperationForkConfirmation()` with the depth that was called with. This method is
+     * useful when the sequence of blocks retrieved by `awaitOperationForkConfirmation()` is the expected length, meaning `depth + 2`.
+     * 
+     * Note, this is not an absolute guarantee that this operation is not part of a longer fork; just that the predecessor of each block
+     * at position `n` matches the hash of the block preceding it.
+     */
+    function fastBlockContinuity(blocks, initialLevel: number, initialHash: string): boolean {
+        try {
+            return blocks.sort((a, b) => parseInt(a['level']) - parseInt(b['level'])).reduce((a, c, i) => {
+                if (!a) { throw new Error('Block sequence mismatch'); }
+
+                if (i > 1) {
+                    return c['predecessor'] === blocks[i - 1]['hash'];
+                }
+
+                if (i === 1) {
+                    return a && c['level'] === initialLevel
+                            && c['hash'] === initialHash
+                            && c['predecessor'] === blocks[i - 1]['hash'];
+                } 
+
+                if (i === 0) {
+                    return true;
+                }
+            }, true);
+        } catch {
+            return false;
+        }
+    }
+
+    /**
+     * Compared to `fastBlockContinuity()`, this method performs more sophisticated validation on the block sequence. This function is
+     * useful where `awaitOperationForkConfirmation()` receives a longer sequence of blocks than expected, more than `depth + 2`. In this
+     * case it's necessary to reconstruct a sequence from the provided blocks where of each block at position `n` matches the hash of
+     * the block preceding it with the expectation that there will be at least one instance of a duplicate level.
+     */
+    function slowBlockContinuity(blocks, initialLevel: number, initialHash: string, depth: number): boolean {
+        throw new Error('Not implemented'); // TODO
     }
 
     /**
