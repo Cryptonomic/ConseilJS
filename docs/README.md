@@ -248,7 +248,7 @@ revealAccount();
 ```
 <!-- tabs:end -->
 
-Once again we can confirm the results: [`ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM`](https://mininax.cryptonomic.tech/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
+Once again we can confirm the results: [ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM](https://mininax.cryptonomic.tech/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
 
 #### Transfer value
 
@@ -301,7 +301,7 @@ sendTransaction();
 ```
 <!-- tabs:end -->
 
-The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://mininax.cryptonomic.tech/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
+The results: [onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h](https://mininax.cryptonomic.tech/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
 #### Delegate
 
@@ -352,7 +352,7 @@ originateAccount();
 ```
 <!-- tabs:end -->
 
-The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://mininax.cryptonomic.tech/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+The results: [ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA](https://mininax.cryptonomic.tech/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
 
 #### Re-delegate
 
@@ -404,6 +404,10 @@ async function delegateAccount() {
 delegateAccount();
 ```
 <!-- tabs:end -->
+
+### Smart Contract Interactions
+
+Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/demo/#).
 
 #### Deploy a Contract
 
@@ -575,11 +579,11 @@ deployContract();
 ```
 <!-- tabs:end -->
 
-The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://mininax.cryptonomic.tech/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.cryptonomic.tech/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
+The results: [opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W](https://mininax.cryptonomic.tech/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.cryptonomic.tech/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
 
 #### Invoke a Contract
 
-Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
+Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety, `sendContractPing` that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -634,7 +638,7 @@ invokeContract();
 ```
 <!-- tabs:end -->
 
-The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://mininax.cryptonomic.tech/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
+The results: [op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc](https://mininax.cryptonomic.tech/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -742,9 +746,135 @@ pingContract();
 ```
 <!-- tabs:end -->
 
+#### Extract Entry Points
+
+Michelson contract are single-entry, meaning unlike other smart contract languages it only has one function that can be called externally. The work-around for this limitation is to create a tree of `if` statements inside that method that perform different operations. This results in a somewhat unintuitive invocation pattern. To help with this, ConseilJS provide contract introspection functions that can not only extract the entry points given a contract, but also generate the invocation parameter object for them. This functionality resides in the `TezosContractIntrospector` namespace which has several methods for parsing the interface given a contract address, full contract code or just the `parameter` portion of the contract: `generateEntryPointsFromAddress`, `generateEntryPointsFromCode`, `generateEntryPointsFromParams` respectively. Examples below use a version the proposed Tezos token standard, FA1.2 deployed on alphanet at [KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3](https://arronax-beta.cryptonomic.tech?e=Tezos%20Alphanet/accounts&m=true&q=eyJmaWVsZHMiOlsiYWNjb3VudF9pZCIsIm1hbmFnZXIiLCJiYWxhbmNlIiwic2NyaXB0Iiwic3RvcmFnZSIsImJsb2NrX2xldmVsIl0sInByZWRpY2F0ZXMiOlt7ImZpZWxkIjoiYWNjb3VudF9pZCIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMVhGWHdXQ0RNTGtnV2poZnFLVXBEdEJZV2YzWmRVZEtDMyJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6ImJsb2NrX2xldmVsIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0);
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { TezosContractIntrospector, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+
+const tezosNode = '';
+
+async function interrogateContract() {
+    const contractParameters = `parameter (or (or (or (pair %transfer (address :from) (pair (address :to) (nat :value))) (or (pair %transferViaProxy (address :sender) (pair (address :from) (pair (address :to) (nat :value)))) (pair %approve (address :spender) (nat :value)))) (or (pair %approveViaProxy (address :sender) (pair (address :spender) (nat :value))) (or (pair %getAllowance (pair (address :owner) (address :spender)) (contract nat)) (pair %getBalance (address :owner) (contract nat))))) (or (or (pair %getTotalSupply unit (contract nat)) (or (bool %setPause) (address %setAdministrator))) (or (or (pair %getAdministrator unit (contract address)) (pair %mint (address :to) (nat :value))) (or (pair %burn (address :from) (nat :value)) (address %setProxy)))));`;
+
+    const entryPoints = await TezosContractIntrospector.generateEntryPointsFromParams(contractParameters);
+    entryPoints.forEach(p => {
+        console.log(`${p.name}(${p.parameters.map(pp => (pp.name || 'unnamed') + '/' + pp.type).join(', ')})`);
+    });
+
+    console.log(entryPoints[0].generateParameter('', '', 999));
+}
+
+interrogateContract();
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+const tezosNode = '';
+
+conseiljs.setLogLevel('debug');
+
+async function interrogateContract() {
+    const contractParameters = `parameter (or (or (or (pair %transfer (address :from) (pair (address :to) (nat :value))) (or (pair %transferViaProxy (address :sender) (pair (address :from) (pair (address :to) (nat :value)))) (pair %approve (address :spender) (nat :value)))) (or (pair %approveViaProxy (address :sender) (pair (address :spender) (nat :value))) (or (pair %getAllowance (pair (address :owner) (address :spender)) (contract nat)) (pair %getBalance (address :owner) (contract nat))))) (or (or (pair %getTotalSupply unit (contract nat)) (or (bool %setPause) (address %setAdministrator))) (or (or (pair %getAdministrator unit (contract address)) (pair %mint (address :to) (nat :value))) (or (pair %burn (address :from) (nat :value)) (address %setProxy)))));`;
+
+    const entryPoints = await conseiljs.TezosContractIntrospector.generateEntryPointsFromParams(contractParameters);
+    entryPoints.forEach(p => {
+        console.log(`${p.name}(${p.parameters.map(pp => (pp.name || 'unnamed') + '/' + pp.type).join(', ')})`);
+    });
+
+    console.log(entryPoints[0].generateParameter('', '', 999));
+}
+
+interrogateContract();
+```
+<!-- tabs:end -->
+
+The output of the entry point iteration and a sample invocation pattern are below.
+
+```text
+%transfer(:from/address, :to/address, :value/nat)
+%transferViaProxy(:sender/address, :from/address, :to/address, :value/nat)
+%approve(:spender/address, :value/nat)
+%approveViaProxy(:sender/address, :spender/address, :value/nat)
+%getAllowance(:owner/address, :spender/address, unnamed/contract (nat))
+%getBalance(:owner/address, unnamed/contract (nat))
+%getTotalSupply(unnamed/unit, unnamed/contract (nat))
+%setPause(unnamed/bool)
+%setAdministrator(unnamed/address)
+%getAdministrator(unnamed/unit, unnamed/contract (address))
+%mint(:to/address, :value/nat)
+%burn(:from/address, :value/nat)
+%setProxy(unnamed/address)
+
+(Left (Left (Left (Pair source-address (Pair destination-address 999)))))
+```
+
+Invoking this contract is now obvious! Don't forget that the make this call correctly, you'll need to substitue 'source-address' and 'destination-address' values for proper addresses, futhermore there are restrictions in the contract on who can execute various methods. In this case it must be either the token manager or the 'source-address' account.
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+
+const tezosNode = '';
+
+async function invokeContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3';
+
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '(Left (Left (Left (Pair source-address (Pair destination-address 999)))))', , TezosParameterFormat.Michelson);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+invokeContract();
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+const tezosNode = '';
+
+conseiljs.setLogLevel('debug');
+
+async function invokeContract() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: conseiljs.StoreType.Fundraiser
+    };
+    const contractAddress = 'KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3';
+
+    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '(Left (Left (Left (Pair source-address (Pair destination-address 999)))))', , conseiljs.TezosParameterFormat.Michelson);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+invokeContract();
+```
+<!-- tabs:end -->
+
 ### Tezos Chain Operations with Hardware Devices
 
-ConseilJS supports transaction signing with [Ledger Nano S](https://shop.ledger.com/products/ledger-nano-s) devices. The interactions are largely the same as with software-signed operations. This functionality is encapsulated in the `TezosLedgerWallet` namespace. Before a Ledger-bound account can be used, it must be unlocked as described below. After that, retrieve and cache the account address, finally to sign transactions with the Ledger, pass the `derivationPath` parameter to the various interaction functions.
+ConseilJS supports operation signing with [Ledger Nano S](https://shop.ledger.com/products/ledger-nano-s) devices. The interactions are largely the same as with software-signed operations. This functionality is encapsulated in the `TezosLedgerWallet` namespace. Before a Ledger-bound account can be used, it must be unlocked as described below. After that, retrieve and cache the account address, finally to sign transactions with the Ledger, pass the `derivationPath` parameter to the various interaction functions. Remember that the private key never leaves the device, hence the `KeyStore` object returned by `unlockAddress` will not have that field populated.
 
 #### Unlock an Account
 
