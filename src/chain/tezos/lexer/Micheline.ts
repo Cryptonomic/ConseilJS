@@ -180,7 +180,7 @@ const writeSignedInt = value => {
 
         const n = bigInt(value).abs();
         const l = n.bitLength().toJSNumber();
-        let arr = [];
+        let arr: any = [];
         let v = n;
         for (let i = 0; i < l; i += 7) {
             let byte = bigInt.zero;
