@@ -8,11 +8,11 @@
 
 A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
 
-ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services.
+ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax-beta.cryptonomic.tech), [Mininax](https://mininax.cryptonomic.tech) and certainly [Galleon](https://galleon-wallet.tech). There are now [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
 
 ## Use with Nodejs
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: ``.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
 ```bash
 npm i conseiljs
