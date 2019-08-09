@@ -252,7 +252,7 @@ Once again we can confirm the results: [`ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLk
 
 #### Transfer value
 
-The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z` and some random Alphanet address to test with: `tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is repsented as `500000`.
+The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z` and some random Alphanet address to test with: `tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -305,7 +305,7 @@ The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://alp
 
 #### Delegate
 
-One of the most exciting features of Tezos is delegation. To delegate tz, an account must be originated. We picked a random Alphanet baker to delegate to: `tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB`.
+One of the most exciting features of Tezos is delegation. To delegate tz, an account must be originated. We picked a random Alphanet baker to delegate to: `tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB`. Note, this is an initial delegation which can be done together with an origination operation.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -353,6 +353,57 @@ originateAccount();
 <!-- tabs:end -->
 
 The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+
+#### Re-delegate
+
+Implicit accounts, ones starting with tz1, tz2 and tz3, can control multiple originated, KT1, accounts, more than one of which can be delegated. To change the delegate on an existing originated account use the `sendDelegationOperation` method.
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { TezosNodeWriter, StoreType } from 'conseiljs';
+
+const tezosNode = '';
+
+async function delegateAccount() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: StoreType.Fundraiser
+    };
+
+    const result = await TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', 10000);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+delegateAccount();
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+const tezosNode = '';
+
+async function delegateAccount() {
+    const keystore = {
+        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
+        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
+        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        seed: '',
+        storeType: conseiljs.StoreType.Fundraiser
+    };
+
+    const result = await conseiljs.TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', 10000);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+delegateAccount();
+```
+<!-- tabs:end -->
 
 #### Deploy a Contract
 
@@ -644,7 +695,7 @@ invokeContract();
 ```typescript
 import { StoreType, TezosNodeWriter, setLogLevel } from 'conseiljs';
 
-setLogLevel('debug')
+setLogLevel('debug');
 
 const tezosNode = '';
 
@@ -688,6 +739,85 @@ async function pingContract() {
 }
 
 pingContract();
+```
+<!-- tabs:end -->
+
+### Tezos Chain Operations with Hardware Devices
+
+ConseilJS supports transaction signing with [Ledger Nano S](https://shop.ledger.com/products/ledger-nano-s) devices. The interactions are largely the same as with software-signed operations. This functionality is encapsulated in the `TezosLedgerWallet` namespace. Before a Ledger-bound account can be used, it must be unlocked as described below. After that, retrieve and cache the account address, finally to sign transactions with the Ledger, pass the `derivationPath` parameter to the various interaction functions.
+
+#### Unlock an Account
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { HardwareDeviceType, TezosLedgerWallet, setLogLevel } from 'conseiljs';
+
+setLogLevel('debug');
+
+async function unlockAccount(derivationPath) {
+    const keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
+
+    console.log(`Unlocked Ledger account at ${derivationPath} as ${keyStore.publicKeyHash}`);
+}
+
+unlockAccount("44'/1729'/0'/0'/0'");
+```
+
+##### **JavaScript (node)**
+
+```javascript
+const conseiljs = require('conseiljs');
+
+conseiljs.setLogLevel('debug');
+
+async function unlockAccount(derivationPath) {
+    const keyStore = await conseiljs.TezosLedgerWallet.unlockAddress(conseiljs.HardwareDeviceType.LedgerNanoS, derivationPath);
+
+    console.log(`Unlocked Ledger account at ${derivationPath} as ${keyStore.publicKeyHash}`);
+}
+
+unlockAccount("44'/1729'/0'/0'/0'");
+```
+<!-- tabs:end -->
+
+#### Transfer Value
+
+The difference between the code below and what was described earlier is the last parameter of the `sendTransactionOperation` function. The derivation path that needs to be invoked on the Ledger device to sign the transaction. The code also unlocks the account in this example. It is not necessary to do this every time an operation is sent to the chain, it's listed below for completeness. This is just one operation sample, all chain interactions with a Ledger device require a `derivationPath` parameter to be provided.
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { TezosNodeWriter, StoreType } from 'conseiljs';
+
+const tezosNode = '';
+
+async function sendTransaction(derivationPath: string) {
+    const keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
+
+    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, derivationPath);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+sendTransaction("44'/1729'/0'/0'/0'");
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+const tezosNode = '';
+
+async function sendTransaction(derivationPath) {
+    const keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
+
+    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, derivationPath);
+    console.log(`Injected operation group id ${result.operationGroupID}`);
+}
+
+sendTransaction("44'/1729'/0'/0'/0'");
 ```
 <!-- tabs:end -->
 
@@ -1061,7 +1191,7 @@ async function listTransactions() {
     let transactionQuery = ConseilQueryBuilder.blankQuery();
     transactionQuery = ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
-    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', ConseilOperator.BETWEEN, [Date.now() - 3600 * 48, Date.now()], false);
     transactionQuery = ConseilQueryBuilder.addPredicate(transactionQuery, 'status', ConseilOperator.EQ, ['applied'], false);
     transactionQuery = ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', ConseilSortDirection.DESC);
     transactionQuery = ConseilQueryBuilder.setLimit(transactionQuery, 5000);
@@ -1089,7 +1219,7 @@ async function listTransactions() {
     let transactionQuery = conseiljs.ConseilQueryBuilder.blankQuery();
     transactionQuery = conseiljs.ConseilQueryBuilder.addFields(transactionQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'kind', conseiljs.ConseilOperator.EQ, ['transaction'], false);
-    transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', conseiljs.ConseilOperator.BETWEEN, [Date.now() - 3600 * 4, Date.now()], false);
+    transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'timestamp', conseiljs.ConseilOperator.BETWEEN, [Date.now() - 3600 * 48, Date.now()], false);
     transactionQuery = conseiljs.ConseilQueryBuilder.addPredicate(transactionQuery, 'status', conseiljs.ConseilOperator.EQ, ['applied'], false);
     transactionQuery = conseiljs.ConseilQueryBuilder.addOrdering(transactionQuery, 'block_level', conseiljs.ConseilSortDirection.DESC);
     transactionQuery = conseiljs.ConseilQueryBuilder.setLimit(transactionQuery, 5000);
