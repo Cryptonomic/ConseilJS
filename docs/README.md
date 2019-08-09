@@ -61,19 +61,19 @@ conseiljs.setLogLevel('debug');
 ```
 <!-- tabs:end -->
 
-Default log level is 'info', the library used internally for logging is [logleve](https://www.npmjs.com/package/loglevel).
+Default log level is 'error', the library used internally for logging is [loglevel](https://www.npmjs.com/package/loglevel). For more verbose logs, set it to 'info'.
 
 ### Contract Development Lightning Route
 
 If you want to skip straight to working on Michelson smart contracts simply follow these instructions in the following order:
 
 1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
-1. [Install ConseilJS](#Use-with-Nodejs)
-1. [Get an API key](#API-Key)
-1. [Create a Tezos alphanet account](#Create-an-Tezos-alphanet-account)
-1. [Initialize the account](#Initialize-the-account)
-1. [Deploy a contract](#Deploy-a-Contract)
-1. [Invoke a contract](#Invoke-a-Contract)
+2. [Install ConseilJS](#Use-with-Nodejs)
+3. [Get an API key](#API-Key)
+4. [Create a Tezos alphanet account](#Create-an-Tezos-alphanet-account)
+5. [Initialize the account](#Initialize-the-account)
+6. [Deploy a contract](#Deploy-a-Contract)
+7. [Invoke a contract](#Invoke-a-Contract)
 
 ### Blockchain Analytics Lightning Route
 
@@ -197,7 +197,7 @@ activateAccount();
 ```
 <!-- tabs:end -->
 
-Operation result can be viewed on a [block explorer](https://alphanet.tzscan.io/ont2jgMsL51w3BAMJhqgsg6AoySLXsAXKzBrF1Xdyqw9f6dq8hE) for more details.
+Operation result can be viewed on a [block explorer](https://mininax.cryptonomic.tech/#/alphanet/operations/ont2jgMsL51w3BAMJhqgsg6AoySLXsAXKzBrF1Xdyqw9f6dq8hE) for more details.
 
 The next step on Tezos is an account revelation.
 
@@ -248,7 +248,7 @@ revealAccount();
 ```
 <!-- tabs:end -->
 
-Once again we can confirm the results: [`ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM`](https://alphanet.tzscan.io/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
+Once again we can confirm the results: [`ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM`](https://mininax.cryptonomic.tech/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
 
 #### Transfer value
 
@@ -301,7 +301,7 @@ sendTransaction();
 ```
 <!-- tabs:end -->
 
-The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://alphanet.tzscan.io/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
+The results: [`onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h`](https://mininax.cryptonomic.tech/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
 #### Delegate
 
@@ -352,7 +352,7 @@ originateAccount();
 ```
 <!-- tabs:end -->
 
-The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://alphanet.tzscan.io/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+The results: [`ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA`](https://mininax.cryptonomic.tech/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
 
 #### Re-delegate
 
@@ -575,7 +575,7 @@ deployContract();
 ```
 <!-- tabs:end -->
 
-The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://alphanet.tzscan.io/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://alphanet.tzscan.io/KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
+The results: [`opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W`](https://mininax.cryptonomic.tech/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.cryptonomic.tech/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
 
 #### Invoke a Contract
 
@@ -634,7 +634,7 @@ invokeContract();
 ```
 <!-- tabs:end -->
 
-The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://alphanet.tzscan.io/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
+The results: [`op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc`](https://mininax.cryptonomic.tech/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
 
 <!-- tabs:start -->
 ##### **Typescript**
