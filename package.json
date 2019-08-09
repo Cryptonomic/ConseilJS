@@ -40,11 +40,21 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [ "src/**/*.ts" ],
-    "exclude": [ "src/**/lexer/*.*" ],
-    "extension": [ ".ts" ],
-    "require": [ "ts-node/register" ],
-    "reporter": [ "lcov" ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/lexer/*.*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -115,13 +125,39 @@
     },
     "extends": "airbnb-base",
     "rules": {
-      "comma-dangle": [ 2, "never" ],
-      "curly": [ 2, "all" ],
-      "indent": [ 1, 4 ],
-      "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
-      "no-tabs": [ 2 ],
-      "quotes": [ 2, "single" ],
-      "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "array-element-newline": [
+        2,
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ]
     }
   }
 }
