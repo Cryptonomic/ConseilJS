@@ -34,7 +34,7 @@ We have a complete [React application tutorial](https://github.com/Cryptonomic/C
         crossorigin="anonymous"></script>
 ```
 
-A fully functional sample [html example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
+A fully functional sample [html page](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
 
 ## API Overview and Examples
 
