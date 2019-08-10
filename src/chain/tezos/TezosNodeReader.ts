@@ -39,11 +39,11 @@ export namespace TezosNodeReader {
      * Gets a block for a given hash.
      * 
      * @param {string} server Tezos node to query
-     * @param {string} hash Hash of the given block
+     * @param {string} hash Hash of the given block, defaults to 'head'
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
      * @returns {Promise<TezosRPCTypes.TezosBlock>} Block
      */
-    export function getBlock(server: string, hash: string, chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
+    export function getBlock(server: string, hash: string = 'head', chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
         return performGetRequest(server, `chains/${chainid}/blocks/${hash}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
     }
 
@@ -54,7 +54,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<TezosRPCTypes.TezosBlock>} Block head
      */
     export function getBlockHead(server: string): Promise<TezosRPCTypes.TezosBlock> {
-        return getBlock(server, 'head');
+        return getBlock(server);
     }
 
     /**
@@ -80,10 +80,23 @@ export namespace TezosNodeReader {
      * @returns {Promise<number>} Current account counter
      */
     export async function getCounterForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
-        const blockHash = (await getBlockHead(server)).hash;
-        const account = await performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`)
+        const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
         return parseInt(account.counter.toString(), 10);
+    }
+
+    /**
+     * Returns account balance as of the Head. Will return current balance or 0 if the account is marked as `spendable: false`.
+     * Use `getAccountForBlock()` to get balance as of a specific block. Balance value is in utez.
+     * 
+     * @param {string} server Tezos node to query
+     * @param {string} accountHash Account address
+     * @param chainid Chain id, expected to be 'main' or 'test', defaults to main
+     */
+    export async function getSpendableBalanceForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
+        const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
+            .then(json => <TezosRPCTypes.Contract> json);
+        return account.spendable ? parseInt(account.balance.toString(), 10) : 0; 
     }
 
     /**
