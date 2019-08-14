@@ -1,7 +1,17 @@
 // Generated automatically by nearley, version 2.18.0
 // http://github.com/Hardmath123/nearley
-(function () {
-function id(x) { return x[0]; }
+// Bypasses TS6133. Allow declared but unused functions.
+// @ts-ignore
+function id(d: any[]): any { return d[0]; }
+declare var lbrace: any;
+declare var _: any;
+declare var colon: any;
+declare var quotedValue: any;
+declare var rbrace: any;
+declare var keyword: any;
+declare var comma: any;
+declare var lbracket: any;
+declare var rbracket: any;
 
 const moo = require("moo");
 const bigInt = require("big-integer");
@@ -170,7 +180,7 @@ const writeSignedInt = value => {
 
         const n = bigInt(value).abs();
         const l = n.bitLength().toJSNumber();
-        let arr = [];
+        let arr: any = [];
         let v = n;
         for (let i = 0; i < l; i += 7) {
             let byte = bigInt.zero;
@@ -196,9 +206,28 @@ const writeSignedInt = value => {
 
         return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
     }
-var grammar = {
-    Lexer: lexer,
-    ParserRules: [
+
+export interface Token { value: any; [key: string]: any };
+
+export interface Lexer {
+  reset: (chunk: string, info: any) => void;
+  next: () => Token | undefined;
+  save: () => any;
+  formatError: (token: Token) => string;
+  has: (tokenType: string) => boolean
+};
+
+export interface NearleyRule {
+  name: string;
+  symbols: NearleySymbol[];
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any
+};
+
+export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+
+export var Lexer: Lexer | undefined = lexer;
+
+export var ParserRules: NearleyRule[] = [
     {"name": "main", "symbols": ["staticObject"], "postprocess": id},
     {"name": "main", "symbols": ["primBare"], "postprocess": id},
     {"name": "main", "symbols": ["primArg"], "postprocess": id},
@@ -206,84 +235,84 @@ var grammar = {
     {"name": "main", "symbols": ["primArgAnn"], "postprocess": id},
     {"name": "main", "symbols": ["anyArray"], "postprocess": id},
     {"name": "staticInt$ebnf$1", "symbols": []},
-    {"name": "staticInt$ebnf$1", "symbols": ["staticInt$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "staticInt$ebnf$1", "symbols": ["staticInt$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "staticInt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"int\""}, "staticInt$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticIntToHex},
     {"name": "staticString$ebnf$1", "symbols": []},
-    {"name": "staticString$ebnf$1", "symbols": ["staticString$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "staticString$ebnf$1", "symbols": ["staticString$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "staticString", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"string\""}, "staticString$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticStringToHex},
     {"name": "staticBytes$ebnf$1", "symbols": []},
-    {"name": "staticBytes$ebnf$1", "symbols": ["staticBytes$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "staticBytes$ebnf$1", "symbols": ["staticBytes$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "staticBytes", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"bytes\""}, "staticBytes$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": staticBytesToHex},
     {"name": "staticObject", "symbols": ["staticInt"], "postprocess": id},
     {"name": "staticObject", "symbols": ["staticString"], "postprocess": id},
     {"name": "staticObject", "symbols": ["staticBytes"], "postprocess": id},
     {"name": "primBare$ebnf$1", "symbols": []},
-    {"name": "primBare$ebnf$1", "symbols": ["primBare$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primBare$ebnf$1", "symbols": ["primBare$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "primBare", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primBare$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primBareToHex},
     {"name": "primArg$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArg$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArg$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArg$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArg$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$1", "symbols": ["any", "primArg$ebnf$3$subexpression$1$ebnf$1", "primArg$ebnf$3$subexpression$1$ebnf$2"]},
     {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3$subexpression$1"]},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArg$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$2", "symbols": ["any", "primArg$ebnf$3$subexpression$2$ebnf$1", "primArg$ebnf$3$subexpression$2$ebnf$2"]},
-    {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3", "primArg$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3", "primArg$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "primArg", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArg$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArg$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArg$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgToHex},
     {"name": "primAnn$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primAnn$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primAnn$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$1", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primAnn$ebnf$3$subexpression$1$ebnf$1", "primAnn$ebnf$3$subexpression$1$ebnf$2"]},
     {"name": "primAnn$ebnf$3", "symbols": ["primAnn$ebnf$3$subexpression$1"]},
     {"name": "primAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$2", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primAnn$ebnf$3$subexpression$2$ebnf$1", "primAnn$ebnf$3$subexpression$2$ebnf$2"]},
-    {"name": "primAnn$ebnf$3", "symbols": ["primAnn$ebnf$3", "primAnn$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primAnn$ebnf$3", "symbols": ["primAnn$ebnf$3", "primAnn$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "primAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primAnnToHex},
     {"name": "primArgAnn$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$3$subexpression$1$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$3$subexpression$1", "symbols": ["any", "primArgAnn$ebnf$3$subexpression$1$ebnf$1", "primArgAnn$ebnf$3$subexpression$1$ebnf$2"]},
     {"name": "primArgAnn$ebnf$3", "symbols": ["primArgAnn$ebnf$3$subexpression$1"]},
     {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$3$subexpression$2", "symbols": ["any", "primArgAnn$ebnf$3$subexpression$2$ebnf$1", "primArgAnn$ebnf$3$subexpression$2$ebnf$2"]},
-    {"name": "primArgAnn$ebnf$3", "symbols": ["primArgAnn$ebnf$3", "primArgAnn$ebnf$3$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primArgAnn$ebnf$3", "symbols": ["primArgAnn$ebnf$3", "primArgAnn$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "primArgAnn$ebnf$4", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$4", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$4", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$5$subexpression$1$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$1", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primArgAnn$ebnf$5$subexpression$1$ebnf$1", "primArgAnn$ebnf$5$subexpression$1$ebnf$2"]},
     {"name": "primArgAnn$ebnf$5", "symbols": ["primArgAnn$ebnf$5$subexpression$1"]},
     {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$2", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "primArgAnn$ebnf$5$subexpression$2$ebnf$2"]},
-    {"name": "primArgAnn$ebnf$5", "symbols": ["primArgAnn$ebnf$5", "primArgAnn$ebnf$5$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "primArgAnn$ebnf$5", "symbols": ["primArgAnn$ebnf$5", "primArgAnn$ebnf$5$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "primArgAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArgAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArgAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primArgAnn$ebnf$4", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$5", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgAnnToHex},
     {"name": "primAny", "symbols": ["primBare"], "postprocess": id},
     {"name": "primAny", "symbols": ["primArg"], "postprocess": id},
@@ -294,24 +323,18 @@ var grammar = {
     {"name": "any", "symbols": ["anyArray"], "postprocess": id},
     {"name": "anyArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": function(d) { return '0200000000'; }},
     {"name": "anyArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "anyArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "anyArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "anyArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "anyArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "anyArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "anyArray$ebnf$1$subexpression$1", "symbols": ["any", "anyArray$ebnf$1$subexpression$1$ebnf$1", "anyArray$ebnf$1$subexpression$1$ebnf$2"]},
     {"name": "anyArray$ebnf$1", "symbols": ["anyArray$ebnf$1$subexpression$1"]},
     {"name": "anyArray$ebnf$1$subexpression$2$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
-    {"name": "anyArray$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "anyArray$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "anyArray$ebnf$1$subexpression$2$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
-    {"name": "anyArray$ebnf$1$subexpression$2$ebnf$2", "symbols": [], "postprocess": function(d) {return null;}},
+    {"name": "anyArray$ebnf$1$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "anyArray$ebnf$1$subexpression$2", "symbols": ["any", "anyArray$ebnf$1$subexpression$2$ebnf$1", "anyArray$ebnf$1$subexpression$2$ebnf$2"]},
-    {"name": "anyArray$ebnf$1", "symbols": ["anyArray$ebnf$1", "anyArray$ebnf$1$subexpression$2"], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "anyArray$ebnf$1", "symbols": ["anyArray$ebnf$1", "anyArray$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "anyArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "anyArray$ebnf$1", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": staticArrayToHex}
-]
-  , ParserStart: "main"
-}
-if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
-   module.exports = grammar;
-} else {
-   window.grammar = grammar;
-}
-})();
+];
+
+export var ParserStart: string = "main";

@@ -17,7 +17,7 @@
     "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.js && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.js && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.js && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
     "release-check": "npm run test && npm audit && npm outdated"
   },
   "repository": {
@@ -40,11 +40,21 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [ "src/**/*.ts" ],
-    "exclude": [ "src/**/lexer/*.*" ],
-    "extension": [ ".ts" ],
-    "require": [ "ts-node/register" ],
-    "reporter": [ "lcov" ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/lexer/*.*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -115,13 +125,39 @@
     },
     "extends": "airbnb-base",
     "rules": {
-      "comma-dangle": [ 2, "never" ],
-      "curly": [ 2, "all" ],
-      "indent": [ 1, 4 ],
-      "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
-      "no-tabs": [ 2 ],
-      "quotes": [ 2, "single" ],
-      "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "array-element-newline": [
+        2,
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ]
     }
   }
 }
