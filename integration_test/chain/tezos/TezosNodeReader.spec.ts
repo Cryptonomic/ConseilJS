@@ -27,4 +27,9 @@ describe('TezosNodeReader integration test suite', () => {
         const result = await TezosNodeReader.getBlockHead(tezosURL);
         console.log(result);
     });
+
+    it('Get account counter', async () => {
+        const result = await TezosNodeReader.getCounterForAccount(tezosURL, 'tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9');
+        console.log(result);
+    });
 });

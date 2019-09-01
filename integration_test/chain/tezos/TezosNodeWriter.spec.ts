@@ -11,9 +11,12 @@ import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import { TezosNodeWriter} from '../../../src/chain/tezos/TezosNodeWriter';
+import { TezosNodeReader } from '../../../src/chain/tezos/TezosNodeReader';
+import { TezosLanguageUtil } from '../../../src/chain/tezos/TezosLanguageUtil';
 import { TezosWalletUtil} from '../../../src/identity/tezos/TezosWalletUtil';
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient';
 import * as TezosTypes from '../../../src/types/tezos/TezosChainTypes';
+import * as TezosP2PMessageTypes from '../../../src/types/tezos/TezosP2PMessageTypes';
 import { KeyStore, StoreType } from '../../../src/types/wallet/KeyStore';
 import { ConseilServerInfo } from '../../../src/types/conseil/QueryTypes';
 import { servers } from '../../servers';
@@ -31,7 +34,9 @@ const conseilServer: ConseilServerInfo = {url: servers.conseilServer, apiKey: se
 
 describe('TezosNodeWriter integration test suite', () => {
     it('Invoke a contract with a string literal parameter', async () => {
-        // TODO:
+        const destinationAddress = 'tz1VttGDs9M2kr3zMfLRHqACpAcNcKY2bYj5';
+        const result = await TezosNodeWriter.sendTransactionOperation(tezosURL, keys, destinationAddress, 17276902, 20000);
+        expect(result["operationGroupID"]).to.exist;
     });
 
     it('Invoke a contract with a string literal Michelson parameter', async () => {
@@ -101,5 +106,27 @@ describe('TezosNodeWriter integration test suite', () => {
         await new Promise(resolve => setTimeout(resolve, 40 * 1000));
 
         expect(TezosNodeWriter.getQueueStatus(tezosURL, keys)).to.equal(0);
+    });
+
+    it('Estimate transaction gas cost', async () => {
+        const counter = await TezosNodeReader.getCounterForAccount(tezosURL, keys.publicKeyHash) + 1;
+
+        const transaction: TezosP2PMessageTypes.Transaction = {
+            destination: 'KT1XtauF2tnmAKBzbLA2gNoMji9zSzSyYq9w',
+            amount: '0',
+            storage_limit: '100',
+            gas_limit: '20000',
+            counter: counter.toString(),
+            fee: '50000',
+            source: keys.publicKeyHash,
+            kind: 'transaction',
+            parameters: JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline('"Cryptonomicon-Cryptonomicon-Cryptonomicon"'))
+        };
+
+        const result = await TezosNodeWriter.testOperation(tezosURL, [transaction], keys);
+
+        expect(result.length).to.equal(2);
+        expect(result[0]).to.be.greaterThan(10000);
+        expect(result[1]).to.be.greaterThan(-1);
     });
 });

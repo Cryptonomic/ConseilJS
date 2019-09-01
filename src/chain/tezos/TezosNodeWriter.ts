@@ -4,6 +4,7 @@ import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes';
+import { TezosResponseError } from '../../types/tezos/TezosErrorTypes';
 import { TezosNodeReader } from './TezosNodeReader';
 import { TezosMessageCodec } from './TezosMessageCodec';
 import { TezosMessageUtils } from './TezosMessageUtil';
@@ -43,6 +44,14 @@ export namespace TezosNodeWriter {
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
 
+    function performBytePostRequest(server: string, command: string, payload: Buffer): Promise<Response> {
+        const url = `${server}/${command}`;
+
+        log.debug(`TezosNodeWriter.performPostRequest sending bytes\n->\n${url}`);
+
+        return fetch(url, { method: 'post', body: payload, headers: { 'content-type': 'application/octet-stream' } });
+    }
+
     /**
      * Signs a forged operation
      * @param {string} forgedOperation Forged operation group returned by the Tezos client (as a hex string)
@@ -76,7 +85,7 @@ export namespace TezosNodeWriter {
      * Forge an operation group.
      *
      * @param {string} branch Hash of the current top block.
-     * @param {object[]} operations The operations being forged as part of this operation group.
+     * @param {TezosP2PMessageTypes.Operation[]} operations The operations being forged as part of this operation group.
      *
      * @returns {string} Forged operation bytes (as a hex string)
      */
@@ -96,15 +105,15 @@ export namespace TezosNodeWriter {
      *
      * @param {string} server Tezos node to connect to
      * @param {TezosRPCTypes.TezosBlock} blockHead The block head
-     * @param {object[]} operations The operations being forged as part of this operation group
+     * @param {TezosP2PMessageTypes.Operation[]} operations The operations being forged as part of this operation group
      *
      * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
-    export async function forgeOperationsRemotely(server: string, blockHead: TezosRPCTypes.TezosBlock, operations: TezosP2PMessageTypes.Operation[]): Promise<string> {
+    export async function forgeOperationsRemotely(server: string, blockHead: TezosRPCTypes.TezosBlock, operations: TezosP2PMessageTypes.Operation[], chainid: string = 'main'): Promise<string> {
         log.debug('TezosNodeWriter.forgeOperations:');
         log.debug(operations);
         log.warn('forgeOperationsRemotely() is not intrinsically trustless');
-        const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/forge/operations', { branch: blockHead.hash, contents: operations });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/forge/operations`, { branch: blockHead.hash, contents: operations });
         const forgedOperation = await response.text();
         const ops = forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
 
@@ -150,7 +159,7 @@ export namespace TezosNodeWriter {
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
-    export async function applyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+    export async function applyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const payload = [{
             protocol: protocol,
             branch: branch,
@@ -158,7 +167,7 @@ export namespace TezosNodeWriter {
             signature: signedOpGroup.signature
         }];
 
-        const response = await performPostRequest(server, 'chains/main/blocks/head/helpers/preapply/operations', payload);
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/preapply/operations`, payload);
         const text = await response.text();
         try {
             log.debug(`TezosNodeWriter.applyOperation received ${text}`);
@@ -167,7 +176,7 @@ export namespace TezosNodeWriter {
             return json as TezosTypes.AlphaOperationsWithMetadata[];
         } catch (err) {
             log.error(`TezosNodeWriter.applyOperation failed to parse response`);
-            throw new Error(`Could not parse JSON response from chains/main/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
+            throw new Error(`Could not parse JSON response from chains/${chainid}/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
         }
     }
 
@@ -176,7 +185,7 @@ export namespace TezosNodeWriter {
      *
      * @param appliedOp Results of operation application.
      */
-    function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void {
+    function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void { // TODO: outdated, replace with parseRPCError
         const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
         const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
 
@@ -200,8 +209,8 @@ export namespace TezosNodeWriter {
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<InjectedOperation>} ID of injected operation
      */
-    export async function injectOperation(server: string, signedOpGroup: TezosTypes.SignedOperationGroup): Promise<string> {
-        const response = await performPostRequest(server, 'injection/operation?chain=main', signedOpGroup.bytes.toString('hex'));
+    export async function injectOperation(server: string, signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<string> {
+        const response = await performPostRequest(server, `injection/operation?chain=${chainid}`, signedOpGroup.bytes.toString('hex'));
         const injectedOperation = await response.text();
 
         return injectedOperation;
@@ -591,5 +600,78 @@ export namespace TezosNodeWriter {
         const activation = { kind: 'activate_account', pkh: keyStore.publicKeyHash, secret: activationCode };
 
         return sendOperation(server, [activation], keyStore, derivationPath);
+    }
+
+    /**
+     * Operation dry-run to get consumed gas and storage numbers
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {Operation[]} operations The operations to create and send
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {string} chainid 
+     * @returns {number} A two-element array containing gas and storage costs. Throws an error if one was encountered.
+     */
+    export async function testOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', chainid: string = 'main'): Promise<number[]> {
+        const blockHead = await TezosNodeReader.getBlockHead(server);
+        const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
+        const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+        const response = await performBytePostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, signedOpGroup.bytes);
+        const responseText = await response.text();
+
+        const error = parseRPCError(responseText);
+        if (!!error) { throw new Error(error); }
+
+        const responseJSON = JSON.parse(responseText);
+        let gas = 0;
+        let storage = 0;
+        for(let c of responseJSON['contents']) {
+            try {
+                gas += parseInt(c['metadata']['operation_result']['consumed_gas']);
+                storage += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']);
+            } catch { }
+        }
+
+        return [gas, storage];
+    }
+
+    /**
+     * This function checks if the server response contains an error. There are multiple formats for errors coming
+     * back from the server, this method attempts to normalized them for downstream parsing.
+     * 
+     * @param {string} response Text response from a Tezos RPC services
+     * @returns Error text or `undefined`
+     */
+    function parseRPCError(response: string): string | undefined {
+        if (response.startsWith('Failed to parse the request body: ')) {
+            return `Failed with ${response.slice(34)}`;
+        }
+
+        let responseJSON = {};
+        try {
+            responseJSON = JSON.parse(response);
+        } catch (jsonParsingError) {
+            return 'Could not parse response text as JSON.';
+        }
+
+        if (Array.isArray(responseJSON)) {
+            const errorKind = responseJSON[0]['kind'];
+            const errorType = responseJSON[0]['id'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' ');
+            return `Failed with ${errorKind}, ${errorType}`;
+        } else {
+            let errors = '';
+            for(let c of responseJSON['contents']) {
+                const operationStatus = c['metadata']['operation_result']['status'];
+
+                if (operationStatus !== 'applied') {
+                    const errorType = c['metadata']['operation_result']['errors'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' ');
+                    c += `Operation ${operationStatus} with ${errorType}\n`;
+                }
+            }
+            errors = errors.trim()
+            if (errors.length > 0) { return errors; }
+        }
+
+        return undefined;
     }
 }

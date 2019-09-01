@@ -1,5 +1,5 @@
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes'
-import {ServiceRequestError} from '../../types/conseil/ErrorTypes';
+import { TezosRequestError } from '../../types/tezos/TezosErrorTypes';
 import FetchSelector from '../../utils/FetchSelector'
 import LogSelector from '../../utils/LoggerSelector';
 
@@ -24,7 +24,7 @@ export namespace TezosNodeReader {
             .then(response => {
                 if (!response.ok) {
                     log.error(`TezosNodeReader.performGetRequest error: ${response.status} for ${command} on ${server}`);
-                    throw new ServiceRequestError(response.status, response.statusText, url, null);
+                    throw new TezosRequestError(response.status, response.statusText, url, null);
                 }
                 return response;
             })
@@ -80,9 +80,9 @@ export namespace TezosNodeReader {
      * @returns {Promise<number>} Current account counter
      */
     export async function getCounterForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
-        const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
-            .then(json => <TezosRPCTypes.Contract> json);
-        return parseInt(account.counter.toString(), 10);
+        const counter = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}/counter`)
+            .then(r => <String> r);
+        return parseInt(counter.toString(), 10);
     }
 
     /**
