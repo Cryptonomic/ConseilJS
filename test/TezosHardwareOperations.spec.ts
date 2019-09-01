@@ -26,7 +26,7 @@ const {
 
 const tezosURL = 'http://conseil.server';
 const derivationPathIndex = 0;
-const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;
+const derivationPath = `44'/1729'/0'/0'/${derivationPathIndex}'`;
 
 const ktAddress = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
 

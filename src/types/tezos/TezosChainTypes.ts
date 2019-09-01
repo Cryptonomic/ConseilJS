@@ -49,7 +49,10 @@ export enum OperationKindType {
     Origination = 'origination',
     Reveal = 'reveal',
     Endorsement = "endorsement",
-    Ballot = 'ballot'
+    Ballot = 'ballot',
+    DoubleEndorsementEvidence = 'double_endorsement_evidence',
+    DoubleBakingEvidence = 'double_baking_evidence',
+    Proposal = 'proposals'
 }
 
 export enum TezosParameterFormat {
