@@ -2,6 +2,11 @@ import 'mocha';
 import {expect} from 'chai';
 import fetch from 'node-fetch';
 
+import * as loglevel from 'loglevel';
+import LogSelector from '../src/utils/LoggerSelector';
+LogSelector.setLogger(loglevel.getLogger('conseiljs'));
+LogSelector.setLevel('debug');
+
 import FetchSelector from '../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
@@ -20,7 +25,8 @@ describe('Tezos date interface test suite', () => {
     it('retrieve top block', async () => {
         const result = await TezosConseilClient.getBlockHead({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet');
 
-        expect(result.length).to.equal(1);
+        expect(result['level']).to.be.greaterThan(625266, 'this may vary as the network changes');
+        expect(result['baker'].length).to.be.greaterThan(0)
     });
 
     it('retrieve a block by hash', async () => {
@@ -56,7 +62,7 @@ describe('Tezos date interface test suite', () => {
         var result = await TezosConseilClient.getAccount({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', 'tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e');
 
         expect(result.length).to.equal(1);
-        expect(result[0]['account_id']).to.equal('tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'this test may fail based on alphanet state');
+        expect(result[0]['account_id']).to.equal('tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'this may vary as the network changes');
     });
 
     it('retrieve accounts for a manager address', async () => {
@@ -67,8 +73,8 @@ describe('Tezos date interface test suite', () => {
         accountsquery = ConseilQueryBuilder.setLimit(accountsquery, 300);
         const result = await TezosConseilClient.getAccounts({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', accountsquery);
 
-        expect(result.length).to.equal(1, 'this test may fail based on alphanet state');
-        expect(result[0]['account_id']).to.equal('KT1V3ri4nnNQTsG52ypMQhZsnZpJEDi6gB4J', 'this test may fail based on alphanet state');
+        expect(result.length).to.be.greaterThan(1, 'this may vary as the network changes');
+        expect(result[0]['account_id']).to.equal('KT1SJdeXcP4KkVFF13SYEDFixunJBP7Nwmum', 'this may vary as the network changes');
 
         //console.log(util.inspect(accountsquery, {showHidden: false, depth: 5, colors: false, maxArrayLength: 100}));
     });
@@ -89,7 +95,7 @@ describe('Tezos date interface test suite', () => {
         var result = await Promise.all([target, origin].map(q => TezosConseilClient.getOperations({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'alphanet', q)))
             .then(responses => responses.reduce((result, r) => { r.forEach(rr => result.push(rr)); return result; }));
 
-        expect(result.length).to.equal(10, 'this may vary as the network changes');
+        expect(result.length).to.be.greaterThan(10, 'this may vary as the network changes');
     });
 
     it('calculate average fees for transaction type operations', async () => {
@@ -106,8 +112,8 @@ describe('Tezos date interface test suite', () => {
         const mediumAverageFee = sortedfees.slice(300, 700).reduce((s, c) => s + c) / 400;
         const highAverageFee = sortedfees.slice(700).reduce((s, c) => s + c) / 300;
 
-        expect(lowAverageFee).to.lessThan(mediumAverageFee);
-        expect(mediumAverageFee).to.lessThan(highAverageFee);
+        expect(lowAverageFee).to.lessThan(mediumAverageFee + 1);
+        expect(mediumAverageFee).to.lessThan(highAverageFee + 1);
     });
 
     it('retrieve average fees for transaction type operations', async () => {

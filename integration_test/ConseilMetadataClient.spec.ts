@@ -40,6 +40,6 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const result = await ConseilMetadataClient.getAttributeValues({url: ConseilV2URL, apiKey: ConseilV2APIKey}, 'tezos', 'alphanet', 'accounts', 'spendable');
 
         expect(result.length).to.equal(2);
-        expect(result[0]).to.oneOf(['f', 't']);
+        expect(result[0]).to.oneOf(['false', 'true']);
     });
 });

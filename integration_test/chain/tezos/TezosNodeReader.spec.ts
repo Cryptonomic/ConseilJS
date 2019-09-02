@@ -25,11 +25,13 @@ const tezosURL = servers.tezosServer;
 describe('TezosNodeReader integration test suite', () => {
     it('Get chain head', async () => {
         const result = await TezosNodeReader.getBlockHead(tezosURL);
-        console.log(result);
+
+        expect(result['header']['level']).to.be.greaterThan(1);
     });
 
     it('Get account counter', async () => {
         const result = await TezosNodeReader.getCounterForAccount(tezosURL, 'tz3RDC3Jdn4j15J7bBHZd29EUee9gVB1CxD9');
-        console.log(result);
+
+        expect(result).to.be.greaterThan(172795);
     });
 });
