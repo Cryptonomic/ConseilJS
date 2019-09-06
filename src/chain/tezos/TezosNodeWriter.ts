@@ -655,9 +655,16 @@ export namespace TezosNodeWriter {
         }
 
         if (Array.isArray(responseJSON)) {
-            const errorKind = responseJSON[0]['kind'];
-            const errorType = responseJSON[0]['id'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' ');
-            return `Failed with ${errorKind}, ${errorType}`;
+            let errorKind = '';
+            try { errorKind = responseJSON[0]['kind']; } catch { }
+
+            let errorType = '';
+            try { errorType = responseJSON[0]['id'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' '); } catch { }
+
+            let errorMessage = '';
+            try { errorMessage = responseJSON[0]['error']; } catch { }
+
+            return `Failed with ${[errorKind, errorType, errorMessage].filter(e => e !== '').join(', ')}`;
         } else {
             let errors = '';
             for(let c of responseJSON['contents']) {
