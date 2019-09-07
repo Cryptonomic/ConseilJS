@@ -147,6 +147,46 @@ initAccount();
 
 This produces a public key of `edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG` and secret key of `edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB`. **Secret keys must be kept secure!**
 
+#### Create an empty Tezos account
+
+It is also possible to create unattached accounts on the chain. This would be the process for making accounts on mainnet that are not fundraiser accounts. Note that `unlockIdentityWithMnemonic` takes an optional password. This is not the same password that may have been used to encrypt the `TezosFileWallet` file. Presenting the intermediate mnemonic to the user may aid in key recovery.
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { TezosWalletUtil } from 'conseiljs';
+
+async function createAccount() {
+    const mnemonic = TezosWalletUtil.generateMnemonic();
+    console.log(`mnemonic: ${mnemonic}`);
+    const keystore = await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    console.log(`account id: ${keystore.publicKeyHash}`);
+    console.log(`public key: ${keystore.publicKey}`);
+    console.log(`secret key: ${keystore.privateKey}`);
+}
+
+createAccount();
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+
+async function createAccount() {
+    const mnemonic = conseiljs.TezosWalletUtil.generateMnemonic();
+    console.log(`mnemonic: ${mnemonic}`);
+    const keystore = await conseiljs.TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    console.log(`account id: ${keystore.publicKeyHash}`);
+    console.log(`public key: ${keystore.publicKey}`);
+    console.log(`secret key: ${keystore.privateKey}`);
+}
+
+createAccount();
+```
+<!-- tabs:end -->
+
 #### Initialize the account
 
 An account must be activated on the chain before it can be used. With the combination of the faucet output and the keys generated in the step above we can send an account activation operation.
