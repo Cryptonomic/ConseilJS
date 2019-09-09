@@ -1,5 +1,5 @@
 import {ConseilServerInfo} from '../types/conseil/QueryTypes'
-import {ConseilRequestError} from '../types/conseil/ErrorTypes';
+import {ConseilRequestError} from '../types/conseil/ConseilErrorTypes';
 import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefinition} from '../types/conseil/MetadataTypes';
 import FetchSelector from '../utils/FetchSelector';
 import LogSelector from '../utils/LoggerSelector';

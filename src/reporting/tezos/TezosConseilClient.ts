@@ -180,10 +180,11 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
+     * @param {number} blocktime Expected number of seconds between blocks.
      * 
      * @returns Operation record
      */
-    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number): Promise<any[]> {
+    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any[]> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
         const initialLevel = (await getBlockHead(serverInfo, network))['level'];
         let currentLevel = initialLevel;
@@ -197,7 +198,7 @@ export namespace TezosConseilClient {
             if (group.length > 0) { return group; }
             currentLevel = (await getBlockHead(serverInfo, network))['level'];
             if (initialLevel + duration < currentLevel) { break; }
-            await new Promise(resolve => setTimeout(resolve, 60 * 1000));
+            await new Promise(resolve => setTimeout(resolve, blocktime * 1000));
         }
 
         throw new Error(`Did not observe ${hash} on ${network} in ${duration} block${duration > 1 ? 's' : ''} since ${initialLevel}`);
@@ -306,6 +307,7 @@ export namespace TezosConseilClient {
             } else if (s.startsWith('B')) {
                 return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'hash', ConseilOperator.EQ, [id], false) };
             } else if (s.startsWith('o')) {
+                q = ConseilQueryBuilder.setLimit(q, 1000);
                 return { entity: OPERATIONS, query: ConseilQueryBuilder.addPredicate(q, 'operation_group_hash', ConseilOperator.EQ, [id], false) };
             }
         }

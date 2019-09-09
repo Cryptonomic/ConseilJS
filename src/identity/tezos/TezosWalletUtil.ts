@@ -51,7 +51,7 @@ export namespace TezosWalletUtil {
      * @param {string} passphrase User-supplied passphrase
      * @returns {Promise<KeyStore>} Unlocked key pair
      */
-    export async function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string): Promise<KeyStore> {
+    export async function unlockIdentityWithMnemonic(mnemonic: string, passphrase: string = ''): Promise<KeyStore> {
         return await getKeysFromMnemonicAndPassphrase(mnemonic, passphrase, StoreType.Mnemonic);
     }
 

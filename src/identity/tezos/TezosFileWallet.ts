@@ -12,7 +12,7 @@ export namespace TezosFileWallet {
     /**
      * Saves a wallet to a given file.
      * 
-     * @param {string} filename Name of file
+     * @param {string} filename Path to file
      * @param {Wallet} wallet Wallet object
      * @param {string} passphrase User-supplied passphrase
      * @returns {Promise<Wallet>} Wallet object loaded from disk
@@ -56,6 +56,15 @@ export namespace TezosFileWallet {
         });
 
         const ew = await p;
+        const encryptedKeys = TezosMessageUtils.writeBufferWithHint(ew.ciphertext);
+        const salt = TezosMessageUtils.writeBufferWithHint(ew.salt);
+        const keys = JSON.parse(await CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];
+
+        return { identities: keys };
+    }
+
+    export async function loadWalletString(content: string, passphrase: string): Promise<Wallet> {
+        const ew = JSON.parse(content.toString()) as EncryptedWalletVersionOne;
         const encryptedKeys = TezosMessageUtils.writeBufferWithHint(ew.ciphertext);
         const salt = TezosMessageUtils.writeBufferWithHint(ew.salt);
         const keys = JSON.parse(await CryptoUtils.decryptMessage(encryptedKeys, passphrase, salt)) as KeyStore[];

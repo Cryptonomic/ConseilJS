@@ -1,3 +1,5 @@
+@preprocessor typescript
+
 @{%
 const moo = require("moo");
 
@@ -23,13 +25,13 @@ const moo = require("moo");
   - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
 */
 
-const macroCADR = /C[AD]+R/;
-const macroSETCADR = /SET_C[AD]+R/;
-const macroDIP = /DII+P/;
-const macroDUP = /DUU+P/;
-const DIPmatcher = new RegExp(macroDIP);
-const DUPmatcher = new RegExp(macroDUP);
-const macroASSERTlist = ['ASSERT', 'ASSERT_EQ', 'ASSERT_NEQ', 'ASSERT_GT', 'ASSERT_LT', 'ASSERT_GE', 'ASSERT_LE', 'ASSERT_NONE', 'ASSERT_SOME', 'ASSERT_LEFT', 'ASSERT_RIGHT', 'ASSERT_CMPEQ', 'ASSERT_CMPNEQ', 'ASSERT_CMPGT', 'ASSERT_CMPLT', 'ASSERT_CMPGE', 'ASSERT_CMPLE'];
+const macroCADRconst = /C[AD]+R/;
+const macroSETCADRconst = /SET_C[AD]+R/;
+const macroDIPconst = /DII+P/;
+const macroDUPconst = /DUU+P/;
+const DIPmatcher = new RegExp(macroDIPconst);
+const DUPmatcher = new RegExp(macroDUPconst);
+const macroASSERTlistConst = ['ASSERT', 'ASSERT_EQ', 'ASSERT_NEQ', 'ASSERT_GT', 'ASSERT_LT', 'ASSERT_GE', 'ASSERT_LE', 'ASSERT_NONE', 'ASSERT_SOME', 'ASSERT_LEFT', 'ASSERT_RIGHT', 'ASSERT_CMPEQ', 'ASSERT_CMPNEQ', 'ASSERT_CMPGT', 'ASSERT_CMPLT', 'ASSERT_CMPGE', 'ASSERT_CMPLE'];
 const macroIFCMPlist = ['IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE'];
 const macroCMPlist = ['CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE', 'CMPGE'];
 const macroIFlist = ['IFEQ', 'IFNEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE'];
@@ -62,11 +64,11 @@ const lexer = moo.compile({
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE' // TODO: should be separate
         ],
-    macroCADR: macroCADR,
-    macroDIP: macroDIP,
-    macroDUP: macroDUP,
-    macroSETCADR: macroSETCADR,
-    macroASSERTlist: macroASSERTlist,
+    macroCADR: macroCADRconst,
+    macroDIP: macroDIPconst,
+    macroDUP: macroDUPconst,
+    macroSETCADR: macroSETCADRconst,
+    macroASSERTlist: macroASSERTlistConst,
     constantData: ['Unit', 'True', 'False', 'None', 'instruction'],
     singleArgData: ['Left', 'Right', 'Some'],
     doubleArgData: ['Pair'],
@@ -250,7 +252,7 @@ semicolons -> [;]:?
         throw new Error('');
     }
 
-    const check_assert = assert => macroASSERTlist.includes(assert);
+    const check_assert = assert => macroASSERTlistConst.includes(assert);
 
     const expand_assert = (assert, annot) => {
         const annotation = !!annot ? `, "annots": [${annot}]` : '';
@@ -298,7 +300,7 @@ semicolons -> [;]:?
 
     const check_if = ifStatement => (macroIFCMPlist.includes(ifStatement) || macroIFlist.includes(ifStatement) || ifStatement === 'IF_SOME'); // TODO: IF_SOME
 
-    const expandIF = (ifInstr, ifTrue, ifFalse, annot) => {
+    const expandIF = (ifInstr, ifTrue, ifFalse?, annot?) => {
         const annotation = !!annot ? `, "annots": [${annot}]` : '';
 
         switch (ifInstr) {
@@ -335,7 +337,7 @@ semicolons -> [;]:?
 
     const check_dip = dip => DIPmatcher.test(dip);
 
-    const expandDIP = (dip, instruction, annot) => {
+    const expandDIP = (dip, instruction, annot?) => {
         let t = '';
         if (DIPmatcher.test(dip)) {
             const c = dip.length - 2;
@@ -383,7 +385,7 @@ semicolons -> [;]:?
         }
     }
 
-    const checkSetCadr = s => macroSETCADR.test(s);
+    const checkSetCadr = s => macroSETCADRconst.test(s);
 
     const expandSetCadr = (word, annot) => nestSetCadr(word.slice(5, -1));
 

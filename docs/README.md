@@ -31,7 +31,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-2Vr3C3i7dq94sKc7JerYrW/o6fjD42NgOgfqNlw7ntyCQ0eMqHAk1ENOyQsXtJXo"
+        integrity="sha384-9KFoSwB7AGW9/uAX7v//0xQaYLNB6ZV9+MXhm5WJAEFiyye4XGdtCd2WNXqU5x3B"
         crossorigin="anonymous"></script>
 ```
 
@@ -146,6 +146,46 @@ initAccount();
 <!-- tabs:end -->
 
 This produces a public key of `edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG` and secret key of `edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB`. **Secret keys must be kept secure!**
+
+#### Create an empty Tezos account
+
+It is also possible to create unattached accounts on the chain. This would be the process for making accounts on mainnet that are not fundraiser accounts. Note that `unlockIdentityWithMnemonic` takes an optional password. This is not the same password that may have been used to encrypt the `TezosFileWallet` file. Presenting the intermediate mnemonic to the user may aid in key recovery.
+
+<!-- tabs:start -->
+##### **Typescript**
+
+```typescript
+import { TezosWalletUtil } from 'conseiljs';
+
+async function createAccount() {
+    const mnemonic = TezosWalletUtil.generateMnemonic();
+    console.log(`mnemonic: ${mnemonic}`);
+    const keystore = await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    console.log(`account id: ${keystore.publicKeyHash}`);
+    console.log(`public key: ${keystore.publicKey}`);
+    console.log(`secret key: ${keystore.privateKey}`);
+}
+
+createAccount();
+```
+
+##### **JavaScript**
+
+```javascript
+const conseiljs = require('conseiljs');
+
+async function createAccount() {
+    const mnemonic = conseiljs.TezosWalletUtil.generateMnemonic();
+    console.log(`mnemonic: ${mnemonic}`);
+    const keystore = await conseiljs.TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    console.log(`account id: ${keystore.publicKeyHash}`);
+    console.log(`public key: ${keystore.publicKey}`);
+    console.log(`secret key: ${keystore.privateKey}`);
+}
+
+createAccount();
+```
+<!-- tabs:end -->
 
 #### Initialize the account
 
@@ -509,7 +549,7 @@ deployContract();
 ```
 <!-- tabs:end -->
 
-It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7.
+It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7. Another important feature introduced in that release was `awaitOperationConfirmation(...)` which will monitor the chain via Conseil waiting for the specified operation to appear, and then return the result set from Conseil for that operation. This can be used to ensure that the requested transaction has occured, it will also produce an updated account counter. The example below originates a contract and then waits for it to be recorded so the address of the new contract can be extracted.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -538,8 +578,12 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
-    console.log(`Injected operation group id ${result.operationGroupID}`);
+    const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+
+    const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
+    console.log(`Injected operation group id ${groupid}`);
+    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'alphanet', groupid, 5);
+    console.log(`Originated contract at ${conseilResult[0].originated_contracts}`);
 }
 
 deployContract();
@@ -550,6 +594,7 @@ deployContract();
 ```javascript
 const conseiljs = require('conseiljs');
 const tezosNode = '';
+const conseilServer = { url: '', apiKey: '' };
 
 conseiljs.setLogLevel('debug');
 
@@ -570,8 +615,12 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const result = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
-    console.log(`Injected operation group id ${result.operationGroupID}`);
+    const nodeResult = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
+
+    const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
+    console.log(`Injected operation group id ${groupid}`);
+    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'alphanet', groupid, 5);
+    console.log(`Originated contract at ${conseilResult[0].originated_accounts}`);
 }
 
 deployContract();
@@ -605,7 +654,7 @@ async function invokeContract() {
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', , TezosParameterFormat.Michelson);
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -630,7 +679,7 @@ async function invokeContract() {
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', , conseiljs.TezosParameterFormat.Michelson);
+    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', conseiljs.TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 

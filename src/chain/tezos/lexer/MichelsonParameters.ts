@@ -1,7 +1,17 @@
 // Generated automatically by nearley, version 2.18.0
 // http://github.com/Hardmath123/nearley
-(function () {
-function id(x) { return x[0]; }
+// Bypasses TS6133. Allow declared but unused functions.
+// @ts-ignore
+function id(d: any[]): any { return d[0]; }
+declare var keyword: any;
+declare var string: any;
+declare var lbrace: any;
+declare var rbrace: any;
+declare var number: any;
+declare var singleArgData: any;
+declare var lparen: any;
+declare var rparen: any;
+declare var doubleArgData: any;
 
 const moo = require("moo");
 
@@ -60,9 +70,28 @@ const lexer = moo.compile({
     * Example: "int" -> "{ "prim" : "int" }"
     */
   const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
-var grammar = {
-    Lexer: lexer,
-    ParserRules: [
+
+export interface Token { value: any; [key: string]: any };
+
+export interface Lexer {
+  reset: (chunk: string, info: any) => void;
+  next: () => Token | undefined;
+  save: () => any;
+  formatError: (token: Token) => string;
+  has: (tokenType: string) => boolean
+};
+
+export interface NearleyRule {
+  name: string;
+  symbols: NearleySymbol[];
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any
+};
+
+export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+
+export var Lexer: Lexer | undefined = lexer;
+
+export var ParserRules: NearleyRule[] = [
     {"name": "data", "symbols": [(lexer.has("keyword") ? {type: "keyword"} : keyword)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "data", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
@@ -72,14 +101,8 @@ var grammar = {
     {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data"], "postprocess": doubleArgDataToJson},
     {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgDataWithParenToJson},
     {"name": "_$ebnf$1", "symbols": []},
-    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": function arrpush(d) {return d[0].concat([d[1]]);}},
+    {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "_", "symbols": ["_$ebnf$1"]}
-]
-  , ParserStart: "data"
-}
-if (typeof module !== 'undefined'&& typeof module.exports !== 'undefined') {
-   module.exports = grammar;
-} else {
-   window.grammar = grammar;
-}
-})();
+];
+
+export var ParserStart: string = "data";
