@@ -2,27 +2,33 @@ import { TezosMessageUtils } from "./TezosMessageUtil";
 import { TezosLanguageUtil } from "./TezosLanguageUtil";
 import { Activation, Ballot, BallotVote, Transaction, Delegation, Origination, Reveal, Operation } from "../../types/tezos/TezosP2PMessageTypes";
 
-const operationTypes: Array<string> = [
-    "endorsement",
-    "seedNonceRevelation",
-    "doubleEndorsementEvidence",
-    "doubleBakingEvidence",
-    "accountActivation",
-    "proposal",
-    "ballot",
-    "reveal",
-    "transaction",
-    "origination",
-    "delegation"
-];
+const operationTypes: Map<number, string> = new Map([
+    [0, 'endorsement'],
+    [1, 'seedNonceRevelation'],
+    [2, 'doubleEndorsementEvidence'],
+    [3, 'doubleBakingEvidence'],
+    [4, 'accountActivation'],
+    [5, 'proposal'],
+    [6, 'ballot'],
+    [7, 'reveal'],
+    [8, 'transaction'],
+    [9, 'origination'],
+    [10, 'delegation'],
+    [107, 'reveal'], // >=P005
+    [108, 'transaction'], // >=P005
+    [109, 'origination'], // >=P005
+    [110, 'delegation'] // >=P005
+]);
+
+const sepyTnoitarepo: Map<string, number> = [...operationTypes.keys()].reduce((m, k) => { const v = operationTypes.get(k) || ''; if (m[v] > k) { return m; }  return { ...m, [v]: k } }, new Map());
 
 export namespace TezosMessageCodec {
     /**
      * Parse operation type from a bounded hex string and translate to enum.
      * @param {string} hex 
      */
-    export function getOperationType(hex: string) {
-        return operationTypes[TezosMessageUtils.readInt(hex)];
+    export function getOperationType(hex: string): string {
+        return operationTypes.get(TezosMessageUtils.readInt(hex)) || '';
     }
 
     /**
@@ -102,7 +108,7 @@ export namespace TezosMessageCodec {
      * @param activation Message to encode
      */
     export function encodeActivation(activation: Activation): string {
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('accountActivation'));
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['accountActivation']);
         hex += TezosMessageUtils.writeAddress(activation.pkh).slice(4);
         hex += activation.secret;
 
@@ -171,7 +177,7 @@ export namespace TezosMessageCodec {
      * @param ballot Message to encode
      */
     export function encodeBallot(ballot: Ballot): string {
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('ballot'));
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['ballot']);
         hex += TezosMessageUtils.writeAddress(ballot.source).slice(2);
         hex += ('00000000' + ballot.period.toString(16)).slice(-8);
         hex += TezosMessageUtils.writeBufferWithHint(ballot.proposal).toString('hex').slice(4);
@@ -201,8 +207,14 @@ export namespace TezosMessageCodec {
             fieldoffset += 2; // type
         }
 
-        let source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 44));
-        fieldoffset += 44;
+        let source = '';
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 44));
+            fieldoffset += 44;
+        } else { // post protocol 5
+            source = TezosMessageUtils.readAddress(revealMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
+        }
 
         let feeInfo = TezosMessageUtils.findInt(revealMessage, fieldoffset);
 
@@ -252,8 +264,8 @@ export namespace TezosMessageCodec {
     export function encodeReveal(reveal: Reveal): string {
         if (reveal.kind !== 'reveal') { throw new Error('Incorrect operation type.'); }
 
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('reveal'));
-        hex += TezosMessageUtils.writeAddress(reveal.source);
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['reveal']);
+        hex += TezosMessageUtils.writeAddress(reveal.source).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(reveal.fee));
         hex += TezosMessageUtils.writeInt(parseInt(reveal.counter));
         hex += TezosMessageUtils.writeInt(parseInt(reveal.gas_limit));
@@ -284,8 +296,14 @@ export namespace TezosMessageCodec {
             fieldoffset += 2; // type
         }
 
-        let source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 44));
-        fieldoffset += 44;
+        let source = '';
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 44));
+            fieldoffset += 44;
+        } else { // post protocol 5
+            source = TezosMessageUtils.readAddress(transactionMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
+        }
 
         let feeInfo = TezosMessageUtils.findInt(transactionMessage, fieldoffset);
 
@@ -355,8 +373,8 @@ export namespace TezosMessageCodec {
     export function encodeTransaction(transaction: Transaction): string {
         if (transaction.kind !== 'transaction') { throw new Error('Incorrect operation type'); }
 
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('transaction'));
-        hex += TezosMessageUtils.writeAddress(transaction.source);
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['transaction']);
+        hex += TezosMessageUtils.writeAddress(transaction.source).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(transaction.fee));
         hex += TezosMessageUtils.writeInt(parseInt(transaction.counter));
         hex += TezosMessageUtils.writeInt(parseInt(transaction.gas_limit));
@@ -396,8 +414,14 @@ export namespace TezosMessageCodec {
             fieldoffset += 2; // type
         }
 
-        let source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 44));
-        fieldoffset += 44;
+        let source = '';
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 44));
+            fieldoffset += 44;
+        } else { // post protocol 5
+            source = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
+        }
 
         let feeInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
 
@@ -411,18 +435,25 @@ export namespace TezosMessageCodec {
         let storageInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
         fieldoffset += storageInfo.length;
 
-        let publickeyhash = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 42));
-        fieldoffset += 42;
+        let manager_pubkey = ''
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            manager_pubkey = TezosMessageUtils.readAddress(originationMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
+        }
 
         let balanceInfo = TezosMessageUtils.findInt(originationMessage, fieldoffset);
-
         fieldoffset += balanceInfo.length;
-        let spendable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
 
-        fieldoffset += 2;
-        let delegatable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+        let spendable = false;
+        let delegatable = false;
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            spendable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+            fieldoffset += 2;
 
-        fieldoffset += 2;
+            delegatable = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+            fieldoffset += 2;
+        }
+
         let hasDelegate = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
 
         fieldoffset += 2;
@@ -432,8 +463,12 @@ export namespace TezosMessageCodec {
             fieldoffset += 42;
         }
 
-        let hasScript = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
-        fieldoffset += 2;
+        let hasScript = true;
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            hasScript = TezosMessageUtils.readBoolean(originationMessage.substring(fieldoffset, fieldoffset + 2));
+            fieldoffset += 2;
+        }
+
         let script = {};
         if (hasScript) {
             let codesize = parseInt(originationMessage.substring(fieldoffset, fieldoffset + 8), 16);
@@ -456,13 +491,10 @@ export namespace TezosMessageCodec {
             next = getOperationType(originationMessage.substring(fieldoffset, fieldoffset + 2));
         }
 
-        const origination: Operation = {
+        let origination: Operation = {
             kind: "origination",
             source: source,
-            manager_pubkey: publickeyhash,
             balance: balanceInfo.value + "",
-            spendable: spendable,
-            delegatable: delegatable,
             delegate: hasDelegate ? delegate : undefined,
             fee: feeInfo.value + "",
             gas_limit: gasInfo.value + "",
@@ -470,6 +502,12 @@ export namespace TezosMessageCodec {
             counter: counterInfo.value + "",
             script: hasScript ? script : undefined,
         };
+
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            origination.manager_pubkey = manager_pubkey;
+            origination.spendable = spendable;
+            origination.delegatable = delegatable;
+        }
 
         const envelope: OperationEnvelope = {
             operation: origination,
@@ -489,16 +527,13 @@ export namespace TezosMessageCodec {
     export function encodeOrigination(origination: Origination): string {
         if (origination.kind !== 'origination') { throw new Error('Incorrect operation type'); }
 
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('origination'));
-        hex += TezosMessageUtils.writeAddress(origination.source);
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['origination']);
+        hex += TezosMessageUtils.writeAddress(origination.source).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(origination.fee));
         hex += TezosMessageUtils.writeInt(parseInt(origination.counter));
         hex += TezosMessageUtils.writeInt(parseInt(origination.gas_limit));
         hex += TezosMessageUtils.writeInt(parseInt(origination.storage_limit));
-        hex += TezosMessageUtils.writeAddress(origination.manager_pubkey).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(origination.balance));
-        hex += origination.spendable !== undefined ? TezosMessageUtils.writeBoolean(origination.spendable) : '00';
-        hex += origination.delegatable !== undefined ? TezosMessageUtils.writeBoolean(origination.delegatable) : '00';
 
         if (origination.delegate !== undefined) {
             hex += TezosMessageUtils.writeBoolean(true);
@@ -508,8 +543,6 @@ export namespace TezosMessageCodec {
         }
 
         if (!!origination.script) {
-            hex += 'ff';
-
             let parts: string[] = [];
             parts.push(origination.script['code']); // full contract definition containing code, storage and parameters properties
             parts.push(origination.script['storage']); // initial storage
@@ -518,8 +551,6 @@ export namespace TezosMessageCodec {
                 .map(p => TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(p)))
                 .map(p =>  TezosLanguageUtil.translateMichelineToHex(p))
                 .reduce((m, p) => { return m += ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
-        } else {
-            hex += '00';
         }
 
         return hex;
@@ -546,8 +577,14 @@ export namespace TezosMessageCodec {
             fieldoffset += 2; // type
         }
 
-        let source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 44));
-        fieldoffset += 44;
+        let source = '';
+        if (parseInt(hexOperationType, 16) < 100) { // pre protocol 5
+            source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 44));
+            fieldoffset += 44;
+        } else { // post protocol 5
+            source = TezosMessageUtils.readAddress(delegationMessage.substring(fieldoffset, fieldoffset + 42));
+            fieldoffset += 42;
+        }
 
         let feeInfo = TezosMessageUtils.findInt(delegationMessage, fieldoffset);
 
@@ -603,8 +640,8 @@ export namespace TezosMessageCodec {
     export function encodeDelegation(delegation: Delegation): string {
         if (delegation.kind !== 'delegation') { throw new Error('Incorrect operation type'); }
 
-        let hex = TezosMessageUtils.writeInt(operationTypes.indexOf('delegation'));
-        hex += TezosMessageUtils.writeAddress(delegation.source);
+        let hex = TezosMessageUtils.writeInt(sepyTnoitarepo['delegation']);
+        hex += TezosMessageUtils.writeAddress(delegation.source).slice(2);
         hex += TezosMessageUtils.writeInt(parseInt(delegation.fee));
         hex += TezosMessageUtils.writeInt(parseInt(delegation.counter));
         hex += TezosMessageUtils.writeInt(parseInt(delegation.gas_limit));

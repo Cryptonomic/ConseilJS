@@ -61,10 +61,10 @@ export interface Origination {
     counter: string;
     gas_limit: string;
     storage_limit: string;
-    manager_pubkey: string;
+    manager_pubkey?: string; // deprecated in P005
     balance: string;
-    spendable?: boolean;
-    delegatable?: boolean;
+    spendable?: boolean; // deprecated in P005
+    delegatable?: boolean; // deprecated in P005
     delegate?: string;
     script?: object; // TODO: ContractOrigination
 }
