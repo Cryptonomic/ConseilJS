@@ -372,29 +372,12 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Sends an account origination operation.
-     *
-     * @param {string} server Tezos node to connect to
-     * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {number} amount Initial funding amount for the new account in uXTZ
-     * @param {string} delegate Account address to delegate to, blank if none
-     * @param {number} fee Operation fee
-     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @returns {Promise<OperationResult>} Result of the operation
-     */
-    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, fee: number = TezosConstants.DefaultAccountOriginationFee, derivationPath: string = '') {
-        return sendOriginationOperation(server, keyStore, amount, delegate, fee, derivationPath, TezosConstants.DefaultAccountOriginationStorageLimit, TezosConstants.DefaultAccountOriginationGasLimit);
-    }
-
-    /**
      * Sends a contract origination operation.
      *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
      * @param {string} delegate Account ID to delegate to, blank if none
-     * @param {boolean} spendable Is account spendable?
-     * @param {boolean} delegatable Is account delegatable?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
@@ -430,39 +413,6 @@ export namespace TezosNodeWriter {
             parsedStorage = JSON.parse(storage); // TODO: handle empty storage
         }
    
-        return sendOriginationOperation(server, keyStore, amount, delegate, fee, derivationPath, storage_limit, gas_limit, parsedCode, parsedStorage);
-    }
-
-    /**
-     * General purpose function for origination.
-     *
-     * @param {string} server Tezos node to connect to
-     * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to or 'undefined'
-     * @param {boolean} spendable Is account spendable?
-     * @param {boolean} delegatable Is account delegatable?
-     * @param {number} fee Operation fee
-     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @param {string} storage_limit Storage fee.
-     * @param {string} gas_limit Gas limit.
-     * @param {object} code Contract code in Micheline format.
-     * @param {object} storage Initial storage value in Micheline format.
-     *
-     * @returns {Promise<OperationResult>} Result of the operation
-     */
-    async function sendOriginationOperation(
-        server: string,
-        keyStore: KeyStore,
-        amount: number,
-        delegate: string | undefined,
-        fee: number,
-        derivationPath: string,
-        storage_limit: number,
-        gas_limit: number,
-        code?: object,
-        storage?: object
-    ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const origination: TezosP2PMessageTypes.Origination = {

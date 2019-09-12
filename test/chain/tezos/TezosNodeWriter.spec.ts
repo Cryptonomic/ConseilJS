@@ -214,15 +214,6 @@ describe('Tezos Operations Test', () => {
             expect(sendResult.operationGroupID).to.be.a('string');
         }));
 
-        it('sendOriginationOperation', mochaAsync(async () => {
-            const bakerAddress = 'tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G';
-            const amount = 10000000;
-            const fee = 100000;
-            const originationResult = await TezosNodeWriter.sendAccountOriginationOperation('http://conseil.server', keyStore, amount, bakerAddress, fee, '');
-            expect(originationResult).to.exist;
-            expect(originationResult.operationGroupID).to.be.a('string');
-        }));
-
         it('sendDelegationOperation', mochaAsync(async () => {
             const delegator = 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM';
             const bakerAddress = 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB';
