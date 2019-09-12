@@ -118,7 +118,7 @@ describe('Ledger Test', () => {
         const bakerAddress = 'tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G';
         const amount = 10000000;
         const fee = 100000;
-        const originationResult = await sendAccountOriginationOperation(tezosURL, keyStore, amount, bakerAddress, true, true, fee, derivationPath);
+        const originationResult = await sendAccountOriginationOperation(tezosURL, keyStore, amount, bakerAddress, fee, derivationPath);
         expect(originationResult).to.exist;
         expect(originationResult.operationGroupID).to.be.a('string');
     }));

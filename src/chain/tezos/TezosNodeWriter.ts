@@ -378,14 +378,12 @@ export namespace TezosNodeWriter {
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount for the new account in uXTZ
      * @param {string} delegate Account address to delegate to, blank if none
-     * @param {boolean} spendable Is the new account allowed to transact?
-     * @param {boolean} delegatable Can the account be delegated?
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, spendable: boolean, delegatable: boolean, fee: number = TezosConstants.DefaultAccountOriginationFee, derivationPath: string = '') {
-        return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, TezosConstants.DefaultAccountOriginationStorageLimit, TezosConstants.DefaultAccountOriginationGasLimit);
+    export async function sendAccountOriginationOperation(server: string, keyStore: KeyStore, amount: number, delegate: string | undefined, fee: number = TezosConstants.DefaultAccountOriginationFee, derivationPath: string = '') {
+        return sendOriginationOperation(server, keyStore, amount, delegate, fee, derivationPath, TezosConstants.DefaultAccountOriginationStorageLimit, TezosConstants.DefaultAccountOriginationGasLimit);
     }
 
     /**
@@ -410,8 +408,6 @@ export namespace TezosNodeWriter {
         keyStore: KeyStore,
         amount: number,
         delegate: string | undefined,
-        spendable: boolean,
-        delegatable: boolean,
         fee: number,
         derivationPath: string,
         storage_limit: number,
@@ -420,8 +416,6 @@ export namespace TezosNodeWriter {
         storage: string,
         codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ) {
-        if (spendable) { log.warn('As of protocol 004-Pt24m4xi, contracts with code cannot be "spendable"'); }
-
         let parsedCode: any = undefined;
         let parsedStorage: any = undefined;
 
@@ -436,7 +430,7 @@ export namespace TezosNodeWriter {
             parsedStorage = JSON.parse(storage); // TODO: handle empty storage
         }
    
-        return sendOriginationOperation(server, keyStore, amount, delegate, spendable, delegatable, fee, derivationPath, storage_limit, gas_limit, parsedCode, parsedStorage);
+        return sendOriginationOperation(server, keyStore, amount, delegate, fee, derivationPath, storage_limit, gas_limit, parsedCode, parsedStorage);
     }
 
     /**
@@ -462,8 +456,6 @@ export namespace TezosNodeWriter {
         keyStore: KeyStore,
         amount: number,
         delegate: string | undefined,
-        spendable: boolean,
-        delegatable: boolean,
         fee: number,
         derivationPath: string,
         storage_limit: number,
@@ -480,10 +472,7 @@ export namespace TezosNodeWriter {
             counter: counter.toString(),
             gas_limit: gas_limit.toString(),
             storage_limit: storage_limit.toString(),
-            manager_pubkey: keyStore.publicKeyHash,
             balance: amount.toString(),
-            spendable: spendable,
-            delegatable: delegatable && !!delegate,
             delegate: delegate,
             script: code ? { code, storage } : undefined
         };
@@ -503,6 +492,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
      * @param {string} gas_limit Gas limit
+     * @param {string} entrypoint Contract entry point
      * @param {string} parameters Contract arguments
      * @param {TezosParameterFormat} parameterFormat Contract argument format
      */
@@ -515,7 +505,8 @@ export namespace TezosNodeWriter {
         derivationPath: string,
         storageLimit: number,
         gasLimit: number,
-        parameters?: string,
+        entrypoint: string | undefined,
+        parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
@@ -531,12 +522,12 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
-        if (!!parameters && parameters.trim().length > 0) {
+        if (parameters !== undefined) {
             if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
                 const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
-                transaction.parameters = JSON.parse(michelineParams);
+                transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineParams) };
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
-                transaction.parameters = JSON.parse(parameters);
+                transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(parameters) };
             }
         }
 
@@ -554,11 +545,9 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
      * @param {string} gas_limit Gas limit
-     * @param {string} parameters Contract arguments
-     * @param {TezosParameterFormat} parameterFormat Contract argument format
      */
     export async function sendContractPing(server: string, keyStore: KeyStore, to: string, fee: number, derivationPath: string, storageLimit: number, gasLimit: number) {
-        return sendContractInvocationOperation(server, keyStore, to, 0, fee, derivationPath, storageLimit, gasLimit, '');
+        return sendContractInvocationOperation(server, keyStore, to, 0, fee, derivationPath, storageLimit, gasLimit, undefined, undefined);
     }
 
     /**

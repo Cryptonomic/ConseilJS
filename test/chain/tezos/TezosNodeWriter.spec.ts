@@ -2,9 +2,9 @@ import "mocha";
 import { expect, use } from "chai";
 import chaiAsPromised from 'chai-as-promised';
 import nock from 'nock';
-import { Operation, Ballot } from "../../../src/types/tezos/TezosP2PMessageTypes";
+import { StackableOperation, Ballot, Transaction, Reveal, Origination, Delegation } from "../../../src/types/tezos/TezosP2PMessageTypes";
 
-import { TezosWalletUtil, TezosNodeWriter } from "../../../src/";
+import { TezosWalletUtil, TezosNodeWriter, TezosParameterFormat } from "../../../src/";
 import mochaAsync from '../../../test/mochaTestHelper';
 import {
     blockHead,
@@ -36,41 +36,22 @@ describe('Tezos Operations Test', () => {
 
         keyStore1 = await unlockFundraiserIdentity(info1.mnemonic.join(' '), info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
+
         const nockOb = nock('http://conseil.server');
-        nockOb
-            .persist()
-            .get(`/chains/main/blocks/head`)
-            .reply(200, blockHead);
 
-        const accountUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}`;
-        nockOb
-            .get(accountUrl)
-            .reply(200, accountMockList[0]);
+        nockOb.persist().get(`/chains/main/blocks/head`).reply(200, blockHead);
 
-        const accountUrl1 = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}`;
-        nockOb
-            .get(accountUrl1)
-            .reply(200, accountMockList[1]);
-        const accountDelegateUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}`;
-        nockOb
-            .get(accountDelegateUrl)
-            .reply(200, accountMockList[2]);
-
-        const accountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}/manager_key`;
-        nockOb
-            .get(accountMangerUrl)
-            .reply(200, managerKeyMockList[0]);
-        const nonAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}/manager_key`;
-        nockOb
-            .get(nonAccountMangerUrl)
-            .reply(200, managerKeyMockList[1]);
-        const ktAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}/manager_key`;
-        nockOb
-            .get(ktAccountMangerUrl)
-            .reply(200, managerKeyMockList[0]);
-
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}`).reply(200, accountMockList[0]);
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}`).reply(200, accountMockList[1]);
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}`).reply(200, accountMockList[2]);
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}/manager_key`).reply(200, managerKeyMockList[0]);
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}/manager_key`).reply(200, managerKeyMockList[1]);
+        nockOb.get(`/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}/manager_key`).reply(200, managerKeyMockList[0]);
+        nockOb.get(`/chains/main/blocks/head/context/contracts/${keyStore.publicKeyHash}/counter`).reply(200, "10");
+        nockOb.get(`/chains/main/blocks/head/context/contracts/${ktAddress}/counter`).reply(200, "11");
     }));
-    describe('Some Base Operations Test', () => {
+
+    describe('Test Tezos node interactions', () => {
         before(async () => {
             const activation = {
                 kind: 'activate_account',
@@ -91,7 +72,7 @@ describe('Tezos Operations Test', () => {
         });
 
         it("correctly encode operations locally", () => {
-            let messages: any = [];
+            let messages: StackableOperation[] = [];
             messages.push({
                 kind: "reveal",
                 source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
@@ -100,7 +81,7 @@ describe('Tezos Operations Test', () => {
                 storage_limit: "0",
                 gas_limit: "10000",
                 public_key: "edpkuDuXgPVJi3YK2GKL6avAK3GyjqyvpJjG9gTY5r2y72R7Teo65i"
-            } as Operation);
+            } as Reveal);
             messages.push({
                 kind: "transaction",
                 source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
@@ -110,7 +91,7 @@ describe('Tezos Operations Test', () => {
                 gas_limit: "10002",
                 amount: "10000000",
                 destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
-            } as Operation);
+            } as Transaction);
             messages.push({
                 kind: "origination",
                 source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
@@ -118,12 +99,13 @@ describe('Tezos Operations Test', () => {
                 counter: "9",
                 storage_limit: "10001",
                 gas_limit: "10002",
-                manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
                 balance: "10003",
-                spendable: true,
-                delegatable: true,
-                delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
-            } as Operation);
+                delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
+                script: {
+                    code: [ { "prim": "parameter", "args": [ { "prim": "string" } ] }, { "prim": "storage", "args": [ { "prim":"string" } ] }, { "prim": "code", "args": [ [ { "prim":"CAR" }, { "prim":"NIL", "args":[ { "prim":"operation" } ] }, { "prim":"PAIR" } ] ] } ],
+                    storage: { "string": "Sample" }
+                }
+            } as Origination);
             messages.push({
                 kind: "delegation",
                 source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
@@ -132,11 +114,11 @@ describe('Tezos Operations Test', () => {
                 storage_limit: "10001",
                 gas_limit: "10002",
                 delegate: 'tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5'
-            } as Operation);
+            } as Delegation);
 
             const result = TezosNodeWriter.forgeOperations(blockHead.hash, messages);
 
-            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c608000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b40009000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce89000a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4');
+            expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f6b0069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c66c0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b4006d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934eff0069ef8fb5d47d8a4321c94576a2316a632be8ce890000001c02000000170500036805010368050202000000080316053d036d03420000000b010000000653616d706c656e0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4');
         });
 
         it("correctly encode ballot locally", () => {
@@ -236,16 +218,7 @@ describe('Tezos Operations Test', () => {
             const bakerAddress = 'tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G';
             const amount = 10000000;
             const fee = 100000;
-            const originationResult = await TezosNodeWriter.sendAccountOriginationOperation(
-                'http://conseil.server',
-                keyStore,
-                amount,
-                bakerAddress,
-                true,
-                true,
-                fee,
-                ''
-            );
+            const originationResult = await TezosNodeWriter.sendAccountOriginationOperation('http://conseil.server', keyStore, amount, bakerAddress, fee, '');
             expect(originationResult).to.exist;
             expect(originationResult.operationGroupID).to.be.a('string');
         }));
@@ -259,12 +232,14 @@ describe('Tezos Operations Test', () => {
             expect(delegationResult.operationGroupID).to.be.a('string');
         }));
 
-        it('sendContractInvocationOperation', mochaAsync(async () => {
-            let result = await TezosNodeWriter.sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000);
+        it('Ping contract', mochaAsync(async () => {
+            let result = await TezosNodeWriter.sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, undefined, undefined);
             expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
+        }));
 
-            //result = await TezosNodeWriter.sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'Right (Left Unit)');
-            //expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
+        it('Invoke contract', mochaAsync(async () => {
+            let result = await TezosNodeWriter.sendContractInvocationOperation('http://conseil.server', keyStore, 'KT1WvyJ1qUrWzShA2T6QeL7AW4DR6GspUimM', 10000, 1000, '', 1000, 1000, 'SomeEntryPoint', 'Right (Left Unit)', TezosParameterFormat.Michelson);
+            expect(result.operationGroupID).to.equal('opBpn8Uzt1c67jw7a3H5nDkpryDkVF1W9SmiWBHtnnofg8TL7LA');
         }));
     });
 });

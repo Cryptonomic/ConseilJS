@@ -1,5 +1,3 @@
-// BLa9pmsQ5Hf6E9MSqVTHp65wNchXe8WjsGgjKeutAwmeQrd9YsT   --- manager not revealed
-// BLNB68pLiAgXiJHXNUK7CDKRnCx1TqzaNGsRXsASg38wNueb8bx   --- manager reveal
 export const blockHead = {
   "protocol": "PsddFKi32cMJ2qPjf43Qv5GDWLDPZb3T3bF6fLKiF5HtvHNU7aP",
   "chain_id": "NetXgtSLGNJvNye",
@@ -265,6 +263,7 @@ export const injectOpList = [
   'ooZxQcA43uh8bFbY5PJfrTadTZ38RZ6PP3iDc2jF6aJFQSLXhvF',
   'oooidxFJKy4iEtmCtZtYg2DibL7A5eapjYTtZ4Pf9D7THSyA5C1'
 ];
+
 export const accountMockList = [
   {
     manager: 'tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP',
@@ -293,8 +292,7 @@ export const managerKeyMockList = [
   {
     "manager":  "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
     "key":  "edpku88EkY42ZKGTkiWTLkz8Th977n82AJWaZrmyBcrQ1dzo26aWKp"
-  },
-  {
+  }, {
     "manager":  "tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa"
   }
 ];
