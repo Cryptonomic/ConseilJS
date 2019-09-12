@@ -31,7 +31,7 @@ export interface Transaction {
     storage_limit: string,
     amount: string,
     destination: string,
-    parameters?: string; // TODO: move to ContractInvocation
+    parameters?: ContractParameters | string;
 }
 
 export interface Delegation {
@@ -66,17 +66,14 @@ export interface Origination {
     spendable?: boolean; // deprecated in P005
     delegatable?: boolean; // deprecated in P005
     delegate?: string;
-    script?: object; // TODO: ContractOrigination
+    script?: any;
 }
 
-export interface ContractOrigination extends Origination {
-    script: object;
+export interface ContractParameters {
+    entrypoint: string;
+    value: any;
 }
 
-export interface ContractInvocation extends Transaction {
-    parameters: string;
-}
+export type Operation = Activation | Ballot | Transaction | Delegation | Reveal | Origination;
 
-export type Operation = Activation | Ballot | Transaction | ContractInvocation | Delegation | Reveal | Origination | ContractOrigination;
-
-export type StackableOperation =  Transaction | ContractInvocation | Delegation | Origination | ContractOrigination;
+export type StackableOperation =  Transaction | Delegation | Origination;

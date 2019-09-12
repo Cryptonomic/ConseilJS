@@ -1,6 +1,6 @@
 import { TezosMessageUtils } from "./TezosMessageUtil";
 import { TezosLanguageUtil } from "./TezosLanguageUtil";
-import { Activation, Ballot, BallotVote, Transaction, Delegation, Origination, Reveal, Operation } from "../../types/tezos/TezosP2PMessageTypes";
+import { Activation, Ballot, BallotVote, Transaction, Delegation, Origination, Reveal, Operation, ContractParameters } from "../../types/tezos/TezosP2PMessageTypes";
 
 const operationTypes: Map<number, string> = new Map([
     [0, 'endorsement'],
@@ -325,14 +325,46 @@ export namespace TezosMessageCodec {
 
         let hasParameters = TezosMessageUtils.readBoolean(transactionMessage.substring(fieldoffset, fieldoffset + 2));
         fieldoffset += 2;
-        let parameters = '';
-        if (hasParameters) {
+        let parameters: string | ContractParameters = '';
+
+        if (hasParameters && parseInt(hexOperationType, 16) < 100) { // pre protocol 5
             const paramLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 8), 16);
             fieldoffset += 8;
             const codeEnvelope = TezosLanguageUtil.hexToMicheline(transactionMessage.substring(fieldoffset));
             parameters = codeEnvelope.code;
             if (codeEnvelope.consumed !== paramLength * 2) { throw new Error('Failed to parse transaction parameters: length mismatch'); }
             fieldoffset += paramLength * 2;
+        } else if (hasParameters && parseInt(hexOperationType, 16) > 100) { // post protocol 5
+            const entrypointType = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 2), 16);
+            fieldoffset += 2;
+
+            let entrypointName = ''
+            if (entrypointType === 255) {
+                const endpointLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 2), 16);
+                fieldoffset += 2;
+
+                entrypointName = Buffer.from(transactionMessage.substring(fieldoffset, fieldoffset + endpointLength * 2), 'hex').toString();
+                fieldoffset += endpointLength * 2;
+            } else if (entrypointType === 0) {
+                entrypointName = 'default';
+            } else if (entrypointType === 1) {
+                entrypointName = 'root';
+            } else if (entrypointType === 2) {
+                entrypointName = 'do';
+            } else if (entrypointType === 3) {
+                entrypointName = 'set_delegate';
+            } else if (entrypointType === 4) {
+                entrypointName = 'remove_delegate';
+            }
+
+            const paramLength = parseInt(transactionMessage.substring(fieldoffset, fieldoffset + 8), 16);
+            fieldoffset += 8;
+            const codeEnvelope = TezosLanguageUtil.hexToMicheline(transactionMessage.substring(fieldoffset));
+            const endpointParameters = codeEnvelope.code;
+            if (codeEnvelope.consumed !== paramLength * 2) { throw new Error('Failed to parse transaction parameters: length mismatch'); }
+            fieldoffset += paramLength * 2;
+
+            parameters = { entrypoint: entrypointName, value: endpointParameters };
         }
 
         let next;
@@ -365,6 +397,8 @@ export namespace TezosMessageCodec {
     /**
      * Encodes a Transaction operation.
      * 
+     * Warning, `Operation.parameters` is expected to be of type `ContractParameters`. Furthermore, `ContractParameters.entrypoint` is expected to exclude the leading '%'. Finally P005 requires that the entry point name be no more than 31 chars.
+     * 
      * @param {Operation} transaction 
      * @returns {string}
      * 
@@ -383,9 +417,28 @@ export namespace TezosMessageCodec {
         hex += TezosMessageUtils.writeAddress(transaction.destination);
 
         if (!!transaction.parameters) {
-            const code = TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(transaction.parameters));
+            const composite = transaction.parameters as ContractParameters;
+            const code = TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(composite.value));
             const result = TezosLanguageUtil.translateMichelineToHex(code);
-            hex += 'ff' + ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+            hex += 'ff';
+
+            if (composite.entrypoint === 'default') {
+                hex += '00';
+            } else if (composite.entrypoint === 'root') {
+                hex += '01';
+            } else if (composite.entrypoint === 'do') {
+                hex += '02';
+            } else if (composite.entrypoint === 'set_delegate') {
+                hex += '03';
+            } else if (composite.entrypoint === 'remove_delegate') {
+                hex += '04';
+            } else {
+                hex += 'ff'
+                    + ('0' + (composite.entrypoint.length / 2).toString(16)).slice(-2)
+                    + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+            }
+
+            hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
         } else {
             hex += '00';
         }

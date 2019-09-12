@@ -31,7 +31,7 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].counter).to.equal('3');
     });
 
-    it("correctly parse a contract invocation transaction", () => {
+    it("correctly parse a pre-P005 contract invocation", () => {
         const result = TezosMessageCodec.parseOperationGroup("e943f55f402cc95cc8786190cb83a1409a8f338248302add11aaf79bdf7ba12e080000cbc60b41535ff0474fbdacc4e3d658eed9707ebdd08603a6850280b518e0d40300013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff000000330505050805080508050501000000244b5431474532415a68617a52784773416a52566b516363486342327076414e5851576437");
 
         expect(result[0].kind).to.equal("transaction");
@@ -45,10 +45,23 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Left", "args": [ { "string": "KT1GE2AZhazRxGsAjRVkQccHcB2pvANXQWd7" } ] } ] } ] } ] } ] }');
     });
 
-    it("parse contract invocation transaction", () => {
-        const result = TezosMessageCodec.parseTransaction("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f0800000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a0a013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000405050306");
+    it("correctly parse a P005 'default' contract invocation", () => {
+        const result = TezosMessageCodec.parseOperationGroup("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f6c000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a00013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000009020000000405050306");
 
-        expect(result.operation.parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "None" } ] }');
+        expect(result[0].kind).to.equal("transaction");
+        expect(result[0].source).to.equal("tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP");
+        expect(result[0].parameters.entrypoint).to.equal('default');
+        expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
+    });
+
+
+    it("correctly parse a P005 non-standard contract invocation", () => {
+        const result = TezosMessageCodec.parseOperationGroup("011ac5e07d5772f15fb08bcc5a58fa1120cb4a81cc2f3411a598729d9045f81e6c000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a00013cbecfc99420ac2c6898e7032aaa447966f8ce6600ffff0b63727970746f6e6f6d696300000009020000000405050306");
+
+        expect(result[0].kind).to.equal("transaction");
+        expect(result[0].source).to.equal("tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP");
+        expect(result[0].parameters.entrypoint).to.equal('cryptonomic');
+        expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
     });
 
     it("correctly encode a transaction operation", () => {
@@ -65,6 +78,18 @@ describe("Tezos P2P message decoder test suite", () => {
 
         const result = TezosMessageCodec.encodeTransaction(transaction);
         expect(result).to.equal("6c0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+    });
+
+    it("correctly encode a 'root' contract invocation", () => {
+        // TODO
+    });
+
+    it("correctly encode a non-standard contract invocation", () => {
+        // TODO
+    });
+
+    it("correctly encode a blank contract invocation", () => {
+        // TODO
     });
 
     it("correctly parse a reveal", () => {
