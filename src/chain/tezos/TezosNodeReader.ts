@@ -141,6 +141,6 @@ export namespace TezosNodeReader {
         const blockHead = await getBlockHead(server);
         const managerKey = await getAccountManagerForBlock(server, blockHead.hash, accountHash);
 
-        return managerKey.key != null;
+        return managerKey != null;
     }
 }

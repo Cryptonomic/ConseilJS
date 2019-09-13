@@ -92,7 +92,7 @@ export namespace TezosNodeWriter {
     // TODO: move to an appropriate place
     export function forgeOperations(branch: string, operations: TezosP2PMessageTypes.Operation[]): string {
         log.debug('TezosNodeWriter.forgeOperations:');
-        log.debug(operations);
+        log.debug(JSON.stringify(operations));
         let encoded = TezosMessageUtils.writeBranch(branch);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
 
@@ -111,7 +111,7 @@ export namespace TezosNodeWriter {
      */
     export async function forgeOperationsRemotely(server: string, blockHead: TezosRPCTypes.TezosBlock, operations: TezosP2PMessageTypes.Operation[], chainid: string = 'main'): Promise<string> {
         log.debug('TezosNodeWriter.forgeOperations:');
-        log.debug(operations);
+        log.debug(JSON.stringify(operations));
         log.warn('forgeOperationsRemotely() is not intrinsically trustless');
         const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/forge/operations`, { branch: blockHead.hash, contents: operations });
         const forgedOperation = await response.text();
@@ -349,7 +349,7 @@ export namespace TezosNodeWriter {
             fee: fee.toString(),
             counter: counter.toString(),
             storage_limit: TezosConstants.DefaultDelegationStorageLimit + '',
-            gas_limit: TezosConstants.DefaultDelegationStorageLimit + '',
+            gas_limit: TezosConstants.DefaultDelegationGasLimit + '',
             delegate: delegate
         }
         const operations = await appendRevealOperation(server, keyStore, delegator, counter - 1, [delegation]);
@@ -424,7 +424,7 @@ export namespace TezosNodeWriter {
             storage_limit: storage_limit.toString(),
             balance: amount.toString(),
             delegate: delegate,
-            script: code ? { code, storage } : undefined
+            script: { code: parsedCode, storage: parsedStorage }
         };
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
 
@@ -437,7 +437,7 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} to Contract address
-     * @param {number} amount Initial funding amount of new account
+     * @param {number} amount Amount to transfer along with the invocation
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
@@ -479,6 +479,8 @@ export namespace TezosNodeWriter {
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(parameters) };
             }
+        } else if (entrypoint !== undefined) {
+            transaction.parameters = { entrypoint: entrypoint, value: [ ] };
         }
 
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
@@ -495,9 +497,10 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
      * @param {string} gas_limit Gas limit
+     * @param {string} entrypoint Contract entry point, or `undefined`
      */
-    export async function sendContractPing(server: string, keyStore: KeyStore, to: string, fee: number, derivationPath: string, storageLimit: number, gasLimit: number) {
-        return sendContractInvocationOperation(server, keyStore, to, 0, fee, derivationPath, storageLimit, gasLimit, undefined, undefined);
+    export async function sendContractPing(server: string, keyStore: KeyStore, to: string, fee: number, derivationPath: string, storageLimit: number, gasLimit: number, entrypoint: string | undefined) {
+        return sendContractInvocationOperation(server, keyStore, to, 0, fee, derivationPath, storageLimit, gasLimit, entrypoint, undefined);
     }
 
     /**
@@ -532,13 +535,12 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} activationCode Activation code provided by fundraiser process
-     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export function sendIdentityActivationOperation(server: string, keyStore: KeyStore, activationCode: string, derivationPath: string) {
+    export function sendIdentityActivationOperation(server: string, keyStore: KeyStore, activationCode: string) {
         const activation = { kind: 'activate_account', pkh: keyStore.publicKeyHash, secret: activationCode };
 
-        return sendOperation(server, [activation], keyStore, derivationPath);
+        return sendOperation(server, [activation], keyStore, '');
     }
 
     /**
@@ -553,9 +555,10 @@ export namespace TezosNodeWriter {
      */
     export async function testOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', chainid: string = 'main'): Promise<number[]> {
         const blockHead = await TezosNodeReader.getBlockHead(server);
-        const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
-        const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
+        const forgedOpGroup = forgeOperations(blockHead.hash, operations);
+        const signedOpGroup = await signOperationGroup(forgedOpGroup, keyStore, derivationPath);
         const response = await performBytePostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, signedOpGroup.bytes);
+        //const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { branch: blockHead.hash, contents: [... operations], signature: signedOpGroup.signature});
         const responseText = await response.text();
 
         const error = parseRPCError(responseText);
