@@ -92,7 +92,7 @@ describe('TezosNodeWriter integration test suite', () => {
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });*/
 
-    /*it('Estimate transaction gas cost', async () => {
+    it('Estimate transaction gas cost', async () => {
         const counter = await TezosNodeReader.getCounterForAccount(tezosServer, keys.publicKeyHash) + 1;
 
         const transaction: TezosP2PMessageTypes.Transaction = {
@@ -115,7 +115,7 @@ describe('TezosNodeWriter integration test suite', () => {
         expect(result.length).to.equal(2);
         expect(result[0]).to.be.greaterThan(10000);
         expect(result[1]).to.be.greaterThan(-1);
-    });*/
+    });
 
     /*it('Send a batch of transactions', async () => {
         const destinationA = (await TezosWalletUtil.restoreIdentityWithSecretKey('edskRfEbB2JJCffvCFSVCYvKhz2bdp97esBsuUuNLQYZkZu9gFRU3GbcGBs8zRyoJVYh1pkyWRZfHbASuWzrPLDx9tnRwCeUqZ')).publicKeyHash;

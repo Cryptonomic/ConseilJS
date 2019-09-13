@@ -44,14 +44,6 @@ export namespace TezosNodeWriter {
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
 
-    function performBytePostRequest(server: string, command: string, payload: Buffer): Promise<Response> {
-        const url = `${server}/${command}`;
-
-        log.debug(`TezosNodeWriter.performPostRequest sending bytes\n->\n${url}`);
-
-        return fetch(url, { method: 'post', body: payload, headers: { 'content-type': 'application/octet-stream' } });
-    }
-
     /**
      * Signs a forged operation
      * @param {string} forgedOperation Forged operation group returned by the Tezos client (as a hex string)
@@ -557,8 +549,7 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOpGroup = forgeOperations(blockHead.hash, operations);
         const signedOpGroup = await signOperationGroup(forgedOpGroup, keyStore, derivationPath);
-        const response = await performBytePostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, signedOpGroup.bytes);
-        //const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { branch: blockHead.hash, contents: [... operations], signature: signedOpGroup.signature});
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: blockHead.chain_id, operation: { branch: blockHead.hash, contents: [... operations], signature: signedOpGroup.signature } });
         const responseText = await response.text();
 
         const error = parseRPCError(responseText);
