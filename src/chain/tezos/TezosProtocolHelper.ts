@@ -71,7 +71,7 @@ export namespace TezosProtocolHelper {
     }
 
     /**
-     * Allows deposit of funds from pre-protocol 005 KT1 delegated accounts into what used be referred to as the manager account.
+     * Allows deposit of funds into a pre-protocol 005 KT1 delegated accounts.
      * 
      * @param server Destination Tezos node.
      * @param keyStore Key pair to sign the transaction.
