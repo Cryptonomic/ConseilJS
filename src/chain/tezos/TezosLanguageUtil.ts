@@ -1,5 +1,6 @@
 import * as Micheline from './lexer/Micheline';
 import * as Michelson from './lexer/Michelson';
+import * as MichelsonParameters from './lexer/MichelsonParameters';
 import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
@@ -157,6 +158,16 @@ export namespace TezosLanguageUtil {
      */
     export function translateMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+
+        return parser.results[0];
+    }
+
+    /**
+     * Converts Michelson to Micheline and wraps the result in a script property.
+     */
+    export function translateParameterMichelsonToMicheline(code: string): string {
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
 
         return parser.results[0];

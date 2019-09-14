@@ -84,13 +84,29 @@ describe('TezosNodeWriter integration test suite', () => {
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
-    /*it('Invoke a contract with a complex Michelson parameter', async () => {
+    it('Invoke a contract with a complex Michelson parameter, blank entry point', async () => {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosServer, keys, contractAddress, 10000, 20000, '', 10000, 100000, '', '(Pair "message" (Pair "edsigtt7VBCeJjU9XtdCCPcV8VL3xe1XQHehk9Kg78Pxs3VZGXgHGGfktB71jUrK51tiJNybhUQidxxN48W4XWuRjjQwFJ17M1e" "edpkuqoemi1z8wjKxYCMvvshpFU7f71RUXhRyKudwLPBAdhqyj9epe"))', TezosTypes.TezosParameterFormat.Michelson);
         expect(nodeResult["operationGroupID"]).to.exist;
 
         const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
-    });*/
+    });
+
+    it('Invoke a contract with a Michelson lambda parameter, custom entry point', async () => {
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosServer, keys, contractAddress, 10000, 20000, '', 10000, 100000, '', '{ DROP ; NIL operation ; PUSH key_hash "tz1aWXP237BLwNHJcCD4b3DutCevhqq2T1Z9" ; SOME ; SET_DELEGATE ; CONS }', TezosTypes.TezosParameterFormat.MichelsonLambda);
+        expect(nodeResult["operationGroupID"]).to.exist;
+
+        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
+    });
+
+    it('Ping a contract on a blank entry point', async () => {
+        const nodeResult = await TezosNodeWriter.sendContractPing(tezosServer, keys, contractAddress, 20000, '', 10000, 100000, '');
+        expect(nodeResult["operationGroupID"]).to.exist;
+
+        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
+    });
 
     it('Estimate transaction gas cost', async () => {
         const counter = await TezosNodeReader.getCounterForAccount(tezosServer, keys.publicKeyHash) + 1;

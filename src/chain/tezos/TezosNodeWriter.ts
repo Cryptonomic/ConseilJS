@@ -465,10 +465,13 @@ export namespace TezosNodeWriter {
 
         if (parameters !== undefined) {
             if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
-                const michelineParams = TezosLanguageUtil.translateMichelsonToMicheline(parameters);
+                const michelineParams = TezosLanguageUtil.translateParameterMichelsonToMicheline(parameters);
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineParams) };
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(parameters) };
+            } else if (parameterFormat === TezosTypes.TezosParameterFormat.MichelsonLambda) {
+                const michelineLambda = TezosLanguageUtil.translateMichelsonToMicheline(`code ${parameters}`);
+                transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineLambda) };
             }
         } else if (entrypoint !== undefined) {
             transaction.parameters = { entrypoint: entrypoint, value: [ ] };
