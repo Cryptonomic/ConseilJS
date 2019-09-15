@@ -164,7 +164,7 @@ export namespace TezosLanguageUtil {
     }
 
     /**
-     * Converts Michelson to Micheline and wraps the result in a script property.
+     * Converts simple (read non-lambda) Michelson parameters to Micheline and wraps the result in a script property.
      */
     export function translateParameterMichelsonToMicheline(code: string): string {
         const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
@@ -291,7 +291,8 @@ export namespace TezosLanguageUtil {
             .replace(/\[\[/g, '[ [')
             .replace(/\]\]/g, '] ]')
             .replace(/\["/g, '\[ "')
-            .replace(/"\]/g, '" \]');
+            .replace(/"\]/g, '" \]')
+            .trim();
     }
 
     interface codeEnvelope {

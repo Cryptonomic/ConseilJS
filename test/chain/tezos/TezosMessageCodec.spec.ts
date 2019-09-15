@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../../../src/chain/tezos/TezosMessageCodec";
-import { Activation, Ballot, BallotVote, Operation, Reveal, Origination, Transaction } from "../../../src/types/tezos/TezosP2PMessageTypes";
+import { Activation, Ballot, BallotVote, Reveal, Origination, Transaction, Delegation } from "../../../src/types/tezos/TezosP2PMessageTypes";
 import { OperationKindType } from "../../../src/types/tezos/TezosChainTypes";
 import "mocha";
 
@@ -65,7 +65,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a transaction operation", () => {
-        const transaction: Operation = {
+        const transaction: Transaction = {
             kind: "transaction",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -103,7 +103,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a reveal operation", () => {
-        const reveal: Operation = {
+        const reveal: Reveal = {
             kind: "reveal",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "0",
@@ -118,7 +118,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a contract origination operation", () => {
-        let origination: Operation = {
+        let origination: Origination = {
             kind: "origination",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -238,7 +238,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a delegation operation", () => {
-        let delegation: Operation = {
+        let delegation: Delegation = {
             kind: "delegation",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -346,7 +346,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("fail delegation encoding errors", () => {
-        const delegation: Operation = {
+        const delegation: Delegation = {
             kind: "c0ff33",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",

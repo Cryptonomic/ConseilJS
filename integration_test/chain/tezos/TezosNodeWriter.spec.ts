@@ -40,7 +40,7 @@ describe('TezosNodeWriter integration test suite', () => {
     });
 
     it('Set implicit account delegate', async () => {
-        const nodeResult = await TezosNodeWriter.sendDelegationOperation(tezosServer, keys, keys.publicKeyHash, bakerAddress, 10000);
+        const nodeResult = await TezosNodeWriter.sendDelegationOperation(tezosServer, keys, bakerAddress, 10000);
         expect(nodeResult["operationGroupID"]).to.exist;
 
         const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
