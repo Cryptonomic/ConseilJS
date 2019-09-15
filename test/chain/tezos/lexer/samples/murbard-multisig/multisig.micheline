@@ -1,6 +1,4 @@
-{  
-   "script":[  
-      {  
+[ {  
          "prim":"parameter",
          "args":[  
             {  
@@ -707,17 +705,4 @@
                   ]
                },
                {  
-                  "prim":"PAIR"
-               }
-            ]
-         ]
-      }
-   ],
-   "storage":{  
-      "int":"1000"
-   },
-   "input":{  
-      "prim":"Unit"
-   },
-   "amount":"50000"
-}
+                  "prim":"PAIR" } ] ] } ]

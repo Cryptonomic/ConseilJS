@@ -1,5 +1,4 @@
-{ "script":
-  [ { "prim": "parameter",
+[ { "prim": "parameter",
       "args":
       [ { "prim": "or",
           "args":
@@ -48,4 +47,4 @@
               [ { "prim": "DROP" },
                 { "prim": "NIL",
                   "args": [ { "prim": "operation" } ] },
-                { "prim": "PAIR" } ] ] } ] ] } ] }
+                { "prim": "PAIR" } ] ] } ] ] } ]

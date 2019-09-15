@@ -323,6 +323,7 @@ export var ParserRules: NearleyRule[] = [
     {"name": "any", "symbols": ["staticObject"], "postprocess": id},
     {"name": "any", "symbols": ["anyArray"], "postprocess": id},
     {"name": "anyArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": function(d) { return '0200000000'; }},
+    {"name": "anyArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": function(d) { return '0200000000'; }},
     {"name": "anyArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [(lexer.has("comma") ? {type: "comma"} : comma)], "postprocess": id},
     {"name": "anyArray$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "anyArray$ebnf$1$subexpression$1$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},

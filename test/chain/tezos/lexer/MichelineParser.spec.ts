@@ -6,6 +6,7 @@ import * as nearley from 'nearley';
 import * as fs from 'fs';
 import * as path from 'path';
 import glob from 'glob';
+
 import { TezosLanguageUtil } from '../../../../src/chain/tezos/TezosLanguageUtil';
 
 describe('Micheline binary encoding tests', () => {
