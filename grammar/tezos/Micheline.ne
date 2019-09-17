@@ -39,7 +39,6 @@ primAny -> primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn 
 
 any -> primAny {% id %} | staticObject {% id %} | anyArray {% id %}
 anyArray ->  %lbracket %rbracket {% function(d) { return '0200000000'; } %}
-        | %lbracket %_ %rbracket {% function(d) { return '0200000000'; } %}
         | %lbracket %_ (any %comma:? %_:?):+ %_ %rbracket {% staticArrayToHex %}
 
 @{%
