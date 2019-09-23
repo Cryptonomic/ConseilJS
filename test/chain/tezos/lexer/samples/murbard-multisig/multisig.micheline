@@ -1,5 +1,6 @@
-[ {  
-         "prim":"parameter",
+[
+    {  
+      "prim":"parameter",
          "args":[  
             {  
                "prim":"pair",
@@ -112,7 +113,7 @@
             }
          ]
       },
-      {  
+    {
          "prim":"storage",
          "args":[  
             {  
@@ -150,7 +151,7 @@
             }
          ]
       },
-      {  
+    {  
          "prim":"code",
          "args":[  
             [  
