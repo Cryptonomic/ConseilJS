@@ -90,7 +90,7 @@ describe('Micheline binary encoding complex tests', () => {
     
 });
 
-describe('Micheline to hex official contract tests', async () => {
+describe('Micheline to hex contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
     let samples: string[] = glob.sync(`${contractSampleRoot}/**/*.micheline`);
 

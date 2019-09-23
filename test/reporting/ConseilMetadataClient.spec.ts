@@ -6,6 +6,7 @@ import fetch from 'node-fetch';
 import FetchSelector from '../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
+import { ConseilServerInfo } from '../../src/types/conseil/QueryTypes';
 import {ConseilMetadataClient} from '../../src/reporting/ConseilMetadataClient'
 
 import mochaAsync from '../../test/mochaTestHelper';
@@ -14,12 +15,14 @@ import {
     platformsResponse, networksResponse, entityResponse, blockAttributeResponse, accountAttributeValueResponse, accountAttributePrefixedValueResponse, errorResponse
 } from './ConseilMetadataClient.responses';
 
+const mockConseilServer: ConseilServerInfo = { url: 'http://conseil.server', apiKey: 'c0ffee', network: 'alphanet' };
+
 describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
     it('retrieve list of available platforms', mochaAsync(async () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/platforms').reply(200, platformsResponse);
 
-        const result = await ConseilMetadataClient.getPlatforms({ url: 'http://conseil.server', apiKey: 'c0ffee' });
+        const result = await ConseilMetadataClient.getPlatforms(mockConseilServer);
 
         expect(result.map((v) => { return v.name})).to.contain('tezos');
     }));
@@ -28,7 +31,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/networks').reply(200, networksResponse);
 
-        const result = await ConseilMetadataClient.getNetworks({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos');
+        const result = await ConseilMetadataClient.getNetworks(mockConseilServer, 'tezos');
 
         expect(result[0].platform).to.equal('tezos')
     }));
@@ -37,7 +40,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/alphanet/entities').reply(200, entityResponse);
 
-        const result = await ConseilMetadataClient.getEntities({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet');
+        const result = await ConseilMetadataClient.getEntities(mockConseilServer, 'tezos', 'alphanet');
 
         expect(result.length).to.greaterThan(1);
     }));
@@ -46,7 +49,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/alphanet/blocks/attributes').reply(200, blockAttributeResponse);
 
-        const result = await ConseilMetadataClient.getAttributes({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet', 'blocks');
+        const result = await ConseilMetadataClient.getAttributes(mockConseilServer, 'tezos', 'alphanet', 'blocks');
 
         expect(result.length).to.greaterThan(1);
     }));
@@ -55,7 +58,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/alphanet/accounts/spendable').reply(200, accountAttributeValueResponse);
 
-        const result = await ConseilMetadataClient.getAttributeValues({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet', 'accounts', 'spendable');
+        const result = await ConseilMetadataClient.getAttributeValues(mockConseilServer, 'tezos', 'alphanet', 'accounts', 'spendable');
 
         expect(result.length).to.equal(2);
     }));
@@ -64,7 +67,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/alphanet/accounts/account_id/tz3').reply(200, accountAttributePrefixedValueResponse);
 
-        const result = await ConseilMetadataClient.getAttributeValuesForPrefix({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet', 'accounts', 'account_id', 'tz3');
+        const result = await ConseilMetadataClient.getAttributeValuesForPrefix(mockConseilServer, 'tezos', 'alphanet', 'accounts', 'account_id', 'tz3');
 
         expect(result.length).to.be.greaterThan(2);
     }));
@@ -73,7 +76,7 @@ describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.get('/v2/metadata/tezos/alphanet/accounts/account_id/tz3').reply(200, errorResponse);
 
-        const result = await ConseilMetadataClient.getAttributeValuesForPrefix({ url: 'http://conseil.server', apiKey: 'c0ffee' }, 'tezos', 'alphanet', 'accounts', 'account_id', 'tz3');
+        const result = await ConseilMetadataClient.getAttributeValuesForPrefix(mockConseilServer, 'tezos', 'alphanet', 'accounts', 'account_id', 'tz3');
 
         expect(result).to.be.undefined;
     }));

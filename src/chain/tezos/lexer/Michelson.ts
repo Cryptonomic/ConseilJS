@@ -415,6 +415,7 @@ const lexer = moo.compile({
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
      * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
+     * Also: (option (mutez))
      */
     const singleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[(4 + ((d.length === 7) ? 0 : 2))]} ] }`;
 

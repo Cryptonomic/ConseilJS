@@ -58,7 +58,12 @@ export namespace TezosNodeWriter {
         let opSignature: Buffer;
         switch (keyStore.storeType) {
             case StoreType.Hardware:
-                opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                try {
+                    opSignature = await LedgerUtils.signTezosOperation(derivationPath, watermarkedForgedOperationBytesHex);
+                } catch (err) {
+                    log.error(`TezosNodeWriter.signOperationGroup could not communicate with device: ${JSON.stringify(err)}`);
+                    throw new Error("Failed to connect to the Ledger device");
+                }
                 break;
             default:
                 const hashedWatermarkedOpBytes = CryptoUtils.simpleHash(Buffer.from(watermarkedForgedOperationBytesHex, 'hex'), 32);

@@ -292,7 +292,7 @@ export namespace TezosLanguageUtil {
             .replace(/\]\]/g, '] ]')
             .replace(/\["/g, '\[ "')
             .replace(/"\]/g, '" \]')
-            .replace(/\[ +\]/g, '"\[\]')
+            .replace(/\[ +\]/g, '\[\]')
             .trim();
     }
 
