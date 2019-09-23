@@ -8,9 +8,8 @@ FetchSelector.setFetch(fetch);
 import { ConseilQueryBuilder } from "../../src/reporting/ConseilQueryBuilder";
 import { ConseilOperator, ConseilSortDirection, ConseilOutput } from "../../src/types/conseil/QueryTypes"
 import { ConseilDataClient } from '../../src/reporting/ConseilDataClient'
-import { servers } from "../servers";
 
-const conseilServer = { url: servers.conseilServer, apiKey: servers.conseilApiKey };
+import { conseilServer } from '../TestAssets.zeronet';
 
 describe('ConseilDataClient integration test suite', () => {
     it('Extract result set as csv', async () => {
