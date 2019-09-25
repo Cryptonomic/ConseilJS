@@ -150,6 +150,29 @@ export namespace TezosMessageUtils {
     }
 
     /**
+     * Takes a bounded hex string that is known to contain a Dune address and decodes it. Supports implicit dn1, dn2, dn3 accounts.
+     * An address is a public key hash of the account.
+     * 
+     * @param {string} hex Encoded message part.
+     */
+    export function readDuneAddress(hex: string): string {
+        if (hex.length !== 44 && hex.length !== 42) { throw new Error("Incorrect hex length to parse an address"); }
+
+        let implicitHint = hex.length === 44 ? hex.substring(0, 4) : "00" + hex.substring(0, 2);
+        let implicitPrefixLength = hex.length === 44 ? 4 : 2;
+
+        if (implicitHint === "0000") { // dn1
+            return base58check.encode(Buffer.from("04b101" + hex.substring(implicitPrefixLength), "hex"));
+        } else if (implicitHint === "0001") { // dn2
+            return base58check.encode(Buffer.from("04b103" + hex.substring(implicitPrefixLength), "hex"));
+        } else if (implicitHint === "0002") { // dn3
+            return base58check.encode(Buffer.from("04b106" + hex.substring(implicitPrefixLength), "hex"));
+        } else {
+            throw new Error("Unrecognized address type");
+        }
+    }
+
+    /**
      * Reads an address value from binary and decodes it into a Base58-check address without a prefix.
      * 
      * @param {Buffer | Uint8Array} b Bytes containing address.
@@ -166,6 +189,12 @@ export namespace TezosMessageUtils {
             return readAddress(`0002${address.toString('hex')}`);
         } else if (hint === 'kt1') {
             return readAddress(`01${address.toString('hex')}00`);
+        } else if (hint === 'dn1') {
+            return readDuneAddress(`0000${address.toString('hex')}`);
+        } else if (hint === 'dn2') {
+            return readDuneAddress(`0001${address.toString('hex')}`);
+        } else if (hint === 'dn3') {
+            return readDuneAddress(`0002${address.toString('hex')}`);
         } else {
             throw new Error(`Unrecognized address hint, '${hint}'`);
         }
@@ -179,11 +208,11 @@ export namespace TezosMessageUtils {
      */
     export function writeAddress(address: string): string {
         const hex = base58check.decode(address).slice(3).toString("hex");
-        if (address.startsWith("tz1")) {
+        if (address.startsWith("tz1") || address.startsWith("dn1")) {
             return "0000" + hex;
-        } else if (address.startsWith("tz2")) {
+        } else if (address.startsWith("tz2") || address.startsWith("dn2")) {
             return "0001" + hex;
-        } else if (address.startsWith("tz3")) {
+        } else if (address.startsWith("tz3") || address.startsWith("dn3")) {
             return "0002" + hex;
         } else if (address.startsWith("KT1")) {
             return "01" + hex + "00";
