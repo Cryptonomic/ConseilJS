@@ -583,7 +583,7 @@ async function deployContract() {
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
     const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'alphanet', groupid, 5);
-    console.log(`Originated contract at ${conseilResult[0].originated_contracts}`);
+    console.log(`Originated contract at ${conseilResult[0].originated_accounts}`);
 }
 
 deployContract();
