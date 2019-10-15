@@ -152,6 +152,8 @@ export namespace TezosMessageUtils {
     /**
      * Reads an address value from binary and decodes it into a Base58-check address without a prefix.
      * 
+     * This is data type is referred to as `$contract_id` in the official documentation.
+     * 
      * @param {Buffer | Uint8Array} b Bytes containing address.
      * @param hint One of: 'kt1', 'tz1', 'tz2', 'tz3'.
      */
@@ -173,6 +175,8 @@ export namespace TezosMessageUtils {
 
     /**
      * Encodes a Tezos address to hex, stripping off the top 3 bytes which contain address type, either 'tz1', 'tz2', 'tz3' or 'kt1'. Message format contains hints on address type.
+     * 
+     * This is data type is referred to as `$contract_id` in the official documentation. Cutting off the first byte (2-chars) makes this string compatible with `$public_key_hash` as well.
      * 
      * @param {string} address Base58-check address to encode.
      * @returns {string} Hex representation of a Tezos address.
@@ -268,7 +272,7 @@ export namespace TezosMessageUtils {
     /**
      * Writes a Base58-check key into hex.
      * 
-     * @param key Key to encode.
+     * @param key Key to encode, input is expected to be a base58-check encoded string.
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
      */
     export function writeKeyWithHint(key: string, hint: string): Buffer {

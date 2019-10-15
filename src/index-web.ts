@@ -28,3 +28,4 @@ export * from './types/tezos/TezosRPCResponseTypes';
 export * from './types/wallet/KeyStore';
 
 export * from './utils/CryptoUtils';
+export * from './chain/tezos/TezosProtocolHelper';

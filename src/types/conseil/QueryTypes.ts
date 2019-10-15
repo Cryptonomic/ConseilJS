@@ -1,6 +1,7 @@
 export interface ConseilServerInfo {
     url: string;
     apiKey: string;
+    network: string;
 }
 
 export enum ConseilSortDirection {

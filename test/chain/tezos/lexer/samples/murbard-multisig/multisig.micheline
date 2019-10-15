@@ -1,7 +1,6 @@
-{  
-   "script":[  
-      {  
-         "prim":"parameter",
+[
+    {  
+      "prim":"parameter",
          "args":[  
             {  
                "prim":"pair",
@@ -114,7 +113,7 @@
             }
          ]
       },
-      {  
+    {
          "prim":"storage",
          "args":[  
             {  
@@ -152,7 +151,7 @@
             }
          ]
       },
-      {  
+    {  
          "prim":"code",
          "args":[  
             [  
@@ -707,17 +706,4 @@
                   ]
                },
                {  
-                  "prim":"PAIR"
-               }
-            ]
-         ]
-      }
-   ],
-   "storage":{  
-      "int":"1000"
-   },
-   "input":{  
-      "prim":"Unit"
-   },
-   "amount":"50000"
-}
+                  "prim":"PAIR" } ] ] } ]

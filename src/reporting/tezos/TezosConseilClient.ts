@@ -294,12 +294,12 @@ export namespace TezosConseilClient {
     export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {
         let q = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 1);
 
-        if (typeof(id) === 'number') {
+        if (typeof id  === 'number') {
             const n = Number(id);
             if (n < 0) { throw new Error('Invalid numeric id parameter'); }
 
             return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'level', ConseilOperator.EQ, [id], false) };
-        } else if (typeof(id) === 'string') {
+        } else if (typeof id  === 'string') {
             const s = String(id);
 
             if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {

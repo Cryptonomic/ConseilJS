@@ -16,18 +16,19 @@ describe('Michelson/Micheline contract tests', async () => {
         const t = path.basename(d, path.extname(d));
         const f = path.basename(contractName, path.extname(contractName));
 
+        if (!fs.existsSync(`${d}${path.sep}${f}.micheline`)) { console.log(`Skipping ${t}${path.sep}${f}, missing micheline.`); continue; }
+
         it(`Michelson/Micheline contract test: ${t}${path.sep}${f}`, () => {
-            let michelson = fs.readFileSync(`${d}${path.sep}${f}.michelson`, 'utf8');
-            let micheline = fs.readFileSync(`${d}${path.sep}${f}.micheline`, 'utf8');
+            const michelson = fs.readFileSync(`${d}${path.sep}${f}.michelson`, 'utf8');
+            const micheline = fs.readFileSync(`${d}${path.sep}${f}.micheline`, 'utf8');
 
-            let michelineObject = JSON.parse(micheline)
-            delete michelineObject.storage
-            delete michelineObject.input
-            delete michelineObject.amount
+            let michelineObject = JSON.parse(micheline);
+            delete michelineObject.storage;
+            delete michelineObject.input;
+            delete michelineObject.amount;
             const trimmedMicheline = JSON.stringify(michelineObject).replace(/[\n\r\t\s]/g,'');
+            const parsedMicheline = TezosLanguageUtil.translateMichelsonToMicheline(michelson).replace(/[\n\r\t\s]/g,'');
 
-            let parsedMicheline = `{"script":${TezosLanguageUtil.translateMichelsonToMicheline(michelson)}}`;
-            parsedMicheline = parsedMicheline.replace(/[\n\r\t\s]/g,'');
             expect(parsedMicheline).to.equal(trimmedMicheline);
         });
     }

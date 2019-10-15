@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { TezosMessageCodec } from "../../../src/chain/tezos/TezosMessageCodec";
-import { Activation, Ballot, BallotVote, Operation, Reveal, Origination, Transaction } from "../../../src/types/tezos/TezosP2PMessageTypes";
+import { Activation, Ballot, BallotVote, Reveal, Origination, Transaction, Delegation } from "../../../src/types/tezos/TezosP2PMessageTypes";
 import { OperationKindType } from "../../../src/types/tezos/TezosChainTypes";
 import "mocha";
 
@@ -31,7 +31,7 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].counter).to.equal('3');
     });
 
-    it("correctly parse a contract invocation transaction", () => {
+    it("correctly parse a pre-P005 contract invocation", () => {
         const result = TezosMessageCodec.parseOperationGroup("e943f55f402cc95cc8786190cb83a1409a8f338248302add11aaf79bdf7ba12e080000cbc60b41535ff0474fbdacc4e3d658eed9707ebdd08603a6850280b518e0d40300013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff000000330505050805080508050501000000244b5431474532415a68617a52784773416a52566b516363486342327076414e5851576437");
 
         expect(result[0].kind).to.equal("transaction");
@@ -45,14 +45,27 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Right", "args": [ { "prim": "Left", "args": [ { "string": "KT1GE2AZhazRxGsAjRVkQccHcB2pvANXQWd7" } ] } ] } ] } ] } ] }');
     });
 
-    it("parse contract invocation transaction", () => {
-        const result = TezosMessageCodec.parseTransaction("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f0800000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a0a013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000405050306");
+    it("correctly parse a P005 'default' contract invocation", () => {
+        const result = TezosMessageCodec.parseOperationGroup("560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f6c000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a00013cbecfc99420ac2c6898e7032aaa447966f8ce6600ff0000000009020000000405050306");
 
-        expect(result.operation.parameters).to.equal('{ "prim": "Left", "args": [ { "prim": "None" } ] }');
+        expect(result[0].kind).to.equal("transaction");
+        expect(result[0].source).to.equal("tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP");
+        expect(result[0].parameters.entrypoint).to.equal('default');
+        expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
+    });
+
+
+    it("correctly parse a P005 non-standard contract invocation", () => {
+        const result = TezosMessageCodec.parseOperationGroup("011ac5e07d5772f15fb08bcc5a58fa1120cb4a81cc2f3411a598729d9045f81e6c000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a00013cbecfc99420ac2c6898e7032aaa447966f8ce6600ffff0b63727970746f6e6f6d696300000009020000000405050306");
+
+        expect(result[0].kind).to.equal("transaction");
+        expect(result[0].source).to.equal("tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP");
+        expect(result[0].parameters.entrypoint).to.equal('cryptonomic');
+        expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
     });
 
     it("correctly encode a transaction operation", () => {
-        const transaction: Operation = {
+        const transaction: Transaction = {
             kind: "transaction",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -64,7 +77,19 @@ describe("Tezos P2P message decoder test suite", () => {
         };
 
         const result = TezosMessageCodec.encodeTransaction(transaction);
-        expect(result).to.equal("08000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+        expect(result).to.equal("6c0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+    });
+
+    it("correctly encode a 'root' contract invocation", () => {
+        // TODO
+    });
+
+    it("correctly encode a non-standard contract invocation", () => {
+        // TODO
+    });
+
+    it("correctly encode a blank contract invocation", () => {
+        // TODO
     });
 
     it("correctly parse a reveal", () => {
@@ -78,7 +103,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a reveal operation", () => {
-        const reveal: Operation = {
+        const reveal: Reveal = {
             kind: "reveal",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "0",
@@ -89,51 +114,23 @@ describe("Tezos P2P message decoder test suite", () => {
         };
 
         const result = TezosMessageCodec.encodeReveal(reveal);
-        expect(result).to.equal("07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6");
-    });
-
-    it("correctly encode an origination operation", () => {
-        let origination: Operation = {
-            kind: "origination",
-            source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
-            fee: "10000",
-            counter: "9",
-            storage_limit: "10001",
-            gas_limit: "10002",
-            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
-            balance: "10003",
-            spendable: true,
-            delegatable: true,
-            delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
-        };
-
-        let result = TezosMessageCodec.encodeOrigination(origination);
-        expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934effffff0069ef8fb5d47d8a4321c94576a2316a632be8ce8900");
-
-        origination.spendable = undefined;
-        origination.delegatable = undefined;
-        origination.delegate = undefined;
-        result = TezosMessageCodec.encodeOrigination(origination);
-        expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e00000000");
+        expect(result).to.equal("6b0069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6");
     });
 
     it("correctly encode a contract origination operation", () => {
-        /*let origination: Operation = {
+        let origination: Origination = {
             kind: "origination",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
             counter: "9",
             storage_limit: "10001",
             gas_limit: "10002",
-            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             balance: "10003",
-            spendable: false,
-            delegatable: false,
             script: { "code": [ { "prim": "parameter", "args": [ { "prim": "int" } ] }, { "prim": "storage", "args": [ { "prim": "int" } ] }, { "prim": "code", "args": [ [ { "prim": "CAR" }, { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] }, { "prim": "ADD" }, { "prim": "PUSH", "args": [ { "prim": "bytes" }, { "bytes": "0123456789abcdef" } ] }, { "prim": "DROP" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] } ], "storage": { "int": "30" } }
         };
 
         let result = TezosMessageCodec.encodeOrigination(origination);
-        expect(result).to.equal("09000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e0069ef8fb5d47d8a4321c94576a2316a632be8ce89934e000000ff0000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");*/
+        expect(result).to.equal("6d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934e000000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
     });
 
     it("correctly parse a reveal/transaction operation group", () => {
@@ -157,7 +154,7 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[1].counter).to.equal('15438');
     });
 
-    it("correctly parse an origination", () => {
+    it("correctly parse a pre-P005 origination", () => {
         let forgedOrigination = "c98677a5ad30a181889ad0325b5ce4b32d288e2d0397eac9391e20de1ec816f20900009fcc83e722c9d9f7a150555e632e6e0f97bfc29bc0843dd078b04f9502009fcc83e722c9d9f7a150555e632e6e0f97bfc29b8080897affffff006e747386822673001b03dca0eff6cebf7c9cd6e400";
         const result = TezosMessageCodec.parseOperation(forgedOrigination, 'origination');
         expect(result.operation.kind).to.equal("origination");
@@ -174,7 +171,7 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result.operation.counter).to.equal('15440');
     });
 
-    it("correctly parse an origination with contract", () => {
+    it("correctly parse a pre-P005 origination with contract", () => {
         const forgedOrigination = "0f9c939d51f90e9435fe2f466058eed68cd7f0624ff439136dfe2dcc3139391c090000b2e1d673031ec0711eacb822cbca4ce95f1e3c0ac09a0c890581d901b04f00b2e1d673031ec0711eacb822cbca4ce95f1e3c0a80897affffff00641d2f258a7fafe9cf1f18720a14dfadba9adb0eff0000001c02000000170500036805010368050202000000080316053d036d03420000000a010000000568656c6c6f15f3cff9210c5287e91a2a9ba65871ed83b7c784ecf42419aa03c7bef02e50cd7916e228f15418ca74b7bb12d42f64cd9dac7e978173ff1360ff4dc7ca7bb501";
         const result = TezosMessageCodec.parseOrigination(forgedOrigination);
         expect(result.operation.kind).to.equal("origination");
@@ -184,6 +181,22 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result.operation.balance).to.equal('2000000'); // microtez
         expect(result.operation.spendable).to.equal(true);
         expect(result.operation.delegatable).to.equal(true);
+        expect(result.operation.delegate).to.equal("tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ");
+        expect(result.operation.fee).to.equal('200000'); // microtez
+        expect(result.operation.gas_limit).to.equal('27777'); // microtez
+        expect(result.operation.storage_limit).to.equal('10160'); // microtez
+        expect(result.operation.counter).to.equal('649');
+        expect(result.nextoffset).to.equal(-1);
+    });
+
+    it("correctly parse a P005 origination with contract", () => {
+        const forgedOrigination = "0f9c939d51f90e9435fe2f466058eed68cd7f0624ff439136dfe2dcc3139391c6d00b2e1d673031ec0711eacb822cbca4ce95f1e3c0ac09a0c890581d901b04f80897aff00641d2f258a7fafe9cf1f18720a14dfadba9adb0e0000001c02000000170500036805010368050202000000080316053d036d03420000000a010000000568656c6c6f";
+        const result = TezosMessageCodec.parseOrigination(forgedOrigination);
+        expect(result.operation.kind).to.equal("origination");
+        expect(result.operation.source).to.equal("tz1bwsWk3boyGgXf3u7CJGZSTfe14djdRtxG");
+        expect(result.operation.manager_pubkey).to.be.undefined;
+        expect(result.operation.script).to.exist;
+        expect(result.operation.balance).to.equal('2000000'); // microtez
         expect(result.operation.delegate).to.equal("tz1UmPE44pqWrEgW8sTRs6ED1DgwF7k43ncQ");
         expect(result.operation.fee).to.equal('200000'); // microtez
         expect(result.operation.gas_limit).to.equal('27777'); // microtez
@@ -225,7 +238,7 @@ describe("Tezos P2P message decoder test suite", () => {
     });
 
     it("correctly encode a delegation operation", () => {
-        let delegation: Operation = {
+        let delegation: Delegation = {
             kind: "delegation",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -236,11 +249,11 @@ describe("Tezos P2P message decoder test suite", () => {
         };
 
         let result = TezosMessageCodec.encodeDelegation(delegation);
-        expect(result).to.equal("0a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4");
+        expect(result).to.equal("6e0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914eff026fde46af0356a0476dae4e4600172dc9309b3aa4");
 
         delegation.delegate = undefined;
         result = TezosMessageCodec.encodeDelegation(delegation);
-        expect(result).to.equal("0a000069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e00");
+        expect(result).to.equal("6e0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e00");
     });
 
     it("correctly parse a 3-message OperationGroup", () => {
@@ -326,17 +339,14 @@ describe("Tezos P2P message decoder test suite", () => {
             counter: "9",
             storage_limit: "10001",
             gas_limit: "10002",
-            manager_pubkey: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             balance: "10003",
-            spendable: true,
-            delegatable: true,
             delegate: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX"
         };
         expect(() => TezosMessageCodec.encodeOrigination(origination)).to.throw('Incorrect operation type');
     });
 
     it("fail delegation encoding errors", () => {
-        const delegation: Operation = {
+        const delegation: Delegation = {
             kind: "c0ff33",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",

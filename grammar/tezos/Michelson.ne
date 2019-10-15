@@ -48,12 +48,12 @@ const lexer = moo.compile({
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
-    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id'],
     constantType: ['key', 'unit', 'signature', 'operation', 'address'],
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_ACCOUNT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -62,7 +62,9 @@ const lexer = moo.compile({
         'UNPAIR', 'UNPAPAIR', // TODO: macro
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
-        'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE' // TODO: should be separate
+        'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
+        'CHAIN_ID'
+        //'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -99,6 +101,7 @@ type ->
   | %constantType {% keywordToJson %}
   | %singleArgType _ type {% singleArgKeywordToJson %}
   | %lparen _ %singleArgType _ type _ %rparen {% singleArgKeywordWithParenToJson %}
+  | %lparen _ %singleArgType _ %lparen _ type _ %rparen _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgType _ type _ type {% doubleArgKeywordToJson %}
   | %lparen _ %doubleArgType _ type _ type _ %rparen {% doubleArgKeywordWithParenToJson %}
   | %comparableType (_ %annot):+ {% keywordToJson %}
@@ -505,8 +508,9 @@ semicolons -> [;]:?
     /**
      * Given a keyword with one argument and parentheses, convert it to JSON.
      * Example: "(option int)" -> "{ prim: option, args: [{prim: int}] }"
+     * Also: (option (mutez))
      */
-    const singleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[4]} ] }`;
+    const singleArgKeywordWithParenToJson = d => `{ "prim": "${d[2]}", "args": [ ${d[(4 + ((d.length === 7) ? 0 : 2))]} ] }`;
 
     /**
      * Given a keyword with two arguments, convert it into JSON.

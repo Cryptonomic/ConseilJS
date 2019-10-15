@@ -20,7 +20,6 @@ const { unlockFundraiserIdentity } = TezosWalletUtil;
 const {
     sendKeyRevealOperation,
     sendTransactionOperation,
-    sendAccountOriginationOperation,
     sendDelegationOperation,
 } = TezosNodeWriter;
 
@@ -112,15 +111,6 @@ describe('Ledger Test', () => {
 
         expect(sendResult).to.exist;
         expect(sendResult.operationGroupID).to.be.a('string');
-    }));
-
-    it('sendOriginationOperation', mochaAsync(async () => {
-        const bakerAddress = 'tz1db53osfzRqqgQeLtBt4kcFcQoXJwPJJ5G';
-        const amount = 10000000;
-        const fee = 100000;
-        const originationResult = await sendAccountOriginationOperation(tezosURL, keyStore, amount, bakerAddress, true, true, fee, derivationPath);
-        expect(originationResult).to.exist;
-        expect(originationResult.operationGroupID).to.be.a('string');
     }));
 
     it('sendDelegationOperation', mochaAsync(async () => {

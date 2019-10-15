@@ -5,6 +5,8 @@ import * as Micheline from '../../../../src/chain/tezos/lexer/Micheline';
 import * as nearley from 'nearley';
 import * as fs from 'fs';
 import * as path from 'path';
+import glob from 'glob';
+
 import { TezosLanguageUtil } from '../../../../src/chain/tezos/TezosLanguageUtil';
 
 describe('Micheline binary encoding tests', () => {
@@ -88,58 +90,28 @@ describe('Micheline binary encoding complex tests', () => {
     
 });
 
-
-function michelineToHex(code: string): string {
-    return preProcessMicheline(code)
-        .map(p => {
-            let parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
-            parser.feed(p);
-            let result = parser.results.join('');
-            return ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
-        }).join('');
-}
-
-function preProcessMicheline(code: string): string[] {
-    const container = JSON.parse(code);
-    let parts: string[] = [];
-
-    parts.push(JSON.stringify(container.script[indexOfKey(container, 'code')], null, 1));
-    parts.push(JSON.stringify(container.script[indexOfKey(container, 'storage')], null, 1));
-
-    for (let i = 0; i < parts.length; i++) {
-        parts[i] = TezosLanguageUtil.normalizeMichelineWhiteSpace(parts[i]);
-    }
-
-    return parts;
-}
-
-function indexOfKey(container: any, key: string): number {
-    for (let i = 0; i < container.script.length; i++) {
-        if (container.script[i]['prim'] === key) { return i; }
-    }
-    
-    throw new Error(`${key} key was not found`);
-}
-
-describe('Micheline to hex official contract tests', async () => {
+describe('Micheline to hex contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
-    const p = new Promise<string[]>((resolve, reject) => {
-        fs.readdir(contractSampleRoot, function(err, items) {
-            if (!!err) { reject(err); return; }
-            resolve([... new Set(items.map(f => path.basename(f, path.extname(f))))]);
-        });
-    });
-    const samples = await p;
+    let samples: string[] = glob.sync(`${contractSampleRoot}/**/*.micheline`);
 
     for (let i = 0; i < samples.length; i++) {
         const contractName = samples[i];
-        if (!fs.existsSync(`${contractSampleRoot}/${contractName}.micheline`)) { continue; }
-        it(`Micheline to hex contract ${contractName}`, () => {
-            let micheline = fs.readFileSync(`${contractSampleRoot}/${contractName}.micheline`, 'utf8');
-            let hexaline = fs.readFileSync(`${contractSampleRoot}/${contractName}.hex`, 'utf8');
+        const d = path.dirname(contractName);
+        const t = path.basename(d, path.extname(d));
+        const f = path.basename(contractName, path.extname(contractName));
 
-            let parsedHex = michelineToHex(micheline);
-            expect(parsedHex).to.equal(hexaline);
+        if (!fs.existsSync(`${d}${path.sep}${f}.hex`)) { console.log(`Skipping ${t}${path.sep}${f}, missing hex!`); continue; }
+
+        it(`Micheline to hex contract test: ${t}${path.sep}${f}`, () => {
+            const micheline = fs.readFileSync(`${d}${path.sep}${f}.micheline`, 'utf8');
+            const hexaline = fs.readFileSync(`${d}${path.sep}${f}.hex`, 'utf8');
+
+            const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+            parser.feed(TezosLanguageUtil.normalizeMichelineWhiteSpace(micheline));
+            const result = parser.results.join('');
+            const parsedHex = ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+
+            expect(parsedHex).to.equal(hexaline.trim());
         });
     }
 });

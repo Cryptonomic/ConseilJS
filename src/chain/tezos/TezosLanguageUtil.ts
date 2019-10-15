@@ -1,5 +1,6 @@
 import * as Micheline from './lexer/Micheline';
 import * as Michelson from './lexer/Michelson';
+import * as MichelsonParameters from './lexer/MichelsonParameters';
 import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
@@ -163,6 +164,16 @@ export namespace TezosLanguageUtil {
     }
 
     /**
+     * Converts simple (read non-lambda) Michelson parameters to Micheline and wraps the result in a script property.
+     */
+    export function translateParameterMichelsonToMicheline(code: string): string {
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
+        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
+
+        return parser.results[0];
+    }
+
+    /**
      * Convenience function to take Michelson code straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
      * 
      * @param {string} code Michelson code string
@@ -280,7 +291,9 @@ export namespace TezosLanguageUtil {
             .replace(/\[\[/g, '[ [')
             .replace(/\]\]/g, '] ]')
             .replace(/\["/g, '\[ "')
-            .replace(/"\]/g, '" \]');
+            .replace(/"\]/g, '" \]')
+            .replace(/\[ +\]/g, '\[\]')
+            .trim();
     }
 
     interface codeEnvelope {

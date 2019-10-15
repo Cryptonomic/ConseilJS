@@ -1,5 +1,5 @@
 /**
- * Represents a generic cryptocurrency key store.
+ * Represents a generic blockchain key store.
  * The seed is only used for HD wallets.
  */
 export interface KeyStore {
