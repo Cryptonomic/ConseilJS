@@ -1,13 +1,11 @@
 {
   "name": "conseiljs",
-  "version": "0.3.1-alpha",
+  "version": "0.3.1-beta",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+  "files": [ "dist" ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
@@ -34,27 +32,18 @@
     "dapp"
   ],
   "author": "Cryptonomic Inc",
-  "license": "GPL-3.0",
+  "license": "Apache-2.0",
+  "licenses": [ { "type": "Apache-2.0", "url": "http://www.apache.org/licenses/LICENSE-2.0" } ],
   "bugs": {
     "url": "https://github.com/Cryptonomic/ConseilJS/issues"
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "src/**/lexer/*.*"
-    ],
-    "extension": [
-      ".ts"
-    ],
-    "require": [
-      "ts-node/register"
-    ],
-    "reporter": [
-      "lcov"
-    ],
+    "include": [ "src/**/*.ts" ],
+    "exclude": [ "src/**/lexer/*.*" ],
+    "extension": [ ".ts" ],
+    "require": [ "ts-node/register" ],
+    "reporter": [ "lcov" ],
     "sourceMap": true,
     "instrument": true
   },
@@ -116,48 +105,20 @@
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint"
-    ],
+    "plugins": [ "@typescript-eslint" ],
     "env": {
       "mocha": true,
       "node": true
     },
     "extends": "airbnb-base",
     "rules": {
-      "comma-dangle": [
-        2,
-        "never"
-      ],
-      "curly": [
-        2,
-        "all"
-      ],
-      "indent": [
-        1,
-        4
-      ],
-      "max-len": [
-        2,
-        {
-          "code": 200,
-          "ignoreTrailingComments": true
-        }
-      ],
-      "no-tabs": [
-        2
-      ],
-      "quotes": [
-        2,
-        "single"
-      ],
-      "array-element-newline": [
-        2,
-        {
-          "multiline": true,
-          "minItems": 5
-        }
-      ]
+      "comma-dangle": [ 2, "never" ],
+      "curly": [ 2, "all" ],
+      "indent": [ 1, 4 ],
+      "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
+      "no-tabs": [ 2 ],
+      "quotes": [ 2, "single" ],
+      "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
     }
   }
 }
