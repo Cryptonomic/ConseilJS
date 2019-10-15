@@ -18,10 +18,10 @@ export const keys: KeyStore = {
     storeType: StoreType.Mnemonic
 };
 
-export const tezosServer = 'https://tezos-dev.cryptonomic-infra.tech:443';
+export const tezosServer = '';
 
 export const conseilServer: ConseilServerInfo = {
-    url: 'https://conseil-dev.cryptonomic-infra.tech:443',
+    url: '',
     apiKey: '', // get yours at https://nautilus-cloud.cryptonomic-infra.tech
     network: 'alphanet'
 };
