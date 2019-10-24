@@ -143,8 +143,11 @@ subTypeData ->
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (typeElt ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (typeElt ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (typeElt _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (typeElt _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
 # Helper pattern for lists of michelson instructions
