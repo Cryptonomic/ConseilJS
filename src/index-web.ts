@@ -9,6 +9,7 @@ export * from './chain/tezos/TezosLanguageUtil';
 export * from './chain/tezos/TezosMessageUtil';
 export * from './chain/tezos/TezosNodeReader';
 export * from './chain/tezos/TezosNodeWriter';
+export * from './chain/tezos/TezosProtocolHelper';
 
 export * from './identity/tezos/TezosWalletUtil';
 export * from './identity/tezos/TezosFileWallet';
@@ -28,4 +29,3 @@ export * from './types/tezos/TezosRPCResponseTypes';
 export * from './types/wallet/KeyStore';
 
 export * from './utils/CryptoUtils';
-export * from './chain/tezos/TezosProtocolHelper';
