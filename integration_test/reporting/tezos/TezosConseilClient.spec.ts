@@ -20,7 +20,7 @@ describe('Tezos date interface test suite', () => {
     it('retrieve top block', async () => {
         const result = await TezosConseilClient.getBlockHead(conseilServer, conseilServer.network);
 
-        expect(result['level']).to.be.greaterThan(625266, 'this may vary as the network changes');
+        expect(result['level']).to.be.greaterThan(52466, 'this may vary as the network changes');
         expect(result['baker'].length).to.be.greaterThan(0)
     });
 
@@ -107,7 +107,7 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1000);
 
         const fees = await TezosConseilClient.getOperations(conseilServer, conseilServer.network, operationFeesQuery);
-        const sortedfees = fees.map(f => parseInt(f['fee'])).sort((a, b) => a - b);
+        const sortedfees = fees.map(f => parseInt(f['fee'])).filter(i => !isNaN(i)).sort((a, b) => a - b);
 
         const lowAverageFee = sortedfees.slice(0, 300).reduce((s, c) => s + c) / 300;
         const mediumAverageFee = sortedfees.slice(300, 700).reduce((s, c) => s + c) / 400;

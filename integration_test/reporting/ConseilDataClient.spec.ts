@@ -2,6 +2,11 @@ import 'mocha';
 import { expect } from 'chai';
 import fetch from 'node-fetch';
 
+import * as loglevel from 'loglevel';
+import LogSelector from '../../src/utils/LoggerSelector';
+LogSelector.setLogger(loglevel.getLogger('conseiljs'));
+LogSelector.setLevel('debug');
+
 import FetchSelector from '../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
