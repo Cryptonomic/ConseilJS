@@ -81,7 +81,7 @@ export namespace TezosNodeReader {
      */
     export async function getCounterForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const counter = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}/counter`)
-            .then(r => <String> r);
+            .then(r => r.toString());
         return parseInt(counter.toString(), 10);
     }
 
@@ -96,11 +96,11 @@ export namespace TezosNodeReader {
     export async function getSpendableBalanceForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
-        return account.spendable ? parseInt(account.balance.toString(), 10) : 0; 
+        return parseInt(account.balance.toString(), 10); 
     }
 
     /**
-     * Fetches the manager of a specific account for a given block.
+     * Fetches the manager public key of a specific account for a given block.
      * 
      * @param {string} server Tezos node to query
      * @param {string} blockHash Hash of given block
