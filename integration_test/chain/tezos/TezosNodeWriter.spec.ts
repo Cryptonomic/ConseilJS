@@ -17,7 +17,7 @@ import { TezosWalletUtil} from '../../../src/identity/tezos/TezosWalletUtil';
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient';
 import * as TezosTypes from '../../../src/types/tezos/TezosChainTypes';
 import * as TezosP2PMessageTypes from '../../../src/types/tezos/TezosP2PMessageTypes';
-import { tezosServer, conseilServer, faucetAccount, keys, transferAddress, bakerAddress, contractAddress } from '../../TestAssets.zeronet';
+import { tezosServer, conseilServer, faucetAccount, keys, transferAddress, bakerAddress, contractAddress } from '../../TestAssets';
 
 describe('TezosNodeWriter integration test suite', () => {
     it('Activate faucet account', async () => {

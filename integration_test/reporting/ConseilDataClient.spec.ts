@@ -9,7 +9,7 @@ import { ConseilQueryBuilder } from "../../src/reporting/ConseilQueryBuilder";
 import { ConseilOperator, ConseilSortDirection, ConseilOutput } from "../../src/types/conseil/QueryTypes"
 import { ConseilDataClient } from '../../src/reporting/ConseilDataClient'
 
-import { conseilServer } from '../TestAssets.zeronet';
+import { conseilServer } from '../TestAssets';
 
 describe('ConseilDataClient integration test suite', () => {
     it('Extract result set as csv', async () => {
@@ -18,7 +18,7 @@ describe('ConseilDataClient integration test suite', () => {
         query = ConseilQueryBuilder.addOrdering(query, 'block_level', ConseilSortDirection.DESC);
         query = ConseilQueryBuilder.setLimit(query, 5);
         query = ConseilQueryBuilder.setOutputType(query, ConseilOutput.csv);
-        const result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', 'alphanet', 'operations', query);
+        const result = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'operations', query);
 
         expect(result.length).to.be.greaterThan(100);
         expect(result.toString().split('\n').length).to.equal(6);

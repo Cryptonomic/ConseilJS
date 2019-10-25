@@ -106,11 +106,11 @@ export namespace TezosNodeReader {
      * @param {string} blockHash Hash of given block
      * @param {string} accountHash Account address
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
-     * @returns {Promise<TezosRPCTypes.ManagerKey>} The account
+     * @returns {Promise<string>} Manager public key
      */
-    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<TezosRPCTypes.ManagerKey> {
+    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<string> {
         return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
-            .then(json => <TezosRPCTypes.ManagerKey> json);
+            .then(result => result.toString());
     }
 
     /**

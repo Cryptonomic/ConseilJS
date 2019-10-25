@@ -10,7 +10,7 @@ import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import { TezosNodeReader } from '../../../src/chain/tezos/TezosNodeReader';
-import { tezosServer, conseilServer, faucetAccount, keys, transferAddress, bakerAddress, contractAddress } from '../../TestAssets.zeronet';
+import { tezosServer, keys } from '../../TestAssets';
 
 describe('TezosNodeReader integration test suite', () => {
     it('Get chain head', async () => {

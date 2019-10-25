@@ -63,10 +63,10 @@ export interface TezosBlockMetadataLevel {
 export interface TezosBlockMetadataBalanceUpdate {
     kind: string;
     change: string;
-    contract: string;
-    category: string;
-    delegate: string;
-    cycle: number;
+    contract?: string;
+    category?: string;
+    delegate?: string;
+    cycle?: number;
 }
 
 export interface TezosBlockOperationEnvelope {
@@ -121,9 +121,8 @@ export interface TezosBlockOperationContentMetadataOperationResult {
  * Response for chains/<chain-id>/blocks/<block-id>/context/contracts/<account-id>
  */
 export interface Contract {
-    manager: string;
     balance: string;
-    delegate: ContractDelegate;
+    delegate?: ContractDelegate;
     script?: string;
     counter: string;
 }
@@ -131,12 +130,4 @@ export interface Contract {
 export interface ContractDelegate {
     setable: boolean,
     value: string
-}
-
-/**
- * Response for chains/<chain-id>/blocks/<block-id>/context/contracts/<account-id>/manager_key
- */
-export interface ManagerKey {
-    manager: string,
-    key: string
 }

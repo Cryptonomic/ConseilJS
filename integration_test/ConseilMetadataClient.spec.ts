@@ -6,7 +6,7 @@ import FetchSelector from '../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
 import { ConseilMetadataClient } from '../src/reporting/ConseilMetadataClient'
-import { conseilServer } from './TestAssets.zeronet';
+import { conseilServer } from './TestAssets';
 
 describe('ConseilJS API Wrapper for Conseil protocol v2 test suite', () => {
     it('retrieve list of available platforms', async () => {

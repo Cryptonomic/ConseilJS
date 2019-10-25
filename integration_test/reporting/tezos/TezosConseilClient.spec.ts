@@ -14,24 +14,24 @@ import { ConseilQueryBuilder } from '../../../src/reporting/ConseilQueryBuilder'
 import { ConseilOperator, ConseilSortDirection } from '../../../src/types/conseil/QueryTypes'
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient'
 import { OperationKindType } from '../../../src/types/tezos/TezosChainTypes';
-import { conseilServer, faucetAccount } from '../../TestAssets.zeronet';
+import { conseilServer } from '../../TestAssets';
 
 describe('Tezos date interface test suite', () => {
     it('retrieve top block', async () => {
-        const result = await TezosConseilClient.getBlockHead(conseilServer, 'mainnet');
+        const result = await TezosConseilClient.getBlockHead(conseilServer, conseilServer.network);
 
         expect(result['level']).to.be.greaterThan(625266, 'this may vary as the network changes');
         expect(result['baker'].length).to.be.greaterThan(0)
     });
 
     it('retrieve a block by hash', async () => {
-        const result = await TezosConseilClient.getBlock(conseilServer, 'mainnet', 'BKnMKWCeJwRtetQwuY5HRtbrsXPLyACFrygdwnM8jxAYcYEVkdd');
+        const result = await TezosConseilClient.getBlock(conseilServer, conseilServer.network, 'BKnMKWCeJwRtetQwuY5HRtbrsXPLyACFrygdwnM8jxAYcYEVkdd');
 
         expect(result.length).to.equal(1);
     });
 
     it('retrieve an operation group by hash', async () => {
-        const result = await TezosConseilClient.getOperationGroup(conseilServer, 'mainnet', 'ooH1GMyC7zHRP7SJgqnjzoxs5DshEUrYNehAQm9j5PUxMA4TdeP');
+        const result = await TezosConseilClient.getOperationGroup(conseilServer, conseilServer.network, 'ooH1GMyC7zHRP7SJgqnjzoxs5DshEUrYNehAQm9j5PUxMA4TdeP');
 
         expect(result.length).to.equal(1);
     });
@@ -43,7 +43,7 @@ describe('Tezos date interface test suite', () => {
         query = ConseilQueryBuilder.addPredicate(query, 'operation_group_hash', ConseilOperator.EQ, ['ooH1GMyC7zHRP7SJgqnjzoxs5DshEUrYNehAQm9j5PUxMA4TdeP'], false);
         query = ConseilQueryBuilder.setLimit(query, 10);
 
-        const result = await TezosConseilClient.getOperations(conseilServer, 'mainnet', query);
+        const result = await TezosConseilClient.getOperations(conseilServer, conseilServer.network, query);
 
         expect(result.length).to.equal(1);
     });
@@ -54,7 +54,7 @@ describe('Tezos date interface test suite', () => {
         q = ConseilQueryBuilder.addOrdering(q, 'level', ConseilSortDirection.ASC);
         q = ConseilQueryBuilder.setLimit(q, 10);
 
-        const result = await TezosConseilClient.getBlocks(conseilServer, 'mainnet', q);
+        const result = await TezosConseilClient.getBlocks(conseilServer, conseilServer.network, q);
 
         expect(result.length).to.equal(10);
         expect(parseInt(result[9]['level'])).to.greaterThan(parseInt(result[1]['level']));
@@ -62,7 +62,7 @@ describe('Tezos date interface test suite', () => {
     });
     
     it('retrieve a single an account', async () => {
-        var result = await TezosConseilClient.getAccount(conseilServer, 'mainnet', 'tz1bwSatfnvehPG8v5razwMJ7KzJXDBRtxwk');
+        var result = await TezosConseilClient.getAccount(conseilServer, conseilServer.network, 'tz1bwSatfnvehPG8v5razwMJ7KzJXDBRtxwk');
 
         expect(result.length).to.equal(1);
         expect(result[0]['account_id']).to.equal('tz1XErrAm8vFBzu69UU74JUSbvsmvXiQBy6e', 'this may vary as the network changes');
@@ -74,7 +74,7 @@ describe('Tezos date interface test suite', () => {
         accountsquery = ConseilQueryBuilder.addPredicate(accountsquery, 'account_id', ConseilOperator.EQ, ['tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2'], true);
         accountsquery = ConseilQueryBuilder.addOrdering(accountsquery, 'block_level', ConseilSortDirection.DESC);
         accountsquery = ConseilQueryBuilder.setLimit(accountsquery, 300);
-        const result = await TezosConseilClient.getAccounts(conseilServer, 'mainnet', accountsquery);
+        const result = await TezosConseilClient.getAccounts(conseilServer, conseilServer.network, accountsquery);
 
         expect(result.length).to.be.greaterThan(1, 'this may vary as the network changes');
         expect(result[0]['account_id']).to.equal('KT1SJdeXcP4KkVFF13SYEDFixunJBP7Nwmum', 'this may vary as the network changes');
@@ -93,7 +93,7 @@ describe('Tezos date interface test suite', () => {
         target = ConseilQueryBuilder.addOrdering(target, 'block_level', ConseilSortDirection.DESC);
         target = ConseilQueryBuilder.setLimit(target, 300);
 
-        var result = await Promise.all([target, origin].map(q => TezosConseilClient.getOperations(conseilServer, 'mainnet', q)))
+        var result = await Promise.all([target, origin].map(q => TezosConseilClient.getOperations(conseilServer, conseilServer.network, q)))
             .then(responses => responses.reduce((result, r) => { r.forEach(rr => result.push(rr)); return result; }));
 
         expect(result.length).to.be.greaterThan(10, 'this may vary as the network changes');
@@ -106,7 +106,7 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'block_level', ConseilSortDirection.DESC);
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1000);
 
-        const fees = await TezosConseilClient.getOperations(conseilServer, 'mainnet', operationFeesQuery);
+        const fees = await TezosConseilClient.getOperations(conseilServer, conseilServer.network, operationFeesQuery);
         const sortedfees = fees.map(f => parseInt(f['fee'])).sort((a, b) => a - b);
 
         const lowAverageFee = sortedfees.slice(0, 300).reduce((s, c) => s + c) / 300;
@@ -124,7 +124,7 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'timestamp', ConseilSortDirection.DESC);
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1);
 
-        const fees = await TezosConseilClient.getTezosEntityData(conseilServer, 'mainnet', 'fees', operationFeesQuery);
+        const fees = await TezosConseilClient.getTezosEntityData(conseilServer, conseilServer.network, 'fees', operationFeesQuery);
 
         expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
         expect(fees[0]['medium']).to.lessThan(fees[0]['high']);
@@ -137,7 +137,7 @@ describe('Tezos date interface test suite', () => {
         operationFeesQuery = ConseilQueryBuilder.addOrdering(operationFeesQuery, 'timestamp', ConseilSortDirection.DESC);
         operationFeesQuery = ConseilQueryBuilder.setLimit(operationFeesQuery, 1);
 
-        const fees = await TezosConseilClient.getFeeStatistics(conseilServer, 'mainnet', OperationKindType.Transaction);
+        const fees = await TezosConseilClient.getFeeStatistics(conseilServer, conseilServer.network, OperationKindType.Transaction);
 
         expect(fees[0]['low']).to.lessThan(fees[0]['medium']);
         expect(fees[0]['medium']).to.lessThan(fees[0]['high']);
