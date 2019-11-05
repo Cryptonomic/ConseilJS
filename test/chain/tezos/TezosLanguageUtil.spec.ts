@@ -138,6 +138,22 @@ describe("Tezos Micheline fragment decoding", () => {
         params = 'Left (Pair "test" 123)';
         result = TezosLanguageUtil.translateMichelsonToMicheline(params);
         expect(result).to.equal('{ "prim": "Left", "args": [ { "prim": "Pair", "args": [ { "string": "test" }, { "int": "123" } ] } ] }');
+
+        params = '(Pair (Pair { } 12) 123)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ [], { "int": "12" } ] }, { "int": "123" } ] }');
+
+        params = '(Pair (Pair { 1 } 12) 123)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "int": "1" }, { "int": "12" } ] }, { "int": "123" } ] }');
+
+        params = '(Pair (Pair {0 ; "a"} 12) 123)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "int": "0" },{ "string": "a" }, { "int": "12" } ] }, { "int": "123" } ] }');
+
+        params = '(Pair (Pair { Elt 0 "a"; } 12) 123)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "prim": "Elt", "args": [ { "int": "0" }, { "string": "a" } ] }, { "int": "12" } ] }, { "int": "123" } ] }');
     });
 });
 

@@ -5,9 +5,7 @@ import {TezosNodeWriter} from "../src";
 import {TezosLedgerWallet} from "../src/identity/tezos/TezosLedgerWallet";
 import {HardwareDeviceType} from "../src/types/wallet/HardwareDeviceType";
 
-import {servers} from "./servers";
 
-const tezosURL = servers.tezosServer;
 // const derivationPathIndex = Math.floor(Math.random()*10).toString();
 const derivationPathIndex = 0;
 const derivationPath = `44'/1729'/0'/0'/` + derivationPathIndex + `'`;

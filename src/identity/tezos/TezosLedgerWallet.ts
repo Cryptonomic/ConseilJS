@@ -33,7 +33,7 @@ export namespace TezosLedgerWallet {
         const publicKey = TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
         const publicKeyHash = TezosMessageUtils.computeKeyHash(publicKeyBytes, 'tz1');
 
-        return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: StoreType.Hardware };
+        return { publicKey: publicKey, privateKey: '', publicKeyHash: publicKeyHash, seed: '', storeType: StoreType.Hardware, derivationPath };
     }
 
     /**

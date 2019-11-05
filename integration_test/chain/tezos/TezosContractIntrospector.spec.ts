@@ -9,18 +9,16 @@ LogSelector.setLogger(loglevel.getLogger('conseiljs'));
 import FetchSelector from '../../../src/utils/FetchSelector';
 FetchSelector.setFetch(fetch);
 
-import {TezosContractIntrospector} from '../../../src/chain/tezos/TezosContractIntrospector';
-import {EntryPoint} from '../../../src/types/tezos/ContractIntrospectionTypes';
-import {servers} from '../../servers';
+import { TezosContractIntrospector } from '../../../src/chain/tezos/TezosContractIntrospector';
+import { EntryPoint } from '../../../src/types/tezos/ContractIntrospectionTypes';
 import { ConseilQueryBuilder } from '../../../src/reporting/ConseilQueryBuilder';
 import { ConseilOperator, ConseilFunction, ConseilSortDirection } from '../../../src/types/conseil/QueryTypes';
 import { ConseilDataClient } from '../../../src/reporting/ConseilDataClient';
-
-const conseilServer = { url: servers.conseilServer, apiKey: servers.conseilApiKey };
+import { conseilServer } from '../../TestAssets';
 
 describe('TezosContractIntrospector integration test suite', () => {
     it('Generate entry points for Tezos Baker Registry (Alphanet)', async () => {
-        const result: EntryPoint[] = await TezosContractIntrospector.generateEntryPointsFromAddress(conseilServer, 'alphanet', 'KT1NpCh6tNQDmbmAVbGLxwRBx8jJD4rEFnmC');
+        const result: EntryPoint[] = await TezosContractIntrospector.generateEntryPointsFromAddress(conseilServer, conseilServer.network, 'KT1NpCh6tNQDmbmAVbGLxwRBx8jJD4rEFnmC');
 
         expect(result[0].name).to.equal('%_Liq_entry_updateName');
         expect(result[0].parameters.length).to.equal(1);
@@ -39,7 +37,7 @@ describe('TezosContractIntrospector integration test suite', () => {
         expect(result[3].generateParameter('Unit')).to.equal('(Right (Right (Right Unit)))');
     });
 
-    it('Process alphanet contracts', async () => {
+    it('Process on-chain contracts', async () => {
         let contractQuery = ConseilQueryBuilder.blankQuery();
         contractQuery = ConseilQueryBuilder.addFields(contractQuery, 'account_id', 'script');
         contractQuery = ConseilQueryBuilder.addPredicate(contractQuery, 'account_id', ConseilOperator.STARTSWITH, ['KT1']);
@@ -48,7 +46,7 @@ describe('TezosContractIntrospector integration test suite', () => {
         contractQuery = ConseilQueryBuilder.addOrdering(contractQuery, 'count_account_id', ConseilSortDirection.DESC)
         contractQuery = ConseilQueryBuilder.setLimit(contractQuery, 100);
 
-        const contractList = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', 'alphanet', 'accounts', contractQuery);
+        const contractList = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', contractQuery);
 
         contractList.forEach(r => {
             if (r['script'].startsWith('Unparsable code:')) { return; } // accounting for invalid Conseil results

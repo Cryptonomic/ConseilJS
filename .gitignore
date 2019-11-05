@@ -4,4 +4,4 @@
 dist/
 node_modules/
 
-**/servers.ts
+**/TestAssets.ts

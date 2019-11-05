@@ -63,8 +63,7 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        'CHAIN_ID'
-        //'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY'
+        'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -144,8 +143,11 @@ subTypeData ->
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (typeElt ";" _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt ";" _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (typeElt ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (typeElt ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (typeElt _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (typeElt _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
 # Helper pattern for lists of michelson instructions
@@ -183,8 +185,10 @@ instruction ->
 # Helper grammar for list of michelson data types.
 subData ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (data ";" _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";" _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
+  | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
 
 # Helper grammar for list of pairs of michelson data types.
 subElt ->

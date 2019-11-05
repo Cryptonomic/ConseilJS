@@ -16,12 +16,12 @@ export namespace TezosProtocolHelper {
      * @param fee Operation fee in µtz.
      * @param derivationPath Derivation path, necessary if signing with a Ledger device.
      */
-    export function setDelegate(server: string, keyStore: KeyStore, delegator: string, delegate: string, fee: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
-        if (delegator.startsWith('KT1')) {
+    export function setDelegate(server: string, keyStore: KeyStore, contract: string, delegate: string, fee: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
+        if (contract.startsWith('KT1')) {
             //const parameters = `{ DROP ; NIL operation ; PUSH key_hash "${delegate}" ; SOME ; SET_DELEGATE ; CONS }`;
             const parameters = `[{ "prim": "DROP" }, { "prim": "NIL", "args": [{ "prim": "operation" }] }, { "prim": "PUSH", "args": [{ "prim": "key_hash" }, { "string": "${delegate}" } ] }, { "prim": "SOME" }, { "prim": "SET_DELEGATE" }, { "prim": "CONS" } ]`;
 
-            return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, delegator, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
+            return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
         } else { 
             return TezosNodeWriter.sendDelegationOperation(server, keyStore, delegate, fee, derivationPath);
         }
@@ -31,16 +31,16 @@ export namespace TezosProtocolHelper {
      * 
      * @param server Destination Tezos node.
      * @param keyStore Key pair to sign the transaction.
-     * @param delegator KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
+     * @param contract KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
      * @param fee Operation fee in µtz.
      * @param derivationPath Derivation path, necessary if signing with a Ledger device.
      */
-    export function unSetDelegate(server: string, keyStore: KeyStore, delegator: string, fee: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
-        if (delegator.startsWith('KT1')) {
+    export function unSetDelegate(server: string, keyStore: KeyStore, contract: string, fee: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
+        if (contract.startsWith('KT1')) {
             //const parameters = '{ DROP ; NIL operation ; NONE key_hash ; SET_DELEGATE ; CONS }';
             const parameters = `[{ "prim": "DROP" }, { "prim": "NIL", "args": [{ "prim": "operation" }] }, { "prim": "NONE", "args": [{ "prim": "key_hash" }] }, { "prim": "SET_DELEGATE" }, { "prim": "CONS" } ]`;
 
-            return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, delegator, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
+            return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
         } else {
             return TezosNodeWriter.sendUndelegationOperation(server, keyStore, fee, derivationPath);
         }
@@ -51,23 +51,38 @@ export namespace TezosProtocolHelper {
      * 
      * @param server Destination Tezos node.
      * @param keyStore Key pair to sign the transaction.
-     * @param delegator KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
+     * @param contract KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
      * @param fee Operation fee in µtz.
      * @param amount Amount to transfer in µtz.
      * @param derivationPath Derivation path, necessary if signing with a Ledger device.
      */
-    export function withdrawDelegatedFunds(server: string, keyStore: KeyStore, delegator: string, fee: number, amount: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
+    export function withdrawDelegatedFunds(server: string, keyStore: KeyStore, contract: string, fee: number, amount: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
+        return sendDelegatedFunds(server, keyStore, contract, fee, amount, derivationPath, keyStore.publicKeyHash);
+    }
+
+    /**
+     * Allows sending funds from pre-protocol 005 KT1 delegated accounts to other accounts.
+     * 
+     * @param server Destination Tezos node.
+     * @param keyStore Key pair to sign the transaction.
+     * @param contract KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
+     * @param fee Operation fee in µtz.
+     * @param amount Amount to transfer in µtz.
+     * @param derivationPath Derivation path, necessary if signing with a Ledger device.
+     * @param destination 
+     */
+    export function sendDelegatedFunds(server: string, keyStore: KeyStore, contract: string, fee: number, amount: number, derivationPath: string = '', destination: string): Promise<TezosTypes.OperationResult> {
         let parameters =
          `[ { "prim": "DROP" },
             { "prim": "NIL", "args": [ { "prim": "operation" } ] },
-            { "prim": "PUSH", "args": [ { "prim": "key_hash" }, { "string": "${keyStore.publicKeyHash}" } ] },
+            { "prim": "PUSH", "args": [ { "prim": "key_hash" }, { "string": "${destination}" } ] },
             { "prim": "IMPLICIT_ACCOUNT" },
             { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "${amount}" } ] },
             { "prim": "UNIT" },
             { "prim": "TRANSFER_TOKENS" },
             { "prim": "CONS" } ]`;
 
-        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, delegator, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
+        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
     }
 
     /**
@@ -75,13 +90,13 @@ export namespace TezosProtocolHelper {
      * 
      * @param server Destination Tezos node.
      * @param keyStore Key pair to sign the transaction.
-     * @param delegator KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
+     * @param contract KT1 address of the delegated account that `keyStore.publicKeyHash` controls.
      * @param fee Operation fee in µtz.
      * @param amount Amount to transfer in µtz.
      * @param derivationPath Derivation path, necessary if signing with a Ledger device.
      */
-    export function depositDelegatedFunds(server: string, keyStore: KeyStore, delegator: string, fee: number, amount: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
-        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, delegator, amount, fee, derivationPath, 0, TezosConstants.P005ManagerContractDepositGasLimit, undefined, undefined);
+    export function depositDelegatedFunds(server: string, keyStore: KeyStore, contract: string, fee: number, amount: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {
+        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, amount, fee, derivationPath, 0, TezosConstants.P005ManagerContractDepositGasLimit, undefined, undefined);
     }
 
     export function deployManagerContract(server: string, keyStore: KeyStore, delegate: string, fee: number, amount: number, derivationPath: string = ''): Promise<TezosTypes.OperationResult> {

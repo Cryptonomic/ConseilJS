@@ -12,7 +12,7 @@ FetchSelector.setFetch(fetch);
 
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient';
 import { TezosProtocolHelper } from '../../../src/chain/tezos/TezosProtocolHelper';
-import { tezosServer, conseilServer, keys, bakerAddress } from '../../TestAssets.zeronet';
+import { tezosServer, conseilServer, keys, bakerAddress } from '../../TestAssets';
 
 describe('TezosProtocolHelper integration test suite', () => {
     it('Deploy manager.tz P005 "upgrade" contract', async () => {

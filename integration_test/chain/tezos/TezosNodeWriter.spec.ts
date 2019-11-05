@@ -17,7 +17,11 @@ import { TezosWalletUtil} from '../../../src/identity/tezos/TezosWalletUtil';
 import { TezosConseilClient } from '../../../src/reporting/tezos/TezosConseilClient';
 import * as TezosTypes from '../../../src/types/tezos/TezosChainTypes';
 import * as TezosP2PMessageTypes from '../../../src/types/tezos/TezosP2PMessageTypes';
-import { tezosServer, conseilServer, faucetAccount, keys, transferAddress, bakerAddress, contractAddress } from '../../TestAssets.zeronet';
+import { tezosServer, conseilServer, faucetAccount, keys, transferAddress, bakerAddress, contractAddress } from '../../TestAssets';
+
+function clearRPCOperationGroupHash(hash: string) {
+    return hash.replace(/\"/g, '').replace(/\n/, '');
+}
 
 describe('TezosNodeWriter integration test suite', () => {
     it('Activate faucet account', async () => {
@@ -35,7 +39,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendTransactionOperation(tezosServer, keys, transferAddress, 500123, 20000);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -43,7 +47,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendDelegationOperation(tezosServer, keys, bakerAddress, 10000);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -55,7 +59,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosServer, keys, 10000, undefined, 10000, '', 10000, 20000, contract, storage, TezosTypes.TezosParameterFormat.Michelson);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 30);
     });
 
@@ -72,7 +76,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosServer, keys, 10000, undefined, 10000, '', 10000, 20000, contract, storage, TezosTypes.TezosParameterFormat.Micheline);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -80,7 +84,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosServer, keys, contractAddress, 10000, 10000, '', 1000, 100000, 'default', '"Cryptonomicon"', TezosTypes.TezosParameterFormat.Michelson);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -88,7 +92,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosServer, keys, contractAddress, 10000, 20000, '', 10000, 100000, '', '(Pair "message" (Pair "edsigtt7VBCeJjU9XtdCCPcV8VL3xe1XQHehk9Kg78Pxs3VZGXgHGGfktB71jUrK51tiJNybhUQidxxN48W4XWuRjjQwFJ17M1e" "edpkuqoemi1z8wjKxYCMvvshpFU7f71RUXhRyKudwLPBAdhqyj9epe"))', TezosTypes.TezosParameterFormat.Michelson);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -96,7 +100,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(tezosServer, keys, contractAddress, 10000, 20000, '', 10000, 100000, '', '{ DROP ; NIL operation ; PUSH key_hash "tz1aWXP237BLwNHJcCD4b3DutCevhqq2T1Z9" ; SOME ; SET_DELEGATE ; CONS }', TezosTypes.TezosParameterFormat.MichelsonLambda);
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
@@ -104,7 +108,7 @@ describe('TezosNodeWriter integration test suite', () => {
         const nodeResult = await TezosNodeWriter.sendContractPing(tezosServer, keys, contractAddress, 20000, '', 10000, 100000, '');
         expect(nodeResult["operationGroupID"]).to.exist;
 
-        const groupid = nodeResult["operationGroupID"].replace(/\"/g, '').replace(/\n/, '');
+        const groupid = clearRPCOperationGroupHash(nodeResult["operationGroupID"]);
         await TezosConseilClient.awaitOperationConfirmation(conseilServer, conseilServer.network, groupid, 5, 31);
     });
 
