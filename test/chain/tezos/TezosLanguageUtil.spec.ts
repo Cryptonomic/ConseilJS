@@ -155,6 +155,12 @@ describe("Tezos Micheline fragment decoding", () => {
         result = TezosLanguageUtil.translateMichelsonToMicheline(params);
         expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "prim": "Elt", "args": [ { "int": "0" }, { "string": "a" } ] }, { "int": "12" } ] }, { "int": "123" } ] }');
     });
+
+    it('Serialize Micheline parameters', () => {
+        let params = '{ "string": "hello" }';
+        let result = TezosLanguageUtil.translateMichelineToHex(params);
+        expect(result).to.equal('010000000568656c6c6f');
+    });
 });
 
 function preProcessMicheline(code: string): string[] {

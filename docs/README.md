@@ -9,11 +9,11 @@
 
 A library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
 
-ConseilJS connects to the [Nautilus](https://github.com/Cryptonomic/Nautilus) infrastructure for high-performance analytics provided by [Conseil](https://github.com/Cryptonomic/Conseil) and for live chain data and operations via the integrated Tezos node.
+ConseilJS connects to the [Nautilus](https://github.com/Cryptonomic/Nautilus) infrastructure for high-performance analytics provided by [Conseil](https://github.com/Cryptonomic/Conseil) and for live chain data and operations via the integrated Tezos node. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
 ## Use with Nodejs
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project, or include in your web project as: ``.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
 ```bash
 npm i conseiljs
@@ -96,7 +96,7 @@ To execute operations on the Tezos chain a link to a Tezos node is required. One
 
 #### Create a Tezos alphanet account
 
-Visit [Alphanet Faucet](https://faucet.tzalpha.net) to get a test account on the Tezos Alphanet. With this information we can create the public and private keys necessary to participate in the network. In the below examples, `alphanetFaucetAccount` is assigned the contents of the file the faucet produces.
+Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in the network. In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -104,7 +104,7 @@ Visit [Alphanet Faucet](https://faucet.tzalpha.net) to get a test account on the
 ```typescript
 import { TezosWalletUtil } from 'conseiljs';
 
-const alphanetFaucetAccount = {
+const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
     "secret": "96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723",
     "amount": "5652123072",
@@ -114,7 +114,7 @@ const alphanetFaucetAccount = {
 }
 
 async function initAccount() {
-    const keystore = await TezosWalletUtil.unlockFundraiserIdentity(alphanetFaucetAccount.mnemonic.join(' '), alphanetFaucetAccount.email, alphanetFaucetAccount.password, alphanetFaucetAccount.pkh);
+    const keystore = await TezosWalletUtil.unlockFundraiserIdentity(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
     console.log(`secret key: ${keystore.privateKey}`);
 }
@@ -126,7 +126,7 @@ initAccount();
 
 ```javascript
 const conseiljs = require('conseiljs');
-const alphanetFaucetAccount = {
+const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
     "secret": "96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723",
     "amount": "5652123072",
@@ -136,7 +136,7 @@ const alphanetFaucetAccount = {
 }
 
 async function initAccount() {
-    const keystore = await conseiljs.TezosWalletUtil.unlockFundraiserIdentity(alphanetFaucetAccount.mnemonic.join(' '), alphanetFaucetAccount.email, alphanetFaucetAccount.password, alphanetFaucetAccount.pkh);
+    const keystore = await conseiljs.TezosWalletUtil.unlockFundraiserIdentity(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
     console.log(`secret key: ${keystore.privateKey}`);
 }
@@ -237,7 +237,7 @@ activateAccount();
 ```
 <!-- tabs:end -->
 
-Operation result can be viewed on a [block explorer](https://mininax.cryptonomic.tech/#/alphanet/operations/ont2jgMsL51w3BAMJhqgsg6AoySLXsAXKzBrF1Xdyqw9f6dq8hE) for more details.
+Operation result can be viewed on a [block explorer](https://mininax.io/#/alphanet/operations/ont2jgMsL51w3BAMJhqgsg6AoySLXsAXKzBrF1Xdyqw9f6dq8hE) for more details.
 
 The next step on Tezos is an account revelation.
 
@@ -288,7 +288,7 @@ revealAccount();
 ```
 <!-- tabs:end -->
 
-Once again we can confirm the results: [ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM](https://mininax.cryptonomic.tech/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
+Once again we can confirm the results: [ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM](https://mininax.io/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
 
 #### Transfer value
 
@@ -341,7 +341,7 @@ sendTransaction();
 ```
 <!-- tabs:end -->
 
-The results: [onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h](https://mininax.cryptonomic.tech/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
+The results: [onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h](https://mininax.io/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
 #### Delegate
 
@@ -392,7 +392,7 @@ originateAccount();
 ```
 <!-- tabs:end -->
 
-The results: [ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA](https://mininax.cryptonomic.tech/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
+The results: [ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA](https://mininax.io/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
 
 #### Re-delegate
 
@@ -594,7 +594,8 @@ deployContract();
 ```javascript
 const conseiljs = require('conseiljs');
 const tezosNode = '';
-const conseilServer = { url: '', apiKey: '' };
+const network = 'babylonnet';
+const conseilServer = { url: '', apiKey: '', network };
 
 conseiljs.setLogLevel('debug');
 
@@ -628,11 +629,11 @@ deployContract();
 ```
 <!-- tabs:end -->
 
-The results: [opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W](https://mininax.cryptonomic.tech/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.cryptonomic.tech/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
+The results: [opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W](https://mininax.io/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.io/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
 
 #### Invoke a Contract
 
-Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety, `sendContractPing` that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax-beta.cryptonomic.tech?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
+Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety, `sendContractPing` that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax.io?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -687,7 +688,7 @@ invokeContract();
 ```
 <!-- tabs:end -->
 
-The results: [op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc](https://mininax.cryptonomic.tech/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
+The results: [op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc](https://mininax.io/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -797,7 +798,7 @@ pingContract();
 
 #### Extract Entry Points
 
-Michelson contract are single-entry, meaning unlike other smart contract languages it only has one function that can be called externally. The work-around for this limitation is to create a tree of `if` statements inside that method that perform different operations. This results in a somewhat unintuitive invocation pattern. To help with this, ConseilJS provide contract introspection functions that can not only extract the entry points given a contract, but also generate the invocation parameter object for them. This functionality resides in the `TezosContractIntrospector` namespace which has several methods for parsing the interface given a contract address, full contract code or just the `parameter` portion of the contract: `generateEntryPointsFromAddress`, `generateEntryPointsFromCode`, `generateEntryPointsFromParams` respectively. Examples below use a version the proposed Tezos token standard, [FA1.2](https://gitlab.com/tzip/tzip/blob/master/A/FA1.2.md) deployed on alphanet at [KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3](https://arronax-beta.cryptonomic.tech?e=Tezos%20Alphanet/accounts&m=true&q=eyJmaWVsZHMiOlsiYWNjb3VudF9pZCIsIm1hbmFnZXIiLCJiYWxhbmNlIiwic2NyaXB0Iiwic3RvcmFnZSIsImJsb2NrX2xldmVsIl0sInByZWRpY2F0ZXMiOlt7ImZpZWxkIjoiYWNjb3VudF9pZCIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMVhGWHdXQ0RNTGtnV2poZnFLVXBEdEJZV2YzWmRVZEtDMyJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6ImJsb2NrX2xldmVsIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0).
+Michelson contract are single-entry, meaning unlike other smart contract languages it only has one function that can be called externally. The work-around for this limitation is to create a tree of `if` statements inside that method that perform different operations. This results in a somewhat unintuitive invocation pattern. To help with this, ConseilJS provide contract introspection functions that can not only extract the entry points given a contract, but also generate the invocation parameter object for them. This functionality resides in the `TezosContractIntrospector` namespace which has several methods for parsing the interface given a contract address, full contract code or just the `parameter` portion of the contract: `generateEntryPointsFromAddress`, `generateEntryPointsFromCode`, `generateEntryPointsFromParams` respectively. Examples below use a version the proposed Tezos token standard, [FA1.2](https://gitlab.com/tzip/tzip/blob/master/A/FA1.2.md) deployed on alphanet at [KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3](https://arronax.io?e=Tezos%20Alphanet/accounts&m=true&q=eyJmaWVsZHMiOlsiYWNjb3VudF9pZCIsIm1hbmFnZXIiLCJiYWxhbmNlIiwic2NyaXB0Iiwic3RvcmFnZSIsImJsb2NrX2xldmVsIl0sInByZWRpY2F0ZXMiOlt7ImZpZWxkIjoiYWNjb3VudF9pZCIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMVhGWHdXQ0RNTGtnV2poZnFLVXBEdEJZV2YzWmRVZEtDMyJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6ImJsb2NrX2xldmVsIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1090,12 +1091,12 @@ The service might return:
 
 ```json
 [ { "name": "zeronet", "displayName": "Zeronet", "platform": "tezos", "network": "zeronet" },
-  { "name": "alphanet", "displayName": "Alphanet", "platform": "tezos", "network": "alphanet" } ]
+  { "name": "babylonnet", "displayName": "Babylonnet", "platform": "tezos", "network": "babylonnet" } ]
 ```
 
 #### Entities
 
-Query for available chain entities on `Tezos` `alphanet`.
+Query for available chain entities on `Tezos` `babylonnet`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1104,10 +1105,10 @@ Query for available chain entities on `Tezos` `alphanet`.
 import { ConseilMetadataClient } from 'conseiljs';
 import * as util from 'util';
 
-const conseilServerInfo = { url: '', apiKey: '' };
+const conseilServerInfo = { url: '', apiKey: '', network: 'babylonnet' };
 
 async function listEntities() {
-    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'alphanet');
+    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'babylonnet');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1266,10 +1267,10 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'operations';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function listAccountTransactions() {
     let sendQuery = ConseilQueryBuilder.blankQuery();
@@ -1303,11 +1304,12 @@ listAccountTransactions();
 ```javascript
 const conseiljs = require('conseiljs');
 const util = require('util');
+
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'operations';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function listAccountTransactions() {
     let sendQuery = conseiljs.ConseilQueryBuilder.blankQuery();
@@ -1361,10 +1363,10 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'operations';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function listTransactions() {
     let transactionQuery = ConseilQueryBuilder.blankQuery();
@@ -1388,11 +1390,12 @@ listTransactions();
 ```javascript
 const conseiljs = require('conseiljs');
 const util = require('util');
+
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'operations';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function listTransactions() {
     let transactionQuery = conseiljs.ConseilQueryBuilder.blankQuery();
@@ -1436,14 +1439,14 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountInfo(address: string) {
     let accountQuery = ConseilQueryBuilder.blankQuery();
-    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'manager', 'delegate_value', 'balance', 'block_level');
+    accountQuery = ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'delegate_value', 'balance', 'block_level');
     accountQuery = ConseilQueryBuilder.addPredicate(accountQuery, 'account_id', ConseilOperator.EQ, [address], false);
     accountQuery = ConseilQueryBuilder.setLimit(accountQuery, 1);
 
@@ -1460,15 +1463,16 @@ accountInfo('tz3WXYtyDUNL91qfiCJtVUX746QpNv5i5ve5');
 ```javascript
 const conseiljs = require('conseiljs');
 const util = require('util');
+
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountInfo(address: string) {
     let accountQuery = conseiljs.ConseilQueryBuilder.blankQuery();
-    accountQuery = conseiljs.ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'manager', 'delegate_value', 'balance', 'block_level');
+    accountQuery = conseiljs.ConseilQueryBuilder.addFields(accountQuery, 'account_id', 'delegate_value', 'balance', 'block_level');
     accountQuery = conseiljs.ConseilQueryBuilder.addPredicate(accountQuery, 'account_id', conseiljs.ConseilOperator.EQ, [address], false);
     accountQuery = conseiljs.ConseilQueryBuilder.setLimit(accountQuery, 1);
 
@@ -1492,10 +1496,10 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountInfo(address: string) {
     let accountQuery = ConseilQueryBuilder.blankQuery();
@@ -1518,11 +1522,12 @@ accountInfo('tz1PziRyFwu96Rw1vqgzEdd7SqMuT4hQaggz');
 ```javascript
 const conseiljs = require('conseiljs');
 const util = require('util');
+
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountInfo(address: string) {
     let accountQuery = conseiljs.ConseilQueryBuilder.blankQuery();
@@ -1553,10 +1558,10 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountBalance(address: string) {
     let accountQuery = ConseilQueryBuilder.blankQuery();
@@ -1581,10 +1586,10 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'alphanet';
+const network = 'babylonnet';
 const entity = 'accounts';
 
-const conseilServer = { url: '', apiKey: '' };
+const conseilServer = { url: '', apiKey: '', network };
 
 async function accountBalance(address) {
     let accountQuery = conseiljs.ConseilQueryBuilder.blankQuery();

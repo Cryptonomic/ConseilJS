@@ -286,7 +286,7 @@ declare var data: any;
     const recordData = (d: string[]): EntryPoint[] => {
         let parameterName: string | undefined = undefined;
         let entryPointName: string | undefined = undefined;
-//console.log(`recordData with ${d.join(', ')} `)
+
         if (d.length >= 3) {
             const annot = d[2].toString();
             if (annot.charAt(0) === '%') {
