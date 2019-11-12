@@ -1,6 +1,7 @@
 /**
  * These two lines allow us to interface with Ledgerjs and use their transport layer code
  */
+import "regenerator-runtime";
 let Transport = require("@ledgerhq/hw-transport-node-hid").default;
 let App = require("basil-tezos-ledger").default;
 
