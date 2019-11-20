@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import * as bip32path from 'bip32-path';
 
-export enum Curve {
+export enum Curve { // taken from https://github.com/obsidiansystems/ledger-app-tezos/blob/master/APDUs.md
     ED25519 = 0x00,
     SECP256K1 = 0x01,
     SECP256R1 = 0x02
@@ -24,29 +24,55 @@ export default class TezosLedgerConnector {
     }
 
     /**
-     * Get Tezos public key hash for a given BIP32 path.
+     * Get Tezos public key hash for a given BIP32/44 path and curve
      * 
-     * @param path 
-     * @param boolDisplay 
-     * @param curve 
+     * @param {string} path BIP32/44 derivation path
+     * @param {boolean} prompt Prompt the user to provide the key on the hardware device, default true.
+     * @param {Curve} curve Curve to use for key generation, one of: ED25519 (default), SECP256K1, SECP256R1
      */
-    async getAddress(path: string, boolDisplay: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
+    async getAddress(path: string, prompt: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
         if (!path.startsWith("44'/1729'")) {
             throw new Error(`Tezos derivation paths must start with '44'/1729': ${path}`);
         }
 
-        const cla = 0x80;
-        const p1 = 0;
-        const p2 = curve || 0;
-
-        const payload = await this.transport.send(cla, boolDisplay ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, p1, p2, this.pathToBuffer(path));
+        const payload = await this.transport.send(0x80, prompt ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, 0x00, curve, this.pathToBuffer(path));
         const publicKey = payload.slice(1, 1 + payload[0]);
 
         return publicKey.toString("hex");
     }
 
-    async sign(path: string, rawTxHex: string, curve: Curve, apdu: number): Promise<string> {
-        const bytes = Buffer.from(rawTxHex, "hex");
+    /**
+     * Signs an operation hex, will attempt to parse the parameters and present them to the user.
+     * 
+     * @param {string} path BIP32/44 derivation path
+     * @param {string} hex Operation hex
+     * @param {Curve} curve Curve, defaults to ED25519
+     */
+    async signOperation(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, curve, Instruction.INS_SIGN, hex);
+    }
+
+    /**
+     * Signs a hex string without attempting to parse it on the device for parameter verification by the user.
+     * 
+     * @param {string} path BIP32/44 derivation path 
+     * @param {string} hex Hex
+     * @param {Curve} curve Curve, defaults to ED25519
+     */
+    async signHex(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, curve, Instruction.INS_SIGN_UNSAFE, hex);
+    }
+
+    /**
+     * Gets the version of the Tezos application running on the Ledger device.
+     */
+    async getVersionString(): Promise<string> {
+        const [appFlag, major, minor, patch] = await this.transport.send(0x80, Instruction.INS_VERSION, 0x00, 0x00, new Buffer(0));
+        return `${major}.${minor}.${patch}${appFlag === 1 ? ' baker' : ''}`;
+    }
+
+    private async sign(path: string, curve: Curve, instruction: number, hex: string, ): Promise<string> {
+        const bytes = Buffer.from(hex, "hex");
         let message: Buffer[] = [];
 
         message.push(this.pathToBuffer(path));
@@ -60,28 +86,15 @@ export default class TezosLedgerConnector {
             message.push(buffer);
         }
 
-        let response = await this.transport.send(0x80, apdu, 0x00, curve, message[0]);
+        let response = await this.transport.send(0x80, instruction, 0x00, curve, message[0]);
         for (let i = 1; i < message.length; i++) {
             let code = (i === message.length - 1) ? 0x81 : 0x01;
-            response = await this.transport.send(0x80, apdu, code, curve, message[i]);
+            response = await this.transport.send(0x80, instruction, code, curve, message[i]);
         }
 
         const signature = response.slice(0, response.length - 2).toString("hex");
 
         return signature;
-    }
-
-    async signOperation(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, hex, curve, Instruction.INS_SIGN);
-    }
-
-    async signHash(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, hex, curve, Instruction.INS_SIGN_UNSAFE);
-    }
-
-    async getVersionString(): Promise<string> {
-        const [appFlag, major, minor, patch] = await this.transport.send(0x80, Instruction.INS_VERSION, 0x00, 0x00, new Buffer(0));
-        return `${major}.${minor}.${patch}${appFlag === 1 ? ' baker' : ''}`;
     }
 
     private pathToBuffer(path: string): Buffer {
