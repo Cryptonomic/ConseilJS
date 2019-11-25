@@ -106,6 +106,10 @@
     "webpack-cli": "^3.3.8",
     "webpack-node-externals": "^1.7.2"
   },
+  "engines": {
+    "node": "10.x",
+    "npm": "6.x"
+  },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
     "plugins": [ "@typescript-eslint" ],
