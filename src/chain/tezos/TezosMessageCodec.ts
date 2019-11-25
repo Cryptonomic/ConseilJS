@@ -434,7 +434,7 @@ export namespace TezosMessageCodec {
                 hex += '04';
             } else {
                 hex += 'ff'
-                    + ('0' + (composite.entrypoint.length / 2).toString(16)).slice(-2)
+                    + ('0' + composite.entrypoint.length.toString(16)).slice(-2)
                     + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
             }
 

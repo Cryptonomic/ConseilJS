@@ -7,9 +7,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
 [![dependencies](https://david-dm.org/Cryptonomic/ConseilJS/status.svg)](https://david-dm.org/Cryptonomic/ConseilJS)
 
-A library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
+A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
 
-ConseilJS connects to the [Nautilus](https://github.com/Cryptonomic/Nautilus) infrastructure for high-performance analytics provided by [Conseil](https://github.com/Cryptonomic/Conseil) and for live chain data and operations via the integrated Tezos node. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
+ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax.io), [Mininax](https://mininax.io) and certainly [Galleon](https://galleon-wallet.tech). There are now [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
+
+Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
 ## Use with Nodejs
 
@@ -31,7 +33,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-3S7SLnF0vWFuX0qraO4vpX6upkLADLtmzndMZlPRhAmqYyENSbYKtQfaVR5K65jX"
+        integrity="sha384-iw6cS47W5+ukV1PnZ1moaOR8QlLSN1yWfB2SjkSXlupgXqcsogOA116rkDtl8Zhg"
         crossorigin="anonymous"></script>
 ```
 
@@ -1733,7 +1735,7 @@ Before the Ledger device can be used, the connection must be initialized with th
 
 Returns a partial `KeyStore` container public key and public key hash (address) for a given `derivationPath`. The private key does not leave the device. `deviceType` must be `HardwareDeviceType.LedgerNanoS`.
 
-##### getTezosPublicKey(derivationPath: string): Promise<string> 
+##### getTezosPublicKey(derivationPath: string): Promise&lt;string&gt;
 
 Returns just the public key for a given `derivationPath`.
 

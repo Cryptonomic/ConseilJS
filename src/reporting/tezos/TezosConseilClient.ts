@@ -48,10 +48,11 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param hash Block hash to query for.
      */
-    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any[]> {
+    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [hash], false), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
@@ -77,7 +78,8 @@ export namespace TezosConseilClient {
     export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 1);
 
-        return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
+        const r = await getTezosEntityData(serverInfo, network, ACCOUNTS, query);
+        return r[0];
     }
 
     /**
@@ -90,7 +92,8 @@ export namespace TezosConseilClient {
     export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [operationGroupID], false), 1);
 
-        return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
+        const r = await getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
+        return r[0];
     }
 
     /**
