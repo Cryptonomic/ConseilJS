@@ -597,7 +597,7 @@ export namespace TezosNodeWriter {
         entrypoint: string | undefined,
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
-    ): Promise<{gas: number, storage: number}> {
+    ): Promise<{gas: number, storageCost: number}> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, to, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
         const blockHead = await TezosNodeReader.getBlockHead(server);
@@ -611,15 +611,15 @@ export namespace TezosNodeWriter {
 
         const responseJSON = JSON.parse(responseText);
         let gas = 0;
-        let storage = 0;
+        let storageCost = 0;
         for (let c of responseJSON['contents']) {
             try {
                 gas = parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
-                storage = parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
+                storageCost = parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
             } catch { }
         }
 
-        return { gas, storage };
+        return { gas, storageCost };
     }
 
     /**
