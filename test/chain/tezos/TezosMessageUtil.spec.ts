@@ -139,6 +139,9 @@ describe('Tezos P2P message codec helper tests', () => {
 
     result = TezosMessageUtils.writePackedData('Tezos Tacos Nachos', 'string');
     expect(result).to.equal('05010000001254657a6f73205461636f73204e6163686f73');
+
+    result = TezosMessageUtils.writePackedData(Buffer.from('0a0a0a', 'hex'), 'bytes');
+    expect(result).to.equal('050a000000030a0a0a');
   });
 
   it('test simple value PACKing', () => {

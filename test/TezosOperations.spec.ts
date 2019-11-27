@@ -97,13 +97,11 @@ describe('Tezos Operations Test', () => {
         it('TezosNode.getAccountForBlock', mochaAsync(async () => {
             const account = await TezosNodeReader.getAccountForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
             expect(account).to.be.an('object');
-            expect(account.manager).to.be.a('string');
         }));
 
         it('TezosNode.getAccountManagerForBlock', mochaAsync(async () => {
             const managerKey = await TezosNodeReader.getAccountManagerForBlock('http://conseil.server', blockHead.hash, keyStore.publicKeyHash);
-            expect(managerKey).to.be.an('object');
-            expect(managerKey.manager).to.be.a('string');
+            expect(managerKey).to.be.a('string');
         }));
 
         it('isManagerKeyRevealedForAccount should be true', mochaAsync(async () => {
