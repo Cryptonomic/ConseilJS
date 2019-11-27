@@ -115,6 +115,40 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('BLoBZFawGRjGwk53VW76xBDhxKKMpnk3k3FWdkYZhcusd3aVwUM');
   });
 
+  it('test simple value PACKing', () => {
+    let result = TezosMessageUtils.writePackedData(9, 'int');
+    expect(result).to.equal('050009');
+    
+    result = TezosMessageUtils.writePackedData(9, 'nat');
+    expect(result).to.equal('050009');
+    
+    result = TezosMessageUtils.writePackedData(-9, 'int');
+    expect(result).to.equal('050049');
+
+    result = TezosMessageUtils.writePackedData(-6407, 'int');
+    expect(result).to.equal('0500c764');
+
+    result = TezosMessageUtils.writePackedData(98978654, 'int');
+    expect(result).to.equal('05009eadb25e');
+
+    result = TezosMessageUtils.writePackedData(-78181343541, 'int');
+    expect(result).to.equal('0500f584c5bfc604');
+
+    result = TezosMessageUtils.writePackedData('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8', 'address');
+    expect(result).to.equal('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2');
+
+    result = TezosMessageUtils.writePackedData('Tezos Tacos Nachos', 'string');
+    expect(result).to.equal('05010000001254657a6f73205461636f73204e6163686f73');
+  });
+
+  it('test simple value PACKing', () => {
+    let result = TezosMessageUtils.encodeBigMapKey(Buffer.from('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2', 'hex'));
+    expect(result).to.equal('exprv7U7pkJHbeUGhs7Wj8GTUnvfZfJRUcSCRo2EYqRSnUx1xWKrY9');
+
+    result = TezosMessageUtils.encodeBigMapKey(Buffer.from('05010000001254657a6f73205461636f73204e6163686f73', 'hex'));
+    expect(result).to.equal('expruGmscHLuUazE7d79EepWCnDuPJreo8R87wsDGUgKAuH4E5ayEj');
+  });
+
   it("test various parsing and encoding failures", () => {
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ff')).to.throw('Incorrect hex length to parse an address');

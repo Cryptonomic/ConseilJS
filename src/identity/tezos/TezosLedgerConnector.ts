@@ -31,10 +31,18 @@ export default class TezosLedgerConnector {
      * @param {Curve} curve Curve to use for key generation, one of: ED25519 (default), SECP256K1, SECP256R1
      */
     async getAddress(path: string, prompt: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
-        const payload = await this.transport.send(0x80, prompt ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, 0x00, curve, this.pathToBuffer(path));
-        const publicKey = payload.slice(1, 1 + payload[0]);
+        try {
+            const response = await this.transport.send(0x80, prompt ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, 0x00, curve, this.pathToBuffer(path));
+            const publicKey = response.slice(1, 1 + response[0]);
 
-        return publicKey.toString("hex");
+            return publicKey.toString('hex');
+        } catch (err) {
+            if (err.message.includes('0x6985')) {
+                throw new Error('Public key request rejected on device.');
+            } else {
+                throw err;
+            }
+        }
     }
 
     /**
@@ -73,7 +81,7 @@ export default class TezosLedgerConnector {
 
         message.push(this.pathToBuffer(path));
 
-        const maxChunkSize = 255;
+        const maxChunkSize = 230; // 255
         for (let offset = 0, part = 0; offset !== bytes.length; offset += part) {
             part = offset + maxChunkSize > bytes.length ? bytes.length - offset : maxChunkSize;
 
