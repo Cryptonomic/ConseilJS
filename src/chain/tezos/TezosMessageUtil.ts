@@ -381,7 +381,8 @@ export namespace TezosMessageUtils {
                 return `050a${dataLength(address.length / 2)}${address}`;
             }
             case 'bytes': {
-                // TODO
+                const buffer = (value as Buffer).toString('hex');
+                return `050a${dataLength(buffer.length / 2)}${buffer}`;
             }
             default: {
                 throw new Error(`Unrecognized data type, ${type}, provided`);
