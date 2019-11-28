@@ -1,11 +1,15 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.3.4-beta  
+## 0.3.4-beta.1
 
 ### Fixes
 
-- basic big_map query support
+## 0.3.4-beta
+
+### Fixes
+
+- basic big_map query support.
 - nodejs 10.17.x is now the minimum requirement.
 - all dependencies are now referenced with explicit versions.
 
