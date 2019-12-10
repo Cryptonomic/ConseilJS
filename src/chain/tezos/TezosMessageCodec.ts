@@ -438,7 +438,11 @@ export namespace TezosMessageCodec {
                     + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
             }
 
-            hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+            if (result === '0000000002030b') { // { "prim": "Unit" }
+                hex += '00';
+            } else {
+                hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+            }
         } else {
             hex += '00';
         }
