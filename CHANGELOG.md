@@ -1,9 +1,18 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.3.4-beta.1
+## 0.3.5-beta
+
+### Breaking Changes
+
+- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`
 
 ### Fixes
+
+- Improved entry point parser, this functionality is still experimental.
+- Added `EntryPoint.generateInvocationPair` to produce Protocol 005 style invocation parameters.
+- `ConseilPredicate` gained a `group` attribute for `or` queries.
+- removed `base-n` dependency.
 
 ## 0.3.4-beta
 
