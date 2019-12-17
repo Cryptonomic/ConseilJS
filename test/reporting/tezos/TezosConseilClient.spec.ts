@@ -40,10 +40,9 @@ describe('TezosConseilClient tests', () => {
         const nockedserver = nock('http://conseil.server');
         nockedserver.post('/v2/data/tezos/alphanet/blocks').reply(200, block);
 
-        const result = await TezosConseilClient.getBlock(conseilServer, conseilServer.network, 'BL5zoNBN17j2AcUrs8mqSKSMcEiuBKkd9RB6uZ6CgYE2Xyb2ybV');
+        const result = await TezosConseilClient.getBlock(conseilServer, conseilServer.network, 'BM9bKSFuZs7rE6Aa5p6Lx1QhqcUeJNf7kEiSEtqAxhz5C2a7mz9');
 
-        expect(result.length).to.equal(1);
-        expect(result[0]['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
+        expect(result['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
     }));
 
     it('TezosConseilClient.getBlockByLevel', mochaAsync(async () => {
@@ -52,7 +51,6 @@ describe('TezosConseilClient tests', () => {
 
         const result = await TezosConseilClient.getBlockByLevel(conseilServer, conseilServer.network, 173137);
 
-        expect(result.length).to.equal(1);
         expect(result[0]['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
     }));
 
@@ -62,8 +60,7 @@ describe('TezosConseilClient tests', () => {
 
         const result = await TezosConseilClient.getAccount(conseilServer, conseilServer.network, 'tz1L8MjMxQJio8YmmfdFbbVSymbNx5uiX3XT');
 
-        expect(result.length).to.equal(1);
-        expect(result[0]['manager']).to.equal('tz1L8MjMxQJio8YmmfdFbbVSymbNx5uiX3XT');
+        expect(result['manager']).to.equal('tz1L8MjMxQJio8YmmfdFbbVSymbNx5uiX3XT');
     }));
 
     it('TezosConseilClient.getOperationGroup', mochaAsync(async () => {
@@ -72,8 +69,7 @@ describe('TezosConseilClient tests', () => {
 
         const result = await TezosConseilClient.getOperationGroup(conseilServer, conseilServer.network, 'ooYPxHKwUgkXxbWVfZFuYnvjNuGtrAgRQEtNrbPXNiwTBbCFW9j');
 
-        expect(result.length).to.equal(1);
-        expect(result[0]['branch']).to.equal('BLA3ecN7jh6Vc7XmogePRsdAjjbueG9NHsb32ByL5nbAhMvcNxK');
+        expect(result['branch']).to.equal('BLA3ecN7jh6Vc7XmogePRsdAjjbueG9NHsb32ByL5nbAhMvcNxK');
     }));
 
     it('TezosConseilClient.getBlocks', mochaAsync(async () => {
