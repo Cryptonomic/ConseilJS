@@ -1,4 +1,3 @@
-import 'regenerator-runtime';
 import Transport from '@ledgerhq/hw-transport-node-hid';
 
 import { TezosMessageUtils } from '../../chain/tezos/TezosMessageUtil';
