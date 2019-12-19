@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.19.0
+// Generated automatically by nearley, version 2.18.0
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -71,35 +71,27 @@ const lexer = moo.compile({
     */
   const keywordToJson = d => { return `{ "prim": "${d[0]}" }`; }
 
-interface NearleyToken {  value: any;
-  [key: string]: any;
-};
+export interface Token { value: any; [key: string]: any };
 
-interface NearleyLexer {
+export interface Lexer {
   reset: (chunk: string, info: any) => void;
-  next: () => NearleyToken | undefined;
+  next: () => Token | undefined;
   save: () => any;
-  formatError: (token: NearleyToken) => string;
-  has: (tokenType: string) => boolean;
+  formatError: (token: Token) => string;
+  has: (tokenType: string) => boolean
 };
 
-interface NearleyRule {
+export interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any
 };
 
-type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-interface Grammar {
-  Lexer: NearleyLexer | undefined;
-  ParserRules: NearleyRule[];
-  ParserStart: string;
-};
+export var Lexer: Lexer | undefined = lexer;
 
-const grammar: Grammar = {
-  Lexer: lexer,
-  ParserRules: [
+export var ParserRules: NearleyRule[] = [
     {"name": "data", "symbols": [(lexer.has("keyword") ? {type: "keyword"} : keyword)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
     {"name": "data", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
@@ -111,8 +103,6 @@ const grammar: Grammar = {
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "_", "symbols": ["_$ebnf$1"]}
-  ],
-  ParserStart: "data",
-};
+];
 
-export default grammar;
+export var ParserStart: string = "data";

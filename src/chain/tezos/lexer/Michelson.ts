@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.19.0
+// Generated automatically by nearley, version 2.18.0
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -506,35 +506,27 @@ const lexer = moo.compile({
         return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
     }
 
-interface NearleyToken {  value: any;
-  [key: string]: any;
-};
+export interface Token { value: any; [key: string]: any };
 
-interface NearleyLexer {
+export interface Lexer {
   reset: (chunk: string, info: any) => void;
-  next: () => NearleyToken | undefined;
+  next: () => Token | undefined;
   save: () => any;
-  formatError: (token: NearleyToken) => string;
-  has: (tokenType: string) => boolean;
+  formatError: (token: Token) => string;
+  has: (tokenType: string) => boolean
 };
 
-interface NearleyRule {
+export interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any
 };
 
-type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-interface Grammar {
-  Lexer: NearleyLexer | undefined;
-  ParserRules: NearleyRule[];
-  ParserStart: string;
-};
+export var Lexer: Lexer | undefined = lexer;
 
-const grammar: Grammar = {
-  Lexer: lexer,
-  ParserRules: [
+export var ParserRules: NearleyRule[] = [
     {"name": "main", "symbols": ["instruction"], "postprocess": id},
     {"name": "main", "symbols": ["data"], "postprocess": id},
     {"name": "main", "symbols": ["type"], "postprocess": id},
@@ -796,8 +788,6 @@ const grammar: Grammar = {
     {"name": "semicolons$ebnf$1", "symbols": [/[;]/], "postprocess": id},
     {"name": "semicolons$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "semicolons", "symbols": ["semicolons$ebnf$1"]}
-  ],
-  ParserStart: "main",
-};
+];
 
-export default grammar;
+export var ParserStart: string = "main";

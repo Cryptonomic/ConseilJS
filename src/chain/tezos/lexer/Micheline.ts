@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.19.0
+// Generated automatically by nearley, version 2.18.0
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -206,35 +206,27 @@ const writeSignedInt = value => {
         return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
     }
 
-interface NearleyToken {  value: any;
-  [key: string]: any;
-};
+export interface Token { value: any; [key: string]: any };
 
-interface NearleyLexer {
+export interface Lexer {
   reset: (chunk: string, info: any) => void;
-  next: () => NearleyToken | undefined;
+  next: () => Token | undefined;
   save: () => any;
-  formatError: (token: NearleyToken) => string;
-  has: (tokenType: string) => boolean;
+  formatError: (token: Token) => string;
+  has: (tokenType: string) => boolean
 };
 
-interface NearleyRule {
+export interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any
 };
 
-type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-interface Grammar {
-  Lexer: NearleyLexer | undefined;
-  ParserRules: NearleyRule[];
-  ParserStart: string;
-};
+export var Lexer: Lexer | undefined = lexer;
 
-const grammar: Grammar = {
-  Lexer: lexer,
-  ParserRules: [
+export var ParserRules: NearleyRule[] = [
     {"name": "main", "symbols": ["staticObject"], "postprocess": id},
     {"name": "main", "symbols": ["primBare"], "postprocess": id},
     {"name": "main", "symbols": ["primArg"], "postprocess": id},
@@ -342,8 +334,6 @@ const grammar: Grammar = {
     {"name": "anyArray$ebnf$1$subexpression$2", "symbols": ["any", "anyArray$ebnf$1$subexpression$2$ebnf$1", "anyArray$ebnf$1$subexpression$2$ebnf$2"]},
     {"name": "anyArray$ebnf$1", "symbols": ["anyArray$ebnf$1", "anyArray$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "anyArray", "symbols": [(lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "anyArray$ebnf$1", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket)], "postprocess": staticArrayToHex}
-  ],
-  ParserStart: "main",
-};
+];
 
-export default grammar;
+export var ParserStart: string = "main";
