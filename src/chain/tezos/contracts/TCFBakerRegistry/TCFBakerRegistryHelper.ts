@@ -50,10 +50,12 @@ export namespace TCFBakerRegistryHelper { // TODO: rename /chain/tezos/contracts
         const jsonpath = new JSONPath();
         const textDecoder = new TextDecoder();
 
+        const paymentConfigMask = Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[1].int')[0]); // paymentConfigMask
+
         return {
             name: textDecoder.decode(Buffer.from(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[0].args[0].bytes')[0], 'hex')), // bakerName
             isAcceptingDelegation: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[0].args[1].prim')[0]), // openForDelegation
-            externalDataURL: textDecoder.decode(Buffer.from(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[1].bytes')[0])), // bakerOffchainRegistryUrl
+            externalDataURL: textDecoder.decode(Buffer.from(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[1].bytes')[0], 'hex')), // bakerOffchainRegistryUrl
             split: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[0].args[0].int')[0]), // split
             paymentAccounts: jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[0].args[1]..string'), // bakerPaysFromAccounts
             minimumDelegation: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[0].args[0].int')[0]), // minDelegation
@@ -62,7 +64,22 @@ export namespace TCFBakerRegistryHelper { // TODO: rename /chain/tezos/contracts
             payoutFrequency: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[0].int')[0]), // payoutFrequency
             minimumPayout: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[1].int')[0]), // minPayout
             isCheap: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[0].prim')[0]), // bakerChargesTransactionFee
-            paymentConfigMask: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[1].int')[0]), // paymentConfigMask
+            paymentConfig: {
+                payForOwnBlocks: Boolean(paymentConfigMask & 1),
+                payForEndorsements: Boolean(paymentConfigMask & 2),
+                payGainedFees: Boolean(paymentConfigMask & 4),
+                payForAccusationGains: Boolean(paymentConfigMask & 8),
+                subtractLostDepositsWhenAccused: Boolean(paymentConfigMask & 16),
+                subtractLostRewardsWhenAccused: Boolean(paymentConfigMask & 32),
+                subtractLostFeesWhenAccused: Boolean(paymentConfigMask & 64),
+                payForRevelation: Boolean(paymentConfigMask & 128),
+                subtractLostRewardsWhenMissRevelation: Boolean(paymentConfigMask & 256),
+                subtractLostFeesWhenMissRevelation: Boolean(paymentConfigMask & 512),
+                compensateMissedBlocks: !Boolean(paymentConfigMask & 1024),
+                payForStolenBlocks: Boolean(paymentConfigMask & 2048),
+                compensateMissedEndorsements: !Boolean(paymentConfigMask & 4096),
+                compensateLowPriorityEndorsementLoss: !Boolean(paymentConfigMask & 8192)
+            },
             overdelegationThreshold: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[0].int')[0]), // overDelegationThreshold
             subtractRewardsFromUninvitedDelegation: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[1].prim')[0]), // subtractRewardsFromUninvitedDelegation
             recordManager: jsonpath.query(mapResult, '$.args[0].args[1].args[0].string')[0], // reporterAccount
