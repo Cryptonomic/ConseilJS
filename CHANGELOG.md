@@ -7,6 +7,7 @@
 
 - Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
 - `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
+- nodejs 12 is now a base requirement.
 
 ### Fixes
 
@@ -17,6 +18,7 @@
 ### New Features
 
 - added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
+- added TZIP 0007 (fa1.2) token contract interface
 - `TezosMessageUtil` can now `pack` `key_hash` value.
 
 ## 0.3.5-beta

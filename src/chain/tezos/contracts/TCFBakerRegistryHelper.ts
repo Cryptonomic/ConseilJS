@@ -65,10 +65,10 @@ export namespace TCFBakerRegistryHelper {
      * Query the baker registry contract at the specified address for a given baker address.
      * 
      * @param server Destination Tezos node.
-     * @param address Contract address to query.
+     * @param mapid bigmap reference to query.
      * @param baker Baker address to query.
      */
-    export async function queryRegistration(server: string, address: string, mapid: number, baker: string) {
+    export async function queryRegistration(server: string, mapid: number, baker: string) {
         const key = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(baker, 'key_hash'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, key);
 
@@ -112,13 +112,5 @@ export namespace TCFBakerRegistryHelper {
             recordManager: jsonpath.query(mapResult, '$.args[0].args[1].args[0].string')[0], // reporterAccount
             timestamp: new Date(jsonpath.query(mapResult, '$.args[1].string')[0]) // last_update
         };
-    }
-
-    export function generateRegistrationRequest(): Buffer {
-        return Buffer.from('0', 'hex');
-    }
-
-    export async function setPresignedRequest(request: Buffer, signature: Buffer) {
-
     }
 }
