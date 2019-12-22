@@ -156,6 +156,6 @@ export namespace TezosNodeReader {
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      */
     export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`);
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
     }
 }

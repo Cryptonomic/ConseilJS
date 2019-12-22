@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.3.5-beta",
+  "version": "0.4.0-alpha.1",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -119,8 +119,8 @@
     "webpack-node-externals": "1.7.2"
   },
   "engines": {
-    "node": ">=10.17.x",
-    "npm": ">=6.11.x"
+    "node": ">=12.14.x",
+    "npm": ">=6.13.x"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

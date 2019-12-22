@@ -1,5 +1,5 @@
 import * as blakejs from 'blakejs';
-import {JSONPath} from 'jsonpath';
+import { JSONPath } from 'jsonpath';
 
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
@@ -68,9 +68,11 @@ export namespace TCFBakerRegistryHelper {
      * @param address Contract address to query.
      * @param baker Baker address to query.
      */
-    export async function queryRegistration(server: string, address: string, baker: string) {
+    export async function queryRegistration(server: string, address: string, mapid: number, baker: string) {
         const key = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(baker, 'key_hash'), 'hex'));
-        const mapResult = await TezosNodeReader.getValueForBigMapKey(server, 538, key);
+        const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, key);
+
+        if (!!!mapResult) { return undefined; }
 
         const jsonpath = new JSONPath();
         const textDecoder = new TextDecoder();
