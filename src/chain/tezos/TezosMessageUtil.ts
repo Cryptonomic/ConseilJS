@@ -370,7 +370,11 @@ export namespace TezosMessageUtils {
             case 'string': {
                 return '0501' + writeString(value as string);
             }
-            case 'address': { // address is encoded as bytes
+            case 'key_hash': {
+                const address = writeAddress(value as string).slice(2);
+                return `050a${dataLength(address.length / 2)}${address}`;
+            }
+            case 'address': {
                 const address = writeAddress(value as string);
                 return `050a${dataLength(address.length / 2)}${address}`;
             }
