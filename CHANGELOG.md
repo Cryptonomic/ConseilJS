@@ -1,11 +1,29 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.0-beta
+
+### Breaking Changes
+
+- Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
+- `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
+
+### Fixes
+
+- Improved `TezosNodeReader.getAccountManagerForBlock`
+- `TezosNodeReader.isImplicitAndEmpty` and `TezosNodeReader.isManagerKeyRevealedForAccount` now default to head by reference instead of query.
+- Added `TezosNodeReader.getContractStorage`
+
+### New Features
+
+- added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
+- `TezosMessageUtil` can now `pack` `key_hash` value.
+
 ## 0.3.5-beta
 
 ### Breaking Changes
 
-- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`
+- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`.
 
 ### Fixes
 
