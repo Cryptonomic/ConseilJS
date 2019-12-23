@@ -601,15 +601,7 @@ semicolons -> [;]:?
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
-    const dipnToJson = d => {
-        if (d.length < 2) {
-            return d[0];
-        }
-        if (d.length > 4) {
-            return `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }`;
-        }
-        return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`
-    }
+    const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
 
     const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 

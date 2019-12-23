@@ -11,9 +11,10 @@
 
 ### Fixes
 
-- Improved `TezosNodeReader.getAccountManagerForBlock`
+- Improved `TezosNodeReader.getAccountManagerForBlock`.
 - `TezosNodeReader.isImplicitAndEmpty` and `TezosNodeReader.isManagerKeyRevealedForAccount` now default to head by reference instead of query.
-- Added `TezosNodeReader.getContractStorage`
+- Added `TezosNodeReader.getContractStorage`.
+- Michelson parser support for D\[UI\]G n, D\[UI\]P n, DROP n
 
 ### New Features
 
