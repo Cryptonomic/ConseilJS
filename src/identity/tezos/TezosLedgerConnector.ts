@@ -32,7 +32,7 @@ export default class TezosLedgerConnector {
      */
     async getAddress(path: string, prompt: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
         if (!path.startsWith("44'/1729'")) {
-            throw new Error(`Tezos derivation paths must start with 44'/1729': ${path}`);
+            throw new Error(`Tezos derivation paths must start with '44'/1729': ${path}`);
         }
 
         const payload = await this.transport.send(0x80, prompt ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, 0x00, curve, this.pathToBuffer(path));
