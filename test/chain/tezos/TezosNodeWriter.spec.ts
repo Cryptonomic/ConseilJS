@@ -142,14 +142,14 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
-            const appliedOp = await TezosNodeWriter.preapplyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, [ops], signedOpGroup);
+            const appliedOp = await TezosNodeWriter.applyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, [ops], signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
         }));
 
         it('applyOperation test ---', mochaAsync(async () => {
-            const appliedOp = await TezosNodeWriter.preapplyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, ops, signedOpGroup);
+            const appliedOp = await TezosNodeWriter.applyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, ops, signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');

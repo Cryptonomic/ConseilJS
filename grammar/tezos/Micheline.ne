@@ -176,6 +176,8 @@ const primArgAnnToHex = d => {
     return prefix + prim + args + ann;
 }
 
+// 10
+
 const encodePrimitive = p => {
     return ('00' + MichelineKeywords.indexOf(p).toString(16)).slice(-2);
 }
