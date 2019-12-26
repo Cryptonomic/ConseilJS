@@ -124,13 +124,6 @@ export namespace TezosMessageUtils {
         return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
     }
 
-    export function writeString(value: string): string {
-        const len = dataLength(value.length);
-        const text = value.split('').map(c => c.charCodeAt(0).toString(16)).join('');
-
-        return len + text;
-    }
-
     /**
      * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
      * An address is a public key hash of the account.
@@ -319,8 +312,6 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
         } else if (hint === 'p') {
             return base58check.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
-        } else if (hint === 'expr') {
-            return base58check.encode(Buffer.from('0d2c401b' + buffer.toString('hex'), 'hex'));
         } else if (hint === '') {
             return base58check.encode(buffer);
         } else {
@@ -358,43 +349,5 @@ export namespace TezosMessageUtils {
     export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
         const hash = CryptoUtils.simpleHash(key, 20);
         return readAddressWithHint(hash, prefix);
-    }
-
-    export function dataLength(value: number) {
-        return ('0000000' + value.toString(16)).slice(-8);
-    }
-
-    // TODO: this needs to migrate to the MichelineParser or LanguageUtil for complex value encoding
-    export function writePackedData(value: string | number | Buffer, type: string): string {
-        switch(type) {
-            case 'int': {
-                return '0500' + writeSignedInt(value as number);
-            }
-            case 'nat': {
-                return '0500' + writeInt(value as number);
-            }
-            case 'string': {
-                return '0501' + writeString(value as string);
-            }
-            case 'address': { // address is encoded as bytes
-                const address = writeAddress(value as string);
-                return `050a${dataLength(address.length / 2)}${address}`;
-            }
-            case 'bytes': {
-                // TODO
-            }
-            default: {
-                throw new Error(`Unrecognized data type, ${type}, provided`);
-            }
-        }
-    }
-
-    export function readPackedData(b: Buffer, type: string){
-        throw new Error('Method not implemented');
-    }
-
-    export function encodeBigMapKey(key: Buffer): string {
-        const hash = CryptoUtils.simpleHash(key, 32);
-        return readBufferWithHint(hash, 'expr');
     }
 }
