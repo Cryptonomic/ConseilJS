@@ -1,9 +1,12 @@
-import Transport from '@ledgerhq/hw-transport-node-hid';
+/**
+ * These two lines allow us to interface with Ledgerjs and use their transport layer code
+ */
+let Transport = require("@ledgerhq/hw-transport-node-hid").default;
+let App = require("basil-tezos-ledger").default;
 
-import { TezosMessageUtils } from '../../chain/tezos/TezosMessageUtil';
-import { HardwareDeviceType } from "../../types/wallet/HardwareDeviceType";
-import { KeyStore, StoreType } from "../../types/wallet/KeyStore";
-import TezosLedgerConnector from "../../identity/tezos/TezosLedgerConnector"
+import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
+import {HardwareDeviceType} from "../../types/wallet/HardwareDeviceType";
+import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
 
 /**
  * Current solution to keep global instance of Ledgerjs transport object for signing use.
@@ -40,8 +43,11 @@ export namespace TezosLedgerWallet {
      */
     export async function getTezosPublicKey(derivationPath: string): Promise<string> {
         const transport = await TransportInstance.getInstance();
-        const xtz = new TezosLedgerConnector(transport);
-        return xtz.getAddress(derivationPath, true);
+        const xtz = new App(transport);
+        const result = await xtz.getAddress(derivationPath, true);
+        const hexEncodedPublicKey = result.publicKey;
+
+        return hexEncodedPublicKey;
     }
 
     /**
@@ -52,9 +58,10 @@ export namespace TezosLedgerWallet {
      */
     export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
         const transport = await TransportInstance.getInstance();
-        const xtz = new TezosLedgerConnector(transport);
+        const xtz = new App(transport);
         const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);
-        const signatureBytes = Buffer.from(result, 'hex');
+        const hexEncodedSignature = result.signature;
+        const signatureBytes = Buffer.from(hexEncodedSignature, 'hex');
 
         return signatureBytes;
     }
