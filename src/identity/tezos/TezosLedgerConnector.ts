@@ -7,14 +7,6 @@ export enum Curve {
     SECP256R1 = 0x02
 };
 
-export enum Instruction { // taken from https://github.com/obsidiansystems/ledger-app-tezos/blob/master/APDUs.md
-    INS_VERSION = 0x00,
-    INS_GET_PUBLIC_KEY = 0x02,
-    INS_PROMPT_PUBLIC_KEY = 0x03,
-    INS_SIGN = 0x04,
-    INS_SIGN_UNSAFE = 0x05
-}
-
 export default class TezosLedgerConnector {
     transport: Transport<*>;
 
@@ -29,17 +21,21 @@ export default class TezosLedgerConnector {
      * @param path 
      * @param boolDisplay 
      * @param curve 
+     * @param apdu 
      */
-    async getAddress(path: string, boolDisplay: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
+    async getAddress(path: string, boolDisplay?: boolean, curve: Curve = Curve.ED25519, apdu?: number): Promise<string> {
         if (!path.startsWith("44'/1729'")) {
             throw new Error(`Tezos derivation paths must start with '44'/1729': ${path}`);
         }
 
         const cla = 0x80;
+        if (!apdu) {
+            apdu = boolDisplay ? 0x03 : 0x02;
+        }
         const p1 = 0;
         const p2 = curve || 0;
 
-        const payload = await this.transport.send(cla, boolDisplay ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, p1, p2, this.pathToBuffer(path));
+        const payload = await this.transport.send(cla, apdu, p1, p2, this.pathToBuffer(path));
         const publicKey = payload.slice(1, 1 + payload[0]);
 
         return publicKey.toString("hex");
@@ -71,16 +67,16 @@ export default class TezosLedgerConnector {
         return signature;
     }
 
-    async signOperation(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, hex, curve, Instruction.INS_SIGN);
+    async signOperation(path: string, rawTxHex: string, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, rawTxHex, curve, 0x04);
     }
 
-    async signHash(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, hex, curve, Instruction.INS_SIGN_UNSAFE);
+    async signHash(path: string, rawTxHex: string, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, rawTxHex, curve, 0x05);
     }
 
     async getVersionString(): Promise<string> {
-        const [appFlag, major, minor, patch] = await this.transport.send(0x80, Instruction.INS_VERSION, 0x00, 0x00, new Buffer(0));
+        const [appFlag, major, minor, patch] = await this.transport.send(0x80, 0x00, 0x00, 0x00, new Buffer(0));
         return `${major}.${minor}.${patch}${appFlag === 1 ? ' baker' : ''}`;
     }
 
