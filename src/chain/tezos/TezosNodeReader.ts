@@ -143,17 +143,4 @@ export namespace TezosNodeReader {
 
         return managerKey.length > 0;
     }
-
-    /**
-     * Queries the node for a key of a big_map
-     * 
-     * @param {string} server Tezos node to connect to 
-     * @param index big_map index to query
-     * @param key big_map key to get
-     * @param {string} block Block reference, level or hash, 'head' is default
-     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
-     */
-    export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`,);
-    }
 }
