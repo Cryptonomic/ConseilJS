@@ -1,127 +1,169 @@
 {
-    "name": "conseiljs",
-    "version": "0.3.2-beta",
-    "description": "Client-side library for dApp development.",
-    "browser": "dist/index-web.js",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
-    "files": [ "dist" ],
-    "scripts": {
-      "test": "mocha \"test/**/*.spec.ts\"",
-      "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
-      "format": "eslint --fix-dry-run src/*/*.ts",
-      "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
-      "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
-      "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
-      "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
-      "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-      "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
-      "release-check": "npm run test && npm audit && npm outdated"
-    },
-    "repository": {
-      "type": "git",
-      "url": "git+https://github.com/Cryptonomic/ConseilJS.git"
-    },
-    "keywords": [
-      "tezos",
-      "conseil",
-      "blockchain analytics",
-      "blockchain reporting",
-      "blockchain data access",
-      "web3",
-      "dapp"
+  "name": "conseiljs",
+  "version": "0.3.2-beta",
+  "description": "Client-side library for dApp development.",
+  "browser": "dist/index-web.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "mocha \"test/**/*.spec.ts\"",
+    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
+    "format": "eslint --fix-dry-run src/*/*.ts",
+    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
+    "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
+    "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
+    "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
+    "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
+    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
+    "release-check": "npm run test && npm audit && npm outdated",
+    "postinstall": "npm run package"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/moneytrackio/ConseilJS.git"
+  },
+  "keywords": [
+    "tezos",
+    "conseil",
+    "blockchain analytics",
+    "blockchain reporting",
+    "blockchain data access",
+    "web3",
+    "dapp"
+  ],
+  "author": "Cryptonomic Inc",
+  "license": "Apache-2.0",
+  "licenses": [
+    {
+      "type": "Apache-2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/moneytrackio/ConseilJS/issues"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
     ],
-    "author": "Cryptonomic Inc",
-    "license": "Apache-2.0",
-    "licenses": [ {
-        "type": "Apache-2.0",
-        "url": "http://www.apache.org/licenses/LICENSE-2.0"
-    } ],
-    "bugs": {
-      "url": "https://github.com/Cryptonomic/ConseilJS/issues"
+    "exclude": [
+      "src/**/lexer/*.*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
+    "sourceMap": true,
+    "instrument": true
+  },
+  "dependencies": {
+    "@ledgerhq/hw-transport": "4.24.0",
+    "@ledgerhq/hw-transport-node-hid": "4.24.0",
+    "aws-sdk": "^2.533.0",
+    "babel-runtime": "6.26.0",
+    "base-n": "git+https://github.com/yourcodesucks/base-n.git",
+    "basil-tezos-ledger": "0.0.1",
+    "big-integer": "^1.6.47",
+    "bip39": "^3.0.2",
+    "blakejs": "^1.1.0",
+    "bs58check": "^2.1.2",
+    "https": "^1.0.0",
+    "libsodium-wrappers-sumo": "0.7.5",
+    "loglevel": "^1.6.6",
+    "moo": "0.5.0",
+    "nearley": "2.18.0",
+    "node-fetch": "^2.6.0",
+    "zxcvbn": "^4.4.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.2.2",
+    "@types/chai-as-promised": "^7.1.2",
+    "@types/mocha": "^5.2.7",
+    "@types/nock": "^11.1.0",
+    "@types/node": "^12.7.5",
+    "@types/node-fetch": "^2.5.0",
+    "@types/zxcvbn": "^4.4.0",
+    "@typescript-eslint/eslint-plugin": "^2.2.0",
+    "@typescript-eslint/parser": "^2.2.0",
+    "awesome-typescript-loader": "^5.0.0",
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "copyfiles": "^2.1.1",
+    "coveralls": "^3.0.6",
+    "eslint": "^6.3.0",
+    "eslint-config-airbnb-base": "^14.0.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-typescript": "^0.14.0",
+    "glob": "7.1.4",
+    "mocha": "^6.2.0",
+    "nock": "^11.3.3",
+    "nyc": "^14.1.1",
+    "request-promise": "^4.2.4",
+    "source-map-loader": "^0.2.4",
+    "source-map-support": "^0.5.13",
+    "terser-webpack-plugin": "^1.4.1",
+    "ts-loader": "^6.1.0",
+    "ts-node": "^8.3.0",
+    "tsconfig-paths-webpack-plugin": "^3.2.0",
+    "typedoc": "^0.15.0",
+    "typedoc-plugin-markdown": "^2.1.1",
+    "typescript": "^3.5.3",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8",
+    "webpack-node-externals": "^1.7.2"
+  },
+  "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint"
+    ],
+    "env": {
+      "mocha": true,
+      "node": true
     },
-    "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
-    "nyc": {
-      "include": [ "src/**/*.ts" ],
-      "exclude": [ "src/**/lexer/*.*" ],
-      "extension": [ ".ts" ],
-      "require": [ "ts-node/register" ],
-      "reporter": [ "lcov" ],
-      "sourceMap": true,
-      "instrument": true
-    },
-    "dependencies": {
-      "@ledgerhq/hw-transport": "4.24.0",
-      "@ledgerhq/hw-transport-node-hid": "4.24.0",
-      "aws-sdk": "^2.533.0",
-      "babel-runtime": "6.26.0",
-      "base-n": "git+https://github.com/yourcodesucks/base-n.git",
-      "basil-tezos-ledger": "0.0.1",
-      "big-integer": "^1.6.47",
-      "bip39": "^3.0.2",
-      "blakejs": "^1.1.0",
-      "bs58check": "^2.1.2",
-      "https": "^1.0.0",
-      "libsodium-wrappers-sumo": "0.7.5",
-      "loglevel": "^1.6.6",
-      "moo": "0.5.0",
-      "nearley": "2.18.0",
-      "node-fetch": "^2.6.0",
-      "zxcvbn": "^4.4.2"
-    },
-    "devDependencies": {
-      "@types/chai": "^4.2.2",
-      "@types/chai-as-promised": "^7.1.2",
-      "@types/mocha": "^5.2.7",
-      "@types/nock": "^11.1.0",
-      "@types/node": "^12.7.5",
-      "@types/node-fetch": "^2.5.0",
-      "@types/zxcvbn": "^4.4.0",
-      "@typescript-eslint/eslint-plugin": "^2.2.0",
-      "@typescript-eslint/parser": "^2.2.0",
-      "awesome-typescript-loader": "^5.0.0",
-      "chai": "^4.1.2",
-      "chai-as-promised": "^7.1.1",
-      "copyfiles": "^2.1.1",
-      "coveralls": "^3.0.6",
-      "eslint": "^6.3.0",
-      "eslint-config-airbnb-base": "^14.0.0",
-      "eslint-plugin-import": "^2.18.2",
-      "eslint-plugin-typescript": "^0.14.0",
-      "glob": "7.1.4",
-      "mocha": "^6.2.0",
-      "nock": "^11.3.3",
-      "nyc": "^14.1.1",
-      "request-promise": "^4.2.4",
-      "source-map-loader": "^0.2.4",
-      "source-map-support": "^0.5.13",
-      "terser-webpack-plugin": "^1.4.1",
-      "ts-loader": "^6.1.0",
-      "ts-node": "^8.3.0",
-      "tsconfig-paths-webpack-plugin": "^3.2.0",
-      "typedoc": "^0.15.0",
-      "typedoc-plugin-markdown": "^2.1.1",
-      "typescript": "^3.5.3",
-      "webpack": "^4.39.3",
-      "webpack-cli": "^3.3.8",
-      "webpack-node-externals": "^1.7.2"
-    },
-    "eslintConfig": {
-      "parser": "@typescript-eslint/parser",
-      "plugins": [ "@typescript-eslint" ],
-      "env": {
-        "mocha": true,
-        "node": true
-      },
-      "extends": "airbnb-base",
-      "rules": {
-        "comma-dangle": [ 2, "never" ],
-        "curly": [ 2, "all" ],
-        "indent": [ 1, 4 ],
-        "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
-        "no-tabs": [ 2 ],
-        "quotes": [ 2, "single" ],
-        "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
-      }
+    "extends": "airbnb-base",
+    "rules": {
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "array-element-newline": [
+        2,
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ]
     }
   }
+}
