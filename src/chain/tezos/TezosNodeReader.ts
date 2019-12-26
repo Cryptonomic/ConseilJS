@@ -96,7 +96,7 @@ export namespace TezosNodeReader {
     export async function getSpendableBalanceForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
-        return parseInt(account.balance.toString(), 10);
+        return parseInt(account.balance.toString(), 10); 
     }
 
     /**

@@ -156,7 +156,7 @@ export namespace TezosNodeWriter {
      * @param {SignedOperationGroup} signedOpGroup Signed operation group
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
-    export async function preapplyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+    export async function applyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
         const payload = [{
             protocol: protocol,
             branch: branch,
@@ -166,9 +166,6 @@ export namespace TezosNodeWriter {
 
         const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/preapply/operations`, payload);
         const text = await response.text();
-
-        // parse errors
-
         try {
             log.debug(`TezosNodeWriter.applyOperation received ${text}`);
 
@@ -211,11 +208,9 @@ export namespace TezosNodeWriter {
      */
     export async function injectOperation(server: string, signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<string> {
         const response = await performPostRequest(server, `injection/operation?chain=${chainid}`, signedOpGroup.bytes.toString('hex'));
-        const text = await response.text();
+        const injectedOperation = await response.text();
 
-        // parse errors
-
-        return text;
+        return injectedOperation;
     }
 
     /**
@@ -231,8 +226,8 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
-        const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, signedOpGroup);
-
+        const appliedOp = await applyOperation(server, blockHead.hash, blockHead.protocol, operations, signedOpGroup);
+        checkAppliedOperationResults(appliedOp);
         const injectedOperation = await injectOperation(server, signedOpGroup);
 
         return { results: appliedOp[0], operationGroupID: injectedOperation };
