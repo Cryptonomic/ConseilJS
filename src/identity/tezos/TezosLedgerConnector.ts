@@ -24,13 +24,17 @@ export default class TezosLedgerConnector {
     }
 
     /**
-     * Get Tezos public key hash for a given BIP32/44 path and curve. Convention for Tezos derivation paths is 44'/1729'/n'/n'/n'.
+     * Get Tezos public key hash for a given BIP32/44 path and curve
      * 
      * @param {string} path BIP32/44 derivation path
      * @param {boolean} prompt Prompt the user to provide the key on the hardware device, default true.
      * @param {Curve} curve Curve to use for key generation, one of: ED25519 (default), SECP256K1, SECP256R1
      */
     async getAddress(path: string, prompt: boolean = true, curve: Curve = Curve.ED25519): Promise<string> {
+        if (!path.startsWith("44'/1729'")) {
+            throw new Error(`Tezos derivation paths must start with 44'/1729': ${path}`);
+        }
+
         const payload = await this.transport.send(0x80, prompt ? Instruction.INS_PROMPT_PUBLIC_KEY : Instruction.INS_GET_PUBLIC_KEY, 0x00, curve, this.pathToBuffer(path));
         const publicKey = payload.slice(1, 1 + payload[0]);
 
