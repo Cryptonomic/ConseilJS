@@ -140,7 +140,7 @@ export namespace TezosNodeReader {
     export async function isManagerKeyRevealedForAccount(server: string, accountHash: string): Promise<boolean> {
         const blockHead = await getBlockHead(server);
         const managerKey = await getAccountManagerForBlock(server, blockHead.hash, accountHash);
-console.log(managerKey);
+
         return managerKey.length > 0;
     }
 
