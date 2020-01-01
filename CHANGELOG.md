@@ -1,11 +1,24 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.3.4-beta  
+## 0.3.5-beta
+
+### Breaking Changes
+
+- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`
 
 ### Fixes
 
-- basic big_map query support
+- Improved entry point parser, this functionality is still experimental.
+- Added `EntryPoint.generateInvocationPair` to produce Protocol 005 style invocation parameters.
+- `ConseilPredicate` gained a `group` attribute for `or` queries.
+- removed `base-n` dependency.
+
+## 0.3.4-beta
+
+### Fixes
+
+- basic big_map query support.
 - nodejs 10.17.x is now the minimum requirement.
 - all dependencies are now referenced with explicit versions.
 

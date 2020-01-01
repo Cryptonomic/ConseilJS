@@ -1,12 +1,30 @@
+import * as blakejs from 'blakejs';
+
 import { KeyStore } from '../../types/wallet/KeyStore';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
 import { TezosNodeWriter } from './TezosNodeWriter';
+import { TezosNodeReader } from './TezosNodeReader';
 
-/**
- * Code here should be considered deprecated. It exists to simplify transition between Tezos protocol versions.
- */
-export namespace TezosProtocolHelper {
+export namespace TezosProtocolHelper { // TODO: rename /chain/tezos/contracts/BabylonDelegationHelper.ts
+    /**
+     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
+     * 
+     * @param server Destination Tezos node.
+     * @param address Contract address to query.
+     */
+    export async function verifyDestination(server: string, address: string): Promise<boolean> {
+        const contract = await TezosNodeReader.getAccountForBlock(server, 'head', address);
+
+        if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
+
+        const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
+
+        if (k !== '023fc21b332d338212185c817801f288') { throw new Error(`Contract at ${address} does not match the expected code hash`); }
+
+        return true;
+    }
+
     /**
      * 
      * @param server Destination Tezos node.
@@ -82,7 +100,7 @@ export namespace TezosProtocolHelper {
             { "prim": "TRANSFER_TOKENS" },
             { "prim": "CONS" } ]`;
 
-        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
+        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, TezosConstants.P005ManagerContractWithdrawalStorageLimit, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
     }
 
     /**

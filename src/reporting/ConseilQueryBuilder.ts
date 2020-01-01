@@ -37,8 +37,9 @@ export namespace ConseilQueryBuilder {
      * @param operation Operation to apply. ConseilOperator.IN requires two or more values, ConseilOperator.BETWEEN is inclusive and requires two values, all other operators require at least one value.
      * @param values Set of values to operate on.
      * @param invert Set inverse, default is false. This is equivalent to matching inside the set of values as in SQL IN command. Setting inverse true is interpreted as NOT IN.
+     * @param group Set a group, default is undefined. Grouped predicates are OR'ed together.
      */
-    export function addPredicate(query: ConseilQuery, field: string, operation: ConseilOperator, values: any[], invert: boolean = false): ConseilQuery {
+    export function addPredicate(query: ConseilQuery, field: string, operation: ConseilOperator, values: any[], invert: boolean = false, group: string | undefined = undefined): ConseilQuery {
         if (operation === ConseilOperator.BETWEEN && values.length !== 2) {
             throw new Error('BETWEEN operation requires a list of two values.');
         } else if (operation === ConseilOperator.IN && values.length < 2) {
@@ -48,7 +49,7 @@ export namespace ConseilQueryBuilder {
         }
 
         let q = {...query};
-        q.predicates.push({ field, operation, set: values, inverse: invert });
+        q.predicates.push({ field, operation, set: values, inverse: invert, group });
 
         return q;
     }

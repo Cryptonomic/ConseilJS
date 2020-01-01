@@ -1,22 +1,24 @@
 {
   "name": "conseiljs",
-  "version": "0.3.4-beta",
+  "version": "0.3.5-beta",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
-    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
-    "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A",
     "coverage": "nyc mocha \"test/**/*.spec.ts\" && nyc report | coveralls",
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
+    "release-check": "npm run test && npm audit && npm outdated",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
     "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
-    "release-check": "npm run test && npm audit && npm outdated"
+    "package": "rm -rf ./dist && npm run compile-tezos-parsers && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
+    "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A"
   },
   "repository": {
     "type": "git",
@@ -44,11 +46,21 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [ "src/**/*.ts" ],
-      "exclude": [ "src/**/lexer/*.*" ],
-      "extension": [ ".ts" ],
-      "require": [ "ts-node/register" ],
-      "reporter": [ "lcov" ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/lexer/*.*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -57,7 +69,6 @@
     "@ledgerhq/hw-transport": "4.24.0",
     "@ledgerhq/hw-transport-node-hid": "4.24.0",
     "aws-sdk": "2.533.0",
-    "base-n": "git+https://github.com/yourcodesucks/base-n.git",
     "big-integer": "1.6.48",
     "bip32-path": "0.4.2",
     "bip39": "3.0.2",
@@ -96,7 +107,7 @@
     "request-promise": "4.2.4",
     "source-map-loader": "0.2.4",
     "source-map-support": "0.5.13",
-    "terser-webpack-plugin": "1.4.1",
+    "terser-webpack-plugin": "2.3.0",
     "ts-loader": "6.1.0",
     "ts-node": "8.3.0",
     "tsconfig-paths-webpack-plugin": "3.2.0",
@@ -108,25 +119,63 @@
     "webpack-node-externals": "1.7.2"
   },
   "engines": {
-    "node": "10.17.x",
-    "npm": "6.11.x"
+    "node": ">=10.17.x",
+    "npm": ">=6.11.x"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "plugins": [ "@typescript-eslint" ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
     "env": {
       "mocha": true,
       "node": true
     },
+    "overrides": [
+      {
+        "files": [
+          "**/**/*.ts"
+        ],
+        "excludedFiles": [
+          "lexer/*.ts"
+        ]
+      }
+    ],
     "extends": "airbnb-base",
     "rules": {
-        "comma-dangle": [ 2, "never" ],
-        "curly": [ 2, "all" ],
-        "indent": [ 1, 4 ],
-        "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
-        "no-tabs": [ 2 ],
-        "quotes": [ 2, "single" ],
-        "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "array-element-newline": [
+        2,
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ]
     }
   }
 }

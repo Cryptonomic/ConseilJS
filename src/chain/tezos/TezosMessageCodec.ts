@@ -420,25 +420,34 @@ export namespace TezosMessageCodec {
             const composite = transaction.parameters as ContractParameters;
             const code = TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(composite.value));
             const result = TezosLanguageUtil.translateMichelineToHex(code);
-            hex += 'ff';
 
-            if (composite.entrypoint === 'default') {
+            if ((composite.entrypoint === 'default' || composite.entrypoint === '') && result === '030b') {
                 hex += '00';
-            } else if (composite.entrypoint === 'root') {
-                hex += '01';
-            } else if (composite.entrypoint === 'do') {
-                hex += '02';
-            } else if (composite.entrypoint === 'set_delegate') {
-                hex += '03';
-            } else if (composite.entrypoint === 'remove_delegate') {
-                hex += '04';
             } else {
-                hex += 'ff'
-                    + ('0' + composite.entrypoint.length.toString(16)).slice(-2)
-                    + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
-            }
+                hex += 'ff';
 
-            hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+                if (composite.entrypoint === 'default' || composite.entrypoint === '') {
+                    hex += '00';
+                } else if (composite.entrypoint === 'root') {
+                    hex += '01';
+                } else if (composite.entrypoint === 'do') {
+                    hex += '02';
+                } else if (composite.entrypoint === 'set_delegate') {
+                    hex += '03';
+                } else if (composite.entrypoint === 'remove_delegate') {
+                    hex += '04';
+                } else {
+                    hex += 'ff'
+                        + ('0' + composite.entrypoint.length.toString(16)).slice(-2)
+                        + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+                }
+
+                if (result === '030b') { // { "prim": "Unit" }
+                    hex += '00';
+                } else {
+                    hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+                }
+            }
         } else {
             hex += '00';
         }

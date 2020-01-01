@@ -101,4 +101,31 @@ export namespace CryptoUtils {
         const b = await wrapper.sign(payload, secretKey)
         return Buffer.from(b);
     }
+
+    export function twoByteHex(n: number) : string {
+        if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
+
+        let r = n;
+        let h = '';
+        while (r > 128) {
+            h = ('0' + (r % 128).toString(16)).slice(-2) + h;
+            r = r >> 7;
+        }
+
+        h = ('0' + r.toString(16)).slice(-2) + h;
+
+        return h;
+    }
+
+    export function fromByteHex(s: string) : number {
+        let n = parseInt(s.slice(-2), 16);
+        let h = s.substring(0, s.length - 2);
+
+        for (let i = 2; i < s.length; i += 2) {
+            n = n | (parseInt(h.slice(-2), 16) << (7 * (i / 2)));
+            h = s.substring(0, h.length - 2);
+        }
+
+        return n;
+    }
 }

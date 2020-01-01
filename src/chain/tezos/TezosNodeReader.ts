@@ -110,7 +110,7 @@ export namespace TezosNodeReader {
      */
     export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<string> {
         return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
-            .then(result => result ? result.toString() : '');
+            .then(result => (result && result.toString() !== 'null') ? result.toString() : '');
     }
 
     /**

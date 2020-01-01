@@ -34,38 +34,27 @@ describe('Tezos Operations Test', () => {
 
         keyStore1 = await unlockFundraiserIdentity(info1.mnemonic.join(' '), info1.email, info1.password, info1.pkh);
         keyStore1.storeType = 'Fundraiser';
+
         const nockOb = nock('http://conseil.server');
-        nockOb
-            .persist()
-            .get(`/chains/main/blocks/head`)
-            .reply(200, blockHead);
+        nockOb.persist().get(`/chains/main/blocks/head`).reply(200, blockHead);
 
         const accountUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}`;
-        nockOb
-            .get(accountUrl)
-            .reply(200, accountMockList[0]);
+        nockOb.get(accountUrl).reply(200, accountMockList[0]);
 
         const accountUrl1 = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}`;
-        nockOb
-            .get(accountUrl1)
-            .reply(200, accountMockList[1]);
+        nockOb.get(accountUrl1).reply(200, accountMockList[1]);
+
         const accountDelegateUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}`;
-        nockOb
-            .get(accountDelegateUrl)
-            .reply(200, accountMockList[2]);
+        nockOb.get(accountDelegateUrl).reply(200, accountMockList[2]);
 
         const accountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}/manager_key`;
-        nockOb
-            .get(accountMangerUrl)
-            .reply(200, managerKeyMockList[0]);
+        nockOb.get(accountMangerUrl).reply(200, managerKeyMockList[0]);
+
         const nonAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}/manager_key`;
-        nockOb
-            .get(nonAccountMangerUrl)
-            .reply(200, managerKeyMockList[1]);
+        nockOb.get(nonAccountMangerUrl).reply(200, managerKeyMockList[1]);
+
         const ktAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}/manager_key`;
-        nockOb
-            .get(ktAccountMangerUrl)
-            .reply(200, managerKeyMockList[0]);
+        nockOb.get(ktAccountMangerUrl).reply(200, managerKeyMockList[0]);
 
     }));
     describe('Some Base Operations Test', () => {

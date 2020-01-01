@@ -42,10 +42,11 @@ export interface ConseilOrdering {
 }
 
 export interface ConseilPredicate {
-    field: string,
-    operation: ConseilOperator,
-    set: any[],
-    inverse: boolean
+    field: string;
+    operation: ConseilOperator;
+    set: any[];
+    inverse: boolean;
+    group?: string;
 }
 
 export interface ConseilQuery {
