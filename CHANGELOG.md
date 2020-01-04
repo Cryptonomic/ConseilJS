@@ -1,11 +1,34 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.0-beta
+
+### Breaking Changes
+
+- Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
+- `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
+- `EntryPoint.generateInvocationPair()` now returns a tuple with `entrypoint` and `parameters` keys.
+- Removed `CryptoUtils.getPasswordStrength()` and the related zxcvbn dependency. This functionality should be added by the implementing application.
+- nodejs 12 is now a base requirement.
+
+### Fixes
+
+- Improved `TezosNodeReader.getAccountManagerForBlock`.
+- `TezosNodeReader.isImplicitAndEmpty` and `TezosNodeReader.isManagerKeyRevealedForAccount` now default to head by reference instead of query.
+- Added `TezosNodeReader.getContractStorage`.
+- Michelson parser support for D\[UI\]G n, D\[UI\]P n, DROP n
+
+### New Features
+
+- added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
+- added TZIP 0007 (fa1.2) token contract interface
+- `TezosMessageUtil` can now `pack` `key_hash` value.
+
 ## 0.3.5-beta
 
 ### Breaking Changes
 
-- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`
+- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`.
 
 ### Fixes
 

@@ -1,8 +1,0 @@
-[ { "prim": "parameter", "args": [ { "prim": "unit" } ] },
-    { "prim": "storage", "args": [ { "prim": "unit" } ] },
-    { "prim": "code", "args": [ [
-        { "prim": "CHAIN_ID" },
-        { "prim": "DROP" },
-        { "prim": "CAR" },
-        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
-        { "prim": "PAIR" } ] ] } ]

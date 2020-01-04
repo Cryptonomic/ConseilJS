@@ -62,7 +62,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {number} level Block level to query for.
      */
-    export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any[]> {
+    export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [level], false), 1);
 
         return getTezosEntityData(serverInfo, network, BLOCKS, query);
@@ -75,7 +75,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param accountID Account hash to query for.
      */
-    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any[]> {
+    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 1);
 
         const r = await getTezosEntityData(serverInfo, network, ACCOUNTS, query);
@@ -89,7 +89,7 @@ export namespace TezosConseilClient {
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationGroupID Operation group hash to query for.
      */
-    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]> {
+    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [operationGroupID], false), 1);
 
         const r = await getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);

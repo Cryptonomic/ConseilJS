@@ -16,9 +16,9 @@ export enum Instruction { // taken from https://github.com/obsidiansystems/ledge
 }
 
 export default class TezosLedgerConnector {
-    transport: Transport<*>;
+    transport: Transport<any>;
 
-    constructor(transport: Transport<*>) {
+    constructor(transport: Transport<any>) {
         this.transport = transport;
         transport.decorateAppAPIMethods(this, ["getAddress", "signOperation", "signHash", "getVersion"], "XTZ");
     }
