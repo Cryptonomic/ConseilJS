@@ -65,8 +65,8 @@
     "instrument": true
   },
   "dependencies": {
-    "@ledgerhq/hw-transport": "5.0.0",
-    "@ledgerhq/hw-transport-node-hid": "5.0.0",
+    "@ledgerhq/hw-transport": "5.2.0",
+    "@ledgerhq/hw-transport-node-hid": "5.2.0",
     "aws-sdk": "2.591.0",
     "babel-runtime": "6.26.0",
     "big-integer": "1.6.48",
@@ -79,8 +79,7 @@
     "loglevel": "1.6.6",
     "moo": "0.5.0",
     "nearley": "2.18.0",
-    "node-fetch": "2.6.0",
-    "zxcvbn": "4.4.2"
+    "node-fetch": "2.6.0"
   },
   "devDependencies": {
     "@types/chai": "4.2.7",

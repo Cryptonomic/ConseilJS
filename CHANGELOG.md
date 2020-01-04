@@ -7,6 +7,8 @@
 
 - Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
 - `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
+- `EntryPoint.generateInvocationPair()` now returns a tuple with `entrypoint` and `parameters` keys.
+- Removed `CryptoUtils.getPasswordStrength()` and the related zxcvbn dependency. This functionality should be added by the implementing application.
 - nodejs 12 is now a base requirement.
 
 ### Fixes

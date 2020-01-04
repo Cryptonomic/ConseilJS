@@ -9,7 +9,7 @@ import { TezosNodeReader } from '../TezosNodeReader';
  * 
  * Compatible with the contract as of December 22, 2019.
  */
-export namespace TZIPSevenTokenHelper {
+export namespace DexterTokenHelper {
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
      * 
@@ -23,7 +23,7 @@ export namespace TZIPSevenTokenHelper {
 
         const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash`); }
+        if (k !== '1234') { throw new Error(`Contract at ${address} does not match the expected code hash`); }
 
         return true;
     }
@@ -36,6 +36,9 @@ export namespace TZIPSevenTokenHelper {
      */
     export async function getBasicStorage(server: string, address: string) {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        console.log('-----')
+        console.log(storageResult);
+        console.log('-----')
         const jsonpath = new JSONPath();
 
         return {
@@ -63,5 +66,15 @@ export namespace TZIPSevenTokenHelper {
             allowances: jsonpath.query(mapResult, '$.args[0]')[0],
             balance: Number(jsonpath.query(mapResult, '$.args[1].int')[0])
         };
+    }
+
+    /**
+     * 
+     * @param server Destination Tezos node.
+     * @param manager Token manager address
+     * @param supply Initial token supply
+     */
+    export async function deployContract(server: string, manager: string, supply: number) {
+
     }
 }
