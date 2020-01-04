@@ -1,5 +1,6 @@
 import * as blakejs from 'blakejs';
-import zxcvbn from 'zxcvbn';
+import bigInt from 'big-integer';
+import zxcvbn from 'zxcvbn'; // TODO: remove, should be added in the implementing app
 const wrapper = require('./WrapperWrapper');
 
 /**
@@ -109,7 +110,7 @@ export namespace CryptoUtils {
         let h = '';
         while (r > 128) {
             h = ('0' + (r % 128).toString(16)).slice(-2) + h;
-            r = r >> 7;
+            r = Math.trunc(r / 128);
         }
 
         h = ('0' + r.toString(16)).slice(-2) + h;
@@ -118,14 +119,24 @@ export namespace CryptoUtils {
     }
 
     export function fromByteHex(s: string) : number {
-        let n = parseInt(s.slice(-2), 16);
-        let h = s.substring(0, s.length - 2);
+        if (s.length === 2) { return parseInt(s, 16); }
 
-        for (let i = 2; i < s.length; i += 2) {
-            n = n | (parseInt(h.slice(-2), 16) << (7 * (i / 2)));
-            h = s.substring(0, h.length - 2);
+        if (s.length <= 8) {
+            let n = parseInt(s.slice(-2), 16);
+
+            for (let i = 1; i < s.length / 2; i++) {
+                n += parseInt(s.slice(-2 * i - 2, -2 * i), 16) << (7 * i);
+            }
+
+            return n;
         }
 
-        return n;
+        let n = bigInt(parseInt(s.slice(-2), 16));
+
+        for (let i = 1; i < s.length / 2; i++) {
+            n = n.add(bigInt(parseInt(s.slice(-2 * i - 2, -2 * i), 16)).shiftLeft(7 * i));
+        }
+
+        return n.toJSNumber();
     }
 }

@@ -26,7 +26,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Encodes an integer into hex after converting it to Zarith format.
+     * Encodes an uint into hex after converting it to Zarith format.
      * @param {number} value Number to be obfuscated.
      */
     export function writeInt(value: number): string {
@@ -72,7 +72,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Takes a bounded hex string that is known to contain a number and decodes the int.
+     * Takes a bounded hex string that is known to contain a number in Zarith format and decodes the uint.
      * @param {string} hex Encoded message part.
      */
     export function readInt(hex: string): number {
