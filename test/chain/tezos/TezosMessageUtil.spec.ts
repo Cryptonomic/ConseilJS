@@ -67,12 +67,30 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.readInt('1e');
     expect(result).to.equal(30);
 
+    result = TezosMessageUtils.readInt('20');
+    expect(result).to.equal(32);
+
     result = TezosMessageUtils.readInt('fe1f');
     expect(result).to.equal(4094);
+
+    result = TezosMessageUtils.readInt('8020');
+    expect(result).to.equal(4096);
+
+    result = TezosMessageUtils.readInt('90dd78');
+    expect(result).to.equal(1978000);
+
+    result = TezosMessageUtils.readInt('8086f7840d');
+    expect(result).to.equal(3500000000);
+
+    result = TezosMessageUtils.readInt('80d683bba318');
+    expect(result).to.equal(834152753920);
   });
 
-  it('test int write function', () => {
-    let result = TezosMessageUtils.writeInt(7);
+  it('test writeInt function', () => {
+    let result = TezosMessageUtils.writeInt(0);
+    expect(result).to.equal('00');
+
+    result = TezosMessageUtils.writeInt(7);
     expect(result).to.equal('07');
 
     result = TezosMessageUtils.writeInt(32);
@@ -81,10 +99,18 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.writeInt(4096);
     expect(result).to.equal('8020');
 
-    result = TezosMessageUtils.writeInt(0);
-    expect(result).to.equal('00');
+    result = TezosMessageUtils.writeInt(1395000);
+    expect(result).to.equal('b89255');
 
-    result = TezosMessageUtils.writeSignedInt(0);
+    result = TezosMessageUtils.writeInt(6300010000);
+    expect(result).to.equal('908c8abc17');
+
+    result = TezosMessageUtils.writeInt(794254710954);
+    expect(result).to.equal('aab194ea8e17');
+  });
+
+  it('test writeSignedInt function', () => {
+    let result = TezosMessageUtils.writeSignedInt(0);
     expect(result).to.equal('00');
 
     result = TezosMessageUtils.writeSignedInt(-64);
@@ -100,9 +126,8 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('80f9b9d4c723');
   });
 
-  it('test int read function', () => {
+  it('test findInt function', () => {
     let result = TezosMessageUtils.findInt('d3dade57fae2', 0);
-
     expect(result.value).to.equal(184003923);
     expect(result.length).to.equal(8);
   });
