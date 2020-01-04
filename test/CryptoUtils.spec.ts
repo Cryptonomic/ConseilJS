@@ -58,16 +58,3 @@ describe('generateKeys() and recoverPublicKey()', () => {
         expect(publicKeyHash).to.equal('tz1io3eJUT6C3heVaewJiDio18QzkNNHaE2v');
     });
 });
-
-
-describe('getPasswordStrength', () => {
-    it('should not be less than 3', () => {
-        const score = CryptoUtils.getPasswordStrength('Spring12345!');
-        expect(score).to.greaterThan(2);
-    });
-
-    it('should be less than 3', () => {
-        const score = CryptoUtils.getPasswordStrength('Spring');
-        expect(score).to.lessThan(3);
-    });
-});
