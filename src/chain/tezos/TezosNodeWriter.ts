@@ -543,16 +543,16 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Operation dry-run to get consumed gas and storage numbers
-     * 
+     * Operation dry-run to simulate a transaction
+     *
      * @param {string} server Tezos node to connect to
      * @param {Operation[]} operations The operations to create and send
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @param {string} chainid 
-     * @returns {number} A two-element array containing gas and storage costs. Throws an error if one was encountered.
+     * @param {string} chainid
+     * @returns {object} Result of the operation. Throws an error if one was encountered.
      */
-    export async function testOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', chainid: string = 'main'): Promise<number[]> {
+    export async function dryRunOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', chainid: string = 'main'): Promise<object> {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOpGroup = forgeOperations(blockHead.hash, operations);
         const signedOpGroup = await signOperationGroup(forgedOpGroup, keyStore, derivationPath);
@@ -563,6 +563,22 @@ export namespace TezosNodeWriter {
         if (!!error) { throw new Error(error); }
 
         const responseJSON = JSON.parse(responseText);
+
+        return responseJSON;
+    }
+
+    /**
+     * Operation dry-run to get consumed gas and storage numbers
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {Operation[]} operations The operations to create and send
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {string} chainid 
+     * @returns {number} A two-element array containing gas and storage costs. Throws an error if one was encountered.
+     */
+    export async function testOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', chainid: string = 'main'): Promise<number[]> {
+        const responseJSON = dryRunOperation(server, operations, keyStore, derivationPath, chainid)
         let gas = 0;
         let storage = 0;
         for(let c of responseJSON['contents']) {
