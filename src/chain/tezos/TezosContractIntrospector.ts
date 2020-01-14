@@ -17,7 +17,8 @@ export namespace TezosContractIntrospector {
      */
     export function generateEntryPointsFromParams(params: string): EntryPoint[] {
         const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
-        parser.feed(params);
+        parser.feed(TezosLanguageUtil.normalizeMichelineWhiteSpace(TezosLanguageUtil.stripComments(params)));
+
         return parser.results[0];
     }
 
