@@ -1,6 +1,6 @@
 {
   "name": "moneytrackio-conseiljs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
