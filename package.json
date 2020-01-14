@@ -1,6 +1,6 @@
 {
-  "name": "conseiljs",
-  "version": "0.3.2-beta",
+  "name": "moneytrackio-conseiljs",
+  "version": "0.1.0",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -18,8 +18,7 @@
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
     "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/MichelsonParameters.ne -o src/chain/tezos/lexer/MichelsonParameters.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
-    "release-check": "npm run test && npm audit && npm outdated",
-    "postinstall": "npm run package"
+    "release-check": "npm run test && npm audit && npm outdated"
   },
   "repository": {
     "type": "git",
@@ -34,7 +33,7 @@
     "web3",
     "dapp"
   ],
-  "author": "Cryptonomic Inc",
+  "author": "Moneytrack forked from Cryptonomic Inc",
   "license": "Apache-2.0",
   "licenses": [
     {
