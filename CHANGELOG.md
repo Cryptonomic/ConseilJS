@@ -1,6 +1,18 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.3.7
+
+### Fixes
+
+- big_int encoding
+
+## 0.3.6
+
+### Fixes
+
+- integer encoding issue introduced in 0.3.5-beta
+
 ## 0.3.5-beta
 
 ### Breaking Changes

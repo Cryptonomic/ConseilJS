@@ -106,14 +106,20 @@ export namespace CryptoUtils {
     export function twoByteHex(n: number) : string {
         if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
 
-        let r = n;
         let h = '';
-        while (r > 128) {
-            h = ('0' + (r % 128).toString(16)).slice(-2) + h;
-            r = Math.trunc(r / 128);
+        if (n > 2147483648) {
+            let r = bigInt(n);
+            while (r.greater(0)) {
+                h = ('0' + (r.and(127)).toString(16)).slice(-2) + h;
+                r = r.shiftRight(7);
+            }
+        } else {
+            let r = n;
+            while (r > 0) {
+                h = ('0' + (r & 127).toString(16)).slice(-2) + h;
+                r = r >> 7;
+            }
         }
-
-        h = ('0' + r.toString(16)).slice(-2) + h;
 
         return h;
     }
