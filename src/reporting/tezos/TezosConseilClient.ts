@@ -18,7 +18,7 @@ export namespace TezosConseilClient {
 
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param entity Entity to retrieve.
@@ -30,7 +30,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get the head block from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
@@ -43,7 +43,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get a block by hash from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param hash Block hash to query for.
@@ -57,7 +57,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get a block by hash from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {number} level Block level to query for.
@@ -70,7 +70,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get an account from the Tezos platform given a network by account id.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param accountID Account hash to query for.
@@ -84,7 +84,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get an operation group from the Tezos platform given a network by id.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationGroupID Operation group hash to query for.
@@ -98,12 +98,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request block-entity data for a given network. Rather than simply requesting a block by hash, this function allows modification of the response to contain a subset of block attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, BLOCKS, query)
@@ -111,12 +111,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request account-entity data for a given network. Rather than simply requesting an account by hash, this function allows modification of the response to contain a subset of account attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getAccounts(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, ACCOUNTS, query)
@@ -124,12 +124,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request operation group-entity data for a given network. Rather than simply requesting an operation group by hash, this function allows modification of the response to contain a subset of operation group attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query)
@@ -137,12 +137,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request operation-entity data for a given network. This function allows modification of the response to contain a subset of operation attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATIONS, query);
@@ -150,7 +150,7 @@ export namespace TezosConseilClient {
 
     /**
      * Request pre-computed fee statistics for operation fees by operation kind. The query returns the latest record.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationType Tezos operation kind
@@ -178,13 +178,13 @@ export namespace TezosConseilClient {
 
     /**
      * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
      * @param {number} blocktime Expected number of seconds between blocks.
-     * 
+     *
      * @returns Operation record
      */
     export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any[]> {
@@ -209,13 +209,13 @@ export namespace TezosConseilClient {
 
     /**
      * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks. Then wait for an additional `depth` blocks to ensure that a fork has not occurred.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
      * @param {number} depth Number of blocks to skip for fork validation.
-     * 
+     *
      * @returns `true` if the chain ids match between the original operation block and the current head, false otherwise.
      */
     export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<boolean> {
@@ -250,7 +250,7 @@ export namespace TezosConseilClient {
      * Confirms that the specified operation was recorded on a continuous block sequence starting with the level below the block where
      * it appeared through the end of the sequence from `awaitOperationForkConfirmation()` with the depth that was called with. This method is
      * useful when the sequence of blocks retrieved by `awaitOperationForkConfirmation()` is the expected length, meaning `depth + 2`.
-     * 
+     *
      * Note, this is not an absolute guarantee that this operation is not part of a longer fork; just that the predecessor of each block
      * at position `n` matches the hash of the block preceding it.
      */
@@ -267,7 +267,7 @@ export namespace TezosConseilClient {
                     return a && c['level'] === initialLevel
                             && c['hash'] === initialHash
                             && c['predecessor'] === blocks[i - 1]['hash'];
-                } 
+                }
 
                 if (i === 0) {
                     return true;
@@ -290,8 +290,8 @@ export namespace TezosConseilClient {
 
     /**
      * Returns an entity query for the given ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
-     * 
-     * @param id 
+     *
+     * @param id
      * @returns {{entity: string, query: ConseilQuery}} entity, query pair
      */
     export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {

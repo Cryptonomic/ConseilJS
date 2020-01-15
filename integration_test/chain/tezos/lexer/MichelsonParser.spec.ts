@@ -13,7 +13,7 @@ function michelsonToMicheline(code: string): string {
     return parser.results.join(' ');
 }
 
-const baseURL = 'https://gitlab.com/tezos/tezos/raw/master/src/bin_client/test/contracts/attic';
+const baseURL = 'https://gitlab.com/tezos/tezos/tree/master/src/bin_client/test/contracts/attic';
 const officialContractSamples = ['accounts.tz', 'add1.tz', 'add1_list.tz'];
 const michelineTranslations = {'accounts.tz': '', 'add1.tz': '', 'add1_list.tz': ''};
 
