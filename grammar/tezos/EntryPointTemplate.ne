@@ -75,7 +75,8 @@ __ -> [\s]
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -86,7 +87,8 @@ __ -> [\s]
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -107,7 +109,8 @@ __ -> [\s]
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -118,7 +121,8 @@ __ -> [\s]
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -141,10 +145,12 @@ __ -> [\s]
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
+
         for (const rightEntryPoint of rightEntryPoints) {
             if (rightEntryPoint.parameters.length === 1 && rightEntryPoint.parameters[0].name === rightEntryPoint.name) {
                 rightEntryPoint.parameters[0].name = undefined;
@@ -154,7 +160,8 @@ __ -> [\s]
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -175,11 +182,12 @@ __ -> [\s]
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
                 const pairedEntryPoint: EntryPoint = {
-                    name: annotA.toString(), // TODO
+                    name: getTypeAnnotation(annotA.toString(), annotB.toString()),
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -197,13 +205,14 @@ __ -> [\s]
         //console.log(`mergePairWithAnnot found ${annot}`);
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
-                const name = getFieldAnnotation(annot.toString())
+                const name = getTypeAnnotation(annot.toString()) || getFieldAnnotation(annot.toString());
                 const pairedEntryPoint: EntryPoint = {
                     name: name || undefined,
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation // TODO
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -224,7 +233,8 @@ __ -> [\s]
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation // TODO
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -254,7 +264,6 @@ __ -> [\s]
         const annot: string = d[2].toString();
         const entryPoints: EntryPoint[] = d[4];
 
-        //console.log(`recordSingleArgDataWithAnnot found ${annot}`);
         entryPoints[0].name = getFieldAnnotation(annot);
         entryPoints[0].parameters[0].type = `${singleArgData} (${entryPoints[0].parameters[0].type})`;
         entryPoints[0].structure = `(${entryPoints[0].structure})`;
@@ -369,7 +378,31 @@ __ -> [\s]
                         param = param.slice(7, -1);
                     }
                 }
-                return { entrypoint: this.name, value: param };
+                return { entrypoint: this.name, parameters: param };
+            },
+            generateSampleInvocation(): string {
+                const params = this.parameters.map(p => {
+                    switch (p.type) {
+                        case 'string': { return '"Tacos"'; }
+                        case 'int': { return -1; }
+                        case 'nat': { return 99; }
+                        case 'address': { return '"KT1EGbAxguaWQFkV3Egb2Z1r933MWuEYyrJS"'; }
+                        case 'key_hash': { return '"tz1SQnJaocpquTztY3zMgydTPoQBBQrDGonJ"'; }
+                        case 'timestamp': { return `"${(new Date()).toISOString()}"`}
+                        case 'mutez': { return 500000; }
+                        case 'unit': { return 'Unit'; }
+                        case 'bytes':
+                        case 'bool':
+                        case 'signature':
+                        case 'key':
+                        case 'operation':
+                        case 'chain_id':
+                        default: { return p.type; }
+                    }
+                });
+
+                return this.generateInvocationString(...params);
+                
             }
         };
 
@@ -378,33 +411,25 @@ __ -> [\s]
 
     const getFieldAnnotation = (...annot: string[]) => {
         const fa = annot.find(a => a.startsWith('%'));
-        if (!!fa) {
-            return formatFieldAnnotation(fa);
-        }
 
-        return undefined;
+        return !!fa ? formatFieldAnnotation(fa): undefined;
     }
 
     const getTypeAnnotation = (...annot: string[]) => {
         const ta = annot.find(a => a.startsWith(':'));
-        if (!!ta) {
-            return formatTypeAnnotation(ta);
-        }
 
-        return undefined;
+        return !!ta ? formatTypeAnnotation(ta): undefined;
     }
 
     const formatFieldAnnotation = (annot: string) => {
         if (!annot.startsWith('%')) { throw new Error(`${annot} must start with '%'`); }
 
-        let name = annot.replace(/^%_Liq_entry_/, '').replace('%', '');
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        return annot.replace(/^%_Liq_entry_/, '').replace('%', '');
     }
 
     const formatTypeAnnotation = (annot: string) => {
         if (!annot.startsWith(':')) { throw new Error(`${annot} must start with ':'`); }
 
-        let name = annot.replace(':', '');
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        return annot.replace(':', '');
     }
 %}

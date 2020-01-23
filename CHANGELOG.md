@@ -16,13 +16,29 @@
 - Improved `TezosNodeReader.getAccountManagerForBlock`.
 - `TezosNodeReader.isImplicitAndEmpty` and `TezosNodeReader.isManagerKeyRevealedForAccount` now default to head by reference instead of query.
 - Added `TezosNodeReader.getContractStorage`.
-- Michelson parser support for D\[UI\]G n, D\[UI\]P n, DROP n
+- Michelson parser support for `D\[UI\]G n`, `D\[UI\]P n`, `DROP n`.
+- Improved `TezosContractIntrospector` parser.
 
 ### New Features
 
 - added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
 - added TZIP 0007 (fa1.2) token contract interface
 - `TezosMessageUtil` can now `pack` `key_hash` value.
+
+<!-- markdownlint-disable MD024 -->
+# ConseilJS Change Log
+
+## 0.3.7
+
+### Fixes
+
+- big_int encoding
+
+## 0.3.6
+
+### Fixes
+
+- integer encoding issue introduced in 0.3.5-beta
 
 ## 0.3.5-beta
 

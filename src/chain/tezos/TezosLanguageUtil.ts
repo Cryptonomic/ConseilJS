@@ -296,6 +296,15 @@ export namespace TezosLanguageUtil {
             .trim();
     }
 
+    /**
+     * 
+     * 
+     * @param fragment 
+     */
+    export function stripComments(fragment: string): string {
+        return fragment.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' ');
+    }
+
     interface codeEnvelope {
         code: string,
         consumed: number
