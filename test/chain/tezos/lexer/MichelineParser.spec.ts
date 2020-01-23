@@ -106,7 +106,7 @@ describe('Micheline to hex contract tests', async () => {
             const micheline = fs.readFileSync(`${d}${path.sep}${f}.micheline`, 'utf8');
             const hexaline = fs.readFileSync(`${d}${path.sep}${f}.hex`, 'utf8');
 
-            const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+            const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline.default));
             parser.feed(TezosLanguageUtil.normalizeMichelineWhiteSpace(micheline));
             const result = parser.results.join('');
             const parsedHex = ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length

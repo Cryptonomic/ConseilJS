@@ -8,7 +8,7 @@ import * as request from 'request-promise';
 function michelsonToMicheline(code: string): string {
     const processedCode = code.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).join(' ');
 
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson.default));
     parser.feed(processedCode);
     return parser.results.join(' ');
 }

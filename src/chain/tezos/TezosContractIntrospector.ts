@@ -16,7 +16,7 @@ export namespace TezosContractIntrospector {
      * @returns {EntryPoint[]} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
      */
     export function generateEntryPointsFromParams(params: string): EntryPoint[] {
-        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
+        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate.default));
         parser.feed(params);
         return parser.results[0];
     }

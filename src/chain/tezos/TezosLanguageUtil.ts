@@ -157,7 +157,7 @@ export namespace TezosLanguageUtil {
      * Converts Michelson to Micheline and wraps the result in a script property.
      */
     export function translateMichelsonToMicheline(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson.default));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
 
         return parser.results[0];
@@ -167,7 +167,7 @@ export namespace TezosLanguageUtil {
      * Converts simple (read non-lambda) Michelson parameters to Micheline and wraps the result in a script property.
      */
     export function translateParameterMichelsonToMicheline(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters.default));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
 
         return parser.results[0];
@@ -213,7 +213,7 @@ export namespace TezosLanguageUtil {
      * Translate Micheline fragment into hex. Resulting hex string may need to be processed further before being submitted to the server.
      */
     export function translateMichelineToHex(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline.default));
         parser.feed(normalizeMichelineWhiteSpace(code));
         return parser.results.join('');
     }
