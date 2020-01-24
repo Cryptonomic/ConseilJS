@@ -1,4 +1,4 @@
-{ parameter
+parameter
     (or (or (or (pair %addLiquidity (pair address nat) (pair nat timestamp))
                 (pair %approve (pair address nat) nat))
             (or (pair %removeLiquidity
@@ -1512,4 +1512,4 @@
                  PAIR ;
                  DIP { DROP 5 } } ;
              DIP { DROP } } ;
-         DIP { DROP 10 } } }
+         DIP { DROP 10 } }
