@@ -14,7 +14,7 @@ import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
  * 
  * This wrapper does not include support for the following contract functions: getAllowance, getBalance, getTotalSupply, getAdministrator. This information is retrieved by querying the big_map structure on chain directly.
  */
-export namespace MorleyTokenContractHelper {
+export namespace MorleyTokenHelper {
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
      * 
@@ -58,6 +58,19 @@ export namespace MorleyTokenContractHelper {
         return allowances[account];
     }
 
+    export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number, supply: number, administrator: string, paused: boolean}> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        const jsonpath = new JSONPath();
+
+        return {
+            mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
+            supply: Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]),
+            administrator: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
+            paused: Boolean(jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0])
+        }
+         
+    }
+
     export async function getTokenSupply(server: string, address: string): Promise<number> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
         const jsonpath = new JSONPath();
@@ -65,7 +78,19 @@ export namespace MorleyTokenContractHelper {
         return Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]);
     }
 
-    // TODO: getManager
+    export async function getAdministrator(server: string, address: string): Promise<string> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        const jsonpath = new JSONPath();
+
+        return jsonpath.query(storageResult, '$.args[1].args[0].string')[0];
+    }
+
+    export async function getPaused(server: string, address: string): Promise<boolean> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        const jsonpath = new JSONPath();
+
+        return Boolean(jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0]);
+    }
 
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number) {
         const freight = 2000;
