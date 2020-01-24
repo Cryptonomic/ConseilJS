@@ -54,7 +54,7 @@
                             "annots": [ "%allowances" ] },
                           { "prim": "nat", "annots": [ "%balance" ] } ] } ],
                 "annots": [ "%accounts" ] },
-              { "prim": "nat", "annots": [ "%totalSupply" ] } ] } ] },
+              { "prim": "nat", "annots": [ "%total_supply" ] } ] } ] },
   { "prim": "code",
     "args":
       [ [ { "prim": "LAMBDA",

@@ -4,10 +4,10 @@ parameter
             (or (pair %getBalance address (contract nat))
                 (pair %getTotalSupply unit (contract nat))))
         (pair %transfer (pair address address) nat)) ;
-  storage
+storage
     (pair (big_map %accounts address (pair (map %allowances address nat) (nat %balance)))
-          (nat %totalSupply)) ;
-  code { LAMBDA
+          (nat %total_supply)) ;
+code { LAMBDA
            (pair (pair string address)
                  (big_map address (pair (map %allowances address nat) (nat %balance))))
            (pair (map %allowances address nat) (nat %balance))
