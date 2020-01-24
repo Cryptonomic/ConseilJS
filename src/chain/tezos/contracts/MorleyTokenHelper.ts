@@ -28,12 +28,20 @@ export namespace MorleyTokenHelper {
 
         const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash`); }
+        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, '8342c045b78f03832522e11f5a4d7697'`); }
 
         return true;
     }
 
-    // TODO: deploy function
+    export async function deployContract(server: string, keystore: KeyStore, fee: number, administrator: string, pause: boolean, supply: number, gas: number = 150_000, freight: number = 5_000) {
+        const contract = `parameter (or (or (or (pair %transfer (address :from) (pair (address :to) (nat :value))) (pair %approve (address :spender) (nat :value))) (or (pair %getAllowance (pair (address :owner) (address :spender)) (contract nat)) (or (pair %getBalance (address :owner) (contract nat)) (pair %getTotalSupply unit (contract nat))))) (or (or (bool %setPause) (address %setAdministrator)) (or (pair %getAdministrator unit (contract address)) (or (pair %mint (address :to) (nat :value)) (pair %burn (address :from) (nat :value))))));
+        storage (pair (big_map %ledger (address :user) (pair (nat :balance) (map :approvals (address :spender) (nat :value)))) (pair (address %admin) (pair (bool %paused) (nat %totalSupply))));
+        code { CAST (pair (or (or (or (pair address (pair address nat)) (pair address nat)) (or (pair (pair address address) (contract nat)) (or (pair address (contract nat)) (pair unit (contract nat))))) (or (or bool address) (or (pair unit (contract address)) (or (pair address nat) (pair address nat))))) (pair (big_map address (pair nat (map address nat))) (pair address (pair bool nat)))); DUP; CAR; DIP { CDR }; IF_LEFT { IF_LEFT { IF_LEFT { DIP { DUP; CDR; CDR; CAR; IF { UNIT; PUSH string "TokenOperationsArePaused"; PAIR; FAILWITH } {  } }; DUP; DUP; CDR; CAR; DIP { CAR }; COMPARE; EQ; IF { DROP } { DUP; CAR; SENDER; COMPARE; EQ; IF {  } { DUP; DIP { DUP; DIP { DIP { DUP }; CAR; SENDER; PAIR; DUP; DIP { CDR; DIP { CAR }; GET; IF_NONE { EMPTY_MAP (address) nat } { CDR } }; CAR; GET; IF_NONE { PUSH nat 0 } {  } }; DUP; CAR; DIP { SENDER; DIP { DUP; CDR; CDR; DIP { DIP { DUP }; SWAP }; SWAP; SUB; ISNAT; IF_NONE { DIP { DUP }; SWAP; DIP { DUP }; SWAP; CDR; CDR; PAIR; PUSH string "NotEnoughAllowance"; PAIR; FAILWITH } {  } }; PAIR }; PAIR; DIP { DROP; DROP }; DIP { DUP }; SWAP; DIP { DUP; CAR }; SWAP; DIP { CAR }; GET; IF_NONE { PUSH nat 0; DIP { EMPTY_MAP (address) nat }; PAIR; EMPTY_MAP (address) nat } { DUP; CDR }; DIP { DIP { DUP }; SWAP }; SWAP; CDR; CDR; DUP; INT; EQ; IF { DROP; NONE nat } { SOME }; DIP { DIP { DIP { DUP }; SWAP }; SWAP }; SWAP; CDR; CAR; UPDATE; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; CAR; DIP { SOME }; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR } }; DIP { DUP }; SWAP; DIP { DUP }; SWAP; CDR; CAR; DIP { CAR }; GET; IF_NONE { DUP; CDR; CDR; INT; EQ; IF { NONE (pair nat (map address nat)) } { DUP; CDR; CDR; DIP { EMPTY_MAP (address) nat }; PAIR; SOME } } { DIP { DUP }; SWAP; CDR; CDR; DIP { DUP; CAR }; ADD; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; SOME }; SWAP; DUP; DIP { CDR; CAR; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR }; DUP; DIP { CDR; CDR; INT; DIP { DUP; CDR; CDR; CDR }; ADD; ISNAT; IF_NONE { PUSH string "Internal: Negative total supply"; FAILWITH } {  }; DIP { DUP; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR }; DIP { DUP }; SWAP; DIP { DUP }; SWAP; CAR; DIP { CAR }; GET; IF_NONE { CDR; CDR; PUSH nat 0; SWAP; PAIR; PUSH string "NotEnoughBalance"; PAIR; FAILWITH } {  }; DUP; CAR; DIP { DIP { DUP }; SWAP }; SWAP; CDR; CDR; SWAP; SUB; ISNAT; IF_NONE { CAR; DIP { DUP }; SWAP; CDR; CDR; PAIR; PUSH string "NotEnoughBalance"; PAIR; FAILWITH } {  }; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; DIP { DUP }; SWAP; DIP { DUP; CAR; INT; EQ; IF { DUP; CDR; SIZE; INT; EQ; IF { DROP; NONE (pair nat (map address nat)) } { SOME } } { SOME }; SWAP; CAR; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR }; DUP; DIP { CDR; CDR; NEG; DIP { DUP; CDR; CDR; CDR }; ADD; ISNAT; IF_NONE { PUSH string "Internal: Negative total supply"; FAILWITH } {  }; DIP { DUP; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR }; DROP }; NIL operation; PAIR } { SENDER; PAIR; DIP { DUP; CDR; CDR; CAR; IF { UNIT; PUSH string "TokenOperationsArePaused"; PAIR; FAILWITH } {  } }; DIP { DUP }; SWAP; DIP { DUP }; SWAP; DUP; DIP { CAR; DIP { CAR }; GET; IF_NONE { EMPTY_MAP (address) nat } { CDR } }; CDR; CAR; GET; IF_NONE { PUSH nat 0 } {  }; DUP; INT; EQ; IF { DROP } { DIP { DUP }; SWAP; CDR; CDR; INT; EQ; IF { DROP } { PUSH string "UnsafeAllowanceChange"; PAIR; FAILWITH } }; DIP { DUP }; SWAP; DIP { DUP; CAR }; SWAP; DIP { CAR }; GET; IF_NONE { PUSH nat 0; DIP { EMPTY_MAP (address) nat }; PAIR; EMPTY_MAP (address) nat } { DUP; CDR }; DIP { DIP { DUP }; SWAP }; SWAP; CDR; CDR; DUP; INT; EQ; IF { DROP; NONE nat } { SOME }; DIP { DIP { DIP { DUP }; SWAP }; SWAP }; SWAP; CDR; CAR; UPDATE; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; CAR; DIP { SOME }; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; NIL operation; PAIR } } { IF_LEFT { DUP; CAR; DIP { CDR }; DIP { DIP { DUP }; SWAP }; PAIR; DUP; CAR; DIP { CDR }; DUP; DIP { CAR; DIP { CAR }; GET; IF_NONE { EMPTY_MAP (address) nat } { CDR } }; CDR; GET; IF_NONE { PUSH nat 0 } {  }; DIP { AMOUNT }; TRANSFER_TOKENS; NIL operation; SWAP; CONS; PAIR } { IF_LEFT { DUP; CAR; DIP { CDR }; DIP { DIP { DUP }; SWAP }; PAIR; DUP; CAR; DIP { CDR }; DIP { CAR }; GET; IF_NONE { PUSH nat 0 } { CAR }; DIP { AMOUNT }; TRANSFER_TOKENS; NIL operation; SWAP; CONS; PAIR } { DUP; CAR; DIP { CDR }; DIP { DIP { DUP }; SWAP }; PAIR; CDR; CDR; CDR; CDR; DIP { AMOUNT }; TRANSFER_TOKENS; NIL operation; SWAP; CONS; PAIR } } } } { IF_LEFT { IF_LEFT { DIP { DUP; CDR; CAR; SENDER; COMPARE; EQ; IF {  } { UNIT; PUSH string "SenderIsNotAdmin"; PAIR; FAILWITH } }; DIP { DUP; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; SWAP; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; NIL operation; PAIR } { DIP { DUP; CDR; CAR; SENDER; COMPARE; EQ; IF {  } { UNIT; PUSH string "SenderIsNotAdmin"; PAIR; FAILWITH } }; DIP { DUP; CDR }; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; NIL operation; PAIR } } { IF_LEFT { DUP; CAR; DIP { CDR }; DIP { DIP { DUP }; SWAP }; PAIR; CDR; CDR; CAR; DIP { AMOUNT }; TRANSFER_TOKENS; NIL operation; SWAP; CONS; PAIR } { IF_LEFT { DIP { DUP; CDR; CAR; SENDER; COMPARE; EQ; IF {  } { UNIT; PUSH string "SenderIsNotAdmin"; PAIR; FAILWITH } }; DIP { DUP }; SWAP; DIP { DUP }; SWAP; CAR; DIP { CAR }; GET; IF_NONE { DUP; CDR; INT; EQ; IF { NONE (pair nat (map address nat)) } { DUP; CDR; DIP { EMPTY_MAP (address) nat }; PAIR; SOME } } { DIP { DUP }; SWAP; CDR; DIP { DUP; CAR }; ADD; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; SOME }; SWAP; DUP; DIP { CAR; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR }; DUP; DIP { CDR; INT; DIP { DUP; CDR; CDR; CDR }; ADD; ISNAT; IF_NONE { PUSH string "Internal: Negative total supply"; FAILWITH } {  }; DIP { DUP; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR }; DROP; NIL operation; PAIR } { DIP { DUP; CDR; CAR; SENDER; COMPARE; EQ; IF {  } { UNIT; PUSH string "SenderIsNotAdmin"; PAIR; FAILWITH } }; DIP { DUP }; SWAP; DIP { DUP }; SWAP; CAR; DIP { CAR }; GET; IF_NONE { CDR; PUSH nat 0; SWAP; PAIR; PUSH string "NotEnoughBalance"; PAIR; FAILWITH } {  }; DUP; CAR; DIP { DIP { DUP }; SWAP }; SWAP; CDR; SWAP; SUB; ISNAT; IF_NONE { CAR; DIP { DUP }; SWAP; CDR; PAIR; PUSH string "NotEnoughBalance"; PAIR; FAILWITH } {  }; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR; DIP { DUP }; SWAP; DIP { DUP; CAR; INT; EQ; IF { DUP; CDR; SIZE; INT; EQ; IF { DROP; NONE (pair nat (map address nat)) } { SOME } } { SOME }; SWAP; CAR; DIP { DIP { DUP; CAR } }; UPDATE; DIP { DUP; DIP { CDR }; CAR }; DIP { DROP }; PAIR }; DUP; DIP { CDR; NEG; DIP { DUP; CDR; CDR; CDR }; ADD; ISNAT; IF_NONE { PUSH string "Internal: Negative total supply"; FAILWITH } {  }; DIP { DUP; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR; SWAP; PAIR; DIP { DUP; DIP { CAR }; CDR }; DIP { DROP }; SWAP; PAIR }; DROP; NIL operation; PAIR } } } } };`;
+        const storage = `Pair {} (Pair "${administrator}" (Pair ${pause ? 'True' : 'False'} ${supply}))`;
+
+        const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(server, keystore, 0, undefined, fee, '', freight, gas, contract, storage, TezosTypes.TezosParameterFormat.Michelson);
+        return clearRPCOperationGroupHash(nodeResult['operationGroupID']);
+    }
 
     export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
@@ -66,9 +74,8 @@ export namespace MorleyTokenHelper {
             mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
             supply: Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]),
             administrator: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
-            paused: Boolean(jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0])
-        }
-         
+            paused: (jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0]).toString().toLowerCase().startsWith('t')
+        };
     }
 
     export async function getTokenSupply(server: string, address: string): Promise<number> {
@@ -92,9 +99,7 @@ export namespace MorleyTokenHelper {
         return Boolean(jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0]);
     }
 
-    export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
         const parameters = `(Left (Left (Left (Pair "${source}" (Pair "${destination}" ${amount})))))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -102,9 +107,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function approveBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function approveBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number, freight: number) {
         const parameters = `(Left (Left (Right (Pair "${destination}" ${amount}))))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -112,9 +115,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function activateLedger(server: string, keystore: KeyStore, contract: string, fee: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function activateLedger(server: string, keystore: KeyStore, contract: string, fee: number, gas: number, freight: number) {
         const parameters = '(Right (Left (Left False)))';
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -122,9 +123,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function deactivateLedger(server: string, keystore: KeyStore, contract: string, fee: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function deactivateLedger(server: string, keystore: KeyStore, contract: string, fee: number, gas: number, freight: number) {
         const parameters = '(Right (Left (Left True)))';
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -132,9 +131,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function setAdministrator(server: string, keystore: KeyStore, contract: string, fee: number, address: string) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function setAdministrator(server: string, keystore: KeyStore, contract: string, fee: number, address: string, gas: number, freight: number) {
         const parameters = `(Right (Left (Right "admin")))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -142,9 +139,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function mint(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function mint(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 150_000, freight: number = 5_000) {
         const parameters = `(Right (Right (Right (Left (Pair "${destination}" ${amount})))))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -152,9 +147,7 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function burn(server: string, keystore: KeyStore, contract: string, fee: number, source: string, amount: number) {
-        const freight = 2000;
-        const gas = 200000;
+    export async function burn(server: string, keystore: KeyStore, contract: string, fee: number, source: string, amount: number, gas: number, freight: number) {
         const parameters = `(Right (Right (Right (Right (Pair "${source}" ${amount})))))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
