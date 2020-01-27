@@ -8,6 +8,7 @@
 - Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
 - `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
 - `EntryPoint.generateInvocationPair()` now returns a tuple with `entrypoint` and `parameters` keys.
+- `TezosConseilClient.awaitOperationConfirmation` now returns a single item, not an array.
 - Removed `CryptoUtils.getPasswordStrength()` and the related zxcvbn dependency. This functionality should be added by the implementing application.
 - nodejs 12 is now a base requirement.
 
@@ -25,9 +26,6 @@
 - added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
 - added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/MorleyTokenHelper`.
 - `TezosMessageUtil` can now `pack` `key_hash` value.
-
-<!-- markdownlint-disable MD024 -->
-# ConseilJS Change Log
 
 ## 0.3.7
 

@@ -187,7 +187,7 @@ export namespace TezosConseilClient {
      * 
      * @returns Operation record
      */
-    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any[]> {
+    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
         const initialLevel = (await getBlockHead(serverInfo, network))['level'];
         let currentLevel = initialLevel;
@@ -198,7 +198,7 @@ export namespace TezosConseilClient {
 
         while (initialLevel + duration > currentLevel) {
             const group = await getOperations(serverInfo, network, operationQuery);
-            if (group.length > 0) { return group; }
+            if (group.length > 0) { return group[0]; }
             currentLevel = (await getBlockHead(serverInfo, network))['level'];
             if (initialLevel + duration < currentLevel) { break; }
             await new Promise(resolve => setTimeout(resolve, blocktime * 1000));
