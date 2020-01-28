@@ -74,7 +74,7 @@ export namespace MorleyTokenHelper {
             mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
             supply: Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]),
             administrator: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
-            paused: (jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0]).toString().toLowerCase().startsWith('t')
+            paused: (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t')
         };
     }
 
@@ -96,7 +96,7 @@ export namespace MorleyTokenHelper {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
         const jsonpath = new JSONPath();
 
-        return Boolean(jsonpath.query(storageResult, '$.args[1].args[1].args[0]')[0]);
+        return (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t');
     }
 
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
@@ -131,8 +131,8 @@ export namespace MorleyTokenHelper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function setAdministrator(server: string, keystore: KeyStore, contract: string, fee: number, address: string, gas: number, freight: number) {
-        const parameters = `(Right (Left (Right "admin")))`;
+    export async function setAdministrator(server: string, keystore: KeyStore, contract: string, address: string, fee: number, gas: number, freight: number) {
+        const parameters = `(Right (Left (Right "${address}")))`;
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
