@@ -2,7 +2,7 @@ export interface Parameter {
     type: string;
     name?: string;
     optional?: boolean;
-    constituent?: string;
+    constituentType?: string;
 }
 
 export interface EntryPoint {
