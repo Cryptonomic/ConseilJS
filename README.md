@@ -32,7 +32,7 @@ We have a complete [React application tutorial](https://github.com/Cryptonomic/C
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-QdPyT9rrFHkNRlcJopTo5w6fbyed1Cs4cNORXsEZ5R1JgIsl1d6m4PTOntRVXvkc"
+        integrity="sha384-iNPbmJNqinKOA78xS4jxZvclwAFqpYWbk67dxWicxoflfW74pljknXh0Dg3lXeHz"
         crossorigin="anonymous"></script>
 ```
 
