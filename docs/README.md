@@ -90,7 +90,7 @@ If your interests lay in statistics and business intelligence, ConseilJS has too
 
 Some ConseilJS functions require an API key for a Conseil service instance. While direct chain interactions happen via a Tezos node, Conseil read operations like those in `TezosConseilClient` namespace do require an API key however.
 
-Obtaining a development key is easy. Hit us on the [Riot Dev Channel](https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech?via=cryptonomic.tech&via=matrix.org&via=ostez.com) and we'll hook you up.
+Obtaining a development key is easy. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
 ### Tezos Chain Operations
 

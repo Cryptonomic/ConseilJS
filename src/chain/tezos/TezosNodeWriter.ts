@@ -167,17 +167,19 @@ export namespace TezosNodeWriter {
         const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/preapply/operations`, payload);
         const text = await response.text();
 
-        // parse errors
-
+        let json;
         try {
-            log.debug(`TezosNodeWriter.applyOperation received ${text}`);
+            log.debug(`TezosNodeWriter.preapplyOperation received ${text}`);
 
-            const json = JSON.parse(text);
-            return json as TezosTypes.AlphaOperationsWithMetadata[];
+            json = JSON.parse(text);
         } catch (err) {
-            log.error(`TezosNodeWriter.applyOperation failed to parse response`);
-            throw new Error(`Could not parse JSON response from chains/${chainid}/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
+            log.error(`TezosNodeWriter.preapplyOperation failed to parse response`);
+            throw new Error(`Could not parse JSON from response of chains/${chainid}/blocks/head/helpers/preapply/operation: '${text}' for ${payload}`);
         }
+
+        parseRPCError(text);
+
+        return json as TezosTypes.AlphaOperationsWithMetadata[];
     }
 
     /**
@@ -606,8 +608,7 @@ export namespace TezosNodeWriter {
         const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: blockHead.chain_id, operation: { branch: blockHead.hash, contents: [transaction], signature: signedOpGroup.signature } });
         const responseText = await response.text();
 
-        const error = parseRPCError(responseText);
-        if (!!error) { throw new Error(error); }
+        parseRPCError(responseText);
 
         const responseJSON = JSON.parse(responseText);
         let gas = 0;
@@ -629,43 +630,24 @@ export namespace TezosNodeWriter {
      * @param {string} response Text response from a Tezos RPC services
      * @returns Error text or `undefined`
      */
-    function parseRPCError(response: string): string | undefined {
-        if (response.startsWith('Failed to parse the request body: ')) {
-            return `Failed with ${response.slice(34)}`;
-        }
-
-        let responseJSON = {};
+    function parseRPCError(response: string) {
+        let errors = '';
         try {
-            responseJSON = JSON.parse(response);
-        } catch (jsonParsingError) {
-            return 'Could not parse response text as JSON.';
-        }
+            const json = JSON.parse(response);
+            const arr = Array.isArray(json) ? json : [json];
 
-        if (Array.isArray(responseJSON)) {
-            let errorKind = '';
-            try { errorKind = responseJSON[0]['kind']; } catch { }
-
-            let errorType = '';
-            try { errorType = responseJSON[0]['id'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' '); } catch { }
-
-            let errorMessage = '';
-            try { errorMessage = responseJSON[0]['error']; } catch { }
-
-            return `Failed with ${[errorKind, errorType, errorMessage].filter(e => e !== '').join(', ')}`;
-        } else {
-            let errors = '';
-            for(let c of responseJSON['contents']) {
-                const operationStatus = c['metadata']['operation_result']['status'];
-
-                if (operationStatus !== 'applied') {
-                    const errorType = c['metadata']['operation_result']['errors'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' ');
-                    c += `Operation ${operationStatus} with ${errorType}\n`;
-                }
+            errors = arr.map(r => r.contents)
+                         .map(o => o.map(c => c.metadata.operation_result)
+                                    .filter(r => r.status !== 'applied')
+                                    .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
+                         .join('');
+        } catch (err) { 
+            if (response.startsWith('Failed to parse the request body: ')){
+                errors = response.slice(34);
+            } else {
+                log.error(`failed to parse errors: '${err}' from '${response}'\n, PLEASE report this to the maintainers`); }
             }
-            errors = errors.trim()
-            if (errors.length > 0) { return errors; }
-        }
-
-        return undefined;
+            
+        if (errors.length > 0) { throw new Error(errors); } // TODO: use TezosResponseError
     }
 }
