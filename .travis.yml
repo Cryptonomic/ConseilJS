@@ -6,11 +6,6 @@ env:
 sudo: true
 matrix:
   include:
-    - os: osx
-      osx_image: xcode9.4
-      language: node_js
-      node_js:
-        - 12.14
     - os: linux
       services: docker
       language: node_js
