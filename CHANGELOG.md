@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.4.0-alpha
+## 0.4.0-beta
 
 ### Breaking Changes
 
