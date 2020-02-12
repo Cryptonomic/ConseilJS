@@ -1,7 +1,7 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.4.0-beta
+## 0.4.0-alpha
 
 ### Breaking Changes
 
@@ -10,7 +10,8 @@
 - `EntryPoint.generateInvocationPair()` now returns a tuple with `entrypoint` and `parameters` keys.
 - `TezosConseilClient.awaitOperationConfirmation` now returns a single item, not an array.
 - Removed `CryptoUtils.getPasswordStrength()` and the related zxcvbn dependency. This functionality should be added by the implementing application.
-- nodejs 12 is now a base requirement.
+- `TezosNodeWriter.preapplyOperation()`, `testContractInvocationOperation()` and `injectOperation()` now parse and report errors.
+- nodejs 12.14 is now a base requirement.
 
 ### Fixes
 
@@ -24,8 +25,12 @@
 ### New Features
 
 - added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
-- added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/MorleyTokenHelper`.
+- added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/Tzip7ReferenceTokenHelper`.
 - `TezosMessageUtil` can now `pack` `key_hash` value.
+
+## 0.3.8-beta
+
+- updated various dependencies, importantly for Ledger device communication
 
 ## 0.3.7
 

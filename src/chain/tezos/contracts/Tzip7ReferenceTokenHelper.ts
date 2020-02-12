@@ -14,7 +14,7 @@ import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
  * 
  * This wrapper does not include support for the following contract functions: getAllowance, getBalance, getTotalSupply, getAdministrator. This information is retrieved by querying the big_map structure on chain directly.
  */
-export namespace MorleyTokenHelper {
+export namespace Tzip7ReferenceTokenHelper {
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
      * 

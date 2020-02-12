@@ -183,28 +183,6 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Ensures the results of operation application do not contain errors, throws if there are any.
-     *
-     * @param appliedOp Results of operation application.
-     */
-    function checkAppliedOperationResults(appliedOp: TezosTypes.AlphaOperationsWithMetadata[]): void { // TODO: outdated, replace with parseRPCError
-        const validAppliedKinds = new Set(['activate_account', 'reveal', 'transaction', 'origination', 'delegation']);
-        const firstAppliedOp = appliedOp[0]; // All our op groups are singletons so we deliberately check the zeroth result.
-
-        if (firstAppliedOp.kind != null && !validAppliedKinds.has(firstAppliedOp.kind)) {
-            log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${firstAppliedOp.id}`);
-            throw new Error(`Could not apply operation because ${firstAppliedOp.id}`);
-        }
-
-        for (const op of firstAppliedOp.contents) {
-            if (!validAppliedKinds.has(op.kind)) {
-                log.error(`TezosNodeWriter.checkAppliedOperationResults failed with ${op.metadata}`);
-                throw new Error(`Could not apply operation because: ${op.metadata}`);
-            }
-        }
-    }
-
-    /**
      * Injects an operation using the Tezos RPC client.
      *
      * @param {string} server Tezos node to connect to
@@ -215,7 +193,7 @@ export namespace TezosNodeWriter {
         const response = await performPostRequest(server, `injection/operation?chain=${chainid}`, signedOpGroup.bytes.toString('hex'));
         const text = await response.text();
 
-        // parse errors
+        parseRPCError(text);
 
         return text;
     }
