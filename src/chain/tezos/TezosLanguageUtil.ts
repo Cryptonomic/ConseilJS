@@ -14,7 +14,7 @@ const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"El
 export namespace TezosLanguageUtil {
     /**
      * Parse out a single message from a hex string.
-     * @param {string} hex 
+     * @param {string} hex
      * @returns {codeEnvelope} Parsed Micheline object as a string along with the number of bytes that was consumed in the process.
      */
     export function hexToMicheline(hex: string): codeEnvelope {
@@ -41,7 +41,7 @@ export namespace TezosLanguageUtil {
                 const length = parseInt(hex.substring(offset, offset + 8), 16);
                 offset += 8;
                 let buffer: string[] = [];
-                let consumed = 0;   
+                let consumed = 0;
                 while (consumed < length) {
                     let envelope = hexToMicheline(hex.substring(offset));
                     buffer.push(envelope.code);
@@ -175,7 +175,7 @@ export namespace TezosLanguageUtil {
 
     /**
      * Convenience function to take Michelson code straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
-     * 
+     *
      * @param {string} code Michelson code string
      * @returns {string} hex-encoded contract content
      */
@@ -195,9 +195,9 @@ export namespace TezosLanguageUtil {
 
         return parts;
     }
-    
+
     function getSection(container: any, key: string): string {
-        let root = container; 
+        let root = container;
         if (!!container.script) { root = container.script; }
 
         for (let i = 0; i < root.length; i++) {
@@ -232,7 +232,7 @@ export namespace TezosLanguageUtil {
 
     /**
      * Translated a plain hex-encoded int into a Michelson/Micheline keyword.
-     * 
+     *
      * @param hex Hex-encoded contract to process
      * @param offset Offset to read one byte from
      * @returns {string} Michelson/Micheline keyword
@@ -243,10 +243,10 @@ export namespace TezosLanguageUtil {
 
     /**
      * Translates hex-encoded stream into a collection of annotations. Determines the length internally. Annotations are prefixed with ':', '@', or '%' for type, variable, and field annotations.
-     * 
+     *
      * @param {string} hex Hex-encoded contract fragment to process
      * @returns {codeEnvelope} Parsed annotations and the number of consumed bytes.
-     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/master/whitedoc/michelson.html#annotations}
+     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/whitedoc/michelson.html#annotations}
      */
     function michelineHexToAnnotations(hex: string): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);

@@ -5,13 +5,13 @@ const moo = require("moo");
 
 /*
   Assumptions:
-  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
+  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
   - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
   - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
     This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
   - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
     "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
+  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
   - Issue: There is an ambiguous parsing between commands LE and LEFT.
   - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
     need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
