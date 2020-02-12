@@ -1682,20 +1682,6 @@ Returns proposal information subject to the provided `query` on a given `network
 
 Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using `ConseilMetadataClient`.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #### TezosLedgerWallet
 
 Identity management and signing functions to enable Tezos node interactions with the Ledger Nano S hardware wallet.

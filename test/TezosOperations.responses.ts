@@ -289,7 +289,7 @@ export const accountMockList = [
 ];
 
 export const managerKeyMockList = [
-  { "manager":  "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP" },
+  'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
   'null'
 ];
 
