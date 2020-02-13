@@ -1,4 +1,5 @@
 import * as blakejs from 'blakejs';
+
 import { KeyStore, StoreType } from '../../types/wallet/KeyStore';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
@@ -610,20 +611,30 @@ export namespace TezosNodeWriter {
      */
     function parseRPCError(response: string) {
         let errors = '';
+
         try {
             const json = JSON.parse(response);
             const arr = Array.isArray(json) ? json : [json];
 
-            errors = arr.map(r => r.contents)
-                         .map(o => o.map(c => c.metadata.operation_result)
-                                    .filter(r => r.status !== 'applied')
-                                    .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
-                         .join('');
+            if ('kind' in arr[0]) {
+                errors = arr.map(e => `(${e.kind}: ${e.id})`).join('');
+            } else {
+                errors = arr.map(r => r.contents)
+                        .map(o => o.map(c => c.metadata.operation_result)
+                                   .filter(r => r.status !== 'applied')
+                                   .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
+                        .join('');
+            }
         } catch (err) { 
             if (response.startsWith('Failed to parse the request body: ')){
                 errors = response.slice(34);
             } else {
-                log.error(`failed to parse errors: '${err}' from '${response}'\n, PLEASE report this to the maintainers`); }
+                const hash = response.replace(/\"/g, '').replace(/\n/, '');
+                if (hash.length === 51 && hash.charAt(0) === 'o') {
+                    // TODO: confirm base58check operation hash
+                } else {
+                    log.error(`failed to parse errors: '${err}' from '${response}'\n, PLEASE report this to the maintainers`); }
+                }
             }
             
         if (errors.length > 0) { throw new Error(errors); } // TODO: use TezosResponseError
