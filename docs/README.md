@@ -22,7 +22,7 @@ In addition to these materials, there is an [automated walk-through for common T
 Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
 ```bash
-npm i conseiljs
+npm i conseiljs 
 ```
 
 If you are using webpack in your project, add below lines to your `webpack.config.js` file:
