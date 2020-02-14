@@ -579,12 +579,12 @@ export namespace TezosNodeWriter {
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{gas: number, storageCost: number}> {
-        const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, to, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
+        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, 42, to, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOpGroup = forgeOperations(blockHead.hash, [transaction]);
         const signedOpGroup = await signOperationGroup(forgedOpGroup, keyStore, derivationPath);
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: blockHead.chain_id, operation: { branch: blockHead.hash, contents: [transaction], signature: signedOpGroup.signature } });
+        console.log(`sig: ${signedOpGroup.signature}`)
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: blockHead.chain_id, operation: { branch: blockHead.hash, contents: [transaction], signature: 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy' } });
         const responseText = await response.text();
 
         parseRPCError(responseText);
