@@ -13,6 +13,12 @@
 - `TezosNodeWriter.preapplyOperation()`, `testContractInvocationOperation()` and `injectOperation()` now parse and report errors.
 - nodejs 12.14 is now a base requirement.
 
+### New Features
+
+- added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
+- added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/Tzip7ReferenceTokenHelper`.
+- `TezosMessageUtil` can now `pack` `key_hash` value.
+
 ### Fixes
 
 - Improved `TezosNodeReader.getAccountManagerForBlock`.
@@ -21,12 +27,8 @@
 - Michelson parser support for `D\[UI\]G n`, `D\[UI\]P n`, `DROP n`.
 - Generally improved Michelson contract parser.
 - Improved `TezosContractIntrospector` parser.
-
-### New Features
-
-- added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
-- added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/Tzip7ReferenceTokenHelper`.
-- `TezosMessageUtil` can now `pack` `key_hash` value.
+- Updated documentation.
+- Reduced and updated dependencies.
 
 ## 0.3.8-beta
 

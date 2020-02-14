@@ -37,7 +37,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-skzGi2G2wcGb6HD7PKVhRuFrsD71V0S9wbpslUrmLMEI0PqiXBQDnWRJESODET5m"
+        integrity="sha384-1Lpjkva0cskGzGmrvU+WIbzNk24LwcaEFgsukzbI5wTl7T6kom1UA4DKS/oxtaqr"
         crossorigin="anonymous"></script>
 ```
 
