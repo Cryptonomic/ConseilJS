@@ -1,5 +1,4 @@
-{
-    "script": [
+[
         {
             "prim": "parameter",
             "args": [ { "prim": "int" } ]
@@ -57,4 +56,3 @@
             ]
         }
     ]
-}

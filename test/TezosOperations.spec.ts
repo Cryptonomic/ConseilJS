@@ -38,24 +38,29 @@ describe('Tezos Operations Test', () => {
         const nockOb = nock('http://conseil.server');
         nockOb.persist().get(`/chains/main/blocks/head`).reply(200, blockHead);
 
-        const accountUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}`;
+        const accountUrl = `/chains/main/blocks//context/contracts/${keyStore.publicKeyHash}`;
         nockOb.get(accountUrl).reply(200, accountMockList[0]);
+
+        const accountHeadUrl = `/chains/main/blocks/head/context/contracts/${keyStore.publicKeyHash}`;
+        nockOb.get(accountHeadUrl).reply(200, accountMockList[0]);
 
         const accountUrl1 = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}`;
         nockOb.get(accountUrl1).reply(200, accountMockList[1]);
+
+        const accountHeadUrl1 = `/chains/main/blocks/head/context/contracts/${keyStore1.publicKeyHash}`;
+        nockOb.get(accountHeadUrl1).reply(200, accountMockList[1]);
 
         const accountDelegateUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}`;
         nockOb.get(accountDelegateUrl).reply(200, accountMockList[2]);
 
         const accountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore.publicKeyHash}/manager_key`;
         nockOb.get(accountMangerUrl).reply(200, managerKeyMockList[0]);
-
+        
         const nonAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${keyStore1.publicKeyHash}/manager_key`;
         nockOb.get(nonAccountMangerUrl).reply(200, managerKeyMockList[1]);
 
         const ktAccountMangerUrl = `/chains/main/blocks/${blockHead.hash}/context/contracts/${ktAddress}/manager_key`;
         nockOb.get(ktAccountMangerUrl).reply(200, managerKeyMockList[0]);
-
     }));
     describe('Some Base Operations Test', () => {
         before(async () => {

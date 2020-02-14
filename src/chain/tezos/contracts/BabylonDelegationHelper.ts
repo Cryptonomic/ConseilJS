@@ -1,12 +1,12 @@
 import * as blakejs from 'blakejs';
 
-import { KeyStore } from '../../types/wallet/KeyStore';
-import * as TezosTypes from '../../types/tezos/TezosChainTypes';
-import { TezosConstants } from '../../types/tezos/TezosConstants';
-import { TezosNodeWriter } from './TezosNodeWriter';
-import { TezosNodeReader } from './TezosNodeReader';
+import { KeyStore } from '../../../types/wallet/KeyStore';
+import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
+import { TezosConstants } from '../../../types/tezos/TezosConstants';
+import { TezosNodeWriter } from '../TezosNodeWriter';
+import { TezosNodeReader } from '../TezosNodeReader';
 
-export namespace TezosProtocolHelper { // TODO: rename /chain/tezos/contracts/BabylonDelegationHelper.ts
+export namespace BabylonDelegationHelper { // TODO: rename /chain/tezos/contracts/BabylonDelegationHelper.ts
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
      * 

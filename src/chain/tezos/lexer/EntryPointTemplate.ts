@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.18.0
+// Generated automatically by nearley, version 2.19.1
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -53,7 +53,8 @@ declare var data: any;
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -64,7 +65,8 @@ declare var data: any;
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -85,7 +87,8 @@ declare var data: any;
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -96,7 +99,8 @@ declare var data: any;
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -119,10 +123,12 @@ declare var data: any;
                 parameters: leftEntryPoint.parameters,
                 structure: '(Left ' + leftEntryPoint.structure + ')',
                 generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair
+                generateInvocationPair: leftEntryPoint.generateInvocationPair,
+                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
+
         for (const rightEntryPoint of rightEntryPoints) {
             if (rightEntryPoint.parameters.length === 1 && rightEntryPoint.parameters[0].name === rightEntryPoint.name) {
                 rightEntryPoint.parameters[0].name = undefined;
@@ -132,7 +138,8 @@ declare var data: any;
                 parameters: rightEntryPoint.parameters,
                 structure: '(Right ' + rightEntryPoint.structure + ')',
                 generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair
+                generateInvocationPair: rightEntryPoint.generateInvocationPair,
+                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
             }
             branchedEntryPoints.push(branchedEntryPoint);
         }
@@ -153,11 +160,12 @@ declare var data: any;
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
                 const pairedEntryPoint: EntryPoint = {
-                    name: annotA.toString(), // TODO
+                    name: getTypeAnnotation(annotA.toString(), annotB.toString()),
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -175,13 +183,14 @@ declare var data: any;
         //console.log(`mergePairWithAnnot found ${annot}`);
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
-                const name = getFieldAnnotation(annot.toString())
+                const name = getTypeAnnotation(annot.toString()) || getFieldAnnotation(annot.toString());
                 const pairedEntryPoint: EntryPoint = {
                     name: name || undefined,
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation // TODO
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -202,7 +211,8 @@ declare var data: any;
                     parameters: firstEntryPoint.parameters.concat(secondEntryPoint.parameters),
                     structure: `(Pair ${firstEntryPoint.structure} ${secondEntryPoint.structure})`,
                     generateInvocationString: firstEntryPoint.generateInvocationString,
-                    generateInvocationPair: firstEntryPoint.generateInvocationPair
+                    generateInvocationPair: firstEntryPoint.generateInvocationPair,
+                    generateSampleInvocation: firstEntryPoint.generateSampleInvocation // TODO
                 }
                 pairedEntryPoints.push(pairedEntryPoint);
             }
@@ -232,7 +242,6 @@ declare var data: any;
         const annot: string = d[2].toString();
         const entryPoints: EntryPoint[] = d[4];
 
-        //console.log(`recordSingleArgDataWithAnnot found ${annot}`);
         entryPoints[0].name = getFieldAnnotation(annot);
         entryPoints[0].parameters[0].type = `${singleArgData} (${entryPoints[0].parameters[0].type})`;
         entryPoints[0].structure = `(${entryPoints[0].structure})`;
@@ -347,7 +356,31 @@ declare var data: any;
                         param = param.slice(7, -1);
                     }
                 }
-                return { entrypoint: this.name, value: param };
+                return { entrypoint: this.name, parameters: param };
+            },
+            generateSampleInvocation(): string {
+                const params = this.parameters.map(p => {
+                    switch (p.type) {
+                        case 'string': { return '"Tacos"'; }
+                        case 'int': { return -1; }
+                        case 'nat': { return 99; }
+                        case 'address': { return '"KT1EGbAxguaWQFkV3Egb2Z1r933MWuEYyrJS"'; }
+                        case 'key_hash': { return '"tz1SQnJaocpquTztY3zMgydTPoQBBQrDGonJ"'; }
+                        case 'timestamp': { return `"${(new Date()).toISOString()}"`}
+                        case 'mutez': { return 500000; }
+                        case 'unit': { return 'Unit'; }
+                        case 'bytes':
+                        case 'bool':
+                        case 'signature':
+                        case 'key':
+                        case 'operation':
+                        case 'chain_id':
+                        default: { return p.type; }
+                    }
+                });
+
+                return this.generateInvocationString(...params);
+                
             }
         };
 
@@ -356,57 +389,57 @@ declare var data: any;
 
     const getFieldAnnotation = (...annot: string[]) => {
         const fa = annot.find(a => a.startsWith('%'));
-        if (!!fa) {
-            return formatFieldAnnotation(fa);
-        }
 
-        return undefined;
+        return !!fa ? formatFieldAnnotation(fa): undefined;
     }
 
     const getTypeAnnotation = (...annot: string[]) => {
         const ta = annot.find(a => a.startsWith(':'));
-        if (!!ta) {
-            return formatTypeAnnotation(ta);
-        }
 
-        return undefined;
+        return !!ta ? formatTypeAnnotation(ta): undefined;
     }
 
     const formatFieldAnnotation = (annot: string) => {
         if (!annot.startsWith('%')) { throw new Error(`${annot} must start with '%'`); }
 
-        let name = annot.replace(/^%_Liq_entry_/, '').replace('%', '');
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        return annot.replace(/^%_Liq_entry_/, '').replace('%', '');
     }
 
     const formatTypeAnnotation = (annot: string) => {
         if (!annot.startsWith(':')) { throw new Error(`${annot} must start with ':'`); }
 
-        let name = annot.replace(':', '');
-        return name.charAt(0).toUpperCase() + name.slice(1);
+        return annot.replace(':', '');
     }
 
-export interface Token { value: any; [key: string]: any };
-
-export interface Lexer {
-  reset: (chunk: string, info: any) => void;
-  next: () => Token | undefined;
-  save: () => any;
-  formatError: (token: Token) => string;
-  has: (tokenType: string) => boolean
+interface NearleyToken {  value: any;
+  [key: string]: any;
 };
 
-export interface NearleyRule {
+interface NearleyLexer {
+  reset: (chunk: string, info: any) => void;
+  next: () => NearleyToken | undefined;
+  save: () => any;
+  formatError: (token: NearleyToken) => string;
+  has: (tokenType: string) => boolean;
+};
+
+interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
 };
 
-export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-export var Lexer: Lexer | undefined = lexer;
+interface Grammar {
+  Lexer: NearleyLexer | undefined;
+  ParserRules: NearleyRule[];
+  ParserStart: string;
+};
 
-export var ParserRules: NearleyRule[] = [
+const grammar: Grammar = {
+  Lexer: lexer,
+  ParserRules: [
     {"name": "entry", "symbols": [(lexer.has("parameter") ? {type: "parameter"} : parameter), "__", "parameters", "_", (lexer.has("semicolon") ? {type: "semicolon"} : semicolon)], "postprocess": breakParameter},
     {"name": "parameters", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "parameters", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": stripParen},
     {"name": "parameters", "symbols": [(lexer.has("or") ? {type: "or"} : or), "_", (lexer.has("annot") ? {type: "annot"} : annot), "__", (lexer.has("annot") ? {type: "annot"} : annot), "__", "parameters", "__", "parameters"], "postprocess": branchOrWithTwoAnnot},
@@ -428,6 +461,8 @@ export var ParserRules: NearleyRule[] = [
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "_", "symbols": ["_$ebnf$1"]},
     {"name": "__", "symbols": [/[\s]/]}
-];
+  ],
+  ParserStart: "entry",
+};
 
-export var ParserStart: string = "entry";
+export default grammar;

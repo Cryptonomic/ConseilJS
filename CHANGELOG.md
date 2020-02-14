@@ -1,6 +1,39 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.0-beta
+
+### Breaking Changes
+
+- Moved `chain/tezos/TezosProtocolHelper.ts` to `/chain/tezos/contracts/BabylonDelegationHelper`.
+- `TezosConseilClient.getBlockByLevel`, `TezosConseilClient.getAccount`, `TezosConseilClient.getOperationGroup` now return single items, not arrays of 1.
+- `EntryPoint.generateInvocationPair()` now returns a tuple with `entrypoint` and `parameters` keys.
+- `TezosConseilClient.awaitOperationConfirmation` now returns a single item, not an array.
+- Removed `CryptoUtils.getPasswordStrength()` and the related zxcvbn dependency. This functionality should be added by the implementing application.
+- `TezosNodeWriter.preapplyOperation()`, `testContractInvocationOperation()` and `injectOperation()` now parse and report errors.
+- nodejs 12.14 is now a base requirement.
+
+### New Features
+
+- added Tezos Commons Baker Registry interface `chain/tezos/contracts/TCFBakerRegistryHelper`.
+- added TZIP 0007 (FA1.2) token contract interface `chain/tezos/contracts/Tzip7ReferenceTokenHelper`.
+- `TezosMessageUtil` can now `pack` `key_hash` value.
+
+### Fixes
+
+- Improved `TezosNodeReader.getAccountManagerForBlock`.
+- `TezosNodeReader.isImplicitAndEmpty` and `TezosNodeReader.isManagerKeyRevealedForAccount` now default to head by reference instead of query.
+- Added `TezosNodeReader.getContractStorage`.
+- Michelson parser support for `D\[UI\]G n`, `D\[UI\]P n`, `DROP n`.
+- Generally improved Michelson contract parser.
+- Improved `TezosContractIntrospector` parser.
+- Updated documentation.
+- Reduced and updated dependencies.
+
+## 0.3.8-beta
+
+- updated various dependencies, importantly for Ledger device communication
+
 ## 0.3.7
 
 ### Fixes
@@ -17,7 +50,7 @@
 
 ### Breaking Changes
 
-- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`
+- `EntryPoint.generateParameter` became `EntryPoint.generateInvocationString`.
 
 ### Fixes
 

@@ -103,14 +103,14 @@ export namespace TezosNodeReader {
      * Fetches the manager public key of a specific account for a given block.
      * 
      * @param {string} server Tezos node to query
-     * @param {string} blockHash Hash of given block
+     * @param {string} block Hash of given block, will also accept block level and 'head'
      * @param {string} accountHash Account address
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      * @returns {Promise<string>} Manager public key
      */
-    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<string> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
-            .then(result => (result && result.toString() !== 'null') ? result.toString() : '');
+    export function getAccountManagerForBlock(server: string, block: string, accountHash: string, chainid: string = 'main'): Promise<string> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/manager_key`)
+            .then(result => (result && result.toString() !== 'null') ? result.toString() : '').catch(err => '');
     }
 
     /**
@@ -121,8 +121,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<boolean>} Result
      */
     export async function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean> {
-        const blockHead = await getBlockHead(server);
-        const account = await getAccountForBlock(server, blockHead.hash, accountHash);
+        const account = await getAccountForBlock(server, 'head', accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith('tz');
         const isEmpty = Number(account.balance) === 0;
@@ -138,10 +137,13 @@ export namespace TezosNodeReader {
      * @returns {Promise<boolean>} Result
      */
     export async function isManagerKeyRevealedForAccount(server: string, accountHash: string): Promise<boolean> {
-        const blockHead = await getBlockHead(server);
-        const managerKey = await getAccountManagerForBlock(server, blockHead.hash, accountHash);
+        const managerKey = await getAccountManagerForBlock(server, 'head', accountHash);
 
         return managerKey.length > 0;
+    }
+
+    export function getContractStorage(server: string, accountHash: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/storage`);
     }
 
     /**
@@ -154,6 +156,6 @@ export namespace TezosNodeReader {
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      */
     export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`,);
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
     }
 }

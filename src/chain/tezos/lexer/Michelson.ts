@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.18.0
+// Generated automatically by nearley, version 2.19.1
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -33,13 +33,13 @@ const moo = require("moo");
 
 /*
   Assumptions:
-  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
+  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
   - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
   - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
     This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
   - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
     "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
+  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
   - Issue: There is an ambiguous parsing between commands LE and LEFT.
   - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
     need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
@@ -81,7 +81,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ 'DUP', 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -91,7 +91,7 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -407,7 +407,7 @@ const lexer = moo.compile({
         if (check_dip(word)) {
             return expandDIP(word, d[2], annot)
         } else {
-            return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+            return `{ "prim": "${d[0]}", "args": [ ${d[3]} ], "annots": [${annot}] }`;
         }
     }
 
@@ -423,6 +423,7 @@ const lexer = moo.compile({
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
     const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
@@ -498,35 +499,49 @@ const lexer = moo.compile({
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
+    const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
+
+    const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
+    const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
-        const instructionOne = [d[2]]
-        const instructionList = d[3].map(x => x[3])
-        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
+        const instructionOne = [d[2]];
+        const instructionList = d[3].map(x => x[3]);
+        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x));
     }
 
-export interface Token { value: any; [key: string]: any };
-
-export interface Lexer {
-  reset: (chunk: string, info: any) => void;
-  next: () => Token | undefined;
-  save: () => any;
-  formatError: (token: Token) => string;
-  has: (tokenType: string) => boolean
+interface NearleyToken {  value: any;
+  [key: string]: any;
 };
 
-export interface NearleyRule {
+interface NearleyLexer {
+  reset: (chunk: string, info: any) => void;
+  next: () => NearleyToken | undefined;
+  save: () => any;
+  formatError: (token: NearleyToken) => string;
+  has: (tokenType: string) => boolean;
+};
+
+interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
 };
 
-export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-export var Lexer: Lexer | undefined = lexer;
+interface Grammar {
+  Lexer: NearleyLexer | undefined;
+  ParserRules: NearleyRule[];
+  ParserStart: string;
+};
 
-export var ParserRules: NearleyRule[] = [
+const grammar: Grammar = {
+  Lexer: lexer,
+  ParserRules: [
     {"name": "main", "symbols": ["instruction"], "postprocess": id},
     {"name": "main", "symbols": ["data"], "postprocess": id},
     {"name": "main", "symbols": ["type"], "postprocess": id},
@@ -723,8 +738,26 @@ export var ParserRules: NearleyRule[] = [
     {"name": "instruction$ebnf$8$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "instruction$ebnf$8", "symbols": ["instruction$ebnf$8", "instruction$ebnf$8$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "instruction", "symbols": [{"literal":"PUSH"}, "instruction$ebnf$8", "_", "type", "_", "data"], "postprocess": pushWithAnnotsToJson},
+    {"name": "instruction$ebnf$9", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$9", "symbols": ["instruction$ebnf$9", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DIP"}, "_", "instruction$ebnf$9", "_", "subInstruction"], "postprocess": dipnToJson},
+    {"name": "instruction$ebnf$10", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$10", "symbols": ["instruction$ebnf$10", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10", "_", "subInstruction"], "postprocess": dipnToJson},
+    {"name": "instruction$ebnf$11", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DIG"}, "_", "instruction$ebnf$11"], "postprocess": dignToJson},
+    {"name": "instruction$ebnf$12", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$12", "symbols": ["instruction$ebnf$12", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUG"}, "_", "instruction$ebnf$12"], "postprocess": dignToJson},
+    {"name": "instruction$ebnf$13", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$13", "symbols": ["instruction$ebnf$13", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DROP"}, "_", "instruction$ebnf$13"], "postprocess": dropnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DROP"}], "postprocess": keywordToJson},
     {"name": "instruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "instruction", "symbols": [{"literal":"CREATE_CONTRACT"}, "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "parameter", "_", "storage", "_", "code", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": subContractToJson},
+    {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", (lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "type", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen), "_", "type"], "postprocess": doubleArgParenKeywordToJson},
     {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -788,6 +821,8 @@ export var ParserRules: NearleyRule[] = [
     {"name": "semicolons$ebnf$1", "symbols": [/[;]/], "postprocess": id},
     {"name": "semicolons$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "semicolons", "symbols": ["semicolons$ebnf$1"]}
-];
+  ],
+  ParserStart: "main",
+};
 
-export var ParserStart: string = "main";
+export default grammar;

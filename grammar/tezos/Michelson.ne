@@ -5,13 +5,13 @@ const moo = require("moo");
 
 /*
   Assumptions:
-  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
+  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
   - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
   - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
     This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
   - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
     "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
+  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
   - Issue: There is an ambiguous parsing between commands LE and LEFT.
   - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
     need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
@@ -53,7 +53,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ 'DUP', 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -63,7 +63,7 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -179,8 +179,16 @@ instruction ->
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
+  | "DIP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
+  | "DUP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
+  | "DIG" _ [0-9]:+ {% dignToJson %}
+  | "DUG" _ [0-9]:+ {% dignToJson %}
+  | "DROP" _ [0-9]:+ {% dropnToJson %}
+  | "DROP" {% keywordToJson %}
   | %lbrace _ %rbrace {% d => "" %}
   | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
+  | "EMPTY_MAP" _ type _ type {% doubleArgKeywordToJson %}
+  | "EMPTY_MAP" _ %lparen _ type _ %rparen _ type {% doubleArgParenKeywordToJson %}
 
 # Helper grammar for list of michelson data types.
 subData ->
@@ -196,7 +204,6 @@ subElt ->
   | "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
-
 
 # Helper grammar for whitespace.
 _ -> [\s]:*
@@ -505,7 +512,7 @@ semicolons -> [;]:?
         if (check_dip(word)) {
             return expandDIP(word, d[2], annot)
         } else {
-            return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+            return `{ "prim": "${d[0]}", "args": [ ${d[3]} ], "annots": [${annot}] }`;
         }
     }
 
@@ -521,6 +528,7 @@ semicolons -> [;]:?
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
     const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
@@ -596,11 +604,17 @@ semicolons -> [;]:?
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
+    const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
+
+    const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
+    const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
-        const instructionOne = [d[2]]
-        const instructionList = d[3].map(x => x[3])
-        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
+        const instructionOne = [d[2]];
+        const instructionList = d[3].map(x => x[3]);
+        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x));
     }
 %}
