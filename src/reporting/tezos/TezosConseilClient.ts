@@ -65,7 +65,8 @@ export namespace TezosConseilClient {
     export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [level], false), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
