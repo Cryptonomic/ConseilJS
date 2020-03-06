@@ -49,6 +49,8 @@ export namespace TezosConseilClient {
      * @param hash Block hash to query for.
      */
     export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any> {
+        if (hash === 'head') { return getBlockHead(serverInfo, network); }
+
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [hash], false), 1);
 
         const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
