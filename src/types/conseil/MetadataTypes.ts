@@ -42,6 +42,7 @@ export interface AttributeDefinition {
     currencySymbol?: string;
     currencySymbolCode?: number;
     cacheConfig?: AttributeCacheConfig;
+    valueMap?: Record<string, string>
 }
 
 export interface AttributeReference {
