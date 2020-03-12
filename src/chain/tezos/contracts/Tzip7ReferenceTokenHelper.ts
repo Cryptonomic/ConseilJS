@@ -28,7 +28,7 @@ export namespace Tzip7ReferenceTokenHelper {
 
         const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, '8342c045b78f03832522e11f5a4d7697'`); }
+        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
 
         return true;
     }
