@@ -1,3 +1,5 @@
+import { JSONPath } from 'jsonpath-plus';
+
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes'
 import { TezosRequestError } from '../../types/tezos/TezosErrorTypes';
 import FetchSelector from '../../utils/FetchSelector'
@@ -157,5 +159,19 @@ export namespace TezosNodeReader {
      */
     export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
         return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
+    }
+
+    export async function getMempoolOperation(server: string, operationGroupId: string, chainid: string = 'main') {
+        const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
+        const jsonresult = JSONPath({ path: `$.applied[?(@.hash=='${operationGroupId}')]`, json: mempoolContent });
+
+        return jsonresult[0];
+    }
+
+    export async function getMempoolOperationsForAccount(server: string, accountHash: string, chainid: string = 'main') {
+        const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
+        const jsonresult = JSONPath({ path: `$.applied..[?(@.source=='${accountHash}')]^`, json: mempoolContent });
+
+        return jsonresult;
     }
 }
