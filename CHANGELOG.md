@@ -1,6 +1,22 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.1-beta
+
+### Breaking Changes
+
+- `TezosNodeWriter.testContractInvocationOperation()` no longer has the `derivationPath` argument.
+
+### New Features
+
+- added mempool support with `TezosNodeReader.getMempoolOperation` and `TezosNodeReader.getMempoolOperationsForAccount`.
+- added `CryptonomicNameServiceHelper`.
+
+### Fixes
+
+- [ConseilJS 250](https://github.com/Cryptonomic/ConseilJS/issues/250)
+- [ConseilJS 256](https://github.com/Cryptonomic/ConseilJS/issues/256)
+
 ## 0.4.0-beta
 
 ### Breaking Changes

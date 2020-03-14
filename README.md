@@ -32,7 +32,7 @@ We have a complete [React application tutorial](https://github.com/Cryptonomic/C
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-1Lpjkva0cskGzGmrvU+WIbzNk24LwcaEFgsukzbI5wTl7T6kom1UA4DKS/oxtaqr"
+        integrity="sha384-pvhoPqt/Jy00QX3fHkNlBlvsXhDl8njTcagLJ/tcmLMyNENHRDZar7colyuyORa5"
         crossorigin="anonymous"></script>
 ```
 
@@ -45,14 +45,6 @@ We have [ready-to-use examples](https://cryptonomic.github.io/ConseilJS/) to cop
 ## Contribute
 
 There are many ways to contribute to this project. You can develop applications or dApps with it. You can submit bug reports or feature requests. You can ask questions about it on [r/Tezos](http://reddit.com/r/tezos/) or the [Tezos StackExchange](https://tezos.stackexchange.com). We certainly welcome pull requests as well.
-
-### Known Issues
-
-- Some of the P2P messages are not implemented, specifically those used in baking operations.
-
-### Dependency Requirements
-
-- AWS-SDK dependency must remain as the Ledger Connect feature requires it.
 
 ## Other references
 
