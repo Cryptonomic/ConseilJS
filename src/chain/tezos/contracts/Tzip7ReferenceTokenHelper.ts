@@ -1,5 +1,5 @@
 import * as blakejs from 'blakejs';
-import { JSONPath } from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
@@ -49,8 +49,8 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
     
-        const jsonpath = new JSONPath();
-        return Number(jsonpath.query(mapResult, '$.args[0].int')[0]);
+        const jsonresult = JSONPath({ path: '$.args[0].int', json: mapResult });
+        return Number(jsonresult[0]);
     }
 
     export async function getAccountAllowance(server: string, mapid: number, account: string, source: string) {
@@ -59,44 +59,39 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${source}/${account}`); }
 
-        const jsonpath = new JSONPath();
         let allowances = new Map<string, number>();
-        (jsonpath.query(mapResult, '$.args[1][*].args')).forEach(v => allowances[v[0]['string']] = Number(v[1]['int']));
+        JSONPath({ path: '$.args[1][*].args', json: mapResult }).forEach(v => allowances[v[0]['string']] = Number(v[1]['int']));
 
         return allowances[account];
     }
 
     export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number, supply: number, administrator: string, paused: boolean}> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
         return {
-            mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
-            supply: Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]),
-            administrator: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
-            paused: (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t')
+            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t')
         };
     }
 
     export async function getTokenSupply(server: string, address: string): Promise<number> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]);
+        return Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]);
     }
 
     export async function getAdministrator(server: string, address: string): Promise<string> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return jsonpath.query(storageResult, '$.args[1].args[0].string')[0];
+        return JSONPath({ path: '$.args[1].args[0].string', json: storageResult })[0];
     }
 
     export async function getPaused(server: string, address: string): Promise<boolean> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t');
+        return (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t');
     }
 
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {

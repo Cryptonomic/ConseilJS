@@ -1,5 +1,5 @@
 import * as blakejs from 'blakejs';
-import { JSONPath } from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
@@ -39,11 +39,10 @@ export namespace DexterTokenHelper {
         console.log('-----')
         console.log(storageResult);
         console.log('-----')
-        const jsonpath = new JSONPath();
 
         return {
-            mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
-            totalSupply: Number(jsonpath.query(storageResult, '$.args[1].int')[0])
+            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
+            totalSupply: Number(JSONPath({ path: '$.args[1].int', json: storageResult })[0])
         };
     }
 
@@ -60,11 +59,9 @@ export namespace DexterTokenHelper {
 
         if (!!!mapResult) { return undefined; }
 
-        const jsonpath = new JSONPath();
-
         return {
-            allowances: jsonpath.query(mapResult, '$.args[0]')[0],
-            balance: Number(jsonpath.query(mapResult, '$.args[1].int')[0])
+            allowances: JSONPath({ path: '$.args[0]', json: mapResult })[0],
+            balance: Number(JSONPath({ path: '$.args[1].int', json: mapResult })[0])
         };
     }
 

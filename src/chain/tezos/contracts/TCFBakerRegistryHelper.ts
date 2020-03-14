@@ -1,5 +1,5 @@
 import * as blakejs from 'blakejs';
-import { JSONPath } from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
@@ -36,13 +36,12 @@ export namespace TCFBakerRegistryHelper {
      */
     export async function getFees(server: string, address: string) {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
         return {
-            mapid: parseInt(jsonpath.query(storageResult, '$.args[0].int')[0]),
-            owner: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
-            signupFee: parseInt(jsonpath.query(storageResult, '$.args[1].args[1].args[0].int')[0]),
-            updateFee: parseInt(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0])
+            mapid: parseInt(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
+            owner: JSONPath({ path: '$.args[1].args[0].string', json: storageResult })[0],
+            signupFee: parseInt(JSONPath({ path: '$.args[1].args[1].args[0].int', json: storageResult })[0]),
+            updateFee: parseInt(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0])
         };
     }
 
@@ -74,23 +73,22 @@ export namespace TCFBakerRegistryHelper {
 
         if (!!!mapResult) { return undefined; }
 
-        const jsonpath = new JSONPath();
         const textDecoder = new TextDecoder();
 
-        const paymentConfigMask = Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[1].int')[0]); // paymentConfigMask
+        const paymentConfigMask = Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[1].int', json: mapResult })[0]); // paymentConfigMask
 
         return {
-            name: textDecoder.decode(Buffer.from(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[0].args[0].bytes')[0], 'hex')), // bakerName
-            isAcceptingDelegation: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[0].args[1].prim')[0]), // openForDelegation
-            externalDataURL: textDecoder.decode(Buffer.from(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[0].args[1].bytes')[0], 'hex')), // bakerOffchainRegistryUrl
-            split: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[0].args[0].int')[0]) / 10000, // split
-            paymentAccounts: jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[0].args[1]..string'), // bakerPaysFromAccounts
-            minimumDelegation: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[0].args[0].int')[0]), // minDelegation
-            isGreedy: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[0].args[1].prim')[0]), // subtractPayoutsLessThanMin
-            payoutDelay: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[0].int')[0]), // payoutDelay
-            payoutFrequency: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[0].int')[0]), // payoutFrequency
-            minimumPayout: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[1].int')[0]), // minPayout
-            isCheap: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[0].prim')[0]), // bakerChargesTransactionFee
+            name: textDecoder.decode(Buffer.from(JSONPath({ path: '$.args[0].args[0].args[0].args[0].args[0].args[0].bytes', json: mapResult })[0], 'hex')), // bakerName
+            isAcceptingDelegation: Boolean(JSONPath({ path: '$.args[0].args[0].args[0].args[0].args[0].args[1].prim', json: mapResult })[0]), // openForDelegation
+            externalDataURL: textDecoder.decode(Buffer.from(JSONPath({ path: '$.args[0].args[0].args[0].args[0].args[1].bytes', json: mapResult })[0], 'hex')), // bakerOffchainRegistryUrl
+            split: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[0].args[0].int', json: mapResult })[0]) / 10000, // split
+            paymentAccounts: JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[0].args[1]..string', json: mapResult }), // bakerPaysFromAccounts
+            minimumDelegation: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[0].args[0].args[0].int', json: mapResult })[0]), // minDelegation
+            isGreedy: Boolean(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[0].args[0].args[1].prim', json: mapResult })[0]), // subtractPayoutsLessThanMin
+            payoutDelay: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[0].int', json: mapResult })[0]), // payoutDelay
+            payoutFrequency: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[0].int', json: mapResult })[0]), // payoutFrequency
+            minimumPayout: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[0].args[1].args[1].args[1].int', json: mapResult })[0]), // minPayout
+            isCheap: Boolean(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[1].args[0].args[0].prim', json: mapResult })[0]), // bakerChargesTransactionFee
             paymentConfig: {
                 payForOwnBlocks: Boolean(paymentConfigMask & 1),
                 payForEndorsements: Boolean(paymentConfigMask & 2),
@@ -107,10 +105,10 @@ export namespace TCFBakerRegistryHelper {
                 compensateMissedEndorsements: !Boolean(paymentConfigMask & 4096),
                 compensateLowPriorityEndorsementLoss: !Boolean(paymentConfigMask & 8192)
             },
-            overdelegationThreshold: Number(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[0].int')[0]), // overDelegationThreshold
-            subtractRewardsFromUninvitedDelegation: Boolean(jsonpath.query(mapResult, '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[1].prim')[0]), // subtractRewardsFromUninvitedDelegation
-            recordManager: jsonpath.query(mapResult, '$.args[0].args[1].args[0].string')[0], // reporterAccount
-            timestamp: new Date(jsonpath.query(mapResult, '$.args[1].string')[0]) // last_update
+            overdelegationThreshold: Number(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[0].int', json: mapResult })[0]), // overDelegationThreshold
+            subtractRewardsFromUninvitedDelegation: Boolean(JSONPath({ path: '$.args[0].args[0].args[0].args[1].args[1].args[1].args[1].args[1].prim', json: mapResult })[0]), // subtractRewardsFromUninvitedDelegation
+            recordManager: JSONPath({ path: '$.args[0].args[1].args[0].string', json: mapResult })[0], // reporterAccount
+            timestamp: new Date(JSONPath({ path: '$.args[1].string', json: mapResult })[0]) // last_update
         };
     }
 }
