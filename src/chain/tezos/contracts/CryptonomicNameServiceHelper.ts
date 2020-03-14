@@ -8,11 +8,7 @@ import { KeyStore } from '../../../types/wallet/KeyStore';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 
 /**
- * Interface for the FA1.2 contract implementation from the Morley Project outlined here: https://gitlab.com/tzip/tzip/blob/master/proposals/tzip-7/ManagedLedger.md
  * 
- * Compatible with the contract as of January 22, 2020 from https://gitlab.com/tzip/tzip/raw/master/proposals/tzip-7/ManagedLedger.tz
- * 
- * This wrapper does not include support for the following contract functions: getAllowance, getBalance, getTotalSupply, getAdministrator. This information is retrieved by querying the big_map structure on chain directly.
  */
 export namespace CryptonomicNameServiceHelper {
     /**
@@ -40,11 +36,9 @@ export namespace CryptonomicNameServiceHelper {
         const parameters = `(Left (Right (Pair ${registrationPeriod} (Pair "${name}" "${resolver}"))))`;
 
         if (!freight || !gas) {
-            console.log("estimating cost")
             const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, 0, fee, 6000, 500_000, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
             if (!freight){ freight = Number(cost['storageCost']) || 0; }
             if (!gas) { gas = Number(cost['gas']) + 300; }
-            console.log(`got ${gas}, ${freight}`)
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -52,33 +46,29 @@ export namespace CryptonomicNameServiceHelper {
     }
 
     export async function transferNameOwnership(server: string, keystore: KeyStore, contract: string, name: string, newNameOwner: string, fee: number, freight?: number, gas?: number, derivationPath: string = '') {
-        const parameters = `Pair "${name}" "${newNameOwner}"`;
+        const parameters = `(Pair "${name}" "${newNameOwner}")`;
         //(pair %transferNameOwnership (string %name) (address %newNameOwner))
         //(Right (Left (Pair $PARAM $PARAM)))
 
         if (!freight || !gas) {
             const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, 0, fee, 1000, 100000, 'transferNameOwnership', parameters, TezosTypes.TezosParameterFormat.Michelson);
-            if (!freight)
-                freight = Number(cost['storageCost']) || 0;
-            if (!gas)
-                gas = Number(cost['gas']) + 300; // + buffer
+            if (!freight) { freight = Number(cost['storageCost']) || 0; }
+            if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, derivationPath, freight, gas, 'transferNameOwnership', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return  clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function updateResolver(server: string, keystore: KeyStore, contract: string, name: string, resolver: string, fee: number, freight?: number, gas?: number) {
-        const parameters = `Pair "${name}" "${resolver}"`;
+        const parameters = `(Pair "${name}" "${resolver}")`;
         //(pair %updateResolver (string %name) (address %resolver))
         //(Right (Right (Right (Pair $PARAM $PARAM))))
 
         if (!freight || !gas) {
             const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, 0, fee, 1000, 100000, 'updateResolver', parameters, TezosTypes.TezosParameterFormat.Michelson);
-            if (!freight)
-                freight = Number(cost['storageCost']) || 0;
-            if (!gas)
-                gas = Number(cost['gas']) + 300; // + buffer
+            if (!freight) { freight = Number(cost['storageCost']) || 0; }
+            if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'updateResolver', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -98,16 +88,14 @@ export namespace CryptonomicNameServiceHelper {
      * @param gas Gas fee, if not provided calculate gas limit.
      */
     export async function updateRegistrationPeriod(server: string, keystore: KeyStore, contract: string, name: string, newRegistrationPeriod: number, fee: number, freight?: number, gas?: number) {
-        const parameters = `Pair "${name}" ${newRegistrationPeriod}`;
+        const parameters = `(Pair "${name}" ${newRegistrationPeriod})`;
         //(pair %updateRegistrationPeriod (int %duration) (string %name))
         //(Right (Right (Left (Pair $PARAM $PARAM))))
 
         if (!freight || !gas) {
             const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, 0, fee, 1000, 100000, 'updateRegistrationPeriod', parameters, TezosTypes.TezosParameterFormat.Michelson);
-            if (!freight)
-                freight = Number(cost['storageCost']) || 0;
-            if (!gas)
-                gas = Number(cost['gas']) + 300; // + buffer
+            if (!freight) { freight = Number(cost['storageCost']) || 0; }
+            if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'updateRegistrationPeriod', parameters, TezosTypes.TezosParameterFormat.Michelson);
@@ -121,10 +109,8 @@ export namespace CryptonomicNameServiceHelper {
 
         if (!freight || !gas) {
             const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, 0, fee, 1000, 100000, 'deleteName', parameters, TezosTypes.TezosParameterFormat.Michelson);
-            if (!freight)
-                freight = Number(cost['storageCost']) || 0;
-            if (!gas)
-                gas = Number(cost['gas']) + 300; // + buffer
+            if (!freight) { freight = Number(cost['storageCost']) || 0; }
+            if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'deleteName', parameters, TezosTypes.TezosParameterFormat.Michelson);
