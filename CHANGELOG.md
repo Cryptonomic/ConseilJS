@@ -5,17 +5,22 @@
 
 ### Breaking Changes
 
-- `TezosNodeWriter.testContractInvocationOperation()` no longer has the `derivationPath` argument.
+- `TezosNodeWriter.testContractInvocationOperation` no longer has the `derivationPath` argument.
+- `TezosConseilClient.getBlockByLevel` now returns a single item, not an array.
 
 ### New Features
 
 - added mempool support with `TezosNodeReader.getMempoolOperation` and `TezosNodeReader.getMempoolOperationsForAccount`.
 - added `CryptonomicNameServiceHelper`.
+- support for complex bigmap keys.
+- `TezosConseilClient.getBlock` now supports 'head' as a `hash` value.
 
 ### Fixes
 
 - [ConseilJS 250](https://github.com/Cryptonomic/ConseilJS/issues/250)
 - [ConseilJS 256](https://github.com/Cryptonomic/ConseilJS/issues/256)
+- Updated documentation.
+- Updated dependencies.
 
 ## 0.4.0-beta
 
