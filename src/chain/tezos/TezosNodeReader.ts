@@ -153,7 +153,7 @@ export namespace TezosNodeReader {
      * 
      * @param {string} server Tezos node to connect to 
      * @param index big_map index to query
-     * @param key big_map key to get
+     * @param key encoded big_map key to get, see `TezosMessageUtils.encodeBigMapKey`, `TezosMessageUtils.writePackedData`
      * @param {string} block Block reference, level or hash, 'head' is default
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      */
@@ -161,6 +161,13 @@ export namespace TezosNodeReader {
         return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
     }
 
+    /**
+     * Queries the /mempool/pending_operations RPC and parses it looking for the provided operation group id.
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param operationGroupId 
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
     export async function getMempoolOperation(server: string, operationGroupId: string, chainid: string = 'main') {
         const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
         const jsonresult = JSONPath({ path: `$.applied[?(@.hash=='${operationGroupId}')]`, json: mempoolContent });
@@ -168,6 +175,13 @@ export namespace TezosNodeReader {
         return jsonresult[0];
     }
 
+    /**
+     * Queries the /mempool/pending_operations RPC and parses it looking for applied operations submitted by the provided account
+     * 
+     * @param {string} server Tezos node to connect to 
+     * @param accountHash 
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
     export async function getMempoolOperationsForAccount(server: string, accountHash: string, chainid: string = 'main') {
         const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
         const jsonresult = JSONPath({ path: `$.applied..[?(@.source=='${accountHash}')]^`, json: mempoolContent });

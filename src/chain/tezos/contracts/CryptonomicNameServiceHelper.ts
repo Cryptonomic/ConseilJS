@@ -8,7 +8,7 @@ import { KeyStore } from '../../../types/wallet/KeyStore';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 
 /**
- * 
+ * Interface for the Name Service contract developed by Cryptonomic, Inc.
  */
 export namespace CryptonomicNameServiceHelper {
     /**
@@ -29,6 +29,20 @@ export namespace CryptonomicNameServiceHelper {
         return true;
     }
 
+    /**
+     * Creates a name registry record.
+     * 
+     * @param server 
+     * @param keystore 
+     * @param contract Contract address to call..
+     * @param name Name to register.
+     * @param resolver Address to associate with the given name.
+     * @param registrationPeriod Duration to register the name for.
+     * @param registrationFee Registration fee to pay.
+     * @param operationFee Operation fee.
+     * @param freight Storage limit, will be estimated if not given.
+     * @param gas Gas limit, will be estimated if not given.
+     */
     export async function registerName(server: string, keystore: KeyStore, contract: string, name: string, resolver: string, registrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
         const parameters = `(Pair ${registrationPeriod} (Pair "${name}" "${resolver}"))`;
 
@@ -109,6 +123,13 @@ export namespace CryptonomicNameServiceHelper {
         return JSONPath({ path: '$.string', json: mapResult })[0];
     }
 
+    /**
+     * Queries the name registry big_map, 'nameMap' as returned by getSimpleStorage, for a specific name.
+     *
+     * @param server Destination Tezos node.
+     * @param mapid Map index to query
+     * @param name Name to look up.
+     */
     export async function getNameInfo(server: string, mapid: number, name: string): Promise<any>{
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(name, 'string'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
@@ -123,6 +144,13 @@ export namespace CryptonomicNameServiceHelper {
         };
     }
 
+    /**
+     * Returns basic contract configuration.
+     * 
+     * @param server Destination Tezos node.
+     * @param contract Contract to query.
+     * @returns A JSON object in the following format: { nameMap, addressMap, manager, interval, maxDuration, intervalFee }. `nameMap` is the name dictionary, `addressMap` is the reverse lookup map, `manager` is the registry administrator, `interval` is the registration period increment, `maxDuration` longest interval for which a name may be registered, `intervalFee` cost per interval.
+     */
     export async function getSimpleStorage(server: string, contract: string): Promise<{ nameMap: number, addressMap: number, manager: string, interval: number, maxDuration: number, intervalFee: number }> {
         const storageResult = await TezosNodeReader.getContractStorage(server, contract);
 

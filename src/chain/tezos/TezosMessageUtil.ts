@@ -357,9 +357,16 @@ export namespace TezosMessageUtils {
     }
 
     function dataLength(value: number) {
-        return ('0000000' + value.toString(16)).slice(-8);
+        return ('0000000' + (value / 2).toString(16)).slice(-8);
     }
 
+    /**
+     * Creates a binary representation of the provided value. This is the equivalent of the PACK instruction in Michelson.
+     * 
+     * @param value string, number or bytes to encode. A string value can also be code.
+     * @param type Type of data to encode, supports various Michelson primitives like int, nat, string, key_hash, address and bytes. This argument should be left blank if encoding a complex value, see format.
+     * @param format value format, this argument is used to encode complex values, Michelson and Micheline encoding is supported with the internal parser.
+     */
     export function writePackedData(value: string | number | Buffer, type: string, format: TezosParameterFormat = TezosParameterFormat.Micheline): string {
         switch(type) {
             case 'int': {
@@ -373,15 +380,15 @@ export namespace TezosMessageUtils {
             }
             case 'key_hash': {
                 const address = writeAddress(value as string).slice(2);
-                return `050a${dataLength(address.length / 2)}${address}`;
+                return `050a${dataLength(address.length)}${address}`;
             }
             case 'address': {
                 const address = writeAddress(value as string);
-                return `050a${dataLength(address.length / 2)}${address}`;
+                return `050a${dataLength(address.length)}${address}`;
             }
             case 'bytes': {
                 const buffer = (value as Buffer).toString('hex');
-                return `050a${dataLength(buffer.length / 2)}${buffer}`;
+                return `050a${dataLength(buffer.length)}${buffer}`;
             }
             default: {
                 try {
@@ -404,6 +411,9 @@ export namespace TezosMessageUtils {
         throw new Error('Method not implemented');
     }
 
+    /**
+     * Created a hash of the provided buffer that can then be used to query a big_map structure on chain.
+     */
     export function encodeBigMapKey(key: Buffer): string {
         const hash = CryptoUtils.simpleHash(key, 32);
         return readBufferWithHint(hash, 'expr');
