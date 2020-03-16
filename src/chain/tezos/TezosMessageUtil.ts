@@ -127,6 +127,21 @@ export namespace TezosMessageUtils {
         return len + text;
     }
 
+    export function readString(hex: string): string {
+        console.log(hex);
+        const stringLen = parseInt(hex.substring(0, 8), 16);
+        if (stringLen === 0) { return ''; }
+
+        const stringHex = hex.slice(8);
+
+        let text = '';
+        for (let i = 0; i < stringHex.length; i += 2) {
+            text += String.fromCharCode(parseInt(stringHex.substring(i, i + 2), 16));
+        }
+
+        return text;
+    }
+
     /**
      * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
      * An address is a public key hash of the account.
@@ -357,7 +372,7 @@ export namespace TezosMessageUtils {
     }
 
     function dataLength(value: number) {
-        return ('0000000' + (value / 2).toString(16)).slice(-8);
+        return ('0000000' + (value).toString(16)).slice(-8);
     }
 
     /**
@@ -380,15 +395,15 @@ export namespace TezosMessageUtils {
             }
             case 'key_hash': {
                 const address = writeAddress(value as string).slice(2);
-                return `050a${dataLength(address.length)}${address}`;
+                return `050a${dataLength(address.length / 2)}${address}`;
             }
             case 'address': {
                 const address = writeAddress(value as string);
-                return `050a${dataLength(address.length)}${address}`;
+                return `050a${dataLength(address.length / 2)}${address}`;
             }
             case 'bytes': {
                 const buffer = (value as Buffer).toString('hex');
-                return `050a${dataLength(buffer.length)}${buffer}`;
+                return `050a${dataLength(buffer.length / 2)}${buffer}`;
             }
             default: {
                 try {
@@ -407,15 +422,41 @@ export namespace TezosMessageUtils {
         }
     }
 
-    export function readPackedData(b: Buffer, type: string){
-        throw new Error('Method not implemented');
+    /**
+     * 
+     * @param hex 
+     * @param type 
+     */
+    export function readPackedData(hex: string, type: string) : string | number {
+        switch(type) {
+            case 'int': {
+                return readSignedInt(hex.slice(4));
+            }
+            case 'nat': {
+                return readInt(hex.slice(4));
+            }
+            case 'string': {
+                return readString(hex.slice(4));
+            }
+            case 'key_hash': {
+                return readAddress(`00${hex.slice(12)}`);
+            }
+            case 'address': {
+                return readAddress(hex.slice(12));
+            }
+            case 'bytes': {
+                return hex.slice(12);
+            }
+            default: {
+                return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;
+            }
+        }
     }
 
     /**
      * Created a hash of the provided buffer that can then be used to query a big_map structure on chain.
      */
     export function encodeBigMapKey(key: Buffer): string {
-        const hash = CryptoUtils.simpleHash(key, 32);
-        return readBufferWithHint(hash, 'expr');
+        return readBufferWithHint(CryptoUtils.simpleHash(key, 32), 'expr');
     }
 }

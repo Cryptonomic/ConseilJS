@@ -141,7 +141,7 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('BLoBZFawGRjGwk53VW76xBDhxKKMpnk3k3FWdkYZhcusd3aVwUM');
   });
 
-  it('test simple value PACKing', () => {
+  it('test value PACKing', () => {
     let result = TezosMessageUtils.writePackedData(9, 'int');
     expect(result).to.equal('050009');
     
@@ -176,7 +176,42 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('0507070001000c');
   });
 
-  it('test simple value PACKing', () => {
+  it('test value UNPACKing', () => {
+    let result = TezosMessageUtils.readPackedData('050009', 'int');
+    expect(result).to.equal(9);
+    
+    result = TezosMessageUtils.readPackedData('050009', 'nat');
+    expect(result).to.equal(9);
+    
+    result = TezosMessageUtils.readPackedData('050049', 'int');
+    expect(result).to.equal(-9);
+
+    result = TezosMessageUtils.readPackedData('0500c764', 'int');
+    expect(result).to.equal(-6407);
+
+    result = TezosMessageUtils.readPackedData('05009eadb25e', 'int');
+    expect(result).to.equal(98978654);
+
+    result = TezosMessageUtils.readPackedData('0500f584c5bfc604', 'int');
+    expect(result).to.equal(-78181343541);
+
+    result = TezosMessageUtils.readPackedData('050a0000001500cc04e65d3e38e4e8059041f27a649c76630f95e2', 'key_hash');
+    expect(result).to.equal('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8');
+
+    result = TezosMessageUtils.readPackedData('050a0000001601e67bac124dff100a57644de0cf26d341ebf9492600', 'address');
+    expect(result).to.equal('KT1VbT8n6YbrzPSjdAscKfJGDDNafB5yHn1H');
+
+    result = TezosMessageUtils.readPackedData('05010000001254657a6f73205461636f73204e6163686f73', 'string');
+    expect(result).to.equal('Tezos Tacos Nachos');
+
+    result = TezosMessageUtils.readPackedData('050a000000030a0a0a', 'bytes');
+    expect(result).to.equal('0a0a0a');
+
+    result = TezosMessageUtils.readPackedData('0507070001000c', '');
+    expect(result).to.equal('{ "prim": "Pair", "args": [ { "int": "1" }, { "int": "12" } ] }');
+  });
+
+  it('test big_map key hashing', () => {
     let result = TezosMessageUtils.encodeBigMapKey(Buffer.from('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2', 'hex'));
     expect(result).to.equal('exprv7U7pkJHbeUGhs7Wj8GTUnvfZfJRUcSCRo2EYqRSnUx1xWKrY9');
 
