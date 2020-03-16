@@ -174,7 +174,7 @@ export namespace TezosLanguageUtil {
     }
 
     /**
-     * Convenience function to take Michelson code straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
+     * Convenience function to take Michelson contract straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
      *
      * @param {string} code Michelson code string
      * @returns {string} hex-encoded contract content

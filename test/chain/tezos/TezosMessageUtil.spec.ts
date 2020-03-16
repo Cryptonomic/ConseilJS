@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
 import 'mocha';
+import { TezosParameterFormat } from '../../../src/types/tezos/TezosChainTypes';
 
 describe('Tezos P2P message codec helper tests', () => {
   it('test address read functions', () => {
@@ -167,6 +168,12 @@ describe('Tezos P2P message codec helper tests', () => {
 
     result = TezosMessageUtils.writePackedData(Buffer.from('0a0a0a', 'hex'), 'bytes');
     expect(result).to.equal('050a000000030a0a0a');
+
+    result = TezosMessageUtils.writePackedData('{ "prim": "Pair", "args": [ { "int": "1" }, { "int": "12" } ] }', '{ "prim":"pair", "args":[ { "prim":"int" }, { "prim":"int" }] }');
+    expect(result).to.equal('0507070001000c');
+
+    result = TezosMessageUtils.writePackedData('(Pair 1 12)', '(pair int int)', TezosParameterFormat.Michelson);
+    expect(result).to.equal('0507070001000c');
   });
 
   it('test simple value PACKing', () => {

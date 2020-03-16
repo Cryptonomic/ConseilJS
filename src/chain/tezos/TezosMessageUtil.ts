@@ -4,6 +4,8 @@ import bigInt from 'big-integer';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
+import { TezosLanguageUtil } from './TezosLanguageUtil';
+import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
@@ -354,12 +356,11 @@ export namespace TezosMessageUtils {
         return readAddressWithHint(hash, prefix);
     }
 
-    export function dataLength(value: number) {
+    function dataLength(value: number) {
         return ('0000000' + value.toString(16)).slice(-8);
     }
 
-    // TODO: this needs to migrate to the MichelineParser or LanguageUtil for complex value encoding
-    export function writePackedData(value: string | number | Buffer, type: string): string {
+    export function writePackedData(value: string | number | Buffer, type: string, format: TezosParameterFormat = TezosParameterFormat.Micheline): string {
         switch(type) {
             case 'int': {
                 return '0500' + writeSignedInt(value as number);
@@ -383,7 +384,18 @@ export namespace TezosMessageUtils {
                 return `050a${dataLength(buffer.length / 2)}${buffer}`;
             }
             default: {
-                throw new Error(`Unrecognized data type, ${type}, provided`);
+                try {
+                    if (format === TezosParameterFormat.Micheline) {
+                        return `05${TezosLanguageUtil.translateMichelineToHex(value as string)}`;
+                    } else if (format === TezosParameterFormat.Michelson) {
+                        const micheline = TezosLanguageUtil.translateMichelsonToMicheline(value as string)
+                        return `05${TezosLanguageUtil.translateMichelineToHex(micheline)}`;
+                    } else {
+                        throw new Error(`Unsupported format, ${format}, provided`);
+                    }
+                } catch (e) {
+                    throw new Error(`Unrecognized data type or format: '${type}', '${format}'`);
+                }
             }
         }
     }
