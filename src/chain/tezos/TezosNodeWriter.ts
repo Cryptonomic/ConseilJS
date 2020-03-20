@@ -626,7 +626,7 @@ export namespace TezosNodeWriter {
             for(let c of responseJSON['contents']) {
                 const operationStatus = c['metadata']['operation_result']['status'];
 
-                if (operationStatus !== 'applied') {
+                if (operationStatus === 'failed') {
                     const errorType = c['metadata']['operation_result']['errors'].toString().split('.').slice(-2).join(' ').replace(/_/g, ' ');
                     c += `Operation ${operationStatus} with ${errorType}\n`;
                 }
