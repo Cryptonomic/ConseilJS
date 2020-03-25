@@ -7,6 +7,7 @@
 
 - `TezosNodeWriter.testContractInvocationOperation` no longer has the `derivationPath` argument.
 - `TezosConseilClient.getBlockByLevel` now returns a single item, not an array.
+- `TCFBakerRegistryHelper.getFees` was renamed to `getSimpleStorage` to match other contract interfaces.
 
 ### New Features
 

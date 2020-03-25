@@ -47,12 +47,12 @@ export namespace CryptonomicNameServiceHelper {
         const parameters = `(Pair ${registrationPeriod} (Pair "${name}" "${resolver}"))`;
 
         if (!freight || !gas) {
-            const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, registrationFee, operationFee, 6000, 500_000, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+            const cost = await TezosNodeWriter.testContractInvocationOperation(server, 'main', keystore, contract, registrationFee, operationFee, 6000, 500_000, 'registerName', parameters, TezosTypes.TezosParameterFormat.Michelson);
             if (!freight){ freight = Number(cost['storageCost']) || 0; }
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, registrationFee, operationFee, keystore.derivationPath, 6000, 300_000, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, registrationFee, operationFee, keystore.derivationPath, 6000, 300_000, 'registerName', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 

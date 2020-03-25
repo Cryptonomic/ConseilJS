@@ -34,7 +34,7 @@ export namespace TCFBakerRegistryHelper {
      * @param server Destination Tezos node.
      * @param address Contract address to query.
      */
-    export async function getFees(server: string, address: string) {
+    export async function getSimpleStorage(server: string, address: string) {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
         return {
