@@ -1,6 +1,7 @@
 import * as blakejs from 'blakejs';
 import { JSONPath } from 'jsonpath-plus';
 
+import { TezosLanguageUtil } from '../TezosLanguageUtil';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
@@ -16,7 +17,8 @@ import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
  */
 export namespace Tzip7ReferenceTokenHelper {
     /**
-     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
+     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
+     * 
      * 
      * @param server Destination Tezos node.
      * @param address Contract address to query.
@@ -26,9 +28,22 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
 
-        const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
+        const k = Buffer.from(blakejs.blake2s(contract.script.toString(), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
+        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
+
+        return true;
+    }
+
+    /**
+     * In contrast to verifyDestination, this function uses compares Michelson hashes.
+     * 
+     * @param script 
+     */
+    export function verifyScript(script: string): boolean {
+        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
+
+        if (k !== 'b77ada691b1d630622bea243696c84d7') { throw new Error(`Contract does not match the expected code hash: ${k}, 'b77ada691b1d630622bea243696c84d7'`); }
 
         return true;
     }
