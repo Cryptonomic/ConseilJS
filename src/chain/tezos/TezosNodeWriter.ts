@@ -53,7 +53,7 @@ export namespace TezosNodeWriter {
      * @returns {SignedOperationGroup} Bytes of the signed operation along with the actual signature
      */
     // TODO: move this function to wallet files
-    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.SignedOperationGroup> {
+    export async function signOperationGroup(forgedOperation: string, keyStore: KeyStore, derivationPath?: string): Promise<TezosTypes.SignedOperationGroup> {
         const watermarkedForgedOperationBytesHex = TezosConstants.OperationGroupWatermark + forgedOperation;
 
         let opSignature: Buffer;
@@ -208,7 +208,7 @@ export namespace TezosNodeWriter {
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath?: string): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
         const signedOpGroup = await signOperationGroup(forgedOperationGroup, keyStore, derivationPath);
@@ -431,10 +431,10 @@ export namespace TezosNodeWriter {
     export async function sendContractInvocationOperation(
         server: string,
         keyStore: KeyStore,
-        to: string,
+        contract: string,
         amount: number,
         fee: number,
-        derivationPath: string,
+        derivationPath: string | undefined,
         storageLimit: number,
         gasLimit: number,
         entrypoint: string | undefined,
@@ -443,7 +443,7 @@ export namespace TezosNodeWriter {
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
-        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, to, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
+        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
         return sendOperation(server, operations, keyStore, derivationPath);
     }
@@ -569,10 +569,9 @@ export namespace TezosNodeWriter {
         server: string,
         chainid: string,
         keyStore: KeyStore,
-        to: string,
+        contract: string,
         amount: number,
         fee: number,
-        derivationPath: string,
         storageLimit: number,
         gasLimit: number,
         entrypoint: string | undefined,
@@ -580,11 +579,12 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{gas: number, storageCost: number}> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, to, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
-        const blockHead = await TezosNodeReader.getBlockHead(server);
-        const forgedOpGroup = forgeOperations(blockHead.hash, [transaction]);
-        const signedOpGroup = await signOperationGroup(forgedOpGroup, keyStore, derivationPath);
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: blockHead.chain_id, operation: { branch: blockHead.hash, contents: [transaction], signature: signedOpGroup.signature } });
+        const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
+        const fake_chainid = 'NetXdQprcVkpaWU';
+        const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
+
+        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [transaction], signature: fake_signature } });
         const responseText = await response.text();
 
         parseRPCError(responseText);

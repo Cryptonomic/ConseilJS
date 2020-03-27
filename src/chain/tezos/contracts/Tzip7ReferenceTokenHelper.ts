@@ -1,6 +1,7 @@
 import * as blakejs from 'blakejs';
-import { JSONPath } from 'jsonpath';
+import { JSONPath } from 'jsonpath-plus';
 
+import { TezosLanguageUtil } from '../TezosLanguageUtil';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
@@ -16,7 +17,8 @@ import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
  */
 export namespace Tzip7ReferenceTokenHelper {
     /**
-     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
+     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
+     * 
      * 
      * @param server Destination Tezos node.
      * @param address Contract address to query.
@@ -26,9 +28,22 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
 
-        const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
+        const k = Buffer.from(blakejs.blake2s(contract.script.toString(), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, '8342c045b78f03832522e11f5a4d7697'`); }
+        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
+
+        return true;
+    }
+
+    /**
+     * In contrast to verifyDestination, this function uses compares Michelson hashes.
+     * 
+     * @param script 
+     */
+    export function verifyScript(script: string): boolean {
+        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
+
+        if (k !== 'b77ada691b1d630622bea243696c84d7') { throw new Error(`Contract does not match the expected code hash: ${k}, 'b77ada691b1d630622bea243696c84d7'`); }
 
         return true;
     }
@@ -49,8 +64,8 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
     
-        const jsonpath = new JSONPath();
-        return Number(jsonpath.query(mapResult, '$.args[0].int')[0]);
+        const jsonresult = JSONPath({ path: '$.args[0].int', json: mapResult });
+        return Number(jsonresult[0]);
     }
 
     export async function getAccountAllowance(server: string, mapid: number, account: string, source: string) {
@@ -59,44 +74,39 @@ export namespace Tzip7ReferenceTokenHelper {
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${source}/${account}`); }
 
-        const jsonpath = new JSONPath();
         let allowances = new Map<string, number>();
-        (jsonpath.query(mapResult, '$.args[1][*].args')).forEach(v => allowances[v[0]['string']] = Number(v[1]['int']));
+        JSONPath({ path: '$.args[1][*].args', json: mapResult }).forEach(v => allowances[v[0]['string']] = Number(v[1]['int']));
 
         return allowances[account];
     }
 
     export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number, supply: number, administrator: string, paused: boolean}> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
         return {
-            mapid: Number(jsonpath.query(storageResult, '$.args[0].int')[0]),
-            supply: Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]),
-            administrator: jsonpath.query(storageResult, '$.args[1].args[0].string')[0],
-            paused: (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t')
+            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t')
         };
     }
 
     export async function getTokenSupply(server: string, address: string): Promise<number> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return Number(jsonpath.query(storageResult, '$.args[1].args[1].args[1].int')[0]);
+        return Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]);
     }
 
     export async function getAdministrator(server: string, address: string): Promise<string> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return jsonpath.query(storageResult, '$.args[1].args[0].string')[0];
+        return JSONPath({ path: '$.args[1].args[0].string', json: storageResult })[0];
     }
 
     export async function getPaused(server: string, address: string): Promise<boolean> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const jsonpath = new JSONPath();
 
-        return (jsonpath.query(storageResult, '$.args[1].args[1].args[0].prim')[0]).toString().toLowerCase().startsWith('t');
+        return (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t');
     }
 
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {

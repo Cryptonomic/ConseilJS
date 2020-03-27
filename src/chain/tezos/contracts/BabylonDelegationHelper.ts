@@ -1,14 +1,16 @@
 import * as blakejs from 'blakejs';
+import { JSONPath } from 'jsonpath-plus';
 
+import { TezosLanguageUtil } from '../TezosLanguageUtil';
+import { TezosNodeReader } from '../TezosNodeReader';
+import { TezosNodeWriter } from '../TezosNodeWriter';
 import { KeyStore } from '../../../types/wallet/KeyStore';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../../types/tezos/TezosConstants';
-import { TezosNodeWriter } from '../TezosNodeWriter';
-import { TezosNodeReader } from '../TezosNodeReader';
 
-export namespace BabylonDelegationHelper { // TODO: rename /chain/tezos/contracts/BabylonDelegationHelper.ts
+export namespace BabylonDelegationHelper {
     /**
-     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code.
+     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
      * 
      * @param server Destination Tezos node.
      * @param address Contract address to query.
@@ -18,11 +20,30 @@ export namespace BabylonDelegationHelper { // TODO: rename /chain/tezos/contract
 
         if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
 
-        const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
+        const k = Buffer.from(blakejs.blake2s(contract.script.toString(), null, 16)).toString('hex');
 
-        if (k !== '023fc21b332d338212185c817801f288') { throw new Error(`Contract at ${address} does not match the expected code hash`); }
+        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
 
         return true;
+    }
+
+    /**
+     * In contrast to verifyDestination, this function uses compares Michelson hashes.
+     * 
+     * @param script 
+     */
+    export function verifyScript(script: string): boolean {
+        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
+
+        if (k !== 'a585489ffaee60d07077059539d5bfc8') { throw new Error(`Contract does not match the expected code hash: ${k}, 'a585489ffaee60d07077059539d5bfc8'`); }
+
+        return true;
+    }
+
+    export async function getSimpleStorage(server: string, address: string): Promise<{administrator: string}> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        return { administrator: JSONPath({ path: '$.string', json: storageResult })[0] };
     }
 
     /**

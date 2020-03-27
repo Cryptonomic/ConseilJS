@@ -4,6 +4,8 @@ import bigInt from 'big-integer';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
+import { TezosLanguageUtil } from './TezosLanguageUtil';
+import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
@@ -123,6 +125,21 @@ export namespace TezosMessageUtils {
         const text = value.split('').map(c => c.charCodeAt(0).toString(16)).join('');
 
         return len + text;
+    }
+
+    export function readString(hex: string): string {
+        console.log(hex);
+        const stringLen = parseInt(hex.substring(0, 8), 16);
+        if (stringLen === 0) { return ''; }
+
+        const stringHex = hex.slice(8);
+
+        let text = '';
+        for (let i = 0; i < stringHex.length; i += 2) {
+            text += String.fromCharCode(parseInt(stringHex.substring(i, i + 2), 16));
+        }
+
+        return text;
     }
 
     /**
@@ -354,12 +371,18 @@ export namespace TezosMessageUtils {
         return readAddressWithHint(hash, prefix);
     }
 
-    export function dataLength(value: number) {
-        return ('0000000' + value.toString(16)).slice(-8);
+    function dataLength(value: number) {
+        return ('0000000' + (value).toString(16)).slice(-8);
     }
 
-    // TODO: this needs to migrate to the MichelineParser or LanguageUtil for complex value encoding
-    export function writePackedData(value: string | number | Buffer, type: string): string {
+    /**
+     * Creates a binary representation of the provided value. This is the equivalent of the PACK instruction in Michelson.
+     * 
+     * @param value string, number or bytes to encode. A string value can also be code.
+     * @param type Type of data to encode, supports various Michelson primitives like int, nat, string, key_hash, address and bytes. This argument should be left blank if encoding a complex value, see format.
+     * @param format value format, this argument is used to encode complex values, Michelson and Micheline encoding is supported with the internal parser.
+     */
+    export function writePackedData(value: string | number | Buffer, type: string, format: TezosParameterFormat = TezosParameterFormat.Micheline): string {
         switch(type) {
             case 'int': {
                 return '0500' + writeSignedInt(value as number);
@@ -383,17 +406,57 @@ export namespace TezosMessageUtils {
                 return `050a${dataLength(buffer.length / 2)}${buffer}`;
             }
             default: {
-                throw new Error(`Unrecognized data type, ${type}, provided`);
+                try {
+                    if (format === TezosParameterFormat.Micheline) {
+                        return `05${TezosLanguageUtil.translateMichelineToHex(value as string)}`;
+                    } else if (format === TezosParameterFormat.Michelson) {
+                        const micheline = TezosLanguageUtil.translateMichelsonToMicheline(value as string)
+                        return `05${TezosLanguageUtil.translateMichelineToHex(micheline)}`;
+                    } else {
+                        throw new Error(`Unsupported format, ${format}, provided`);
+                    }
+                } catch (e) {
+                    throw new Error(`Unrecognized data type or format: '${type}', '${format}'`);
+                }
             }
         }
     }
 
-    export function readPackedData(b: Buffer, type: string){
-        throw new Error('Method not implemented');
+    /**
+     * 
+     * @param hex 
+     * @param type 
+     */
+    export function readPackedData(hex: string, type: string) : string | number {
+        switch(type) {
+            case 'int': {
+                return readSignedInt(hex.slice(4));
+            }
+            case 'nat': {
+                return readInt(hex.slice(4));
+            }
+            case 'string': {
+                return readString(hex.slice(4));
+            }
+            case 'key_hash': {
+                return readAddress(`00${hex.slice(12)}`);
+            }
+            case 'address': {
+                return readAddress(hex.slice(12));
+            }
+            case 'bytes': {
+                return hex.slice(12);
+            }
+            default: {
+                return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;
+            }
+        }
     }
 
+    /**
+     * Created a hash of the provided buffer that can then be used to query a big_map structure on chain.
+     */
     export function encodeBigMapKey(key: Buffer): string {
-        const hash = CryptoUtils.simpleHash(key, 32);
-        return readBufferWithHint(hash, 'expr');
+        return readBufferWithHint(CryptoUtils.simpleHash(key, 32), 'expr');
     }
 }

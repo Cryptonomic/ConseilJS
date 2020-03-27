@@ -1,6 +1,29 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.1
+
+### Breaking Changes
+
+- `TezosNodeWriter.testContractInvocationOperation` no longer has the `derivationPath` argument.
+- `TezosConseilClient.getBlockByLevel` now returns a single item, not an array.
+- `TCFBakerRegistryHelper.getFees` was renamed to `getSimpleStorage` to match other contract interfaces.
+
+### New Features
+
+- added `TezosConseilClient.getBigMapData` that allows quick big_map queries against Conseil.
+- added mempool support with `TezosNodeReader.getMempoolOperation` and `TezosNodeReader.getMempoolOperationsForAccount`.
+- added `CryptonomicNameServiceHelper`.
+- support for complex bigmap keys.
+- `TezosConseilClient.getBlock` now supports 'head' as a `hash` value.
+
+### Fixes
+
+- [ConseilJS 250](https://github.com/Cryptonomic/ConseilJS/issues/250)
+- [ConseilJS 256](https://github.com/Cryptonomic/ConseilJS/issues/256)
+- Updated documentation.
+- Updated dependencies.
+
 ## 0.4.0-beta
 
 ### Breaking Changes
