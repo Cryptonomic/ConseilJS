@@ -11,6 +11,7 @@
 
 ### New Features
 
+- added `TezosConseilClient.getBigMapData` that allows quick big_map queries against Conseil.
 - added mempool support with `TezosNodeReader.getMempoolOperation` and `TezosNodeReader.getMempoolOperationsForAccount`.
 - added `CryptonomicNameServiceHelper`.
 - support for complex bigmap keys.

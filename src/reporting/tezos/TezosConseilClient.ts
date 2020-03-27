@@ -1,7 +1,8 @@
-import {ConseilQueryBuilder} from "../ConseilQueryBuilder";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../types/conseil/QueryTypes"
-import {ConseilDataClient} from "../ConseilDataClient";
-import {OperationKindType} from "../../types/tezos/TezosChainTypes";
+import { ConseilQueryBuilder } from "../ConseilQueryBuilder";
+import { ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection } from "../../types/conseil/QueryTypes"
+import { ConseilDataClient } from "../ConseilDataClient";
+import { OperationKindType } from "../../types/tezos/TezosChainTypes";
+import { ContractMapDetails, ContractMapDetailsItem } from '../../types/conseil/ConseilTezosTypes';
 
 /**
  * Functions for querying the Conseil backend REST API v2 for Tezos chain data.
@@ -247,6 +248,41 @@ export namespace TezosConseilClient {
         } else {
             return slowBlockContinuity(blockSequenceResult, initialLevel, initialHash, depth);
         }
+    }
+
+    /**
+     * Returns big_map data for a given contract if any is available.
+     * 
+     * @param serverInfo Conseil server connection definition. 
+     * @param accountID Account hash to query for.
+     */
+    export async function getBigMapData(serverInfo: ConseilServerInfo, accountID: string): Promise<ContractMapDetails | undefined> {
+        if (!accountID.startsWith('KT1')) { throw new Error('Invalid address'); }
+
+        const ownerQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addFields(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 'big_map_id'), 100);
+        const ownerResult = await getTezosEntityData(serverInfo, serverInfo.network, 'originated_account_maps', ownerQuery);
+
+        if (ownerResult.length < 1) { return undefined; }
+
+        const definitionQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 100);
+        const definitionResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_maps', definitionQuery);
+
+        const contentQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addFields(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 'big_map_id', 'key', 'value'), 1000);
+        const contentResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', contentQuery);
+
+        let maps: ContractMapDetailsItem[] = [];
+        for (const d of definitionResult) {
+            const definition = { index: Number(d['big_map_id']), key: d['key_type'], value: d['value_type'] };
+
+            let content: { key: string, value: string }[] = [];
+            for(const c of contentResult.filter(r => r['big_map_id'] === definition.index)) {
+                content.push({ key: JSON.stringify(c['key']), value: JSON.stringify(c['value'])});
+            }
+
+            maps.push({definition, content});
+        }
+
+        return { contract: accountID, maps };
     }
 
     /**
