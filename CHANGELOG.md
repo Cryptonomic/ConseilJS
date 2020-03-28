@@ -1,6 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.2
+
+### Fixes
+
+- [ConseilJS 265](https://github.com/Cryptonomic/ConseilJS/issues/265)
+
 ## 0.4.1
 
 ### Breaking Changes
