@@ -128,7 +128,6 @@ export namespace TezosMessageUtils {
     }
 
     export function readString(hex: string): string {
-        console.log(hex);
         const stringLen = parseInt(hex.substring(0, 8), 16);
         if (stringLen === 0) { return ''; }
 
