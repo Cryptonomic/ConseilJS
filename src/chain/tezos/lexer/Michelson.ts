@@ -20,6 +20,7 @@ declare var rbrace: any;
 declare var constantData: any;
 declare var singleArgData: any;
 declare var doubleArgData: any;
+declare var bytes: any;
 declare var elt: any;
 declare var semicolon: any;
 declare var baseInstruction: any;
@@ -72,7 +73,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -354,6 +356,10 @@ const lexer = moo.compile({
     const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
+
+    /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
@@ -612,8 +618,9 @@ const grammar: Grammar = {
     {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "data", "symbols": ["subData"], "postprocess": id},
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
-    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "data", "symbols": [(lexer.has("bytes") ? {type: "bytes"} : bytes)], "postprocess": bytesToJson},
+    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "subTypeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},

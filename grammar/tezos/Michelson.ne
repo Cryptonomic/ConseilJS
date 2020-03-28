@@ -44,7 +44,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -130,8 +131,9 @@ data ->
   | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
-  | %number {% intToJson %}
   | %string {% stringToJson %}
+  | %bytes {% bytesToJson %}
+  | %number {% intToJson %}
   # %lbrace _ %rbrace {% d => [] %}
 
 # Helper grammar for list of michelson data types.
@@ -457,6 +459,10 @@ semicolons -> [;]:?
      * Example: "string" -> "{ "string": "blah" }"
      */
     const stringToJson = d => `{ "string": ${d[0]} }`;
+
+    /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
 
     /**
      * Given a keyword, convert it to JSON.
