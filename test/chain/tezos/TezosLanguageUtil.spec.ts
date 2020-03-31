@@ -154,6 +154,14 @@ describe("Tezos Micheline fragment decoding", () => {
         params = '(Pair (Pair { Elt 0 "a"; } 12) 123)';
         result = TezosLanguageUtil.translateMichelsonToMicheline(params);
         expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "prim": "Elt", "args": [ { "int": "0" }, { "string": "a" } ] }, { "int": "12" } ] }, { "int": "123" } ] }');
+
+        params = '(Right { "tz1ZH85HuzzQATDFH7tnxfi8TFPUBnMXEcVA"; "tz1cZyyLMwho1DkvRHVTkkZBdSBwEFHRQz9A" })';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Right", "args": [ { "string": "tz1ZH85HuzzQATDFH7tnxfi8TFPUBnMXEcVA" },{ "string": "tz1cZyyLMwho1DkvRHVTkkZBdSBwEFHRQz9A" } ] }');
+
+        params = '(Pair (Pair 0x553246736447566b58312b6d397a6b75795759495065766c464a6237675531796d694a4358715269456647734c66537557743678586462733677672f697756476d7373474532716141656d7a63594b72634a517145673d3d 0x49913cca02161299607a603601c8306d32373786d206b6d67d5f34bc732108e1) 0x462b5055594b42382b523844664352773145633173773d3d)';
+        result = TezosLanguageUtil.translateMichelsonToMicheline(params);
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Pair", "args": [ { "bytes": "553246736447566b58312b6d397a6b75795759495065766c464a6237675531796d694a4358715269456647734c66537557743678586462733677672f697756476d7373474532716141656d7a63594b72634a517145673d3d" }, { "bytes": "49913cca02161299607a603601c8306d32373786d206b6d67d5f34bc732108e1" } ] }, { "bytes": "462b5055594b42382b523844664352773145633173773d3d" } ] }');
     });
 
     it('Serialize Micheline parameters', () => {

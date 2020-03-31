@@ -68,7 +68,6 @@ __ -> [\s]
         const rightEntryPoints: EntryPoint[] = d[8];
         const branchedEntryPoints: EntryPoint[] = [];
 
-        //console.log(`branchOrWithTwoAnnot found ${annotA}, ${annotB}`);
         for (const leftEntryPoint of leftEntryPoints) {
             const branchedEntryPoint: EntryPoint = {
                 name: leftEntryPoint.name, // TODO
@@ -102,7 +101,6 @@ __ -> [\s]
         const rightEntryPoints: EntryPoint[] = d[6];
         const branchedEntryPoints: EntryPoint[] = [];
 
-        //console.log(`branchOrWithAnnot found ${annot}`);
         for (const leftEntryPoint of leftEntryPoints) {
             const branchedEntryPoint: EntryPoint = {
                 name: `${annot}.${leftEntryPoint.name}`, // TODO
@@ -135,35 +133,18 @@ __ -> [\s]
         const rightEntryPoints: EntryPoint[] = d[4];
         const branchedEntryPoints: EntryPoint[] = [];
 
-        //console.log(`branchOr`);
         for (const leftEntryPoint of leftEntryPoints) {
             if (leftEntryPoint.parameters.length === 1 && leftEntryPoint.parameters[0].name === leftEntryPoint.name) {
                 leftEntryPoint.parameters[0].name = undefined;
             }
-            const branchedEntryPoint: EntryPoint = {
-                name: leftEntryPoint.name,
-                parameters: leftEntryPoint.parameters,
-                structure: '(Left ' + leftEntryPoint.structure + ')',
-                generateInvocationString: leftEntryPoint.generateInvocationString,
-                generateInvocationPair: leftEntryPoint.generateInvocationPair,
-                generateSampleInvocation: leftEntryPoint.generateSampleInvocation
-            }
-            branchedEntryPoints.push(branchedEntryPoint);
+            branchedEntryPoints.push({...leftEntryPoint, structure: `(Left ${leftEntryPoint.structure})`});
         }
 
         for (const rightEntryPoint of rightEntryPoints) {
             if (rightEntryPoint.parameters.length === 1 && rightEntryPoint.parameters[0].name === rightEntryPoint.name) {
                 rightEntryPoint.parameters[0].name = undefined;
             }
-            const branchedEntryPoint: EntryPoint = {
-                name: rightEntryPoint.name,
-                parameters: rightEntryPoint.parameters,
-                structure: '(Right ' + rightEntryPoint.structure + ')',
-                generateInvocationString: rightEntryPoint.generateInvocationString,
-                generateInvocationPair: rightEntryPoint.generateInvocationPair,
-                generateSampleInvocation: rightEntryPoint.generateSampleInvocation
-            }
-            branchedEntryPoints.push(branchedEntryPoint);
+            branchedEntryPoints.push({...rightEntryPoint, structure: `(Right ${rightEntryPoint.structure})`});
         }
 
         return branchedEntryPoints;
@@ -178,7 +159,6 @@ __ -> [\s]
         const secondEntryPoints: EntryPoint[] = d[8];
         const pairedEntryPoints: EntryPoint[] = [];
 
-        //console.log(`mergePairWithTwoAnnot found ${annotA}, ${annotB}`);
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
                 const pairedEntryPoint: EntryPoint = {
@@ -202,7 +182,6 @@ __ -> [\s]
         const secondEntryPoints: EntryPoint[] = d[6];
         const pairedEntryPoints: EntryPoint[] = [];
 
-        //console.log(`mergePairWithAnnot found ${annot}`);
         for (const firstEntryPoint of firstEntryPoints) {
             for (const secondEntryPoint of secondEntryPoints) {
                 const name = getTypeAnnotation(annot.toString()) || getFieldAnnotation(annot.toString());
@@ -251,8 +230,9 @@ __ -> [\s]
         const annotB: string = d[4].toString();
         const entryPoints: EntryPoint[] = d[6];
 
-        //console.log(`recordSingleArgDataWithTwoAnnot found ${annotA}, ${annotB}`);
         entryPoints[0].name = getFieldAnnotation(annotA, annotB);
+        entryPoints[0].parameters[0].constituentType = entryPoints[0].parameters[0].type;
+        if (singleArgData === 'option') { entryPoints[0].parameters[0].optional = true; }
         entryPoints[0].parameters[0].type = `${singleArgData} (${entryPoints[0].parameters[0].type})`;
         entryPoints[0].structure = `(${entryPoints[0].structure})`;
 
@@ -265,6 +245,8 @@ __ -> [\s]
         const entryPoints: EntryPoint[] = d[4];
 
         entryPoints[0].name = getFieldAnnotation(annot);
+        entryPoints[0].parameters[0].constituentType = entryPoints[0].parameters[0].type;
+        if (singleArgData === 'option') { entryPoints[0].parameters[0].optional = true; }
         entryPoints[0].parameters[0].type = `${singleArgData} (${entryPoints[0].parameters[0].type})`;
         entryPoints[0].structure = `(${entryPoints[0].structure})`;
 
@@ -275,6 +257,8 @@ __ -> [\s]
         const singleArgData: string = d[0].toString();
         const entryPoints: EntryPoint[] = d[2];
 
+        entryPoints[0].parameters[0].constituentType = entryPoints[0].parameters[0].type;
+        if (singleArgData === 'option') { entryPoints[0].parameters[0].optional = true; }
         entryPoints[0].parameters[0].type = `${singleArgData} (${entryPoints[0].parameters[0].type})`;
         entryPoints[0].structure = `(${entryPoints[0].structure})`;
 
@@ -291,7 +275,6 @@ __ -> [\s]
         const secondEntryPoints: EntryPoint[] = d[8];
 
         firstEntryPoints[0].name = getFieldAnnotation(annotA, annotB);
-        //console.log(`recordDoubleArgDataWithTwoAnnot found ${annotA}, ${annotB}`);
         firstEntryPoints[0].parameters[0].type = `${doubleArgData} (${firstEntryPoints[0].parameters[0].type}) (${secondEntryPoints[0].parameters[0].type})`;
         firstEntryPoints[0].structure = `(${firstEntryPoints[0].structure})`;
 
@@ -304,7 +287,6 @@ __ -> [\s]
         const firstEntryPoints: EntryPoint[] = d[4];
         const secondEntryPoints: EntryPoint[] = d[6];
 
-        //console.log(`recordDoubleArgDataWithAnnot found ${annot}`);
         firstEntryPoints[0].name = getFieldAnnotation(annot);
         firstEntryPoints[0].parameters[0].type = `${doubleArgData} (${firstEntryPoints[0].parameters[0].type}) (${secondEntryPoints[0].parameters[0].type})`;
         firstEntryPoints[0].structure = `(${firstEntryPoints[0].structure})`;
@@ -331,7 +313,7 @@ __ -> [\s]
 
         if (d.length >= 3) {
             const annot = d[2].toString();
-            //console.log(`recordData found ${annot}`);
+
             if (annot.charAt(0) === '%') {
                 entryPointName = formatFieldAnnotation(annot);
             } else {
@@ -341,7 +323,7 @@ __ -> [\s]
 
         if (d.length === 5) {
             const anotherAnnot = d[4].toString();
-            //console.log(`recordData found 2nd ${anotherAnnot}`);
+
             if (anotherAnnot.startsWith('%') && entryPointName === undefined) {
                 entryPointName = formatFieldAnnotation(anotherAnnot);
             }
@@ -359,11 +341,26 @@ __ -> [\s]
             name: entryPointName,
             parameters: [parameter],
             structure: '$PARAM',
-            generateInvocationString(...vars: any[]): string {
+            generateInvocationString(...vars: any[]): string { // TODO: check double-quotes on string-like parameters; support for map type
                 if (this.parameters.length !== vars.length) { throw new Error(`Incorrect number of parameters provided; expected ${this.parameters.length}, got ${vars.length}`); }
                 let invocationParameter: string = this.structure;
                 for (let i = 0 ; i < this.parameters.length; i++) {
-                    invocationParameter = invocationParameter.replace('$PARAM', vars[i]);
+                    let val = vars[i];
+
+                    if (this.parameters[i].type === 'unit') { val = 'Unit'; }
+
+                    if (this.parameters[i].type.startsWith('list')) {
+                        if (!Array.isArray(val)) { throw new Error(`${JSON.stringify(this.parameters[i])} requires an array value`); }
+                        val = `{${val.join('; ')}}`;
+                    }
+
+                    if (this.parameters[i].optional && vars[i]) {
+                        val = `Some ${val}`;
+                    } else if (this.parameters[i].optional && !vars[i]) { 
+                        val = 'None';
+                    }
+
+                    invocationParameter = invocationParameter.replace('$PARAM', val);
                 }
                 return invocationParameter;
             },
