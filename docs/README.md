@@ -98,7 +98,7 @@ Obtaining a development key is easy. Cryptonomic offers an infrastructure servic
 
 ### Tezos Chain Operations
 
-To execute operations on the Tezos chain a link to a Tezos node is required. One can be found on the [tzscan public node page](https://tzscan.io/nodes). Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
+To execute operations on the Tezos chain a link to a Tezos node is required. One can be found after logging into [Nautilus Cloud](https://nautilus.cloud) for both testnet and mainnet. Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
 
 #### Create a Tezos testnet account
 
