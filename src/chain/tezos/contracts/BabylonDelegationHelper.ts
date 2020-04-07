@@ -20,9 +20,9 @@ export namespace BabylonDelegationHelper {
 
         if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
 
-        const k = Buffer.from(blakejs.blake2s(contract.script.toString(), null, 16)).toString('hex');
+        const k = Buffer.from(blakejs.blake2s(JSON.stringify(contract.script.code), null, 16)).toString('hex');
 
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
+        if (k !== 'd99cb8b4c7e40166f59c0f3c30724225') { throw new Error(`Contract does not match the expected code hash: ${k}, 'd99cb8b4c7e40166f59c0f3c30724225'`); }
 
         return true;
     }
