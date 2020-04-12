@@ -3,11 +3,16 @@
 
 ## 0.4.2-beta
 
+### New Features
+
+- added various funcitons in `TezosWalletUtil` & `CryptoUtils` for signing and verifying signatures on arbitrary text.
+
 ### Fixes
 
 - [ConseilJS 265](https://github.com/Cryptonomic/ConseilJS/issues/265)
 - [ConseilJS 269](https://github.com/Cryptonomic/ConseilJS/issues/269)
 - [ConseilJS 270](https://github.com/Cryptonomic/ConseilJS/issues/270)
+- `WrapperWrapper.salt` & `WrapperWrapper.nonce` were not loading libsodium correctly.
 
 ## 0.4.1
 

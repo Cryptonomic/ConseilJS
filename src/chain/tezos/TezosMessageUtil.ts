@@ -317,6 +317,20 @@ export namespace TezosMessageUtils {
     }
 
     /**
+     * Writes a Base58-check key into hex.
+     * 
+     * @param key Key to encode, input is expected to be a base58-check encoded string.
+     * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
+     */
+    export function writeSignatureWithHint(sig: string, hint: string): Buffer {
+        if (hint === 'edsig') {
+            return base58check.decode(sig).slice(5);
+        } else {
+            throw new Error(`Unrecognized key hint, '${hint}'`);
+        }
+    }
+
+    /**
      * Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
      * 
      * @param {Buffer | Uint8Array} b Bytes to encode
