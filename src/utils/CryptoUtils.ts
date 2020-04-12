@@ -84,9 +84,14 @@ export namespace CryptoUtils {
      * @param payload 
      * @param secretKey 
      */
-    export async function signDetached(payload: Buffer, secretKey: Buffer) : Promise<Buffer> {
+    export async function signDetached(payload: Buffer, secretKey: Buffer): Promise<Buffer> {
         const b = await wrapper.sign(payload, secretKey)
         return Buffer.from(b);
+    }
+
+    export async function checkSignature(signature: Buffer, payload: Buffer, publicKey: Buffer): Promise<boolean> {
+        const b = await wrapper.checkSignature(signature, payload, publicKey)
+        return true;
     }
 
     export function twoByteHex(n: number) : string {
