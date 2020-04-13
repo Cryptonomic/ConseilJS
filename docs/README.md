@@ -102,7 +102,7 @@ To execute operations on the Tezos chain a link to a Tezos node is required. One
 
 #### Create a Tezos testnet account
 
-Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. At the time of writing there were several testnets running, the primary one being **babylonnet**, along with **carthagenet** and **labnet**. Cryptnomic provides access to the Tezos **mainnet** and **babylonnet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
+Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. Cryptnomic provides access to the Tezos **mainnet** and **carthagenet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -294,7 +294,7 @@ revealAccount();
 
 #### Transfer value
 
-The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random Babylonnet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
+The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random carthagenet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -535,7 +535,7 @@ async function deployContract() {
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'babylonnet', groupid, 5);
+    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_contracts}`);
 }
 
@@ -547,7 +547,7 @@ deployContract();
 ```javascript
 const conseiljs = require('conseiljs');
 const tezosNode = '';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const conseilServer = { url: '', apiKey: '', network };
 
 conseiljs.setLogLevel('debug');
@@ -573,7 +573,7 @@ async function deployContract() {
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'babylonnet', groupid, 5);
+    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_accounts}`);
 }
 
@@ -1040,12 +1040,12 @@ The service might return:
 
 ```json
 [ { "name": "zeronet", "displayName": "Zeronet", "platform": "tezos", "network": "zeronet" },
-  { "name": "babylonnet", "displayName": "Babylonnet", "platform": "tezos", "network": "babylonnet" } ]
+  { "name": "carthagenet", "displayName": "carthagenet", "platform": "tezos", "network": "carthagenet" } ]
 ```
 
 #### Entities
 
-Query for available chain entities on `Tezos` `babylonnet`.
+Query for available chain entities on `Tezos` `carthagenet`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1054,10 +1054,10 @@ Query for available chain entities on `Tezos` `babylonnet`.
 import { ConseilMetadataClient } from 'conseiljs';
 import * as util from 'util';
 
-const conseilServerInfo = { url: '', apiKey: '', network: 'babylonnet' };
+const conseilServerInfo = { url: '', apiKey: '', network: 'carthagenet' };
 
 async function listEntities() {
-    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'babylonnet');
+    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'carthagenet');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1072,7 +1072,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listEntities() {
-    const platforms = await conseiljs.ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'babylonnet');
+    const platforms = await conseiljs.ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'carthagenet');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1109,7 +1109,7 @@ import * as util from 'util';
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributes() {
-    const platforms = await ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'babylonnet', 'operations');
+    const platforms = await ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'carthagenet', 'operations');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1124,7 +1124,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributes() {
-    const platforms = await conseiljs.ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'babylonnet', 'operations');
+    const platforms = await conseiljs.ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'carthagenet', 'operations');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1152,7 +1152,7 @@ A result may look like this. The sample has been truncated for size.
 
 #### Attribute Values
 
-The metadata services provides distinct values for some low-cardinality fields. In this case we're querying for `operation` `kind` on `Tezos` `babylonnet`.
+The metadata services provides distinct values for some low-cardinality fields. In this case we're querying for `operation` `kind` on `Tezos` `carthagenet`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1164,7 +1164,7 @@ import * as util from 'util';
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributeValues() {
-    const platforms = await ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'babylonnet', 'operations', 'kind');
+    const platforms = await ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'carthagenet', 'operations', 'kind');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1179,7 +1179,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributeValues() {
-    const platforms = await conseiljs.ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'babylonnet', 'operations', 'kind');
+    const platforms = await conseiljs.ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'carthagenet', 'operations', 'kind');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1216,7 +1216,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1255,7 +1255,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1312,7 +1312,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1341,7 +1341,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1388,7 +1388,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1414,7 +1414,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1445,7 +1445,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1473,7 +1473,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1507,7 +1507,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1535,7 +1535,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
