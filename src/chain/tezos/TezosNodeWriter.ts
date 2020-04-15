@@ -618,6 +618,8 @@ export namespace TezosNodeWriter {
 
             if ('kind' in arr[0]) {
                 errors = arr.map(e => `(${e.kind}: ${e.id})`).join('');
+            } else if (arr.length === 1 && arr[0].contents.length === 1 && arr[0].contents[0].kind === 'activate_account') {
+                // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
                 errors = arr.map(r => r.contents)
                         .map(o => o.map(c => c.metadata.operation_result)
