@@ -474,7 +474,7 @@ const lexer = moo.compile({
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code

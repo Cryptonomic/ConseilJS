@@ -246,7 +246,7 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
         } else if (hint === "01" && hex.length === 68) { // secp256k1
             return base58check.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
-        } else if (hint === "02" && hex.length === 68) { // p256
+        } else if (hint === "02" && hex.length === 68) { // secp256r1
             return base58check.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         } else {
             throw new Error('Unrecognized key type');
@@ -293,8 +293,10 @@ export namespace TezosMessageUtils {
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
      */
     export function writeKeyWithHint(key: string, hint: string): Buffer {
-        if (hint === 'edsk' || hint === 'edpk') {
+        if (hint === 'edsk' || hint === 'edpk') { // ed25519
             return base58check.decode(key).slice(4);
+        //} else if (hint === 'sppk') { // secp256k1
+        //} else if (hint === 'p2pk') { // secp256r1
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }

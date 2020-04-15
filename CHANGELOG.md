@@ -13,6 +13,7 @@
 - [ConseilJS 269](https://github.com/Cryptonomic/ConseilJS/issues/269)
 - [ConseilJS 270](https://github.com/Cryptonomic/ConseilJS/issues/270)
 - `WrapperWrapper.salt` & `WrapperWrapper.nonce` were not loading libsodium correctly.
+- Fixed Michelson parser map and list handling.
 
 ## 0.4.1
 
