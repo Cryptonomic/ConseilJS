@@ -431,7 +431,7 @@ export namespace TezosMessageUtils {
                         throw new Error(`Unsupported format, ${format}, provided`);
                     }
                 } catch (e) {
-                    throw new Error(`Unrecognized data type or format: '${type}', '${format}'`);
+                    throw new Error(`Unrecognized data type or format: '${type}', '${format}': ${e}`);
                 }
             }
         }
@@ -454,10 +454,10 @@ export namespace TezosMessageUtils {
                 return readString(hex.slice(4));
             }
             case 'key_hash': {
-                return readAddress(`00${hex.slice(12)}`);
+                return readAddress(`00${hex.slice(2)}`);
             }
             case 'address': {
-                return readAddress(hex.slice(12));
+                return readAddress(hex.slice(4));
             }
             case 'bytes': {
                 return hex.slice(12);
