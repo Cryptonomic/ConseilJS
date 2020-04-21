@@ -195,16 +195,16 @@ instruction ->
 # Helper grammar for list of michelson data types.
 subData ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (data ";":? _):+ "}" {% dataToJsonSemi %}
-  | "(" _ (data ";":? _):+ ")" {% dataToJsonSemi %}
-  | "{" _ (data _ ";":? _):+ "}" {% dataToJsonSemi %}
-  | "(" _ (data _ ";":? _):+ ")" {% dataToJsonSemi %}
+  | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
+  | "{" _ (data ";":? _):+ "}" {% dataListToJsonSemi %}
 
 # Helper grammar for list of pairs of michelson data types.
 subElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (elt ";":? _):+ "}" {% dataToJsonSemi %}
-  | "(" _ (elt ";":? _):+ ")" {% dataToJsonSemi %}
+  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
+  | "(" _ (elt ";":? _):+ ")" {% dataListToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for whitespace.
@@ -580,7 +580,7 @@ semicolons -> [;]:?
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
     const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
-    const dataToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
+    const dataListToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
