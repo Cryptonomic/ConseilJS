@@ -474,7 +474,8 @@ const lexer = moo.compile({
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
+    const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
+    const dataToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
@@ -774,7 +775,7 @@ const grammar: Grammar = {
     {"name": "subData$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", "subData$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1", "subData$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$1", {"literal":"}"}], "postprocess": dataToJsonSemi},
     {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$2$subexpression$1", "symbols": ["data", "subData$ebnf$2$subexpression$1$ebnf$1", "_"]},
@@ -783,7 +784,7 @@ const grammar: Grammar = {
     {"name": "subData$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$2$subexpression$2", "symbols": ["data", "subData$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2", "subData$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$2", {"literal":")"}], "postprocess": dataToJsonSemi},
     {"name": "subData$ebnf$3$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$3$subexpression$1", "symbols": ["data", "_", "subData$ebnf$3$subexpression$1$ebnf$1", "_"]},
@@ -792,7 +793,7 @@ const grammar: Grammar = {
     {"name": "subData$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$3$subexpression$2", "symbols": ["data", "_", "subData$ebnf$3$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$3", "symbols": ["subData$ebnf$3", "subData$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$3", {"literal":"}"}], "postprocess": dataToJsonSemi},
     {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$4$subexpression$1", "symbols": ["data", "_", "subData$ebnf$4$subexpression$1$ebnf$1", "_"]},
@@ -801,7 +802,7 @@ const grammar: Grammar = {
     {"name": "subData$ebnf$4$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$4$subexpression$2", "symbols": ["data", "_", "subData$ebnf$4$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$4", "symbols": ["subData$ebnf$4", "subData$ebnf$4$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$4", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$4", {"literal":")"}], "postprocess": dataToJsonSemi},
     {"name": "subElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -811,7 +812,7 @@ const grammar: Grammar = {
     {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$1$subexpression$2", "symbols": ["elt", "subElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1", "subElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": dataToJsonSemi},
     {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$2$subexpression$1", "symbols": ["elt", "subElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
@@ -820,7 +821,7 @@ const grammar: Grammar = {
     {"name": "subElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$2$subexpression$2", "symbols": ["elt", "subElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subElt$ebnf$2", "symbols": ["subElt$ebnf$2", "subElt$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"("}, "_", "subElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subElt", "symbols": [{"literal":"("}, "_", "subElt$ebnf$2", {"literal":")"}], "postprocess": dataToJsonSemi},
     {"name": "elt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
