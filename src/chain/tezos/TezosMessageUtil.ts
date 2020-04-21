@@ -454,13 +454,13 @@ export namespace TezosMessageUtils {
                 return readString(hex.slice(4));
             }
             case 'key_hash': {
-                return readAddress(`00${hex.slice(2)}`);
+                return readAddress(`00${hex.slice(4 + 8)}`);
             }
             case 'address': {
-                return readAddress(hex.slice(4));
+                return readAddress(hex.slice(4 + 8));
             }
             case 'bytes': {
-                return hex.slice(12);
+                return hex.slice(4 + 8);
             }
             default: {
                 return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;

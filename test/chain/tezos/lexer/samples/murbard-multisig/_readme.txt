@@ -1,3 +1,3 @@
-Sample multi-sig contract retrieve in July 2019.
+Sample multi-sig contract retrieved in April 2020.
 
-https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/multisig.tz
+https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/multisig.tzip
