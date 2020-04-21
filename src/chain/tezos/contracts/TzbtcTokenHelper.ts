@@ -1,6 +1,8 @@
 import * as blakejs from 'blakejs';
+import { JSONPath } from 'jsonpath-plus';
 
 import { TezosLanguageUtil } from '../TezosLanguageUtil';
+import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { KeyStore } from '../../../types/wallet/KeyStore';
@@ -41,6 +43,46 @@ export namespace TzbtcTokenHelper {
         return true;
     }
 
+    /**
+     * 
+     * 
+     * @param server 
+     * @param mapid 
+     * @param account 
+     */
+    export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
+        return 0;
+    }
+
+    /**
+     * 
+     * 
+     * @param server 
+     * @param mapid 
+     * @param account 
+     */
+    export async function getOperatorList(server: string, mapid: number): Promise<string[]> {
+        return ['']
+    }
+
+    /**
+     * 
+     * 
+     * @param server 
+     * @param mapid 
+     */
+    export async function getTokenMetadata(server: string, mapid: number): Promise<any> {
+        return {}
+    }
+
+    export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number}> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        return {
+            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0])
+        };
+    }
+
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         //const parameters = `(Right (Right (Right (Right (Left (Right (Right (Left (Pair "${source}" (Pair "${destination}" ${amount}))))))))))`;
         const parameters = `(Pair "${source}" (Pair "${destination}" ${amount}))`;
@@ -52,7 +94,23 @@ export namespace TzbtcTokenHelper {
 
     export async function approveBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 220_000, freight: number = 1_000) {
         const parameters = `(Right (Right (Right (Right (Left (Right (Right (Right (Pair "${destination}" ${amount})))))))))`;
+        //approve
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
+        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export async function mintBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 220_000, freight: number = 1_000) {
+        const parameters = `(Right (Right (Right (Right (Right (Left (Left (Left (Pair "${destination}" ${amount})))))))))`;
+        //mint
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+
+        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export async function addOperator(server: string, keystore: KeyStore, contract: string, fee: number, operator: string, gas: number = 220_000, freight: number = 1_000) {
+        const parameters = `(Right (Right (Right (Right (Right (Left (Right (Left "${operator}" ))))))))`;
+        //addOperator
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
