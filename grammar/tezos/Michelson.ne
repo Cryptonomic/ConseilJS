@@ -4,25 +4,9 @@
 const moo = require("moo");
 
 /*
-  Assumptions:
-  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
-  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
-  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
-    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
-  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
-    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
-  - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
-    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
-    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
-  - Postprocessor functions and grammar definitions could use a proper refactor
-  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
-  - of inputs, accounting for that in the lexer is necessary
-  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a different order
-  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
+  Michelson references:
+  https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
+  https://michelson.nomadic-labs.com/
 */
 
 const macroCADRconst = /C[AD]+R/;

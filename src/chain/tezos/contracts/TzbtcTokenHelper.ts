@@ -44,35 +44,44 @@ export namespace TzbtcTokenHelper {
     }
 
     /**
-     * 
+     * https://github.com/tz-wrapped/tezos-btc/blob/master/src/Lorentz/Contracts/TZBTC/V1.hs#L110
      * 
      * @param server 
      * @param mapid 
      * @param account 
      */
     export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
-        return 0;
+        const value = await queryMap(server, mapid, `(Pair "ledger" 0x${TezosMessageUtils.writeAddress(account)})`);
+
+        return Number(JSONPath({ path: '$.args[0].int', json: value })[0]);
     }
 
     /**
-     * 
+     * https://github.com/tz-wrapped/tezos-btc/blob/master/src/Lorentz/Contracts/TZBTC/V1.hs#L105
      * 
      * @param server 
      * @param mapid 
      * @param account 
      */
     export async function getOperatorList(server: string, mapid: number): Promise<string[]> {
-        return ['']
+        const value = await queryMap(server, mapid, '"operators"');
+
+        let addresses: string[] = [];
+        for (const a of value) {
+            addresses.push(TezosMessageUtils.readAddress(a.bytes));
+        }
+
+        return addresses;
     }
 
     /**
-     * 
+     * https://github.com/tz-wrapped/tezos-btc/blob/master/src/Lorentz/Contracts/TZBTC/V1.hs#L107
      * 
      * @param server 
      * @param mapid 
      */
     export async function getTokenMetadata(server: string, mapid: number): Promise<any> {
-        return {}
+        return await queryMap(server, mapid, '"tokenMetadata"');
     }
 
     export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number}> {
@@ -114,6 +123,17 @@ export namespace TzbtcTokenHelper {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    async function queryMap(server: string, mapid: number, query: string): Promise<any> {
+        const key = Buffer.from(TezosMessageUtils.writePackedData(query, '', TezosTypes.TezosParameterFormat.Michelson), 'hex');
+        const packedKey = TezosMessageUtils.writePackedData(key, 'bytes');
+        const encodedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(packedKey, 'hex'));
+        const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, encodedKey);
+
+        if (mapResult === undefined) { throw new Error(`Could not get data from map ${mapid} for '${query}'`); }
+        const bytes = JSONPath({ path: '$.bytes', json: mapResult })[0];
+        return JSON.parse(TezosLanguageUtil.hexToMicheline(bytes.slice(2)).code);
     }
 
     function clearRPCOperationGroupHash(hash: string) {

@@ -53,13 +53,25 @@ export namespace StakerDAOTokenHelper {
         return Number(JSONPath({ path: '$.int', json: mapResult })[0]);
     }
 
-    export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number}> {
-        console.log('getting staker storage')
+    /**
+     * Storage definition taken from https://github.com/StakerDAO/staker-dao/blob/master/stkr-token/src/Lorentz/Contracts/STKR/Storage.hs#L20
+     * 
+     * @param server 
+     * @param address 
+     */
+    export async function getSimpleStorage(server: string, address: string): Promise<{ mapid: number, council: string[], stage: number,  phase: number, supply: number, paused: boolean }> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
-        console.log(`staker storage ${JSON.stringify(storageResult)}`);
         return {
-            mapid: Number(JSONPath({ path: '$.args[1].args[1].args[0].int', json: storageResult })[0])
+            mapid: Number(JSONPath({ path: '$.args[1].args[1].args[0].int', json: storageResult })[0]),
+            council: JSONPath({ path: '$.args[0].args[0].args[1]..string', json: storageResult }),
+            stage: Number(JSONPath({ path: '$.args[1].args[0].args[0].int', json: storageResult })[0]),
+            phase: Number(JSONPath({ path: '$.args[1].args[0].args[0].int', json: storageResult })[0]) % 4,
+            supply: Number(JSONPath({ path: '$.args[1].args[0].args[1].int', json: storageResult })[0]),
+            paused: (JSONPath({ path: '$.args[1].args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t')
+            //policy
+            //proposals
+            //votes
         };
     }
 

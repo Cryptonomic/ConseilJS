@@ -34,7 +34,7 @@ export namespace MurbardMultisigHelper {
     export function verifyScript(script: string): boolean {
         const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
 
-        if (k !== 'b77ada691b1d630622bea243696c84d7') { throw new Error(`Contract does not match the expected code hash: ${k}, 'b77ada691b1d630622bea243696c84d7'`); }
+        if (k !== 'ffcad1e376a6c8915780fe6676aceec6') { throw new Error(`Contract does not match the expected code hash: ${k}, 'ffcad1e376a6c8915780fe6676aceec6'`); }
 
         return true;
     }

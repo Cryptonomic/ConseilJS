@@ -617,6 +617,7 @@ export namespace TezosNodeWriter {
             const arr = Array.isArray(json) ? json : [json];
 
             if ('kind' in arr[0]) {
+                // TODO: show counter errors better: e.msg "already used for contract"
                 errors = arr.map(e => `(${e.kind}: ${e.id})`).join('');
             } else if (arr.length === 1 && arr[0].contents.length === 1 && arr[0].contents[0].kind === 'activate_account') {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
