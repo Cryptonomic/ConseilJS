@@ -53,7 +53,7 @@ export namespace MurbardMultisigHelper {
      * Sample multi-sig contract retrieved in April 2020.
      * https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/multisig.tzip
      */
-    export async function deployContract(server: string, keyStore: KeyStore, delegate: string, fee: number, amount: number, counter: number, threshold: number, keys: string[], derivationPath: string = ''): Promise<string> {
+    export async function deployContract(server: string, keyStore: KeyStore, delegate: string, fee: number, amount: number, counter: number, threshold: number, keys: string[]): Promise<string> {
         if (threshold > keys.length) { throw new Error('Number of keys provided is lower than the threshold'); }
 
         const code = `parameter (pair (pair :payload (nat %counter) (or :action (pair :transfer (mutez %amount) (contract %dest unit)) (or (option %delegate key_hash) (pair %change_keys (nat %threshold) (list %keys key))))) (list %sigs (option signature)));
@@ -108,7 +108,7 @@ export namespace MurbardMultisigHelper {
             PAIR }`;
         const storage = `(Pair ${counter} (Pair ${threshold} { "${keys.join('" ; "') }" } ) )`;
 
-        const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(server, keyStore, amount, delegate, fee, derivationPath, 5_000, 120_000, code, storage, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(server, keyStore, amount, delegate, fee, keyStore.derivationPath, 5_000, 120_000, code, storage, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult['operationGroupID']);
     }
 

@@ -374,7 +374,7 @@ export namespace TezosNodeWriter {
         amount: number,
         delegate: string | undefined,
         fee: number,
-        derivationPath: string,
+        derivationPath: string | undefined,
         storage_limit: number,
         gas_limit: number,
         code: string,

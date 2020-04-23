@@ -112,7 +112,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
         const parameters = `(Left (Left (Left (Pair "${source}" (Pair "${destination}" ${amount})))))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -120,7 +120,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function approveBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number, freight: number) {
         const parameters = `(Left (Left (Right (Pair "${destination}" ${amount}))))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -128,7 +128,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function activateLedger(server: string, keystore: KeyStore, contract: string, fee: number, gas: number, freight: number) {
         const parameters = '(Right (Left (Left False)))';
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -136,7 +136,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function deactivateLedger(server: string, keystore: KeyStore, contract: string, fee: number, gas: number, freight: number) {
         const parameters = '(Right (Left (Left True)))';
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -144,7 +144,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function setAdministrator(server: string, keystore: KeyStore, contract: string, address: string, fee: number, gas: number, freight: number) {
         const parameters = `(Right (Left (Right "${address}")))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -152,7 +152,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function mint(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 150_000, freight: number = 5_000) {
         const parameters = `(Right (Right (Right (Left (Pair "${destination}" ${amount})))))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -160,7 +160,7 @@ export namespace Tzip7ReferenceTokenHelper {
     export async function burn(server: string, keystore: KeyStore, contract: string, fee: number, source: string, amount: number, gas: number, freight: number) {
         const parameters = `(Right (Right (Right (Right (Pair "${source}" ${amount})))))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, '', freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
