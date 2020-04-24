@@ -90,8 +90,7 @@ export namespace CryptoUtils {
     }
 
     export async function checkSignature(signature: Buffer, payload: Buffer, publicKey: Buffer): Promise<boolean> {
-        const b = await wrapper.checkSignature(signature, payload, publicKey)
-        return true;
+        return await wrapper.checkSignature(signature, payload, publicKey);
     }
 
     export function twoByteHex(n: number) : string {

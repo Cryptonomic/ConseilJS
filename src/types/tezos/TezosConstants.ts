@@ -1,10 +1,10 @@
 export namespace TezosConstants {
-    export const OperationGroupWatermark: string = '03';
+    export const OperationGroupWatermark = '03';
     export const DefaultTransactionStorageLimit = 496; // 300, carthage?!
     export const DefaultTransactionGasLimit = 10600;
     export const DefaultDelegationStorageLimit = 0;
     export const DefaultDelegationGasLimit = 10000;
-    export const DefaultAccountOriginationStorageLimit = 496; //277
+    export const DefaultAccountOriginationStorageLimit = 496; // 277
     export const DefaultAccountOriginationGasLimit = 10600;
     export const DefaultAccountOriginationFee = 1266;
     export const DefaultKeyRevealFee = 1270;
@@ -16,10 +16,10 @@ export namespace TezosConstants {
     /**
      * Outbound operation queue timeout in seconds. After this period, TezosOperationQueue will attempt to submit the transactions currently in queue.
      */
-    export const DefaultBatchDelay: number = 25;
+    export const DefaultBatchDelay = 25;
 
     /**
      * Mainnet block time in seconds.
      */
-    export const DefaultBlockTime: number = 60;
+    export const DefaultBlockTime = 60;
 }

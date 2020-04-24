@@ -100,6 +100,13 @@ export namespace TezosConseilClient {
         return r[0];
     }
 
+    export async function getOperation(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any> {
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [operationGroupID], false), 1);
+
+        const r = await getTezosEntityData(serverInfo, network, OPERATIONS, query);
+        return r[0];
+    }
+
     /**
      * Request block-entity data for a given network. Rather than simply requesting a block by hash, this function allows modification of the response to contain a subset of block attributes subject to a filter on some of them.
      *
