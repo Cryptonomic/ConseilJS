@@ -87,7 +87,7 @@ export namespace TezosConseilClient {
     }
 
     /**
-     * Get an operation group from the Tezos platform given a network by id.
+     * Get an operation group from the Tezos platform given a network, by id.
      *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
@@ -100,6 +100,13 @@ export namespace TezosConseilClient {
         return r[0];
     }
 
+    /**
+     * Get an operation from the Tezos platform given a network, by id.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param operationGroupID Operation group hash to query for.
+     */
     export async function getOperation(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [operationGroupID], false), 1);
 

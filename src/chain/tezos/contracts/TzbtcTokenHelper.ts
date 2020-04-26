@@ -84,11 +84,15 @@ export namespace TzbtcTokenHelper {
         return await queryMap(server, mapid, '"tokenMetadata"');
     }
 
-    export async function getSimpleStorage(server: string, address: string): Promise<{mapid: number}> {
+    /**
+     * Returns the mapid of the associated contract and scale at which token values should be interpreted. With tzBTC, 1 means 0.00000001, that is 1 / 100000000 or 10 ^ 8.
+     */
+    export async function getSimpleStorage(server: string, address: string): Promise<{ mapid: number, scale: number }> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
         return {
-            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0])
+            mapid: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
+            scale: 8
         };
     }
 
