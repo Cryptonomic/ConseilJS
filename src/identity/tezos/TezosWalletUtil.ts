@@ -85,9 +85,9 @@ export namespace TezosWalletUtil {
      * 
      * @param keyStore Key pair to use for signing
      * @param message UTF-8 test
-     * @returns {Promise<KeyStore>} base58check-encoded signature prefixed with 'edsig'
+     * @returns {Promise<string>} base58check-encoded signature prefixed with 'edsig'
      */
-    export async function signText(keyStore: KeyStore, message: string): Promise<string>{
+    export async function signText(keyStore: KeyStore, message: string): Promise<string> {
         const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
         const messageSig = await CryptoUtils.signDetached(Buffer.from(message, 'utf8'), privateKey);
         return TezosMessageUtils.readSignatureWithHint(messageSig, 'edsig');
