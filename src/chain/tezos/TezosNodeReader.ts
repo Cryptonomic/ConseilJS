@@ -184,8 +184,11 @@ export namespace TezosNodeReader {
      */
     export async function getMempoolOperationsForAccount(server: string, accountHash: string, chainid: string = 'main') {
         const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
-        const jsonresult = JSONPath({ path: `$.applied..[?(@.source=='${accountHash}')]^`, json: mempoolContent });
+        
+        const p = JSON.parse(mempoolContent);
+        const a = p.applied.filter(g => g.contents.some(s => (s.source === accountHash || s.destination === accountHash)));
+        const o = a.map(g => { g.contents = g.contents.filter(s => (s.source === accountHash || s.destination === accountHash)); return g; });
 
-        return jsonresult;
+        return o;
     }
 }

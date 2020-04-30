@@ -61,7 +61,6 @@ export namespace TzbtcTokenHelper {
      * 
      * @param server 
      * @param mapid 
-     * @param account 
      */
     export async function getOperatorList(server: string, mapid: number): Promise<string[]> {
         const value = await queryMap(server, mapid, '"operators"');
