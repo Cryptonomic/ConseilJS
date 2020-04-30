@@ -174,6 +174,9 @@ describe('Tezos P2P message codec helper tests', () => {
 
     result = TezosMessageUtils.writePackedData('(Pair 1 12)', '(pair int int)', TezosParameterFormat.Michelson);
     expect(result).to.equal('0507070001000c');
+
+    result = TezosMessageUtils.writePackedData('{ "prim": "Pair", "args": [ { "int": "42" }, { "prim": "Left", "args": [ { "prim": "Left", "args": [ { "prim": "Pair", "args": [ { "int": "1585470660" }, { "int": "900100" } ] } ] } ] } ] }', '');
+    expect(result).to.equal('050707002a0505050507070084f382e80b0084f06d');
   });
 
   it('test value UNPACKing', () => {
@@ -218,6 +221,9 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.encodeBigMapKey(Buffer.from('05010000001254657a6f73205461636f73204e6163686f73', 'hex'));
     expect(result).to.equal('expruGmscHLuUazE7d79EepWCnDuPJreo8R87wsDGUgKAuH4E5ayEj');
   });
+
+  //readSignatureWithHint
+  //writeSignatureWithHint
 
   it("test various parsing and encoding failures", () => {
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');

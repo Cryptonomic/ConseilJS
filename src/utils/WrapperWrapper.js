@@ -9,10 +9,12 @@ const rand = async (length) => {
 }
 
 const salt = async () => {
+    await sodiumsumo.ready;
     return rand(sodiumsumo.crypto_pwhash_SALTBYTES);
 }
 
 const nonce = async () => {
+    await sodiumsumo.ready;
     return rand(sodiumsumo.crypto_box_NONCEBYTES);
 }
 
@@ -51,4 +53,9 @@ const sign = async (message, key) => {
     return sodiumsumo.crypto_sign_detached(message, key);
 }
 
-module.exports = {salt, nonce, keys, publickey, pwhash, close, open, sign};
+const checkSignature = async (sig, message, key) => {
+    await sodiumsumo.ready;
+    return sodiumsumo.crypto_sign_verify_detached(sig, message, key);
+}
+
+module.exports = {salt, nonce, keys, publickey, pwhash, close, open, sign, checkSignature};

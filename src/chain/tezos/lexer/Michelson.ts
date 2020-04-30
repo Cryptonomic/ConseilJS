@@ -20,6 +20,7 @@ declare var rbrace: any;
 declare var constantData: any;
 declare var singleArgData: any;
 declare var doubleArgData: any;
+declare var bytes: any;
 declare var elt: any;
 declare var semicolon: any;
 declare var baseInstruction: any;
@@ -32,25 +33,9 @@ declare var macroASSERTlist: any;
 const moo = require("moo");
 
 /*
-  Assumptions:
-  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
-  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
-  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
-    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
-  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
-    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
-  - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
-    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
-    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
-  - Postprocessor functions and grammar definitions could use a proper refactor
-  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
-  - of inputs, accounting for that in the lexer is necessary
-  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a different order
-  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
+  Michelson references:
+  https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
+  https://michelson.nomadic-labs.com/
 */
 
 const macroCADRconst = /C[AD]+R/;
@@ -72,7 +57,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -354,6 +340,10 @@ const lexer = moo.compile({
     const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
+
+    /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
@@ -468,7 +458,8 @@ const lexer = moo.compile({
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
+    const dataListToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
@@ -612,8 +603,9 @@ const grammar: Grammar = {
     {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "data", "symbols": ["subData"], "postprocess": id},
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
-    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "data", "symbols": [(lexer.has("bytes") ? {type: "bytes"} : bytes)], "postprocess": bytesToJson},
+    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "subTypeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -761,13 +753,13 @@ const grammar: Grammar = {
     {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", "subData$ebnf$1$subexpression$1$ebnf$1", "_"]},
+    {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", "_", "subData$ebnf$1$subexpression$1$ebnf$1", "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
     {"name": "subData$ebnf$1$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", "subData$ebnf$1$subexpression$2$ebnf$1", "_"]},
+    {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", "_", "subData$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1", "subData$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$1", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
     {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$2$subexpression$1", "symbols": ["data", "subData$ebnf$2$subexpression$1$ebnf$1", "_"]},
@@ -785,16 +777,16 @@ const grammar: Grammar = {
     {"name": "subData$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subData$ebnf$3$subexpression$2", "symbols": ["data", "_", "subData$ebnf$3$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$3", "symbols": ["subData$ebnf$3", "subData$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$3", {"literal":"}"}], "postprocess": dataListToJsonSemi},
     {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$4$subexpression$1", "symbols": ["data", "_", "subData$ebnf$4$subexpression$1$ebnf$1", "_"]},
+    {"name": "subData$ebnf$4$subexpression$1", "symbols": ["data", "subData$ebnf$4$subexpression$1$ebnf$1", "_"]},
     {"name": "subData$ebnf$4", "symbols": ["subData$ebnf$4$subexpression$1"]},
     {"name": "subData$ebnf$4$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subData$ebnf$4$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$4$subexpression$2", "symbols": ["data", "_", "subData$ebnf$4$subexpression$2$ebnf$1", "_"]},
+    {"name": "subData$ebnf$4$subexpression$2", "symbols": ["data", "subData$ebnf$4$subexpression$2$ebnf$1", "_"]},
     {"name": "subData$ebnf$4", "symbols": ["subData$ebnf$4", "subData$ebnf$4$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$4", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$4", {"literal":"}"}], "postprocess": dataListToJsonSemi},
     {"name": "subElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -804,7 +796,7 @@ const grammar: Grammar = {
     {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$1$subexpression$2", "symbols": ["elt", "subElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1", "subElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": dataListToJsonSemi},
     {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$2$subexpression$1", "symbols": ["elt", "subElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
@@ -813,7 +805,7 @@ const grammar: Grammar = {
     {"name": "subElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subElt$ebnf$2$subexpression$2", "symbols": ["elt", "subElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subElt$ebnf$2", "symbols": ["subElt$ebnf$2", "subElt$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"("}, "_", "subElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subElt", "symbols": [{"literal":"("}, "_", "subElt$ebnf$2", {"literal":")"}], "postprocess": dataListToJsonSemi},
     {"name": "elt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},

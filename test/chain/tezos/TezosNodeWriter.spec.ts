@@ -135,33 +135,33 @@ describe('Tezos Operations Test', () => {
             expect(result).to.equal('560a037fdd573fcb59a49b5835658fab813b57b3a25e96710ec97aad0614c34f060069ef8fb5d47d8a4321c94576a2316a632be8ce890000000aab22e46e7872aa13e366e455bb4f5dbede856ab0864e1da7e122554579ee71f800');
         });
 
-        it('signOperationGroup test ---', mochaAsync(async () => {
+        it('signOperationGroup test', mochaAsync(async () => {
             const signedOpGroup = await TezosNodeWriter.signOperationGroup(forgedOpGroupList[0], keyStore, '');
             expect(signedOpGroup).to.be.an('object');
             expect(signedOpGroup.signature).to.exist;
         }));
 
-        it('TezosNodeReader.applyOperation test ---', mochaAsync(async () => {
+        it('preapplyOperation test', mochaAsync(async () => {
             const appliedOp = await TezosNodeWriter.preapplyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, [ops], signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
         }));
 
-        it('applyOperation test ---', mochaAsync(async () => {
+        it('applyOperation test', mochaAsync(async () => {
             const appliedOp = await TezosNodeWriter.preapplyOperation('http://conseil.server', blockHead.hash, blockHead.protocol, ops, signedOpGroup);
             expect(appliedOp).to.be.an('array');
             expect(appliedOp[0]).to.be.an('object');
             expect(appliedOp[0].contents).to.be.an('array');
         }));
 
-        it('TezosNode.injectOperation test ---', mochaAsync(async () => {
+        it('TezosNode.injectOperation test', mochaAsync(async () => {
             const payload = signedOpGroup;
             const injectOp = await TezosNodeWriter.injectOperation('http://conseil.server', payload);
             expect(injectOp).to.be.a('string');
         }));
 
-        it('injectOperation test ---', mochaAsync(async () => {
+        it('injectOperation test', mochaAsync(async () => {
             const injectOp = await TezosNodeWriter.injectOperation('http://conseil.server', signedOpGroup);
             expect(injectOp).to.exist;
         }));
@@ -188,12 +188,7 @@ describe('Tezos Operations Test', () => {
         }));
 
         it('sendKeyRevealOperation', mochaAsync(async () => {
-            const revealResult = await TezosNodeWriter.sendKeyRevealOperation(
-                'http://conseil.server',
-                keyStore,
-                0,
-                ''
-            );
+            const revealResult = await TezosNodeWriter.sendKeyRevealOperation('http://conseil.server', keyStore, 0, '');
             expect(revealResult).to.exist;
             expect(revealResult.operationGroupID).to.be.a('string');
         }));
@@ -202,14 +197,7 @@ describe('Tezos Operations Test', () => {
             const toAddress = 'tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa';
             const amount = 10000000;
             const fee = 100000;
-            const sendResult = await TezosNodeWriter.sendTransactionOperation(
-                'http://conseil.server',
-                keyStore,
-                toAddress,
-                amount,
-                fee,
-                ''
-            );
+            const sendResult = await TezosNodeWriter.sendTransactionOperation('http://conseil.server', keyStore, toAddress, amount, fee, '');
             expect(sendResult).to.exist;
             expect(sendResult.operationGroupID).to.be.a('string');
         }));

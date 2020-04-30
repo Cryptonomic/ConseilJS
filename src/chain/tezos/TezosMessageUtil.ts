@@ -128,7 +128,6 @@ export namespace TezosMessageUtils {
     }
 
     export function readString(hex: string): string {
-        console.log(hex);
         const stringLen = parseInt(hex.substring(0, 8), 16);
         if (stringLen === 0) { return ''; }
 
@@ -247,7 +246,7 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
         } else if (hint === "01" && hex.length === 68) { // secp256k1
             return base58check.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
-        } else if (hint === "02" && hex.length === 68) { // p256
+        } else if (hint === "02" && hex.length === 68) { // secp256r1
             return base58check.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         } else {
             throw new Error('Unrecognized key type');
@@ -294,8 +293,10 @@ export namespace TezosMessageUtils {
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
      */
     export function writeKeyWithHint(key: string, hint: string): Buffer {
-        if (hint === 'edsk' || hint === 'edpk') {
+        if (hint === 'edsk' || hint === 'edpk') { // ed25519
             return base58check.decode(key).slice(4);
+        //} else if (hint === 'sppk') { // secp256k1
+        //} else if (hint === 'p2pk') { // secp256r1
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
@@ -314,6 +315,20 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from('09f5cd8612' + sig.toString('hex'), 'hex'));
         } else {
             throw new Error(`Unrecognized signature hint, '${hint}'`);
+        }
+    }
+
+    /**
+     * Writes a Base58-check key into hex.
+     * 
+     * @param key Key to encode, input is expected to be a base58-check encoded string.
+     * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
+     */
+    export function writeSignatureWithHint(sig: string, hint: string): Buffer {
+        if (hint === 'edsig') {
+            return base58check.decode(sig).slice(5);
+        } else {
+            throw new Error(`Unrecognized key hint, '${hint}'`);
         }
     }
 
@@ -416,7 +431,7 @@ export namespace TezosMessageUtils {
                         throw new Error(`Unsupported format, ${format}, provided`);
                     }
                 } catch (e) {
-                    throw new Error(`Unrecognized data type or format: '${type}', '${format}'`);
+                    throw new Error(`Unrecognized data type or format: '${type}', '${format}': ${e}`);
                 }
             }
         }
@@ -439,13 +454,13 @@ export namespace TezosMessageUtils {
                 return readString(hex.slice(4));
             }
             case 'key_hash': {
-                return readAddress(`00${hex.slice(12)}`);
+                return readAddress(`00${hex.slice(4 + 8)}`);
             }
             case 'address': {
-                return readAddress(hex.slice(12));
+                return readAddress(hex.slice(4 + 8));
             }
             case 'bytes': {
-                return hex.slice(12);
+                return hex.slice(4 + 8);
             }
             default: {
                 return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;

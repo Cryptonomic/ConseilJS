@@ -3,10 +3,10 @@ import chaiAsPromised from 'chai-as-promised';
 import 'mocha';
 import * as fs from 'fs';
 
-import {KeyStore, StoreType} from "../src/types/wallet/KeyStore";
-import {Wallet} from "../src/types/wallet/Wallet";
-import {TezosFileWallet} from "../src";
-import {TezosWalletUtil} from "../src/identity/tezos/TezosWalletUtil";
+import {KeyStore, StoreType} from "../../../src/types/wallet/KeyStore";
+import {Wallet} from "../../../src/types/wallet/Wallet";
+import {TezosFileWallet} from "../../../src";
+import {TezosWalletUtil} from "../../../src/identity/tezos/TezosWalletUtil";
 
 use(chaiAsPromised);
 
@@ -87,9 +87,29 @@ describe('unlockIdentityWithMnemonic()', () => {
     });
 });
 
+describe('signText() + checkSignature()', () => {
+    it('should produce the correct mnemonic-based key pair', async () => {
+        const keyStore = await TezosWalletUtil.restoreIdentityWithSecretKey('edskRiuSUDavec7ZVH4gkbukcZC1AfRaUNPnfhcsJy5p84TUsG2SVAzzWsrZ2LJZgH7ZUa6u5GH1b6k42FsJYYWdr9MkFb5rEY');
+        expect(keyStore.publicKey).to.equal('edpkvNjPhSt3W1kGXPNkP58H2CVP1YXJWw25qcMV8AMyTLz3Kib2Q7');
 
-describe('generateMnemonic()', () => {
-    it('should produce a 24-word bip39 mnemonic', async () => {
+        const shortText = 'Tacos Nachos Burritos Guacamole';
+        let signature = await TezosWalletUtil.signText(keyStore, shortText);
+        expect(signature).to.equal('edsigtwmbUdjDFar2P1rhzpSd3FYhsNCrRPK8R6rXgPQ9FhttsjSifdiqs1mdQwM8QFGqEBBQ7GoX2FCGKSmFjCxRPCn8YupfEZ');
+
+        let result = await TezosWalletUtil.checkSignature(signature, shortText, keyStore.publicKey);
+        expect(result).to.be.true;
+
+        const longText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque vulputate sem augue, non sodales tellus viverra ac. Fusce metus nulla, tristique ut mollis nec, semper sit amet tortor. Integer molestie interdum elementum. Sed at lacus cursus, convallis ante at, accumsan ex. In suscipit lacinia libero eget aliquet. Ut vitae elit sed dui ultricies semper semper at nunc. Quisque varius laoreet enim, ut consectetur metus malesuada eget. Cras at risus ac dolor hendrerit hendrerit. Integer finibus, felis eu malesuada tincidunt, mi orci sollicitudin odio, sit amet gravida nisi orci non tortor.';
+        signature = await TezosWalletUtil.signText(keyStore, longText);
+        expect(signature).to.equal('edsigtcmGhHEu4bteLYp4zwb419AawYJECTGUY9aV7kMwGNAsLSbFrL5mQchDbFQs5aWHQf4gAkVfVwhNgqWamE1DRsHhtXXCBW');
+
+        result = await TezosWalletUtil.checkSignature(signature, longText, keyStore.publicKey);
+        expect(result).to.be.true;
+    });
+});
+
+describe('restoreIdentityWithSecretKey()', () => {
+    it('should produce an expected pkh from secret key', async () => {
         const result = await TezosWalletUtil.restoreIdentityWithSecretKey('edskS5owtVaAtWifnCNo8tUpAw2535AXEDY4RXBRV1NHbQ58RDdpaWz2KyrvFXE4SuCTbHU8exUecW33GRqkAfLeNLBS5sPyoi');
 
         expect(result.publicKey).to.equal('edpkv3azzeq9vL869TujYhdQY5FKiQH4CGwJEzqG7m6PoX7VEpdPc9');

@@ -5,7 +5,7 @@ import { TezosContractIntrospector } from '../../../src/chain/tezos/TezosContrac
 import { Parameter, EntryPoint } from '../../../src/types/tezos/ContractIntrospectionTypes';
 
 
-describe("Tezos Micheline fragment decoding", () => {
+describe("Generate EntryPoints From Params", () => {
     it('multi-sig', async () => { // https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/multisig.tz as of 2019/dec/30
         const entryPoints = await TezosContractIntrospector.generateEntryPointsFromParams(`parameter
             (pair
