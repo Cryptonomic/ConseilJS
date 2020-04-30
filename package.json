@@ -1,11 +1,13 @@
 {
   "name": "conseiljs",
-  "version": "0.4.2-beta.8",
+  "version": "0.4.2",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "test": "mocha \"test/**/*.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
@@ -44,11 +46,21 @@
   },
   "homepage": "https://cryptonomic.github.io/ConseilJS/#/",
   "nyc": {
-    "include": [ "src/**/*.ts" ],
-    "exclude": [ "src/**/lexer/*.*" ],
-    "extension": [ ".ts" ],
-    "require": [ "ts-node/register" ],
-    "reporter": [ "text-lcov" ],
+    "include": [
+      "src/**/*.ts"
+    ],
+    "exclude": [
+      "src/**/lexer/*.*"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "reporter": [
+      "text-lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -110,26 +122,58 @@
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
-    "plugins": [ "@typescript-eslint" ],
+    "plugins": [
+      "@typescript-eslint"
+    ],
     "env": {
       "mocha": true,
       "node": true
     },
     "overrides": [
       {
-        "files": [ "**/**/*.ts" ],
-        "excludedFiles": [ "lexer/*.ts" ]
+        "files": [
+          "**/**/*.ts"
+        ],
+        "excludedFiles": [
+          "lexer/*.ts"
+        ]
       }
     ],
     "extends": "airbnb-base",
     "rules": {
-        "comma-dangle": [ 2, "never" ],
-        "curly": [ 2, "all" ],
-        "indent": [ 1, 4 ],
-        "max-len": [ 2, { "code": 200, "ignoreTrailingComments": true } ],
-        "no-tabs": [ 2 ],
-        "quotes": [ 2, "single" ],
-        "array-element-newline": [ 2, { "multiline": true, "minItems": 5 } ]
+      "comma-dangle": [
+        2,
+        "never"
+      ],
+      "curly": [
+        2,
+        "all"
+      ],
+      "indent": [
+        1,
+        4
+      ],
+      "max-len": [
+        2,
+        {
+          "code": 200,
+          "ignoreTrailingComments": true
+        }
+      ],
+      "no-tabs": [
+        2
+      ],
+      "quotes": [
+        2,
+        "single"
+      ],
+      "array-element-newline": [
+        2,
+        {
+          "multiline": true,
+          "minItems": 5
+        }
+      ]
     }
   }
 }
