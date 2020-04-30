@@ -98,11 +98,11 @@ Obtaining a development key is easy. Cryptonomic offers an infrastructure servic
 
 ### Tezos Chain Operations
 
-To execute operations on the Tezos chain a link to a Tezos node is required. One can be found on the [tzscan public node page](https://tzscan.io/nodes). Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
+To execute operations on the Tezos chain a link to a Tezos node is required. One can be found after logging into [Nautilus Cloud](https://nautilus.cloud) for both testnet and mainnet. Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
 
 #### Create a Tezos testnet account
 
-Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. At the time of writing there were several testnets running, the primary one being **carthagenet**, along with **labnet**. Cryptnomic provides access to the Tezos **mainnet** and **carthagenet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
+Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. Cryptnomic provides access to the Tezos **mainnet** and **carthagenet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -294,7 +294,7 @@ revealAccount();
 
 #### Transfer value
 
-The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random Carthagenet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
+The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random carthagenet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1040,7 +1040,7 @@ The service might return:
 
 ```json
 [ { "name": "zeronet", "displayName": "Zeronet", "platform": "tezos", "network": "zeronet" },
-  { "name": "carthagenet", "displayName": "Carthagenet", "platform": "tezos", "network": "carthagenet" } ]
+  { "name": "carthagenet", "displayName": "carthagenet", "platform": "tezos", "network": "carthagenet" } ]
 ```
 
 #### Entities
