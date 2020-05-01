@@ -1,6 +1,28 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.2
+
+### New Features
+
+- Support for the [StakerDao](https://www.stakerdao.com/) token
+- Support for the [tzBTC](https://tzbtc.io/) token
+- Added various functions in `TezosWalletUtil` & `CryptoUtils` for signing of and verifying signatures on arbitrary text.
+- Added preliminary support for the murbard multi-sig contract.
+- Added `TezosConseilClient.getOperation()`.
+
+### Fixes
+
+- [ConseilJS 265](https://github.com/Cryptonomic/ConseilJS/issues/265)
+- [ConseilJS 269](https://github.com/Cryptonomic/ConseilJS/issues/269)
+- [ConseilJS 270](https://github.com/Cryptonomic/ConseilJS/issues/270)
+- `WrapperWrapper.salt` & `WrapperWrapper.nonce` were not loading libsodium correctly.
+- Fixed Michelson parser map, list and bytes handling.
+- Improved entry point parsing.
+- Improved data coming back from `TezosNodeReader.getMempoolOperationsForAccount`
+- Improved error reporting for account activation.
+- Increased test coverage.
+
 ## 0.4.1
 
 ### Breaking Changes

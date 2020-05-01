@@ -1,6 +1,5 @@
 import * as Micheline from './lexer/Micheline';
 import * as Michelson from './lexer/Michelson';
-import * as MichelsonParameters from './lexer/MichelsonParameters';
 import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
@@ -25,7 +24,7 @@ export namespace TezosLanguageUtil {
         offset += 2;
 
         switch (fieldType) {
-            case '00': { // literal natural int
+            case '00': { // literal int or nat
                 const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
                 code += `{ "int": "${value.value}" }`;
                 offset += value.length;
@@ -167,7 +166,7 @@ export namespace TezosLanguageUtil {
      * Converts simple (read non-lambda) Michelson parameters to Micheline and wraps the result in a script property.
      */
     export function translateParameterMichelsonToMicheline(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters.default));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson.default));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
 
         return parser.results[0];

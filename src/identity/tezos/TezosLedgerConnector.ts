@@ -75,7 +75,7 @@ export default class TezosLedgerConnector {
         return `${major}.${minor}.${patch}${appFlag === 1 ? ' baker' : ''}`;
     }
 
-    private async sign(path: string, curve: Curve, instruction: number, hex: string, ): Promise<string> {
+    private async sign(path: string, curve: Curve, instruction: number, hex: string): Promise<string> {
         const bytes = Buffer.from(hex, "hex");
         let message: Buffer[] = [];
 

@@ -59,6 +59,21 @@ export namespace TezosLedgerWallet {
         return signatureBytes;
     }
 
+    /**
+     * Signs arbitrary text using Ledger devices.
+     * 
+     * @param message UTF-8 test.
+     * @returns {Promise<string>} base58check-encoded signature prefixed with 'edsig'.
+     */
+    export async function signText(derivationPath: string, message: string): Promise<string> {
+        const transport = await TransportInstance.getInstance();
+        const xtz = new TezosLedgerConnector(transport);
+        const result = await xtz.signHex(derivationPath, Buffer.from(message, 'utf8').toString('hex'));
+        const messageSig = Buffer.from(result, 'hex');
+
+        return TezosMessageUtils.readSignatureWithHint(messageSig, 'edsig');
+    }
+
     export function initLedgerTransport() {
         TransportInstance.transport = null;
     }

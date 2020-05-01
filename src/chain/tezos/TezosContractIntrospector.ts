@@ -19,7 +19,13 @@ export namespace TezosContractIntrospector {
         const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate.default));
         parser.feed(TezosLanguageUtil.normalizeMichelineWhiteSpace(TezosLanguageUtil.stripComments(params)));
 
-        return parser.results[0];
+        const entryPoints = parser.results[0];
+
+        if (entryPoints.length === 1) {
+            entryPoints[0].name = 'default';
+        }
+
+        return entryPoints;
     }
 
     /**

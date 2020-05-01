@@ -4,25 +4,9 @@
 const moo = require("moo");
 
 /*
-  Assumptions:
-  - Grammar defined here: https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
-  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
-  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
-    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
-  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
-    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: https://tezos.gitlab.io/whitedoc/michelson.html#macros
-  - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
-    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
-    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
-  - Postprocessor functions and grammar definitions could use a proper refactor
-  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
-  - of inputs, accounting for that in the lexer is necessary
-  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a different order
-  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
+  Michelson references:
+  https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
+  https://michelson.nomadic-labs.com/
 */
 
 const macroCADRconst = /C[AD]+R/;
@@ -44,7 +28,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -130,8 +115,9 @@ data ->
   | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
-  | %number {% intToJson %}
   | %string {% stringToJson %}
+  | %bytes {% bytesToJson %}
+  | %number {% intToJson %}
   # %lbrace _ %rbrace {% d => [] %}
 
 # Helper grammar for list of michelson data types.
@@ -193,16 +179,16 @@ instruction ->
 # Helper grammar for list of michelson data types.
 subData ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (data _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
   | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
+  | "{" _ (data ";":? _):+ "}" {% dataListToJsonSemi %}
 
 # Helper grammar for list of pairs of michelson data types.
 subElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
+  | "(" _ (elt ";":? _):+ ")" {% dataListToJsonSemi %}
 elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for whitespace.
@@ -459,6 +445,10 @@ semicolons -> [;]:?
     const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
+
+    /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
@@ -573,7 +563,8 @@ semicolons -> [;]:?
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
+    const dataListToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
