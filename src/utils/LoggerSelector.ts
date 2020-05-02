@@ -11,8 +11,4 @@ export default class LoggerSelector {
     static getLogger() {
         return this.log;
     }
-
-    static setLevel(level: string) {
-        this.log.setLevel(level, false);
-    }
 }

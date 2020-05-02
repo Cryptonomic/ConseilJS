@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "0.4.2",
+  "version": "5.0.0-beta.0",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -75,10 +75,8 @@
     "bs58check": "2.1.2",
     "jsonpath-plus": "3.0.0",
     "libsodium-wrappers-sumo": "0.7.6",
-    "loglevel": "1.6.8",
     "moo": "0.5.0",
-    "nearley": "2.19.1",
-    "node-fetch": "2.6.0"
+    "nearley": "2.19.1"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
@@ -99,8 +97,10 @@
     "eslint-config-airbnb-base": "14.1.0",
     "eslint-plugin-import": "2.20.2",
     "glob": "7.1.6",
+    "loglevel": "1.6.8",
     "mocha": "7.1.1",
     "nock": "12.0.3",
+    "node-fetch": "2.6.0",
     "nyc": "15.0.1",
     "request-promise": "4.2.5",
     "source-map-loader": "0.2.4",

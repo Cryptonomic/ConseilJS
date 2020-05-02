@@ -26,6 +26,18 @@ If you are using webpack in your project, add below lines to your `webpack.confi
 node: { fs: 'empty' }
 ```
 
+```javascript
+import fetch from 'node-fetch';
+import * as log from 'loglevel';
+
+import { registerFetch, registerLogger } from 'conseiljs';
+
+const logger = log.getLogger('conseiljs');
+logger.setLevel('debug', false);
+registerLogger(logger);
+registerFetch(fetch);
+```
+
 We have a complete [React application tutorial](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
 
 ## Use with Web

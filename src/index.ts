@@ -1,18 +1,16 @@
-import fetch from 'node-fetch';
-import * as log from 'loglevel';
-
 import FetchSelector from './utils/FetchSelector';
 import DeviceSelector from './utils/DeviceSelector';
 import LogSelector from './utils/LoggerSelector';
 import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 
-FetchSelector.setFetch(fetch);
 DeviceSelector.setLedgerUtils(TezosLedgerWallet);
-LogSelector.setLogger(log.getLogger('conseiljs'));
-LogSelector.setLevel('error');
 
-export function setLogLevel(level: string) {
-    LogSelector.setLevel(level);
+export function registerLogger(logger) {
+    LogSelector.setLogger(logger);
+}
+
+export function registerFetch(fetch) {
+    FetchSelector.setFetch(fetch);
 }
 
 export * from './chain/tezos/TezosContractIntrospector';
@@ -27,6 +25,7 @@ export * from './chain/tezos/contracts/MurbardMultisigHelper';
 export * from './chain/tezos/contracts/StakerDAOTokenHelper';
 export * from './chain/tezos/contracts/TCFBakerRegistryHelper';
 export * from './chain/tezos/contracts/Tzip7ReferenceTokenHelper';
+export * from './chain/tezos/contracts/Tzip12ReferenceTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
 
 export * from "./identity/tezos/TezosFileWallet";
