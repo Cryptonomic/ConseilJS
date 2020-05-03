@@ -110,15 +110,24 @@ typeData ->
 data ->
     %constantData {% keywordToJson %}
   | %singleArgData _ data {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgData _ data _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgData _ data _ data {% doubleArgKeywordToJson  %}
-  | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
   | %string {% stringToJson %}
   | %bytes {% bytesToJson %}
   | %number {% intToJson %}
-  # %lbrace _ %rbrace {% d => [] %}
+
+# Helper grammar for list of michelson data types.
+subData ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "(" _ (data _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
+
+# Helper grammar for list of pairs of michelson data types.
+subElt ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
+elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for list of michelson data types.
 subTypeData ->
@@ -175,21 +184,6 @@ instruction ->
   | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
   | "EMPTY_MAP" _ type _ type {% doubleArgKeywordToJson %}
   | "EMPTY_MAP" _ %lparen _ type _ %rparen _ type {% doubleArgParenKeywordToJson %}
-
-# Helper grammar for list of michelson data types.
-subData ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
-  | "{" _ (data ";":? _):+ "}" {% dataListToJsonSemi %}
-
-# Helper grammar for list of pairs of michelson data types.
-subElt ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
-  | "(" _ (elt ";":? _):+ ")" {% dataListToJsonSemi %}
-elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for whitespace.
 _ -> [\s]:*

@@ -5,9 +5,7 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 
 /**
- * Interface for the Tezos Token contract proposal TZIP-0007: https://gitlab.com/tzip/tzip/tree/master/Proposals/TZIP-0007
- * 
- * Compatible with the contract as of December 22, 2019.
+ * Awaiting contracts at https://gitlab.com/camlcase-dev/dexter
  */
 export namespace DexterTokenHelper {
     /**
