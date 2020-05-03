@@ -5,8 +5,8 @@ import { TezosRequestError } from '../../types/tezos/TezosErrorTypes';
 import FetchSelector from '../../utils/FetchSelector'
 import LogSelector from '../../utils/LoggerSelector';
 
-const log = LogSelector.getLogger();
-const fetch = FetchSelector.getFetch();
+const log = LogSelector.log;
+const fetch = FetchSelector.fetch;
 
 /**
  * Utility functions for interacting with a Tezos node.

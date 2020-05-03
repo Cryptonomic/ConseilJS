@@ -2,13 +2,9 @@
  *
  */
 export default class LoggerSelector {
-    static log: any = null;
+    static log: any = {};
 
     static setLogger(log: any) {
-        this.log = log;
-    }
-
-    static getLogger() {
-        return this.log;
+        Object.assign(this.log, log);
     }
 }

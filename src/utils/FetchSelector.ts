@@ -5,13 +5,11 @@
  * implementations of fetch available. This code allows ConseilJS use the appropriate version.
  */
 export default class FetchSelector {
-    static fetch: any = null;
+    static actualFetch: (url: string, options: any | undefined) => any;
 
     static setFetch(fetch: any) {
-        this.fetch = fetch;
+        this.actualFetch = fetch;
     }
 
-    static getFetch() {
-        return this.fetch;
-    }
+    static fetch: (url: string, options: any | undefined) => any = (url: string, options: any | undefined) => FetchSelector.actualFetch(url, options);
 }

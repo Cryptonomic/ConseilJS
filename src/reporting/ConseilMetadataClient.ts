@@ -4,8 +4,8 @@ import {PlatformDefinition, NetworkDefinition, EntityDefinition, AttributeDefini
 import FetchSelector from '../utils/FetchSelector';
 import LogSelector from '../utils/LoggerSelector';
 
-const log = LogSelector.getLogger();
-const fetch = FetchSelector.getFetch();
+const log = LogSelector.log;
+const fetch = FetchSelector.fetch;
 
 /**
  * Utility functions for querying backend Conseil v2 API for metadata

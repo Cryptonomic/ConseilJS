@@ -14,13 +14,13 @@ import { TezosOperationQueue } from './TezosOperationQueue';
 import { CryptoUtils } from '../../utils/CryptoUtils';
 
 import FetchSelector from '../../utils/FetchSelector'
-const fetch = FetchSelector.getFetch();
+const fetch = FetchSelector.fetch;
 
 import DeviceSelector from '../../utils/DeviceSelector';
 let LedgerUtils = DeviceSelector.getLedgerUtils();
 
 import LogSelector from '../../utils/LoggerSelector';
-const log = LogSelector.getLogger();
+const log = LogSelector.log;
 
 let operationQueues = {}
 

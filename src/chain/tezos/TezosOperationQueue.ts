@@ -5,7 +5,7 @@ import { TezosNodeReader } from './TezosNodeReader';
 import { TezosNodeWriter } from './TezosNodeWriter';
 
 import LogSelector from '../../utils/LoggerSelector';
-const log = LogSelector.getLogger();
+const log = LogSelector.log;
 
 /**
  * Note, this is a stateful object
