@@ -1,8 +1,11 @@
 export interface Signer {
-    encryptMessage;
-    decryptMessage;
-    sign: (bytes: Buffer, keys: KeyStore) => Promise<Buffer>;
-    checkSignature;
+    generateKeys: (seed: Buffer) => Promise<{ publicKey: Buffer, secretKey: Buffer}>;
+    decryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
+    encryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
+    sign: (bytes: Buffer, secretKey: Buffer) => Promise<Buffer>;
+
+    signText: (message: string, secretKey: string) => Promise<string>;
+    checkTextSignature: (signature: string, message: string, publicKey: string) => Promise<boolean>;
 }
 
 export interface KeyStore {

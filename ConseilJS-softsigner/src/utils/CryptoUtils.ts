@@ -22,12 +22,11 @@ export namespace CryptoUtils {
      * @param {Buffer} salt Salt for key derivation
      * @returns {Buffer} Concatenated bytes of nonce and cipher text
      */
-    export async function encryptMessage(message: string, passphrase: string, salt: Buffer) : Promise<Buffer> {
-        const messageBytes = Buffer.from(message);
+    export async function encryptMessage(message: Buffer, passphrase: string, salt: Buffer) : Promise<Buffer> {
         const keyBytes = await wrapper.pwhash(passphrase, salt)
         const n = await wrapper.nonce();
         const nonce = Buffer.from(n);
-        const s = await wrapper.close(messageBytes, nonce, keyBytes);
+        const s = await wrapper.close(message, nonce, keyBytes);
         const cipherText = Buffer.from(s);
 
         return Buffer.concat([nonce, cipherText]);
@@ -36,15 +35,15 @@ export namespace CryptoUtils {
     /**
      * Decrypts a given message using a passphrase
      * 
-     * @param {Buffer} nonce_and_ciphertext Concatenated bytes of nonce and cipher text
+     * @param {Buffer} message Concatenated bytes of nonce and cipher text
      * @param {string} passphrase User-supplied passphrase
      * @param {Buffer} salt Salt for key derivation
      * @returns {string} Decrypted message
      */
-    export async function decryptMessage(nonce_and_ciphertext: Buffer, passphrase: string, salt: Buffer) : Promise<string> {
+    export async function decryptMessage(message: Buffer, passphrase: string, salt: Buffer) : Promise<Buffer> {
         const keyBytes = await wrapper.pwhash(passphrase, salt)
-        const m = await wrapper.open(nonce_and_ciphertext, keyBytes);
-        return Buffer.from(m).toString();
+        const m = await wrapper.open(message, keyBytes);
+        return Buffer.from(m);
     }
 
     /**
