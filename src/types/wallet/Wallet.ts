@@ -1,4 +1,4 @@
-import {KeyStore} from "./KeyStore";
+import { KeyStore } from "../ExternalInterfaces";
 
 /**
  * Represents a generic cryptocurrency wallet.

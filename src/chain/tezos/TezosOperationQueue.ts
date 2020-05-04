@@ -1,6 +1,6 @@
 import { Operation, StackableOperation } from '../../types/tezos/TezosP2PMessageTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
-import { KeyStore } from '../../types/wallet/KeyStore';
+import { KeyStore, Signer } from '../../types/ExternalInterfaces';
 import { TezosNodeReader } from './TezosNodeReader';
 import { TezosNodeWriter } from './TezosNodeWriter';
 
@@ -12,32 +12,31 @@ const log = LogSelector.log;
  */
 export class TezosOperationQueue {
     readonly server: string;
-    readonly derivationPath: string;
     readonly operations: Operation[];
     readonly keyStore: KeyStore;
+    readonly signer: Signer;
     readonly delay: number;
 
     triggerTimestamp: number = 0;
 
-    private constructor(server: string, derivationPath: string, keyStore: KeyStore, delay: number) {
+    private constructor(server: string, signer: Signer, keyStore: KeyStore, delay: number) {
         this.server = server;
         this.keyStore = keyStore;
-        this.derivationPath = derivationPath;
+        this.signer = signer;
         this.delay = delay;
 
         this.operations = [];
     }
 
     /**
-     * Creates a queue that can send operations to the specified `server` with the provided account information (`derivationPath`, `keyStore`).
+     * Creates a queue that can send operations to the specified `server` with the provided account information.
      * 
      * @param server 
-     * @param derivationPath 
      * @param keyStore 
      * @param delay Number of seconds to wait before attempting to send the operations in queue
      */
-    public static createQueue(server: string, derivationPath: string, keyStore: KeyStore, delay: number = TezosConstants.DefaultBatchDelay) {
-        return new TezosOperationQueue(server, derivationPath, keyStore, delay);
+    public static createQueue(server: string, signer: Signer, keyStore: KeyStore, delay: number = TezosConstants.DefaultBatchDelay) {
+        return new TezosOperationQueue(server, signer, keyStore, delay);
     }
 
     /**
@@ -76,7 +75,7 @@ export class TezosOperationQueue {
         }
 
         try {
-            await TezosNodeWriter.sendOperation(this.server, ops, this.keyStore, this.derivationPath);
+            await TezosNodeWriter.sendOperation(this.server, ops, this.signer, this.keyStore);
         } catch(error) {
             log.error(`Error sending queued operations: ${error}`);
         }

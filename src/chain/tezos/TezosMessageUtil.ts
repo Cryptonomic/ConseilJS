@@ -4,7 +4,6 @@ import bigInt from 'big-integer';
 import * as blakejs from 'blakejs';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
-import { CryptoUtils } from '../../utils/CryptoUtils';
 import { TezosLanguageUtil } from './TezosLanguageUtil';
 import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
 

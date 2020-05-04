@@ -4,8 +4,8 @@ import {KeyStore, KeyStoreCurve, KeyStoreType} from 'conseiljs';
 
 
 
-import {Wallet, EncryptedWalletVersionOne} from "../../types/wallet/Wallet";
-import {KeyStore} from "../../types/wallet/KeyStore";
+import {Wallet, EncryptedWalletVersionOne} from 'conseiljs';
+
 import {CryptoUtils} from "../../utils/CryptoUtils";
 import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
 

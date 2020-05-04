@@ -5,7 +5,7 @@ import { TezosLanguageUtil } from '../TezosLanguageUtil';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
-import { KeyStore } from '../../../types/wallet/KeyStore';
+import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 
 /**
@@ -95,35 +95,35 @@ export namespace TzbtcTokenHelper {
         };
     }
 
-    export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
+    export async function transferBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         //const parameters = `(Right (Right (Right (Right (Left (Right (Right (Left (Pair "${source}" (Pair "${destination}" ${amount}))))))))))`;
         const parameters = `(Pair "${source}" (Pair "${destination}" ${amount}))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'transfer', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transfer', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function approveBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
+    export async function approveBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         const parameters = `(Right (Right (Right (Right (Left (Right (Right (Right (Pair "${destination}" ${amount})))))))))`;
         //approve
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function mintBalance(server: string, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
+    export async function mintBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         const parameters = `(Right (Right (Right (Right (Right (Left (Left (Left (Pair "${destination}" ${amount})))))))))`;
         //mint
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function addOperator(server: string, keystore: KeyStore, contract: string, fee: number, operator: string, gas: number = 250_000, freight: number = 1_000) {
+    export async function addOperator(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, operator: string, gas: number = 250_000, freight: number = 1_000) {
         const parameters = `(Right (Right (Right (Right (Right (Left (Right (Left "${operator}" ))))))))`;
         //addOperator
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }

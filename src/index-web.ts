@@ -30,4 +30,4 @@ export * from './types/tezos/ContractIntrospectionTypes';
 export * from './types/tezos/TezosChainTypes';
 export * from './types/tezos/TezosP2PMessageTypes';
 export * from './types/tezos/TezosRPCResponseTypes';
-export * from './types/wallet/KeyStore';
+export * from './types/ExternalInterfaces';

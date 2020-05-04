@@ -4,7 +4,7 @@ import { JSONPath } from 'jsonpath-plus';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
-import { KeyStore } from '../../../types/wallet/KeyStore';
+import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 
 /**
@@ -43,7 +43,7 @@ export namespace CryptonomicNameServiceHelper {
      * @param freight Storage limit, will be estimated if not given.
      * @param gas Gas limit, will be estimated if not given.
      */
-    export async function registerName(server: string, keystore: KeyStore, contract: string, name: string, resolver: string, registrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
+    export async function registerName(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, resolver: string, registrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
         const parameters = `(Pair ${registrationPeriod} (Pair "${name}" "${resolver}"))`;
 
         if (!freight || !gas) {
@@ -52,11 +52,11 @@ export namespace CryptonomicNameServiceHelper {
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, registrationFee, operationFee, keystore.derivationPath, 6000, 300_000, 'registerName', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, registrationFee, operationFee, 6000, 300_000, 'registerName', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function transferNameOwnership(server: string, keystore: KeyStore, contract: string, name: string, newNameOwner: string, fee: number, freight?: number, gas?: number, derivationPath: string = '') {
+    export async function transferNameOwnership(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, newNameOwner: string, fee: number, freight?: number, gas?: number) {
         const parameters = `(Pair "${name}" "${newNameOwner}")`;
         //(pair %transferNameOwnership (string %name) (address %newNameOwner))
         //(Right (Left (Pair $PARAM $PARAM)))
@@ -67,11 +67,11 @@ export namespace CryptonomicNameServiceHelper {
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, derivationPath, freight, gas, 'transferNameOwnership', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transferNameOwnership', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function updateResolver(server: string, keystore: KeyStore, contract: string, name: string, resolver: string, fee: number, freight?: number, gas?: number) {
+    export async function updateResolver(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, resolver: string, fee: number, freight?: number, gas?: number) {
         const parameters = `(Pair "${name}" "${resolver}")`;
         //(pair %updateResolver (string %name) (address %resolver))
         //(Right (Right (Right (Pair $PARAM $PARAM))))
@@ -82,11 +82,11 @@ export namespace CryptonomicNameServiceHelper {
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'updateResolver', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'updateResolver', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function updateRegistrationPeriod(server: string, keystore: KeyStore, contract: string, name: string, newRegistrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
+    export async function updateRegistrationPeriod(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, newRegistrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
         const parameters = `(Pair "${name}" ${newRegistrationPeriod})`;
         //(pair %updateRegistrationPeriod (int %duration) (string %name))
         //(Right (Right (Left (Pair $PARAM $PARAM))))
@@ -97,11 +97,11 @@ export namespace CryptonomicNameServiceHelper {
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, registrationFee, operationFee, keystore.derivationPath, freight, gas, 'updateRegistrationPeriod', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, registrationFee, operationFee, freight, gas, 'updateRegistrationPeriod', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function deleteName(server: string, keystore: KeyStore, contract: string, name: string, fee: number, freight?: number, gas?: number) {
+    export async function deleteName(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, fee: number, freight?: number, gas?: number) {
         const parameters = `"${name}"`;
         //(string %deleteName)
         //(Left (Left $PARAM))
@@ -112,7 +112,7 @@ export namespace CryptonomicNameServiceHelper {
             if (!gas) { gas = Number(cost['gas']) + 300; }
         }
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, 'deleteName', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'deleteName', parameters, TezosTypes.TezosParameterFormat.Michelson);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 

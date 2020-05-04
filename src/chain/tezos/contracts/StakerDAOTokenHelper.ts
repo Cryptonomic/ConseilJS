@@ -5,7 +5,7 @@ import { TezosLanguageUtil } from '../TezosLanguageUtil';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
-import { KeyStore } from '../../../types/wallet/KeyStore';
+import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 
 /**
@@ -75,10 +75,10 @@ export namespace StakerDAOTokenHelper {
         };
     }
 
-    export async function transferBalance(server: string, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
+    export async function transferBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
         const parameters = `(Right (Left (Left (Right (Pair "${source}" (Pair "${destination}" ${amount}))))))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, keystore, contract, 0, fee, keystore.derivationPath, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
