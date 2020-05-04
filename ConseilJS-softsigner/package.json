@@ -16,8 +16,7 @@
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "release-check": "npm run test && npm audit && npm outdated",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
-    "package": "rm -rf ./dist && npm run compile-tezos-parsers && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
+    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
     "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A"
   },
   "repository": {
@@ -65,11 +64,8 @@
     "instrument": true
   },
   "dependencies": {
-    "big-integer": "1.6.48",
-    "bip32-path": "0.4.2",
     "bip39": "3.0.2",
-    "blakejs": "1.1.0",
-    "bs58check": "2.1.2",
+    "conseiljs": "../",
     "libsodium-wrappers-sumo": "0.7.6"
   },
   "devDependencies": {

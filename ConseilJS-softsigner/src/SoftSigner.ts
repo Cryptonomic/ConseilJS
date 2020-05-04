@@ -1,3 +1,4 @@
+import { Signer } from 'conseiljs';
 
 export class SoftSigner implements Signer {
     //encryptMessage;

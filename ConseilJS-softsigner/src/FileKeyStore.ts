@@ -1,15 +1,11 @@
 import * as fs from "fs";
+import * as bip39 from 'bip39';
 
-import {KeyStore, KeyStoreCurve, KeyStoreType} from 'conseiljs';
+import { KeyStore, KeyStoreCurve, KeyStoreType } from 'conseiljs';
+import { Wallet, EncryptedWalletVersionOne } from 'conseiljs';
+import { TezosMessageUtils } from 'conseiljs';
 
-
-
-import {Wallet, EncryptedWalletVersionOne} from 'conseiljs';
-
-import {CryptoUtils} from "../../utils/CryptoUtils";
-import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
-
-
+import { CryptoUtils } from './utils/CryptoUtils';
 
 export class FileKeyStore implements KeyStore {
     publicKey: string;
