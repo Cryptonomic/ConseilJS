@@ -1,6 +1,7 @@
 /*eslint no-bitwise: 0*/
 import base58check from "bs58check";
 import bigInt from 'big-integer';
+import * as blakejs from 'blakejs';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
@@ -34,7 +35,7 @@ export namespace TezosMessageUtils {
     export function writeInt(value: number): string {
         if (value < 0) { throw new Error('Use writeSignedInt to encode negative numbers'); }
         //@ts-ignore
-        return Buffer.from(Buffer.from(CryptoUtils.twoByteHex(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
+        return Buffer.from(Buffer.from(twoByteHex(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
     }
 
     /**
@@ -80,7 +81,7 @@ export namespace TezosMessageUtils {
     export function readInt(hex: string): number {
         //@ts-ignore
         const h = Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex')
-        return CryptoUtils.fromByteHex(h);
+        return fromByteHex(h);
     }
 
     export function readSignedInt(hex: string): number {
@@ -370,7 +371,7 @@ export namespace TezosMessageUtils {
      * @returns {string} Base58Check hash of signed operation
      */
     export function computeOperationHash(signedOpGroup: SignedOperationGroup): string {
-        const hash = CryptoUtils.simpleHash(signedOpGroup.bytes, 32);
+        const hash = simpleHash(signedOpGroup.bytes, 32);
         return readBufferWithHint(hash, "op");
     }
 
@@ -382,7 +383,7 @@ export namespace TezosMessageUtils {
      * @returns Base58-check encoded key hash.
      */
     export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
-        const hash = CryptoUtils.simpleHash(key, 20);
+        const hash = simpleHash(key, 20);
         return readAddressWithHint(hash, prefix);
     }
 
@@ -472,6 +473,64 @@ export namespace TezosMessageUtils {
      * Created a hash of the provided buffer that can then be used to query a big_map structure on chain.
      */
     export function encodeBigMapKey(key: Buffer): string {
-        return readBufferWithHint(CryptoUtils.simpleHash(key, 32), 'expr');
+        return readBufferWithHint(simpleHash(key, 32), 'expr');
+    }
+
+    /**
+     * Computes a BLAKE2b message hash of the requested length.
+     */
+    export function simpleHash(payload: Buffer, length: number) : Buffer {
+        return Buffer.from(blakejs.blake2b(payload, null, length)); // Same as libsodium.crypto_generichash
+    }
+
+    /**
+     * Encodes the provided number as base128.
+     * @param n 
+     */
+    function twoByteHex(n: number) : string {
+        if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
+
+        let h = '';
+        if (n > 2147483648) {
+            let r = bigInt(n);
+            while (r.greater(0)) {
+                h = ('0' + (r.and(127)).toString(16)).slice(-2) + h;
+                r = r.shiftRight(7);
+            }
+        } else {
+            let r = n;
+            while (r > 0) {
+                h = ('0' + (r & 127).toString(16)).slice(-2) + h;
+                r = r >> 7;
+            }
+        }
+
+        return h;
+    }
+
+    /**
+     * Decodes the provided base128 string into a number
+     * @param s 
+     */
+    function fromByteHex(s: string) : number {
+        if (s.length === 2) { return parseInt(s, 16); }
+
+        if (s.length <= 8) {
+            let n = parseInt(s.slice(-2), 16);
+
+            for (let i = 1; i < s.length / 2; i++) {
+                n += parseInt(s.slice(-2 * i - 2, -2 * i), 16) << (7 * i);
+            }
+
+            return n;
+        }
+
+        let n = bigInt(parseInt(s.slice(-2), 16));
+
+        for (let i = 1; i < s.length / 2; i++) {
+            n = n.add(bigInt(parseInt(s.slice(-2 * i - 2, -2 * i), 16)).shiftLeft(7 * i));
+        }
+
+        return n.toJSNumber();
     }
 }

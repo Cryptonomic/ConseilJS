@@ -19,11 +19,7 @@ export * from './chain/tezos/contracts/Tzip7ReferenceTokenHelper';
 export * from './chain/tezos/contracts/Tzip12ReferenceTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
 
-export * from './identity/tezos/TezosWalletUtil';
-export * from './identity/tezos/TezosFileWallet';
-
 export * from './reporting/tezos/TezosConseilClient';
-
 export * from './reporting/ConseilDataClient';
 export * from './reporting/ConseilMetadataClient';
 export * from './reporting/ConseilQueryBuilder';
@@ -35,5 +31,3 @@ export * from './types/tezos/TezosChainTypes';
 export * from './types/tezos/TezosP2PMessageTypes';
 export * from './types/tezos/TezosRPCResponseTypes';
 export * from './types/wallet/KeyStore';
-
-export * from './utils/CryptoUtils';

@@ -1,5 +1,3 @@
-import * as blakejs from 'blakejs';
-import bigInt from 'big-integer';
 const wrapper = require('./WrapperWrapper');
 
 /**
@@ -50,13 +48,6 @@ export namespace CryptoUtils {
     }
 
     /**
-     * Computes a BLAKE2b message hash of the requested length.
-     */
-    export function simpleHash(payload: Buffer, length: number) : Buffer {
-        return Buffer.from(blakejs.blake2b(payload, null, length)); // Same as libsodium.crypto_generichash
-    }
-
-    /**
      * Generate key pair from seed.
      * 
      * @param seed 
@@ -91,48 +82,5 @@ export namespace CryptoUtils {
 
     export async function checkSignature(signature: Buffer, payload: Buffer, publicKey: Buffer): Promise<boolean> {
         return await wrapper.checkSignature(signature, payload, publicKey);
-    }
-
-    export function twoByteHex(n: number) : string {
-        if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
-
-        let h = '';
-        if (n > 2147483648) {
-            let r = bigInt(n);
-            while (r.greater(0)) {
-                h = ('0' + (r.and(127)).toString(16)).slice(-2) + h;
-                r = r.shiftRight(7);
-            }
-        } else {
-            let r = n;
-            while (r > 0) {
-                h = ('0' + (r & 127).toString(16)).slice(-2) + h;
-                r = r >> 7;
-            }
-        }
-
-        return h;
-    }
-
-    export function fromByteHex(s: string) : number {
-        if (s.length === 2) { return parseInt(s, 16); }
-
-        if (s.length <= 8) {
-            let n = parseInt(s.slice(-2), 16);
-
-            for (let i = 1; i < s.length / 2; i++) {
-                n += parseInt(s.slice(-2 * i - 2, -2 * i), 16) << (7 * i);
-            }
-
-            return n;
-        }
-
-        let n = bigInt(parseInt(s.slice(-2), 16));
-
-        for (let i = 1; i < s.length / 2; i++) {
-            n = n.add(bigInt(parseInt(s.slice(-2 * i - 2, -2 * i), 16)).shiftLeft(7 * i));
-        }
-
-        return n.toJSNumber();
     }
 }
