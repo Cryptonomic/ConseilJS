@@ -19,13 +19,18 @@ export class SoftSigner implements Signer {
         return { publicKey: keys.publicKey, secretKey: keys.privateKey };
     }
 
+    public async recoverKeys(secretKey: Buffer): Promise<{ publicKey: Buffer, secretKey: Buffer}> {
+        const keys = await CryptoUtils.recoverPublicKey(secretKey);
+        return { publicKey: keys.publicKey, secretKey: keys.privateKey };
+    }
+
     /**
      * 
      * @param message 
      * @param passphrase 
      * @param salt 
      */
-    public async decryptMessage(message: Buffer, passphrase: string, salt: Buffer) : Promise<Buffer> {
+    public async decryptMessage(message: Buffer, passphrase: string, salt: Buffer): Promise<Buffer> {
         return CryptoUtils.decryptMessage(message, passphrase, salt);
     }
 
@@ -35,7 +40,7 @@ export class SoftSigner implements Signer {
      * @param passphrase 
      * @param salt 
      */
-    public async encryptMessage(message: Buffer, passphrase: string, salt: Buffer) : Promise<Buffer> {
+    public async encryptMessage(message: Buffer, passphrase: string, salt: Buffer): Promise<Buffer> {
         return CryptoUtils.encryptMessage(message, passphrase, salt);
     }
 
