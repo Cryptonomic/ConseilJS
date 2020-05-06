@@ -1,10 +1,9 @@
-import * as fs from "fs";
 import * as bip39 from 'bip39';
 
 import { KeyStore, KeyStoreCurve, KeyStoreType, Signer } from 'conseiljs';
 import { TezosMessageUtils } from 'conseiljs';
 
-export namespace FileKeyStoreUtils {
+export namespace KeyStoreUtils {
     export async function GenerateIdentity(strength: number = 256, password: string = '', signer: Signer, mnemonic?: string): Promise<KeyStore> {
         return RestoreIdentityFromMnemonic((mnemonic || bip39.generateMnemonic(strength)), password, signer);
     }
@@ -46,6 +45,6 @@ export namespace FileKeyStoreUtils {
      * @returns {Promise<KeyStore>} Wallet file
      */
     export async function RestoreIdentityFromFundraiser(mnemonic: string, email: string, password: string, pkh: string, signer: Signer): Promise<KeyStore> {
-        return await FileKeyStoreUtils.RestoreIdentityFromMnemonic(mnemonic, email + password, signer, pkh);
+        return await RestoreIdentityFromMnemonic(mnemonic, email + password, signer, pkh);
     }
 }
