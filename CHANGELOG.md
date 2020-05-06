@@ -1,12 +1,32 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 5.0.0-beta
+
+The purpose of this release is to split ConseilJS into several parts to minimize the number of direct dependencies. ConseilJS is packaged as three components: ConseilJS-core, ConseilJS-softsigner and ConseilJS-ledgersigner.
+
+### Breaking Changes
+
+- New interfaceces were introduced to support external signing and key storage: `KeyStore`, `Signer`.
+- Any function that previously took a required `KeyStore`-type parameter now also requires a `Signer`. This includes many changes in `TezosNodeWriter`, `TezosOperationQueue`, and the contract wrappers in `src/chain/tezos/contracts/`.
+- `CryptoUtils` has moved to ConseilJS-softsigner. This removes dependencies on `crypto`, `libsodium` and others.
+- What used to be in `src/identity/tezos/` is not split between the ConseilJS-softsigner and ConseilJS-ledgersigner packages.
+- `CryptoUtils.simpleHash` was moved to `TezosMessageUtil.simpleHash`, smae with twoByteHex, fromByteHex
+
+### New Features
+
+- added TZIP 0012 (FA2) single-asset token contract interface `chain/tezos/contracts/Tzip12ReferenceTokenHelper`.
+
+### Fixes
+
+- Michelson parser has several updates that should reduce memory footprint.
+
 ## 0.4.2
 
 ### New Features
 
-- Support for the [StakerDao](https://www.stakerdao.com/) token
-- Support for the [tzBTC](https://tzbtc.io/) token
+- Support for the [StakerDao](https://www.stakerdao.com/) token.
+- Support for the [tzBTC](https://tzbtc.io/) token.
 - Added various functions in `TezosWalletUtil` & `CryptoUtils` for signing of and verifying signatures on arbitrary text.
 - Added preliminary support for the murbard multi-sig contract.
 - Added `TezosConseilClient.getOperation()`.
