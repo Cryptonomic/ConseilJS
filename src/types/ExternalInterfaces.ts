@@ -1,5 +1,6 @@
 export interface Signer {
     generateKeys: (seed: Buffer) => Promise<{ publicKey: Buffer, secretKey: Buffer}>;
+    recoverKeys: (secretKey: Buffer) => Promise<{ publicKey: Buffer, secretKey: Buffer}>;
     decryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
     encryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
     sign: (bytes: Buffer, secretKey: Buffer) => Promise<Buffer>;
