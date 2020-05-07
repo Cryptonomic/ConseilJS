@@ -1,8 +1,8 @@
 {
   "name": "conseiljs-softsigner",
   "version": "5.0.0-beta.0",
-  "description": "Client-side library for dApp development.",
-  "browser": "dist/index-web.js",
+  "description": "ConseilJS software signer plugin for ConseilJS-core. Supports the ED25519 curve via libsodium for tz1-address operations.",
+  "browser": "dist/index.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "bip39": "3.0.2",
-    "conseiljs": "../",
+    "conseiljs": "../ConseilJS-core",
     "libsodium-wrappers-sumo": "0.7.6"
   },
   "devDependencies": {

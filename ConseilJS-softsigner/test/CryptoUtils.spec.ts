@@ -1,16 +1,17 @@
 import 'mocha';
-import {expect} from 'chai';
+import { expect } from 'chai';
 
 import * as bip39 from 'bip39';
+import { TezosMessageUtils } from 'conseiljs';
 
-import { CryptoUtils } from "../src/utils/CryptoUtils";
-import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
-import { TezosWalletUtil } from '../src/identity/tezos/TezosWalletUtil';
+import { CryptoUtils } from '../src/utils/CryptoUtils';
+import { KeyStoreUtils } from '../src/KeyStoreUtils';
+import { SoftSigner } from '../src/SoftSigner';
 
 describe('encryptMessage() and decryptMessage()', () => {
     it('should correctly encrypt and decrypt text', async () => {
         const salt = await CryptoUtils.generateSaltForPwHash();
-        const message = 'Tacos Nachos Burritos Guacamole';
+        const message = Buffer.from('Tacos Nachos Burritos Guacamole', 'utf8');
         const passphrase = '$T3Z0s!';
         const encrypted = await CryptoUtils.encryptMessage(message, passphrase, salt);
         const decrypted = await CryptoUtils.decryptMessage(encrypted, passphrase, salt);
@@ -19,7 +20,7 @@ describe('encryptMessage() and decryptMessage()', () => {
 
     it('fail encryption operation due to password strength', async () => {
         const salt = await CryptoUtils.generateSaltForPwHash();
-        const message = "hello";
+        const message = Buffer.from('hello', 'utf8');
         const passphrase = "password";
         try {
             const encrypted = await CryptoUtils.encryptMessage(message, passphrase, salt);
@@ -71,7 +72,8 @@ describe('generateKeys() and recoverPublicKey()', () => {
     });
 
     it('sign a message with secret key, verify signature with public key (Tezos encoding)', async () => {
-        const keyStore = await TezosWalletUtil.restoreIdentityWithSecretKey('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc');
+        const signer = new SoftSigner();
+        const keyStore = await KeyStoreUtils.RestoreIdentityFromSecretKey('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc', signer);
         const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
         const publicKey = TezosMessageUtils.writeKeyWithHint(keyStore.publicKey, 'edpk');
 
