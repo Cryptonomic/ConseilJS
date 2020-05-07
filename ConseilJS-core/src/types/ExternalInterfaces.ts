@@ -1,12 +1,6 @@
 export interface Signer {
-    generateKeys: (seed: Buffer) => Promise<{ publicKey: Buffer, secretKey: Buffer}>;
-    recoverKeys: (secretKey: Buffer) => Promise<{ publicKey: Buffer, secretKey: Buffer}>;
-    decryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
-    encryptMessage: (message: Buffer, passphrase: string, salt: Buffer) => Promise<Buffer>;
-    sign: (bytes: Buffer, secretKey: Buffer) => Promise<Buffer>;
-
-    signText: (message: string, secretKey: string) => Promise<string>;
-    checkTextSignature: (signature: string, message: string, publicKey: string) => Promise<boolean>;
+    sign: (bytes: Buffer) => Promise<Buffer>;
+    signText: (message: string) => Promise<string>;
 }
 
 export interface KeyStore {

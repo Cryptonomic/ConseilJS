@@ -1,7 +1,7 @@
 {
-  "name": "conseiljs",
+  "name": "conseiljs-ledgersigner",
   "version": "5.0.0-beta.0",
-  "description": "Client-side library for dApp development.",
+  "description": "",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,16 +9,14 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha \"test/**/*.spec.ts\"",
+    "test": "mocha \"test/**/TezosLanguageUtil.spec.ts\"",
     "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "coverage": "nyc mocha \"test/**/*.spec.ts\" || nyc report | coveralls",
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "release-check": "npm run test && npm audit && npm outdated",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "compile-tezos-parsers": "nearleyc grammar/tezos/Micheline.ne -o src/chain/tezos/lexer/Micheline.ts && nearleyc grammar/tezos/Michelson.ne -o src/chain/tezos/lexer/Michelson.ts && nearleyc grammar/tezos/EntryPointTemplate.ne -o src/chain/tezos/lexer/EntryPointTemplate.ts",
-    "package": "rm -rf ./dist && npm run compile-tezos-parsers && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
-    "package-web": "webpack && rm -rf ./dist-web/dist && openssl dgst -sha384 -binary ./dist-web/conseiljs.min.js | openssl base64 -A"
+    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/"
   },
   "repository": {
     "type": "git",
@@ -65,12 +63,10 @@
     "instrument": true
   },
   "dependencies": {
-    "big-integer": "1.6.48",
-    "blakejs": "1.1.0",
-    "bs58check": "2.1.2",
-    "jsonpath-plus": "3.0.0",
-    "moo": "0.5.0",
-    "nearley": "2.19.1"
+    "@ledgerhq/hw-transport": "5.15.0",
+    "@ledgerhq/hw-transport-node-hid": "5.15.0",
+    "bip32-path": "0.4.2",
+    "conseiljs": "../ConseilJS-core"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
@@ -78,22 +74,17 @@
     "@types/mocha": "7.0.2",
     "@types/nock": "11.1.0",
     "@types/node": "13.9.1",
-    "@types/node-fetch": "2.5.6",
     "@typescript-eslint/eslint-plugin": "2.29.0",
     "@typescript-eslint/parser": "2.29.0",
     "awesome-typescript-loader": "5.2.1",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
-    "copyfiles": "2.2.0",
     "coveralls": "3.0.12",
     "eslint": "6.8.0",
     "eslint-config-airbnb-base": "14.1.0",
     "eslint-plugin-import": "2.20.2",
-    "glob": "7.1.6",
-    "loglevel": "1.6.8",
     "mocha": "7.1.1",
     "nock": "12.0.3",
-    "node-fetch": "2.6.0",
     "nyc": "15.0.1",
     "request-promise": "4.2.5",
     "source-map-loader": "0.2.4",

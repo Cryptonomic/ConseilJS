@@ -36,6 +36,10 @@ const logger = log.getLogger('conseiljs');
 logger.setLevel('debug', false);
 registerLogger(logger);
 registerFetch(fetch);
+
+let signer: Signer;
+const keyStore = KeyStoreUtils. ;
+signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk'));
 ```
 
 We have a complete [React application tutorial](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.

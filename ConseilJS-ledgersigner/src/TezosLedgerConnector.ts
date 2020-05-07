@@ -1,4 +1,4 @@
-import Transport from "@ledgerhq/hw-transport";
+import Transport from '@ledgerhq/hw-transport';
 import * as bip32path from 'bip32-path';
 
 export enum Curve { // taken from https://github.com/obsidiansystems/ledger-app-tezos/blob/master/APDUs.md
@@ -15,7 +15,7 @@ export enum Instruction { // taken from https://github.com/obsidiansystems/ledge
     INS_SIGN_UNSAFE = 0x05
 }
 
-export default class TezosLedgerConnector {
+export class TezosLedgerConnector {
     transport: Transport<any>;
 
     constructor(transport: Transport<any>) {
