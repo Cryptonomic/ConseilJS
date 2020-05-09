@@ -166,10 +166,9 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {Operation[]} operations The operations to create and send
      * @param {Signer}
-     * @param {KeyStore} keyStore Key pair along with public key hash
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer, keyStore: KeyStore): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
 
@@ -218,12 +217,12 @@ export namespace TezosNodeWriter {
      * Helper function for sending Delegations, Transactions, and Originations. Checks if manager's public key has been revealed for operation. If yes, do nothing, else, bundle a reveal operation before the input operation.
      *
      * @param {string} server Tezos node to connect to
-     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} publicKey Key to be revealed
      * @param {string} accountHash Account address to reveal.
      * @param {number} accountOperationIndex
      * @param {StackableOperation[]} operations Delegation, Transaction, or Origination to possibly bundle with a reveal
      */
-    export async function appendRevealOperation(server: string, keyStore: KeyStore, accountHash: string, accountOperationIndex: number, operations: TezosP2PMessageTypes.StackableOperation[]) {
+    export async function appendRevealOperation(server: string, publicKey: string, accountHash: string, accountOperationIndex: number, operations: TezosP2PMessageTypes.StackableOperation[]) {
         const isKeyRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount(server, accountHash);
         const counter = accountOperationIndex + 1;
 
@@ -235,7 +234,7 @@ export namespace TezosNodeWriter {
                 counter: counter.toString(),
                 gas_limit: '10600',
                 storage_limit: '0',
-                public_key: keyStore.publicKey
+                public_key: publicKey
             };
 
             operations.forEach((operation, index) => {
@@ -273,9 +272,9 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
-        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction])
+        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction])
 
-        return sendOperation(server, operations, signer, keyStore);
+        return sendOperation(server, operations, signer);
     }
 
     /**
@@ -299,9 +298,9 @@ export namespace TezosNodeWriter {
             gas_limit: TezosConstants.DefaultDelegationGasLimit + '',
             delegate: delegate
         }
-        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [delegation]);
+        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [delegation]);
 
-        return sendOperation(server, operations, signer, keyStore);
+        return sendOperation(server, operations, signer);
     }
 
     /**
@@ -371,9 +370,9 @@ export namespace TezosNodeWriter {
             delegate: delegate,
             script: { code: parsedCode, storage: parsedStorage }
         };
-        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
+        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [origination]);
 
-        return sendOperation(server, operations, signer, keyStore);
+        return sendOperation(server, operations, signer);
     }
 
     /**
@@ -406,8 +405,8 @@ export namespace TezosNodeWriter {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
-        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [transaction]);
-        return sendOperation(server, operations, signer, keyStore);
+        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction]);
+        return sendOperation(server, operations, signer);
     }
 
     /**
@@ -491,7 +490,7 @@ export namespace TezosNodeWriter {
         };
         const operations = [revealOp];
 
-        return sendOperation(server, operations, signer, keyStore)
+        return sendOperation(server, operations, signer)
     }
 
     /**
@@ -505,7 +504,7 @@ export namespace TezosNodeWriter {
     export function sendIdentityActivationOperation(server: string, signer: Signer, keyStore: KeyStore, activationCode: string) {
         const activation = { kind: 'activate_account', pkh: keyStore.publicKeyHash, secret: activationCode };
 
-        return sendOperation(server, [activation], signer, keyStore);
+        return sendOperation(server, [activation], signer);
     }
 
     /**

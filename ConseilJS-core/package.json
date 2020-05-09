@@ -110,8 +110,8 @@
     "webpack-node-externals": "1.7.2"
   },
   "engines": {
-    "node": ">=12.14.x",
-    "npm": ">=6.13.x"
+    "node": ">=12.16.x",
+    "npm": ">=6.14.x"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

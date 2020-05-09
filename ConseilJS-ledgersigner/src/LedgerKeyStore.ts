@@ -1,6 +1,7 @@
 import { KeyStore, KeyStoreCurve, KeyStoreType } from 'conseiljs';
 import { TezosMessageUtils } from 'conseiljs';
 
+import { TezosLedgerConnector } from './TezosLedgerConnector';
 /**
  * A set of helper functions 
  */
@@ -20,8 +21,7 @@ export namespace KeyStoreUtils {
      * @param derivationPath BIP32/44 derivation path
      */
     export async function getTezosPublicKey(derivationPath: string): Promise<string> {
-        const transport = await TransportInstance.getInstance();
-        const xtz = new TezosLedgerConnector(transport);
+        const xtz = await TezosLedgerConnector.getInstance();
         return xtz.getAddress(derivationPath, true);
     }
 }

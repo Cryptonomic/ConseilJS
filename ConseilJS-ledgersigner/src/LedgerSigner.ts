@@ -1,26 +1,17 @@
 import { Transport } from '@ledgerhq/hw-transport-node-hid';
 import { Signer, TezosMessageUtils } from '../../ConseilJS-core';
 
-import * as TezosLedgerConnector from './TezosLedgerConnector'
+import { TezosLedgerConnector } from './TezosLedgerConnector'
 
 /**
  *  
  */
 export class LedgerSigner implements Signer {
-    static transport = null;
-
-    static async getInstance() {
-        if (this.transport === null) {
-            this.transport = await Transport.create();
-        }
-        return this.transport
-    }
-
     readonly derivationPath: string;
+    readonly connector: TezosLedgerConnector;
 
-    constructor(derivationPath: string) {
-        LedgerSigner.transport = null;
-
+    constructor(connector: TezosLedgerConnector, derivationPath: string) {
+        this.connector = connector;
         this.derivationPath = derivationPath;
     }
 
@@ -31,9 +22,7 @@ export class LedgerSigner implements Signer {
      * @param watermarkedOpInHex Operation
      */
     public async sign(bytes: Buffer): Promise<Buffer> {
-        const transport = await LedgerSigner.getInstance();
-        const xtz = new TezosLedgerConnector(transport);
-        const result = await xtz.signOperation(this.derivationPath, bytes);
+        const result = await this.connector.signOperation(this.derivationPath, bytes);
         const signatureBytes = Buffer.from(result, 'hex');
 
         return signatureBytes;
@@ -46,9 +35,7 @@ export class LedgerSigner implements Signer {
      * @returns {Promise<string>} base58check-encoded signature prefixed with 'edsig'.
      */
     public async signText(message: string): Promise<string> {
-        const transport = await LedgerSigner.getInstance();
-        const xtz = new TezosLedgerConnector(transport);
-        const result = await xtz.signHex(this.derivationPath, Buffer.from(message, 'utf8').toString('hex'));
+        const result = await this.connector.signHex(this.derivationPath, Buffer.from(message, 'utf8'));
         const messageSig = Buffer.from(result, 'hex');
 
         return TezosMessageUtils.readSignatureWithHint(messageSig, 'edsig');

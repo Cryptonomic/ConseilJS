@@ -12,18 +12,16 @@ ConseilJS connects to Tezos nodes for live chain data and operations and to [Con
 
 Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
+## Sub-modules
+
+As of version 5.0.0, ConseilJS has been split into three parts: this library, which is considered to be the core, ConseilJS-softsigner and ConseilJS-ledgersigner. This was done in an effort to make the library more portable across different environments. If neither of these additional modules meet your needs, the `Signer` and `KeyStore` [interfaces](https://github.com/Cryptonomic/ConseilJS/blob/master/ConseilJS-core/src/types/ExternalInterfaces.ts) can be implemented separately. In addition to a `Signer` and a `KeyStore`, `fetch` and `logger` objects are required to be provided, see below.
+
 ## Use with Nodejs
 
 Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
 ```bash
 npm i conseiljs
-```
-
-If you are using webpack in your project, add below lines to your `webpack.config.js` file:
-
-```javascript
-node: { fs: 'empty' }
 ```
 
 ```javascript
@@ -38,19 +36,27 @@ registerLogger(logger);
 registerFetch(fetch);
 
 let signer: Signer;
-const keyStore = KeyStoreUtils. ;
+const keyStore = KeyStoreUtils.RestoreIdentityFromSecretKey ('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
 signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk'));
 ```
 
+## Use with React
+
 We have a complete [React application tutorial](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
+
+## Use with React Native
+
+TBD
 
 ## Use with Web
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-Qadw6i0MoBdfDPGWqub65ZsMLMlYOcVVgxHKkhSqi2qfE0Ij2Za4r/wpGORh7HBn"
+        integrity="sha384-w2ohgkc4SNe+uTI3bbScm5ddy/qoZKWA605wjfUaVKCgOZtUezmV3T53vnqav9sF"
         crossorigin="anonymous"></script>
 ```
+
+The web version sets fetch and logger internally to `window.fetch` and `console` respectively.
 
 A fully functional sample [html page](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
 
@@ -63,6 +69,10 @@ We have [ready-to-use examples](https://cryptonomic.github.io/ConseilJS/) to cop
 There are many ways to contribute to this project. You can develop applications or dApps with it. You can submit bug reports or feature requests. You can ask questions about it on [r/Tezos](http://reddit.com/r/tezos/) or the [Tezos StackExchange](https://tezos.stackexchange.com). We certainly welcome pull requests as well.
 
 ## Other references
+
+Developer Handbook
+
+Curriculum
 
 [Wiki](https://github.com/Cryptonomic/ConseilJS/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-ConseilJS-v2-API)
 

@@ -16,7 +16,7 @@
     "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "release-check": "npm run test && npm audit && npm outdated",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
-    "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/"
+    "package": "rm -rf ./dist && tsc"
   },
   "repository": {
     "type": "git",
@@ -91,9 +91,9 @@
     "source-map-support": "0.5.18",
     "terser-webpack-plugin": "2.3.5",
     "ts-loader": "6.2.1",
-    "ts-node": "8.9.0",
+    "ts-node": "8.10.1",
     "tsconfig-paths-webpack-plugin": "3.2.0",
-    "typedoc": "0.17.4",
+    "typedoc": "0.17.6",
     "typedoc-plugin-markdown": "2.2.17",
     "typescript": "3.8.3",
     "webpack": "4.43.0",
@@ -101,8 +101,8 @@
     "webpack-node-externals": "1.7.2"
   },
   "engines": {
-    "node": ">=12.14.x",
-    "npm": ">=6.13.x"
+    "node": ">=12.16.x",
+    "npm": ">=6.14.x"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",

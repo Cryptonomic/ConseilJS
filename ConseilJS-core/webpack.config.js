@@ -27,10 +27,7 @@ const webConfig = {
         ]
     },
     node: {
-        child_process: 'empty',
-        fs: 'empty',
-        net: 'empty',
-        tls: 'empty'
+        
     },
     plugins: [new CheckerPlugin()],
     optimization: {

@@ -14,13 +14,26 @@ export enum Instruction { // taken from https://github.com/obsidiansystems/ledge
     INS_SIGN = 0x04,
     INS_SIGN_UNSAFE = 0x05
 }
+class TransportInstance {
+    static transport = null;
+    static async getInstance() {
+        if (this.transport === null) {
+            this.transport = await Transport.create();
+        }
+        return this.transport
+    }
+}
 
 export class TezosLedgerConnector {
-    transport: Transport<any>;
+    private transport: Transport<any>;
 
-    constructor(transport: Transport<any>) {
+    private constructor(transport: Transport<any>) {
         this.transport = transport;
         transport.decorateAppAPIMethods(this, ["getAddress", "signOperation", "signHash", "getVersion"], "XTZ");
+    }
+
+    public static async getInstance() {
+        return new TezosLedgerConnector(await TransportInstance.getInstance());
     }
 
     /**
@@ -52,8 +65,8 @@ export class TezosLedgerConnector {
      * @param {string} hex Operation hex
      * @param {Curve} curve Curve, defaults to ED25519
      */
-    async signOperation(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, curve, Instruction.INS_SIGN, hex);
+    async signOperation(path: string, bytes: Buffer, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, curve, Instruction.INS_SIGN, bytes);
     }
 
     /**
@@ -63,8 +76,8 @@ export class TezosLedgerConnector {
      * @param {string} hex Hex
      * @param {Curve} curve Curve, defaults to ED25519
      */
-    async signHex(path: string, hex: string, curve: Curve = Curve.ED25519): Promise<string> {
-        return this.sign(path, curve, Instruction.INS_SIGN_UNSAFE, hex);
+    async signHex(path: string, bytes: Buffer, curve: Curve = Curve.ED25519): Promise<string> {
+        return this.sign(path, curve, Instruction.INS_SIGN_UNSAFE, bytes);
     }
 
     /**
@@ -75,8 +88,7 @@ export class TezosLedgerConnector {
         return `${major}.${minor}.${patch}${appFlag === 1 ? ' baker' : ''}`;
     }
 
-    private async sign(path: string, curve: Curve, instruction: number, hex: string): Promise<string> {
-        const bytes = Buffer.from(hex, "hex");
+    private async sign(path: string, curve: Curve, instruction: number, bytes: Buffer): Promise<string> {
         let message: Buffer[] = [];
 
         message.push(this.pathToBuffer(path));
