@@ -1,7 +1,7 @@
 import FetchSelector from './utils/FetchSelector';
 import LogSelector from './utils/LoggerSelector';
 
-FetchSelector.setFetch(window.fetch);
+FetchSelector.setFetch(window.fetch.bind(window));
 LogSelector.setLogger(console);
 
 export * from './chain/tezos/TezosContractIntrospector';
