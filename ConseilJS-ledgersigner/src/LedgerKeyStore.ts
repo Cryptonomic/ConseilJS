@@ -1,5 +1,5 @@
-import { KeyStore, KeyStoreCurve, KeyStoreType } from 'conseiljs';
-import { TezosMessageUtils } from 'conseiljs';
+import { KeyStore, KeyStoreCurve, KeyStoreType } from '../../ConseilJS-core';
+import { TezosMessageUtils } from '../../ConseilJS-core';
 
 import { TezosLedgerConnector } from './TezosLedgerConnector';
 /**

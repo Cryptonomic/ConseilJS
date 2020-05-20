@@ -2,7 +2,6 @@
   "name": "conseiljs-ledgersigner",
   "version": "5.0.0-beta.0",
   "description": "",
-  "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -116,10 +115,7 @@
     "overrides": [
       {
         "files": [
-          "**/**/*.ts"
-        ],
-        "excludedFiles": [
-          "lexer/*.ts"
+          "**/*.ts"
         ]
       }
     ],
