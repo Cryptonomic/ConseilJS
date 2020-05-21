@@ -5,7 +5,7 @@ export interface Signer {
 
 export interface KeyStore {
     publicKey: string;
-    privateKey: string;
+    secretKey: string;
     publicKeyHash: string;
     curve: KeyStoreCurve;
     storeType: KeyStoreType;
