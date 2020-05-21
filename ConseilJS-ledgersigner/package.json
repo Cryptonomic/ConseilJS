@@ -1,8 +1,7 @@
 {
   "name": "conseiljs-ledgersigner",
-  "version": "5.0.0-beta.0",
+  "version": "5.0.0-alpha.0",
   "description": "",
-  "browser": "dist/index-web.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -47,9 +46,6 @@
     "include": [
       "src/**/*.ts"
     ],
-    "exclude": [
-      "src/**/lexer/*.*"
-    ],
     "extension": [
       ".ts"
     ],
@@ -66,7 +62,7 @@
     "@ledgerhq/hw-transport": "5.15.0",
     "@ledgerhq/hw-transport-node-hid": "5.15.0",
     "bip32-path": "0.4.2",
-    "conseiljs": "../ConseilJS-core"
+    "conseiljs": "5.0.0-alpha.1"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
@@ -116,10 +112,7 @@
     "overrides": [
       {
         "files": [
-          "**/**/*.ts"
-        ],
-        "excludedFiles": [
-          "lexer/*.ts"
+          "**/*.ts"
         ]
       }
     ],

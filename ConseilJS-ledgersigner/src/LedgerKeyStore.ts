@@ -2,6 +2,7 @@ import { KeyStore, KeyStoreCurve, KeyStoreType } from 'conseiljs';
 import { TezosMessageUtils } from 'conseiljs';
 
 import { TezosLedgerConnector } from './TezosLedgerConnector';
+
 /**
  * A set of helper functions 
  */
@@ -12,7 +13,7 @@ export namespace KeyStoreUtils {
         const publicKey = TezosMessageUtils.readKeyWithHint(publicKeyBytes, "edpk");
         const publicKeyHash = TezosMessageUtils.computeKeyHash(publicKeyBytes, 'tz1');
 
-        return { publicKey, privateKey: '', publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Hardware, derivationPath };
+        return { publicKey, secretKey: '', publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Hardware, derivationPath };
     }
 
     /**

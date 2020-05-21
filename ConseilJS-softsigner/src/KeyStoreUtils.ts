@@ -15,8 +15,8 @@ export namespace KeyStoreUtils {
      * @param password 
      * @param mnemonic 
      */
-    export async function GenerateIdentity(strength: number = 256, password: string = '', mnemonic?: string): Promise<KeyStore> {
-        return RestoreIdentityFromMnemonic((mnemonic || bip39.generateMnemonic(strength)), password);
+    export async function generateIdentity(strength: number = 256, password: string = '', mnemonic?: string): Promise<KeyStore> {
+        return restoreIdentityFromMnemonic((mnemonic || bip39.generateMnemonic(strength)), password);
     }
 
     /**
@@ -24,14 +24,14 @@ export namespace KeyStoreUtils {
      * 
      * @param privateKey Secret key to restore public key and hash from.
      */
-    export async function RestoreIdentityFromSecretKey(privateKey: string): Promise<KeyStore> {
-        const secretKey = TezosMessageUtils.writeKeyWithHint(privateKey, 'edsk');
-        const keys = await recoverKeys(secretKey);
+    export async function restoreIdentityFromSecretKey(secretKey: string): Promise<KeyStore> {
+        const secretKeyBytes = TezosMessageUtils.writeKeyWithHint(secretKey, 'edsk');
+        const keys = await recoverKeys(secretKeyBytes);
 
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
 
-        return { publicKey, privateKey, publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Mnemonic };
+        return { publicKey, secretKey, publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Mnemonic };
     }
 
     /**
@@ -42,19 +42,19 @@ export namespace KeyStoreUtils {
      * @param pkh 
      * @param derivationPath 
      */
-    export async function RestoreIdentityFromMnemonic(mnemonic: string, password: string, pkh?: string, derivationPath?: string): Promise<KeyStore> {
+    export async function restoreIdentityFromMnemonic(mnemonic: string, password: string, pkh?: string, derivationPath?: string): Promise<KeyStore> {
         if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) { throw new Error('Invalid mnemonic length.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
         const seed = (await bip39.mnemonicToSeed(mnemonic, password)).slice(0, 32);
         const keys = await generateKeys(seed);
-        const privateKey = TezosMessageUtils.readKeyWithHint(keys.secretKey, 'edsk');
+        const secretKey = TezosMessageUtils.readKeyWithHint(keys.secretKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
 
         if (!!pkh && publicKeyHash !== pkh) { throw new Error('The given mnemonic and passphrase do not correspond to the supplied public key hash'); }
 
-        return {publicKey, privateKey, publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Mnemonic, seed: mnemonic, derivationPath};
+        return {publicKey, secretKey, publicKeyHash, curve: KeyStoreCurve.ED25519, storeType: KeyStoreType.Mnemonic, seed: mnemonic, derivationPath};
     }
 
     /**
@@ -68,8 +68,8 @@ export namespace KeyStoreUtils {
      * @param {string} pkh The public key hash supposedly produced by the given mnemonic and passphrase
      * @returns {Promise<KeyStore>} Wallet file
      */
-    export async function RestoreIdentityFromFundraiser(mnemonic: string, email: string, password: string, pkh: string): Promise<KeyStore> {
-        return await RestoreIdentityFromMnemonic(mnemonic, email + password, pkh);
+    export async function restoreIdentityFromFundraiser(mnemonic: string, email: string, password: string, pkh: string): Promise<KeyStore> {
+        return await restoreIdentityFromMnemonic(mnemonic, email + password, pkh);
     }
 
     /**

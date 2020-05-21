@@ -1,5 +1,4 @@
-import { Transport } from '@ledgerhq/hw-transport-node-hid';
-import { Signer, TezosMessageUtils } from '../../ConseilJS-core';
+import { Signer, TezosMessageUtils } from 'conseiljs';
 
 import { TezosLedgerConnector } from './TezosLedgerConnector'
 
