@@ -1,6 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
+## 0.4.3-beta.0
+
+### Fixes
+
+- `TezosNodeReader.getMempoolOperationsForAccount` no longer throws a JSON parse error.
+
 ## 0.4.2
 
 ### New Features
