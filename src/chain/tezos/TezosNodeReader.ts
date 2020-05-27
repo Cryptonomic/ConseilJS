@@ -176,6 +176,23 @@ export namespace TezosNodeReader {
     }
 
     /**
+     * This method is meant to be used with the output of `getMempoolOperationsForAccount()` to estimate TTL of pending transactions.
+     * 
+     * @param {string} server Tezos node to connect to.
+     * @param {string} branch Branch field of the operation in question.
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     * @returns {Promise<number>} Number of blocks until the operation expires.
+     */
+    export async function estimateBranchTimeout(server: string, branch: string, chainid: string = 'main'): Promise<number> {
+        const refBlock = getBlock(server, branch, chainid);
+        const headBlock = getBlock(server, 'head', chainid);
+
+        var result = await Promise.all([refBlock, headBlock]).then(blocks => Number(blocks[1]['header']['level']) - Number(blocks[0]['header']['level']));
+
+        return 64 - result; // TODO: named const
+    }
+
+    /**
      * Queries the /mempool/pending_operations RPC and parses it looking for applied operations submitted by the provided account
      * 
      * @param {string} server Tezos node to connect to 
