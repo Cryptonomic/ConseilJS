@@ -1,11 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.4.3-beta.0
+## 0.4.3-beta.2
 
 ### Fixes
 
 - `TezosNodeReader.getMempoolOperationsForAccount` no longer throws a JSON parse error.
+- `DUP n` is now parsed correctly.
+- Ported Map parameter parsing from ConselJS 5.0.x.
 
 ## 0.4.2
 

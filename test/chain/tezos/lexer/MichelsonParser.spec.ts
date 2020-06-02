@@ -6,6 +6,13 @@ import * as fs from 'fs';
 import * as path from 'path';
 import glob from 'glob';
 
+describe('Micheline binary encoding tests', () => {
+    it('convert a Pair with a map', () => {
+        const result = TezosLanguageUtil.translateMichelsonToMicheline('Pair (Some "value") { Elt "abc" (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 0)))))); Elt "def" (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 0)))))); Elt "ghi" (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 (Pair 0 0)))))); }');
+        expect(result).to.equal('{ "prim": "Pair", "args": [ { "prim": "Some", "args": [ { "string": "value" } ] }, [ { "prim": "Elt", "args": [ { "string": "abc" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "int": "0" } ] } ] } ] } ] } ] } ] } ] }, { "prim": "Elt", "args": [ { "string": "def" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "int": "0" } ] } ] } ] } ] } ] } ] } ] }, { "prim": "Elt", "args": [ { "string": "ghi" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "prim": "Pair", "args": [ { "int": "0" }, { "int": "0" } ] } ] } ] } ] } ] } ] } ] } ] ] }');
+    });
+});
+
 describe('Michelson/Micheline contract tests', async () => {
     const contractSampleRoot = 'test/chain/tezos/lexer/samples';
     let samples: string[] = glob.sync(`${contractSampleRoot}/**/*.michelson`);
