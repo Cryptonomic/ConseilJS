@@ -67,7 +67,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ 'DUP', 'EDIV', /*'EMPTY_MAP',*/
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -178,8 +178,16 @@ const lexer = moo.compile({
                 return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_NEQ':
                 return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
-            default:
+            case 'ASSERT_NONE': // IF_NONE {} {FAIL}
+                return '[{"prim":"IF_NONE","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]';
+            case 'ASSERT_SOME': // IF_NONE {FAIL} {RENAME @x}
+                return '[{"prim":"IF_NONE","args":[[[{"prim":"UNIT"},{"prim":"FAILWITH"}]],[]]}]';
+            case 'ASSERT_LEFT': // IF_LEFT {RENAME @x} {FAIL}
                 return '';
+            case 'ASSERT_RIGHT': // IF_LEFT {FAIL} {RENAME @x}
+                return '';
+            default:
+                throw new Error(`Could not process ${assert}`);
         }
     }
 
@@ -226,7 +234,7 @@ const lexer = moo.compile({
             case 'IF_SOME':
                 return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]${annotation}}]`;
             default:
-                return '';
+                throw new Error(`Could not process ${ifInstr}`);
         }
     }
 
@@ -492,6 +500,18 @@ const lexer = moo.compile({
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
 
+    const dupnToJson = d => {
+        const n = Number(d[2]);
+
+        if (n === 1) {
+            return '{ "prim": "DUP" }';
+        } else if (n === 2) {
+            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
+        } else {
+            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
+        }
+    };
+
     const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
     const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
@@ -658,34 +678,16 @@ const grammar: Grammar = {
     {"name": "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$1$subexpression$2", "symbols": ["typeElt", "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1", "subTypeElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$1", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
+    {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2$subexpression$1"]},
     {"name": "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$2$subexpression$2", "symbols": ["typeElt", "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
+    {"name": "subTypeElt$ebnf$2$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2", "subTypeElt$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$3$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$3", "symbols": ["subTypeElt$ebnf$3$subexpression$1"]},
-    {"name": "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$3$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$3", "symbols": ["subTypeElt$ebnf$3", "subTypeElt$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$4$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$4", "symbols": ["subTypeElt$ebnf$4$subexpression$1"]},
-    {"name": "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$4$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$4", "symbols": ["subTypeElt$ebnf$4", "subTypeElt$ebnf$4$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$4", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$2", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "typeElt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instruction", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => d[2]},
@@ -706,6 +708,7 @@ const grammar: Grammar = {
     {"name": "instructions", "symbols": [(lexer.has("macroSETCADR") ? {type: "macroSETCADR"} : macroSETCADR)]},
     {"name": "instructions", "symbols": [(lexer.has("macroASSERTlist") ? {type: "macroASSERTlist"} : macroASSERTlist)]},
     {"name": "instruction", "symbols": ["instructions"], "postprocess": keywordToJson},
+    {"name": "instruction", "symbols": ["subInstruction"], "postprocess": id},
     {"name": "instruction$ebnf$1$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "instruction$ebnf$1", "symbols": ["instruction$ebnf$1$subexpression$1"]},
     {"name": "instruction$ebnf$1$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
@@ -759,18 +762,23 @@ const grammar: Grammar = {
     {"name": "instruction", "symbols": [{"literal":"DIP"}, "_", "instruction$ebnf$9", "_", "subInstruction"], "postprocess": dipnToJson},
     {"name": "instruction$ebnf$10", "symbols": [/[0-9]/]},
     {"name": "instruction$ebnf$10", "symbols": ["instruction$ebnf$10", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10", "_", "subInstruction"], "postprocess": dipnToJson},
-    {"name": "instruction$ebnf$11", "symbols": [/[0-9]/]},
-    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "instruction", "symbols": [{"literal":"DIG"}, "_", "instruction$ebnf$11"], "postprocess": dignToJson},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10"], "postprocess": dupnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}], "postprocess": keywordToJson},
+    {"name": "instruction$ebnf$11$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11$subexpression$1"]},
+    {"name": "instruction$ebnf$11$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11", "instruction$ebnf$11$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "instruction$ebnf$11", "_"], "postprocess": keywordToJson},
     {"name": "instruction$ebnf$12", "symbols": [/[0-9]/]},
     {"name": "instruction$ebnf$12", "symbols": ["instruction$ebnf$12", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "instruction", "symbols": [{"literal":"DUG"}, "_", "instruction$ebnf$12"], "postprocess": dignToJson},
+    {"name": "instruction", "symbols": [{"literal":"DIG"}, "_", "instruction$ebnf$12"], "postprocess": dignToJson},
     {"name": "instruction$ebnf$13", "symbols": [/[0-9]/]},
     {"name": "instruction$ebnf$13", "symbols": ["instruction$ebnf$13", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "instruction", "symbols": [{"literal":"DROP"}, "_", "instruction$ebnf$13"], "postprocess": dropnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DUG"}, "_", "instruction$ebnf$13"], "postprocess": dignToJson},
+    {"name": "instruction$ebnf$14", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$14", "symbols": ["instruction$ebnf$14", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DROP"}, "_", "instruction$ebnf$14"], "postprocess": dropnToJson},
     {"name": "instruction", "symbols": [{"literal":"DROP"}], "postprocess": keywordToJson},
-    {"name": "instruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "instruction", "symbols": [{"literal":"CREATE_CONTRACT"}, "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "parameter", "_", "storage", "_", "code", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": subContractToJson},
     {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
     {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", (lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "type", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen), "_", "type"], "postprocess": doubleArgParenKeywordToJson},
