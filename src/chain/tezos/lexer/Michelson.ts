@@ -378,10 +378,7 @@ const lexer = moo.compile({
      * Given a keyword with one argument, convert it to JSON.
      * Example: "option int" -> "{ prim: option, args: [int] }"
      */
-    const singleArgKeywordToJson = d => {
-        //if (d[0] === 'DUP' && Number.isInteger(d[2])) { return dupnToJson(d); }
-        return `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`
-    };
+    const singleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
 
     const comparableTypeToJson = d => {
         const annot = d[3].map(x => `"${x[1]}"`)
@@ -681,7 +678,7 @@ const grammar: Grammar = {
     {"name": "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$1$subexpression$2", "symbols": ["typeElt", "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1", "subTypeElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$1", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
@@ -699,7 +696,7 @@ const grammar: Grammar = {
     {"name": "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$3$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$3", "symbols": ["subTypeElt$ebnf$3", "subTypeElt$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$3", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$4$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "_"]},
