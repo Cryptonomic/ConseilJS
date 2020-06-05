@@ -2,8 +2,8 @@ language : node_js
 
 env:
     jobs:
-        - PROJECT_DIR=conseiljs-core
-        - PROJECT_DIR=conseiljs-softsigner
+        - PROJECT_DIR=ConseilJS-core
+        - PROJECT_DIR=ConseilJS-softsigner
 
 node_js:
     - 12.16
@@ -13,8 +13,6 @@ cache:
         - node_modules
 
 before_script:
-    - pwd
-    - ls
     - cd $PROJECT_DIR
     - npm install
 
