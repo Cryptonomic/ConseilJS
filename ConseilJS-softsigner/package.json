@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "bip39": "3.0.2",
-    "conseiljs": "5.0.0-alpha.1",
+    "conseiljs": "5.0.0-alpha.2",
     "libsodium-wrappers-sumo": "0.7.6"
   },
   "devDependencies": {
