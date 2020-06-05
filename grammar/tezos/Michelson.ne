@@ -38,7 +38,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ 'DUP', 'EDIV', /*'EMPTY_MAP',*/
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -110,15 +110,24 @@ typeData ->
 data ->
     %constantData {% keywordToJson %}
   | %singleArgData _ data {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgData _ data _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgData _ data _ data {% doubleArgKeywordToJson  %}
-  | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
   | %string {% stringToJson %}
   | %bytes {% bytesToJson %}
   | %number {% intToJson %}
-  # %lbrace _ %rbrace {% d => [] %}
+
+# Helper grammar for list of michelson data types.
+subData ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "(" _ (data _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
+
+# Helper grammar for list of pairs of michelson data types.
+subElt ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
+elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for list of michelson data types.
 subTypeData ->
@@ -129,10 +138,8 @@ subTypeData ->
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (typeElt ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (typeElt _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "[{" _ (typeElt ";":? _):+ "}]" {% instructionSetToJsonSemi %}
+  | "[{" _ (typeElt _ ";":? _):+ "}]" {% instructionSetToJsonSemi %}
 
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
@@ -149,6 +156,7 @@ instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSE
 # Grammar for michelson instruction.
 instruction ->
     instructions {% keywordToJson %}
+  | subInstruction {% id %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
   | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}
@@ -166,30 +174,16 @@ instruction ->
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | "DIP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
-  | "DUP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
+  | "DUP" _ [0-9]:+ {% dupnToJson %}
+  | "DUP" {% keywordToJson %}
+  | "DUP" (_ %annot):+ _ {% keywordToJson %}
   | "DIG" _ [0-9]:+ {% dignToJson %}
   | "DUG" _ [0-9]:+ {% dignToJson %}
   | "DROP" _ [0-9]:+ {% dropnToJson %}
   | "DROP" {% keywordToJson %}
-  | %lbrace _ %rbrace {% d => "" %}
   | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
   | "EMPTY_MAP" _ type _ type {% doubleArgKeywordToJson %}
   | "EMPTY_MAP" _ %lparen _ type _ %rparen _ type {% doubleArgParenKeywordToJson %}
-
-# Helper grammar for list of michelson data types.
-subData ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
-  | "{" _ (data ";":? _):+ "}" {% dataListToJsonSemi %}
-
-# Helper grammar for list of pairs of michelson data types.
-subElt ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
-  | "(" _ (elt ";":? _):+ ")" {% dataListToJsonSemi %}
-elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for whitespace.
 _ -> [\s]:*
@@ -283,8 +277,16 @@ semicolons -> [;]:?
                 return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_NEQ':
                 return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
-            default:
+            case 'ASSERT_NONE': // IF_NONE {} {FAIL}
+                return '[{"prim":"IF_NONE","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]';
+            case 'ASSERT_SOME': // IF_NONE {FAIL} {RENAME @x}
+                return '[{"prim":"IF_NONE","args":[[[{"prim":"UNIT"},{"prim":"FAILWITH"}]],[]]}]';
+            case 'ASSERT_LEFT': // IF_LEFT {RENAME @x} {FAIL}
                 return '';
+            case 'ASSERT_RIGHT': // IF_LEFT {FAIL} {RENAME @x}
+                return '';
+            default:
+                throw new Error(`Could not process ${assert}`);
         }
     }
 
@@ -331,7 +333,7 @@ semicolons -> [;]:?
             case 'IF_SOME':
                 return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]${annotation}}]`;
             default:
-                return '';
+                throw new Error(`Could not process ${ifInstr}`);
         }
     }
 
@@ -596,6 +598,18 @@ semicolons -> [;]:?
     }
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
+
+    const dupnToJson = d => {
+        const n = Number(d[2]);
+
+        if (n === 1) {
+            return '{ "prim": "DUP" }';
+        } else if (n === 2) {
+            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
+        } else {
+            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
+        }
+    };
 
     const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
