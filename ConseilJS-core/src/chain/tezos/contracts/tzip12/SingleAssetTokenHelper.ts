@@ -1,19 +1,19 @@
 import * as blakejs from 'blakejs';
 import { JSONPath } from 'jsonpath-plus';
 
-import { TezosLanguageUtil } from '../TezosLanguageUtil';
-import { TezosMessageUtils } from '../TezosMessageUtil';
-import { TezosNodeReader } from '../TezosNodeReader';
-import { TezosNodeWriter } from '../TezosNodeWriter';
-import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
-import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
+import { TezosLanguageUtil } from '../../TezosLanguageUtil';
+import { TezosMessageUtils } from '../../TezosMessageUtil';
+import { TezosNodeReader } from '../../TezosNodeReader';
+import { TezosNodeWriter } from '../../TezosNodeWriter';
+import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
+import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 
 /**
  * Interface for the FA2.0 contract implementation outlined here: https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-12/tzip-12.md.
  * 
  * Compatible with the contract as of May 2, 2020 from https://github.com/tqtezos/smart-contracts/blob/fa2-single-e/single_asset/out/fa2_single_asset.tz
  */
-export namespace Tzip12ReferenceTokenHelper {
+export namespace SingleAssetTokenHelper {
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
      * 
