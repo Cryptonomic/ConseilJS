@@ -1,7 +1,7 @@
 language : node_js
 
 env:
-    PROJECT_DIR=conseiljs
+    PROJECT_DIR=conseiljs-core
     PROJECT_DIR=conseiljs-softsigner
 
 node_js:
