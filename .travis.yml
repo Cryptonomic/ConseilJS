@@ -13,6 +13,8 @@ cache:
         - node_modules
 
 before_script:
+    - pwd
+    - ls
     - cd $PROJECT_DIR
     - npm install
 
