@@ -62,7 +62,7 @@
     "@ledgerhq/hw-transport": "5.15.0",
     "@ledgerhq/hw-transport-node-hid": "5.15.0",
     "bip32-path": "0.4.2",
-    "conseiljs": "5.0.0-alpha.1"
+    "conseiljs": "5.0.0-alpha.2"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",

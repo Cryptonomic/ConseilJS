@@ -4,6 +4,7 @@ env:
     jobs:
         - PROJECT_DIR=ConseilJS-core
         - PROJECT_DIR=ConseilJS-softsigner
+        - PROJECT_DIR=ConseilJS-ledgersigner
 
 node_js:
     - 12.16
