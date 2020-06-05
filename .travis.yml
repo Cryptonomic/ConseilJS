@@ -9,13 +9,13 @@ node_js:
 cache:
     directories:
         - node_modules
-    
-    before_script:
+
+before_script:
     - npm install
-    
-    script:
+
+script:
     - cd $PROJECT_DIR
     - npm run package
-    
-    after_success:
+
+after_success:
     - npm run coverage
