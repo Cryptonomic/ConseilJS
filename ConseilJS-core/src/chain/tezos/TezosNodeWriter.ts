@@ -516,8 +516,8 @@ export namespace TezosNodeWriter {
      * @param {string} to Contract address
      * @param {number} amount Amount to transfer along with the invocation
      * @param {number} fee Operation fee
-     * @param {string} storage_limit Storage fee
-     * @param {string} gas_limit Gas limit
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
      * @param {string} entrypoint Contract entry point
      * @param {string} parameters Contract arguments
      * @param {TezosParameterFormat} parameterFormat Contract argument format
@@ -537,12 +537,12 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{gas: number, storageCost: number}> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
-        const fake_chainid = 'NetXdQprcVkpaWU';
-        const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
+        const fakeSignature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
+        const fakeChainId = 'NetXdQprcVkpaWU';
+        const fakeBranch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [transaction], signature: fake_signature } });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fakeChainId, operation: { branch: fakeBranch, contents: [transaction], signature: fakeSignature } });
         const responseText = await response.text();
 
         parseRPCError(responseText);
