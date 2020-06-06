@@ -381,40 +381,48 @@ export namespace TezosNodeWriter {
         storage: string,
         codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ) {
-
-
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-
         const operation = constructContractOriginationOperation(
             keyStore,
-            fee,
-            counter,
             amount,
             delegate,
+            fee,
             storageLimit,
             gasLimit,
             code,
             storage,
-            codeFormat
+            codeFormat,
+            counter
         )
 
-
         const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [operation]);
-
         return sendOperation(server, operations, keyStore, derivationPath);
     }
 
+    /**
+     * Construct a contract origination operation. 
+     * 
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {number} amount Initial funding amount of new account
+     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {number} fee Operation fee
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
+     * @param {string} code Contract code
+     * @param {string} storage Initial storage value
+     * @param {TezosParameterFormat} codeFormat Code format
+     */
     function constructContractOriginationOperation(
         keyStore: KeyStore,
-        fee: number,
-        counter: number,
         amount: number,
         delegate: string | undefined,
+        fee: number,
         storageLimit: number,
         gasLimit: number,
         code: string,
         storage: string,
-        codeFormat: TezosTypes.TezosParameterFormat
+        codeFormat: TezosTypes.TezosParameterFormat,
+        counter: number
     ): TezosP2PMessageTypes.Origination {
         let parsedCode: any = undefined;
         let parsedStorage: any = undefined;
