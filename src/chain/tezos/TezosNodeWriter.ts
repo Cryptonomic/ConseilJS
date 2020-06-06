@@ -590,16 +590,16 @@ export namespace TezosNodeWriter {
      * Operation dry-run to get consumed gas and storage numbers
      *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid 
+ * @param {string} chainid The chain ID to apply the operation on. 
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {string} to Contract address
+     * @param {string} contract Contract address
      * @param {number} amount Amount to transfer along with the invocation
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
      * @param {string} gas_limit Gas limit
-     * @param {string} entrypoint Contract entry point
-     * @param {string} parameters Contract arguments
+     * @param {string|undefined} entrypoint Contract entry point
+     * @param {string|undefined} parameters Contract arguments
      * @param {TezosParameterFormat} parameterFormat Contract argument format
      * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
      */
@@ -617,49 +617,77 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{ gas: number, storageCost: number }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
+        const transaction = constructContractInvocationOperation(
+            keyStore.publicKeyHash,
+            counter,
+            contract,
+            amount,
+            fee,
+            storageLimit,
+            gasLimit,
+            entrypoint,
+            parameters,
+            parameterFormat
+        );
 
         return estimateOperation(server, chainid, transaction)
     }
 
-    // export async function testContractDeployOperation(
-    //     server: string,
-    //     chainid: string,
-    //     keyStore: KeyStore,
-    //     contract: string,
-    //     amount: number,
-    //     fee: number,
-    //     storageLimit: number,
-    //     gasLimit: number,
-    //     entrypoint: string | undefined,
-    //     parameters: string | undefined,
-    //     parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
-    // ): Promise<{ gas: number, storageCost: number }> {
-    //     const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-    //     const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
+    /**
+     * Origination dry-run to get consumed gas and storage numbers
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {string} contract Contract address
+     * @param {number} amount Amount to transfer along with the invocation
+     * @param {number} fee Operation fee
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
+     * @param {string|undefined} entrypoint Contract entry point
+     * @param {string|undefined} parameters Contract arguments
+     * @param {TezosParameterFormat} parameterFormat Contract argument format
+     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     */
+    export async function testContractDeployOperation(
+        server: string,
+        chainid: string,
+        keyStore: KeyStore,
+        contract: string,
+        amount: number,
+        fee: number,
+        storageLimit: number,
+        gasLimit: number,
+        entrypoint: string | undefined,
+        parameters: string | undefined,
+        parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
+    ): Promise<{ gas: number, storageCost: number }> {
+        const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
+        const transaction = constructContractInvocationOperation(
+            keyStore.publicKeyHash,
+            counter,
+            contract,
+            amount,
+            fee,
+            storageLimit,
+            gasLimit,
+            entrypoint,
+            parameters,
+            parameterFormat
+        );
 
-    //     return estimateOperation(server, chainid, transaction)
-    // }
-
+        return estimateOperation(server, chainid, transaction)
+    }
 
     /**
-        * Operation dry-run to get consumed gas and storage numbers
-        *
-        * @param {string} server Tezos node to connect to
-        * @param {string} chainid 
-        * @param {KeyStore} keyStore Key pair along with public key hash
-        * @param {string} to Contract address
-        * @param {number} amount Amount to transfer along with the invocation
-        * @param {number} fee Operation fee
-        * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-        * @param {string} storage_limit Storage fee
-        * @param {string} gas_limit Gas limit
-        * @param {string} entrypoint Contract entry point
-        * @param {string} parameters Contract arguments
-        * @param {TezosParameterFormat} parameterFormat Contract argument format
-        * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
-        */
-    // TODO: Shouldn't htis take append.
+     * Dry run the given operation and return consumed resources. 
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {TezosP2PMessageTypes.Operation} operation The operation to estimate.
+     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     */
+    // TODO: Add support for multiple operations as this will fail if a reveal operation is required.
     export async function estimateOperation(
         server: string,
         chainid: string,
