@@ -359,9 +359,9 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
      * @param {number} fee Operation fee
-     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {string|undefined} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {number} storageLimit Storage fee
      * @param {number} gasLimit Gas limit
      * @param {string} code Contract code
@@ -404,7 +404,7 @@ export namespace TezosNodeWriter {
      * 
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
      * @param {number} fee Operation fee
      * @param {number} storageLimit Storage fee
      * @param {number} gasLimit Gas limit
@@ -590,7 +590,7 @@ export namespace TezosNodeWriter {
      * Operation dry-run to get consumed gas and storage numbers
      *
      * @param {string} server Tezos node to connect to
- * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {string} chainid The chain ID to apply the operation on. 
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} contract Contract address
      * @param {number} amount Amount to transfer along with the invocation
@@ -639,42 +639,42 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {string} contract Contract address
-     * @param {number} amount Amount to transfer along with the invocation
+     * @param {number} amount Initial funding amount of new account
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
      * @param {number} fee Operation fee
      * @param {number} storageLimit Storage fee
      * @param {number} gasLimit Gas limit
-     * @param {string|undefined} entrypoint Contract entry point
-     * @param {string|undefined} parameters Contract arguments
-     * @param {TezosParameterFormat} parameterFormat Contract argument format
+     * @param {string} code Contract code
+     * @param {string} storage Initial storage value
+     * @param {TezosParameterFormat} codeFormat Code format
      * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
      */
     export async function testContractDeployOperation(
         server: string,
         chainid: string,
         keyStore: KeyStore,
-        contract: string,
         amount: number,
+        delegate: string | undefined,
         fee: number,
         storageLimit: number,
         gasLimit: number,
-        entrypoint: string | undefined,
-        parameters: string | undefined,
-        parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
+        code: string,
+        storage: string,
+        codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{ gas: number, storageCost: number }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const transaction = constructContractInvocationOperation(
-            keyStore.publicKeyHash,
-            counter,
-            contract,
+        const transaction = constructContractOriginationOperation(
+            keyStore,
             amount,
+            delegate,
             fee,
             storageLimit,
             gasLimit,
-            entrypoint,
-            parameters,
-            parameterFormat
-        );
+            code,
+            storage,
+            codeFormat,
+            counter
+        )
 
         return estimateOperation(server, chainid, transaction)
     }
