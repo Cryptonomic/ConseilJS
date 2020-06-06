@@ -676,7 +676,14 @@ export namespace TezosNodeWriter {
             counter
         )
 
-        return estimateOperation(server, chainid, transaction)
+        const resources = await estimateOperation(server, chainid, transaction)
+
+        // A fixed storage cost is applied to new contract originations which is not included in the estimation response.
+        const fixedOriginationStorageCost = 257
+        return {
+            gas: resources.gas,
+            storageCost: resources.storageCost + fixedOriginationStorageCost
+        }
     }
 
     /**
@@ -706,6 +713,12 @@ export namespace TezosNodeWriter {
         parseRPCError(responseText);
 
         const responseJSON = JSON.parse(responseText);
+
+        console.log("\n\n\n")
+        console.log("ESTIMATION RESPONSE: ")
+        console.log(JSON.stringify(responseJSON))
+        console.log("\n\n\n")
+
         let gas = 0;
         let storageCost = 0;
         for (let c of responseJSON['contents']) {
