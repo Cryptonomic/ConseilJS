@@ -714,18 +714,22 @@ export namespace TezosNodeWriter {
 
         const responseJSON = JSON.parse(responseText);
 
-        console.log("\n\n\n")
-        console.log("ESTIMATION RESPONSE: ")
-        console.log(JSON.stringify(responseJSON))
-        console.log("\n\n\n")
-
         let gas = 0;
         let storageCost = 0;
         for (let c of responseJSON['contents']) {
+            // Process main operation.
             try {
-                gas = parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
-                storageCost = parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
+                gas += parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
+                storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
             } catch { }
+
+            // Process internal operations.
+            const internalOperations = c['metadata']['internal_operation_results']
+            for (const internalOperation of internalOperations) {
+                const result = internalOperation['result']
+                gas += parseInt(result['consumed_gas']) || 0
+                storageCost += parseInt(result['paid_storage_size_diff']) || 0;
+            }
         }
 
         return { gas, storageCost };
