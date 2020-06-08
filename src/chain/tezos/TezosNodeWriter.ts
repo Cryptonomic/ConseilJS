@@ -723,8 +723,11 @@ export namespace TezosNodeWriter {
                 storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
             } catch { }
 
-            // Process internal operations.
+            // Process internal operations if they are present.
             const internalOperations = c['metadata']['internal_operation_results']
+            if (internalOperations === undefined) {
+                continue
+            }
             for (const internalOperation of internalOperations) {
                 const result = internalOperation['result']
                 gas += parseInt(result['consumed_gas']) || 0
