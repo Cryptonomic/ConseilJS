@@ -1,42 +1,24 @@
-# Config adapted from:
-# https://www.electron.build/multi-platform-build#sample-travisyml-to-build-electron-app-for-macos-linux-and-windows
+language : node_js
+
 env:
-  global:
-    - COVERALLS_PARALLEL=true
-sudo: true
-matrix:
-  include:
-    - os: linux
-      services: docker
-      language: node_js
-      node_js:
-        - 12.14
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - libudev-dev
-            - libusb-1.0-0-dev
-            - g++-4.8
-            - g++-4.8-multilib
-            - icnsutils
-            - graphicsmagick
-            - xz-utils
-            - xorriso
-            - rpm
+    jobs:
+        - PROJECT_DIR=ConseilJS-core
+        - PROJECT_DIR=ConseilJS-softsigner
+        - PROJECT_DIR=ConseilJS-ledgersigner
+
+node_js:
+    - 12.16
 
 cache:
-  yarn: true
-  directories:
-    - node_modules
+    directories:
+        - node_modules
 
-install:
-  - npm install
+before_script:
+    - cd $PROJECT_DIR
+    - npm install
 
 script:
-  - node --version
-  - npm run package
+    - npm run package
 
 after_success:
-  - npm run coverage
+    - npm run coverage
