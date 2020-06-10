@@ -412,7 +412,7 @@ export namespace TezosNodeWriter {
      * @param {string} storage Initial storage value
      * @param {TezosParameterFormat} codeFormat Code format
      */
-    function constructContractOriginationOperation(
+    export function constructContractOriginationOperation(
         keyStore: KeyStore,
         amount: number,
         delegate: string | undefined,
@@ -490,7 +490,7 @@ export namespace TezosNodeWriter {
      * Creates a transaction object for contract invocation.
      *
      */
-    function constructContractInvocationOperation(
+    export function constructContractInvocationOperation(
         publicKeyHash: string,
         counter: number,
         to: string,
