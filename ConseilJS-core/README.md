@@ -1,4 +1,4 @@
-# ConseilJS
+# ConseilJS-core
 
 [![npm version](https://img.shields.io/npm/v/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
 [![npm](https://img.shields.io/npm/dm/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
@@ -8,7 +8,7 @@
 
 A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
 
-ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax.io), [Mininax](https://mininax.io) and certainly [Galleon](https://galleon-wallet.tech). There are now [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
+ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax.io), [Mininax](https://mininax.io) and certainly [Galleon](https://cryptonomic.tech/galleon.html). There are [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
 
 Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
@@ -18,10 +18,11 @@ As of version 5.0.0, ConseilJS has been split into three parts: this library, wh
 
 ## Use with Nodejs
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project and a signing library.
 
 ```bash
 npm i conseiljs
+npm i conseiljs-softsigner
 ```
 
 ```javascript
@@ -29,6 +30,7 @@ import fetch from 'node-fetch';
 import * as log from 'loglevel';
 
 import { registerFetch, registerLogger } from 'conseiljs';
+import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 const logger = log.getLogger('conseiljs');
 logger.setLevel('debug', false);
@@ -70,9 +72,9 @@ There are many ways to contribute to this project. You can develop applications 
 
 ## Other references
 
-Developer Handbook
+[Developer Handbook](https://handbook.cryptonomic.tech/)
 
-Curriculum
+[Smart Contract Development Syllabus](https://medium.com/the-cryptonomic-aperiodical/smart-contract-development-syllabus-f285a8463a4d)
 
 [Wiki](https://github.com/Cryptonomic/ConseilJS/wiki/Tutorial:-Querying-for-Tezos-alphanet-data-using-the-ConseilJS-v2-API)
 
