@@ -3,12 +3,15 @@
 
 ## 0.4.3
 
+### New Features
+
+- Improved operation cost estimation for nested operations, thank you @keefertaylor!
+- Added contract deployment cost estimation, thank you @keefertaylor!
+
 ### Fixes
 
 - `TezosNodeReader.getMempoolOperationsForAccount` no longer throws a JSON parse error.
 - `DUP n` is now parsed correctly.
-- Improved operation cost estimation for nested operations, thank you @keefertaylor!
-- Added contract deployment cost estimation, thank you @keefertaylor!
 - Ported Map parameter parsing from ConseilJS 5.0.x.
 
 ## 0.4.2
