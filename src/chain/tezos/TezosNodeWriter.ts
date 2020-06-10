@@ -237,7 +237,7 @@ export namespace TezosNodeWriter {
         operationQueues[k].addOperations(...operations);
     }
 
-    export function getQueueStatus(server: string, keyStore: KeyStore, derivationPath: string = ''){
+    export function getQueueStatus(server: string, keyStore: KeyStore, derivationPath: string = '') {
         const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}${derivationPath}`, null, 16);
 
         if (operationQueues[k]) {
@@ -359,11 +359,11 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
-     * @param {string} delegate Account ID to delegate to, blank if none
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
      * @param {number} fee Operation fee
-     * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
-     * @param {string} storage_limit Storage fee
-     * @param {string} gas_limit Gas limit
+     * @param {string|undefined} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
      * @param {string} code Contract code
      * @param {string} storage Initial storage value
      * @param {TezosParameterFormat} codeFormat Code format
@@ -375,12 +375,55 @@ export namespace TezosNodeWriter {
         delegate: string | undefined,
         fee: number,
         derivationPath: string | undefined,
-        storage_limit: number,
-        gas_limit: number,
+        storageLimit: number,
+        gasLimit: number,
         code: string,
         storage: string,
         codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ) {
+        const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
+        const operation = constructContractOriginationOperation(
+            keyStore,
+            amount,
+            delegate,
+            fee,
+            storageLimit,
+            gasLimit,
+            code,
+            storage,
+            codeFormat,
+            counter
+        )
+
+        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [operation]);
+        return sendOperation(server, operations, keyStore, derivationPath);
+    }
+
+    /**
+     * Construct a contract origination operation. 
+     * 
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {number} amount Initial funding amount of new account
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
+     * @param {number} fee Operation fee
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
+     * @param {string} code Contract code
+     * @param {string} storage Initial storage value
+     * @param {TezosParameterFormat} codeFormat Code format
+     */
+    export function constructContractOriginationOperation(
+        keyStore: KeyStore,
+        amount: number,
+        delegate: string | undefined,
+        fee: number,
+        storageLimit: number,
+        gasLimit: number,
+        code: string,
+        storage: string,
+        codeFormat: TezosTypes.TezosParameterFormat,
+        counter: number
+    ): TezosP2PMessageTypes.Origination {
         let parsedCode: any = undefined;
         let parsedStorage: any = undefined;
 
@@ -394,23 +437,18 @@ export namespace TezosNodeWriter {
             parsedCode = JSON.parse(code);
             parsedStorage = JSON.parse(storage); // TODO: handle empty storage
         }
-   
-        const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
-        const origination: TezosP2PMessageTypes.Origination = {
+        return {
             kind: 'origination',
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: counter.toString(),
-            gas_limit: gas_limit.toString(),
-            storage_limit: storage_limit.toString(),
+            gas_limit: gasLimit.toString(),
+            storage_limit: storageLimit.toString(),
             balance: amount.toString(),
             delegate: delegate,
             script: { code: parsedCode, storage: parsedStorage }
         };
-        const operations = await appendRevealOperation(server, keyStore, keyStore.publicKeyHash, counter - 1, [origination]);
-
-        return sendOperation(server, operations, keyStore, derivationPath);
     }
 
     /**
@@ -452,7 +490,7 @@ export namespace TezosNodeWriter {
      * Creates a transaction object for contract invocation.
      *
      */
-    function constructContractInvocationOperation(
+    export function constructContractInvocationOperation(
         publicKeyHash: string,
         counter: number,
         to: string,
@@ -486,7 +524,7 @@ export namespace TezosNodeWriter {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineLambda) };
             }
         } else if (entrypoint !== undefined) {
-            transaction.parameters = { entrypoint: entrypoint, value: [ ] };
+            transaction.parameters = { entrypoint: entrypoint, value: [] };
         }
 
         return transaction;
@@ -552,16 +590,16 @@ export namespace TezosNodeWriter {
      * Operation dry-run to get consumed gas and storage numbers
      *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid 
+     * @param {string} chainid The chain ID to apply the operation on. 
      * @param {KeyStore} keyStore Key pair along with public key hash
-     * @param {string} to Contract address
+     * @param {string} contract Contract address
      * @param {number} amount Amount to transfer along with the invocation
      * @param {number} fee Operation fee
      * @param {string} derivationPath BIP44 Derivation Path if signed with hardware, empty if signed with software
      * @param {string} storage_limit Storage fee
      * @param {string} gas_limit Gas limit
-     * @param {string} entrypoint Contract entry point
-     * @param {string} parameters Contract arguments
+     * @param {string|undefined} entrypoint Contract entry point
+     * @param {string|undefined} parameters Contract arguments
      * @param {TezosParameterFormat} parameterFormat Contract argument format
      * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
      */
@@ -577,26 +615,124 @@ export namespace TezosNodeWriter {
         entrypoint: string | undefined,
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
-    ): Promise<{gas: number, storageCost: number}> {
+    ): Promise<{ gas: number, storageCost: number }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
+        const transaction = constructContractInvocationOperation(
+            keyStore.publicKeyHash,
+            counter,
+            contract,
+            amount,
+            fee,
+            storageLimit,
+            gasLimit,
+            entrypoint,
+            parameters,
+            parameterFormat
+        );
+
+        return estimateOperation(server, chainid, transaction)
+    }
+
+    /**
+     * Origination dry-run to get consumed gas and storage numbers
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {KeyStore} keyStore Key pair along with public key hash
+     * @param {number} amount Initial funding amount of new account
+     * @param {string|undefined} delegate Account ID to delegate to, blank if none
+     * @param {number} fee Operation fee
+     * @param {number} storageLimit Storage fee
+     * @param {number} gasLimit Gas limit
+     * @param {string} code Contract code
+     * @param {string} storage Initial storage value
+     * @param {TezosParameterFormat} codeFormat Code format
+     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     */
+    export async function testContractDeployOperation(
+        server: string,
+        chainid: string,
+        keyStore: KeyStore,
+        amount: number,
+        delegate: string | undefined,
+        fee: number,
+        storageLimit: number,
+        gasLimit: number,
+        code: string,
+        storage: string,
+        codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
+    ): Promise<{ gas: number, storageCost: number }> {
+        const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
+        const transaction = constructContractOriginationOperation(
+            keyStore,
+            amount,
+            delegate,
+            fee,
+            storageLimit,
+            gasLimit,
+            code,
+            storage,
+            codeFormat,
+            counter
+        )
+
+        const resources = await estimateOperation(server, chainid, transaction)
+
+        // A fixed storage cost is applied to new contract originations which is not included in the estimation response.
+        const fixedOriginationStorageCost = 257
+        return {
+            gas: resources.gas,
+            storageCost: resources.storageCost + fixedOriginationStorageCost
+        }
+    }
+
+    /**
+     * Dry run the given operation and return consumed resources. 
+     * 
+     * Note: Estimating an operation on an unrevealed account is not supported and will fail.
+     *
+     * TODO: Add support for estimating multiple operations so that reveals can be processed.
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {TezosP2PMessageTypes.Operation} operation The operation to estimate.
+     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     */
+    export async function estimateOperation(
+        server: string,
+        chainid: string,
+        operation: TezosP2PMessageTypes.Operation
+    ): Promise<{ gas: number, storageCost: number }> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
         const fake_chainid = 'NetXdQprcVkpaWU';
         const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
 
-        const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [transaction], signature: fake_signature } });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [operation], signature: fake_signature } });
         const responseText = await response.text();
 
         parseRPCError(responseText);
 
         const responseJSON = JSON.parse(responseText);
+
         let gas = 0;
         let storageCost = 0;
         for (let c of responseJSON['contents']) {
+            // Process main operation.
             try {
-                gas = parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
-                storageCost = parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
+                gas += parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
+                storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
             } catch { }
+
+            // Process internal operations if they are present.
+            const internalOperations = c['metadata']['internal_operation_results']
+            if (internalOperations === undefined) {
+                continue
+            }
+            for (const internalOperation of internalOperations) {
+                const result = internalOperation['result']
+                gas += parseInt(result['consumed_gas']) || 0
+                storageCost += parseInt(result['paid_storage_size_diff']) || 0;
+            }
         }
 
         return { gas, storageCost };
@@ -623,23 +759,24 @@ export namespace TezosNodeWriter {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
                 errors = arr.map(r => r.contents)
-                        .map(o => o.map(c => c.metadata.operation_result)
-                                   .filter(r => r.status !== 'applied')
-                                   .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
-                        .join('');
+                    .map(o => o.map(c => c.metadata.operation_result)
+                        .filter(r => r.status !== 'applied')
+                        .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
+                    .join('');
             }
-        } catch (err) { 
-            if (response.startsWith('Failed to parse the request body: ')){
+        } catch (err) {
+            if (response.startsWith('Failed to parse the request body: ')) {
                 errors = response.slice(34);
             } else {
                 const hash = response.replace(/\"/g, '').replace(/\n/, '');
                 if (hash.length === 51 && hash.charAt(0) === 'o') {
                     // TODO: confirm base58check operation hash
                 } else {
-                    log.error(`failed to parse errors: '${err}' from '${response}'\n, PLEASE report this to the maintainers`); }
+                    log.error(`failed to parse errors: '${err}' from '${response}'\n, PLEASE report this to the maintainers`);
                 }
             }
-            
+        }
+
         if (errors.length > 0) { throw new Error(errors); } // TODO: use TezosResponseError
     }
 }
