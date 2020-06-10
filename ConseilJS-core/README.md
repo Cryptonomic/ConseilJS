@@ -52,7 +52,7 @@ TBD
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-w2ohgkc4SNe+uTI3bbScm5ddy/qoZKWA605wjfUaVKCgOZtUezmV3T53vnqav9sF"
+        integrity="sha384-g7ZPuT8xCBXLdgu2vBXWuOiEQIes6tPyFP4DIJBbgGfGSLRkOvET5Ra6dN9AePbQ"
         crossorigin="anonymous"></script>
 ```
 

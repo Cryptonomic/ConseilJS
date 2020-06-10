@@ -21,6 +21,19 @@ The purpose of this release is to split ConseilJS into several parts to minimize
 
 - Michelson parser has several updates that should reduce memory footprint.
 
+## 0.4.3
+
+### New Features
+
+- Improved operation cost estimation for nested operations, thank you @keefertaylor!
+- Added contract deployment cost estimation, thank you @keefertaylor!
+
+### Fixes
+
+- `TezosNodeReader.getMempoolOperationsForAccount` no longer throws a JSON parse error.
+- `DUP n` is now parsed correctly.
+- Ported Map parameter parsing from ConseilJS 5.0.x.
+
 ## 0.4.2
 
 ### New Features
