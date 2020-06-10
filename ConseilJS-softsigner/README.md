@@ -1,1 +1,2 @@
-# ConseilJS-types
+# ConseilJS-softsigner
+
