@@ -1,7 +1,12 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 0.4.3-beta
+## 0.4.3
+
+### New Features
+
+- Improved operation cost estimation for nested operations, thank you @keefertaylor!
+- Added contract deployment cost estimation, thank you @keefertaylor!
 
 ### Fixes
 
