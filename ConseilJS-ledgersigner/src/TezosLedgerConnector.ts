@@ -1,4 +1,4 @@
-import Transport from '@ledgerhq/hw-transport';
+import Transport from '@ledgerhq/hw-transport-node-hid';
 import * as bip32path from 'bip32-path';
 
 export enum Curve { // taken from https://github.com/obsidiansystems/ledger-app-tezos/blob/master/APDUs.md
@@ -14,6 +14,7 @@ export enum Instruction { // taken from https://github.com/obsidiansystems/ledge
     INS_SIGN = 0x04,
     INS_SIGN_UNSAFE = 0x05
 }
+
 class TransportInstance {
     static transport = null;
     static async getInstance() {
@@ -34,6 +35,10 @@ export class TezosLedgerConnector {
 
     public static async getInstance() {
         return new TezosLedgerConnector(await TransportInstance.getInstance());
+    }
+
+    public getDeviceName(): string {
+        return this.transport.deviceModel.productName;
     }
 
     /**

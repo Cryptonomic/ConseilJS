@@ -1,6 +1,6 @@
 {
   "name": "conseiljs-ledgersigner",
-  "version": "5.0.0-alpha.0",
+  "version": "5.0.1-beta.4",
   "description": "",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -60,9 +60,9 @@
   },
   "dependencies": {
     "@ledgerhq/hw-transport": "5.15.0",
-    "@ledgerhq/hw-transport-node-hid": "5.15.0",
+    "@ledgerhq/hw-transport-node-hid": "5.16.0",
     "bip32-path": "0.4.2",
-    "conseiljs": "5.0.0-alpha.2"
+    "conseiljs": "5.0.1-beta.2"
   },
   "devDependencies": {
     "@types/chai": "4.2.11",
