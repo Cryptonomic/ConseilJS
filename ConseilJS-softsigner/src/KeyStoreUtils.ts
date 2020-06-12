@@ -13,7 +13,7 @@ export namespace KeyStoreUtils {
      * 
      * @param strength Number of words to include in the mnemonic, defaults to 256 (24 words).
      */
-    export async function generateMnemonic(strength: number = 256) {
+    export function generateMnemonic(strength: number = 256) {
         return bip39.generateMnemonic(strength);
     }
 
