@@ -161,10 +161,10 @@ It is also possible to create unattached accounts on the chain. This would be th
 ##### **Typescript**
 
 ```typescript
-import { TezosWalletUtil } from 'conseiljs';
+import { KeyStoreUtil } from 'conseiljs-softsigner';
 
 async function createAccount() {
-    const mnemonic = TezosWalletUtil.generateMnemonic();
+    const mnemonic = KeyStoreUtil.generateMnemonic();
     console.log(`mnemonic: ${mnemonic}`);
     const keystore = await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
     console.log(`account id: ${keystore.publicKeyHash}`);
@@ -178,12 +178,12 @@ createAccount();
 ##### **JavaScript**
 
 ```javascript
-const conseiljs = require('conseiljs');
+const conseiljsSoftsigner = require('conseiljs-softsigner');
 
 async function createAccount() {
-    const mnemonic = conseiljs.TezosWalletUtil.generateMnemonic();
+    const mnemonic = conseiljsSoftsigner.KeyStoreUtil.generateMnemonic();
     console.log(`mnemonic: ${mnemonic}`);
-    const keystore = await conseiljs.TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    const keystore = await conseiljsSoftsigner.KeyStoreUtil.unlockIdentityWithMnemonic(mnemonic, '');
     console.log(`account id: ${keystore.publicKeyHash}`);
     console.log(`public key: ${keystore.publicKey}`);
     console.log(`secret key: ${keystore.privateKey}`);

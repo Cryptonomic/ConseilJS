@@ -11,6 +11,14 @@ import { CryptoUtils } from './utils/CryptoUtils'
 export namespace KeyStoreUtils {
     /**
      * 
+     * @param strength Number of words to include in the mnemonic, defaults to 256 (24 words).
+     */
+    export async function generateMnemonic(strength: number = 256) {
+        return bip39.generateMnemonic(strength);
+    }
+
+    /**
+     * 
      * @param strength 
      * @param password 
      * @param mnemonic 
@@ -35,18 +43,18 @@ export namespace KeyStoreUtils {
     }
 
     /**
+     * Produced a keypair from the provided seed and optional password using the ED25519 curve.
      * 
-     * 
-     * @param mnemonic 
+     * @param mnemonic Space-sepatd BIP39 words
      * @param password 
      * @param pkh 
      * @param derivationPath 
      */
-    export async function restoreIdentityFromMnemonic(mnemonic: string, password: string, pkh?: string, derivationPath?: string): Promise<KeyStore> {
+    export async function restoreIdentityFromMnemonic(mnemonic: string, password: string = '', pkh?: string, derivationPath?: string): Promise<KeyStore> {
         if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) { throw new Error('Invalid mnemonic length.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
-        const seed = (await bip39.mnemonicToSeed(mnemonic, password)).slice(0, 32);
+        const seed = (await bip39.mnemonicToSeed(mnemonic.split(' ').join(''), password)).slice(0, 32);
         const keys = await generateKeys(seed);
         const secretKey = TezosMessageUtils.readKeyWithHint(keys.secretKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');

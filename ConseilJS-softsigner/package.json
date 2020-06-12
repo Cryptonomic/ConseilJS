@@ -1,6 +1,6 @@
 {
   "name": "conseiljs-softsigner",
-  "version": "5.0.1-beta",
+  "version": "5.0.1-beta.4",
   "description": "ConseilJS software signer plugin for ConseilJS-core. Supports the ED25519 curve via libsodium for tz1-address operations.",
   "browser": "dist/index.js",
   "main": "dist/index.js",
@@ -65,7 +65,7 @@
   },
   "dependencies": {
     "bip39": "3.0.2",
-    "conseiljs": "5.0.1-beta",
+    "conseiljs": "5.0.1-beta.2",
     "libsodium-wrappers-sumo": "0.7.6"
   },
   "devDependencies": {
