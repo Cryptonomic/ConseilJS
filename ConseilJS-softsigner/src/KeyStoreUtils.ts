@@ -54,7 +54,7 @@ export namespace KeyStoreUtils {
         if (![12, 15, 18, 21, 24].includes(mnemonic.split(' ').length)) { throw new Error('Invalid mnemonic length.'); }
         if (!bip39.validateMnemonic(mnemonic)) { throw new Error('The given mnemonic could not be validated.'); }
 
-        const seed = (await bip39.mnemonicToSeed(mnemonic.split(' ').join(''), password)).slice(0, 32);
+        const seed = (await bip39.mnemonicToSeed(mnemonic, password)).slice(0, 32);
         const keys = await generateKeys(seed);
         const secretKey = TezosMessageUtils.readKeyWithHint(keys.secretKey, 'edsk');
         const publicKey = TezosMessageUtils.readKeyWithHint(keys.publicKey, 'edpk');

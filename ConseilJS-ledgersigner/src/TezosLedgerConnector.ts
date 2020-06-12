@@ -71,7 +71,6 @@ export class TezosLedgerConnector {
      * @param {Curve} curve Curve, defaults to ED25519
      */
     async signOperation(path: string, bytes: Buffer, curve: Curve = Curve.ED25519): Promise<string> {
-        console.log('signOperation', bytes);
         return this.sign(path, curve, Instruction.INS_SIGN, bytes);
     }
 
