@@ -20,7 +20,7 @@ export class SoftSigner implements Signer {
      * @returns {Buffer} Signature
      */
     public async sign(bytes: Buffer): Promise<Buffer> {
-        return CryptoUtils.signDetached(bytes, this.secretKey);
+        return CryptoUtils.signDetached(TezosMessageUtils.simpleHash(bytes, 32), this.secretKey);
     }
 
     /**

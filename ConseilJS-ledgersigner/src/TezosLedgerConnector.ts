@@ -37,6 +37,10 @@ export class TezosLedgerConnector {
         return new TezosLedgerConnector(await TransportInstance.getInstance());
     }
 
+    public getDeviceName(): string {
+        return this.transport.deviceModel.productName;
+    }
+
     /**
      * Get Tezos public key hash for a given BIP32/44 path and curve. Convention for Tezos derivation paths is 44'/1729'/n'/n'/n'.
      * 
@@ -67,6 +71,7 @@ export class TezosLedgerConnector {
      * @param {Curve} curve Curve, defaults to ED25519
      */
     async signOperation(path: string, bytes: Buffer, curve: Curve = Curve.ED25519): Promise<string> {
+        console.log('signOperation', bytes);
         return this.sign(path, curve, Instruction.INS_SIGN, bytes);
     }
 
