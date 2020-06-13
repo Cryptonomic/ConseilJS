@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha --require ts-node/register \"test/**/TezosNodeWriter.spec.ts\"",
+    "test": "mocha --require ts-node/register \"test/**/*.spec.ts\"",
     "integration-test": "mocha --require ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "coverage": "nyc mocha \"test/**/*.spec.ts\" || nyc report | coveralls",
@@ -172,6 +172,5 @@
     "full-trace": true,
     "timeout": 20000,
     "bail": false
-    
   }
 }
