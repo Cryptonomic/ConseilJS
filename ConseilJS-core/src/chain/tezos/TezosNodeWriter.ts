@@ -78,7 +78,7 @@ export namespace TezosNodeWriter {
 
         let optypes = Array.from(operations.map(o => o["kind"]));
         let validate = false;
-        for (let t in optypes) {
+        for (let t of optypes) {
             validate = ['reveal', 'transaction', 'delegation', 'origination'].includes(t);
             if (validate) { break; }
         }
