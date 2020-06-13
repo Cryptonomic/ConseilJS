@@ -110,9 +110,9 @@ export namespace TezosNodeReader {
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      * @returns {Promise<string>} Manager public key
      */
-    export function getAccountManagerForBlock(server: string, block: string, accountHash: string, chainid: string = 'main'): Promise<string> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/manager_key`)
-            .then(result => (result && result.toString() !== 'null') ? result.toString() : '').catch(err => '');
+    export async function getAccountManagerForBlock(server: string, block: string, accountHash: string, chainid: string = 'main'): Promise<string> {
+        const key = await performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/manager_key`);
+        return key ? key.toString() : '';
     }
 
     /**
@@ -140,7 +140,6 @@ export namespace TezosNodeReader {
      */
     export async function isManagerKeyRevealedForAccount(server: string, accountHash: string): Promise<boolean> {
         const managerKey = await getAccountManagerForBlock(server, 'head', accountHash);
-
         return managerKey.length > 0;
     }
 

@@ -9,7 +9,8 @@
     "strict": true,
     "noImplicitAny": false,
     "baseUrl": "src",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules"

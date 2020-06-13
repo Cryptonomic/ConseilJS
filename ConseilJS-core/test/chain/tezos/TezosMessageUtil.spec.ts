@@ -1,6 +1,6 @@
 import { expect } from 'chai';
+
 import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
-import 'mocha';
 import { TezosParameterFormat } from '../../../src/types/tezos/TezosChainTypes';
 
 describe('Tezos P2P message codec helper tests', () => {

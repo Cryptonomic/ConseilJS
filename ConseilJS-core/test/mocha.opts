@@ -1,5 +1,0 @@
---require source-map-support/register
---require ts-node/register
---full-trace
---timeout 20000
---bail false

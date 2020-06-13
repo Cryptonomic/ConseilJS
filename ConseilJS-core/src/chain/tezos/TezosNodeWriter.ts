@@ -68,11 +68,11 @@ export namespace TezosNodeWriter {
      *
      * @returns {Promise<string>} Forged operation bytes (as a hex string)
      */
-    export async function forgeOperationsRemotely(server: string, blockHead: TezosRPCTypes.TezosBlock, operations: TezosP2PMessageTypes.Operation[], chainid: string = 'main'): Promise<string> {
+    export async function forgeOperationsRemotely(server: string, branch: string, operations: TezosP2PMessageTypes.Operation[], chainid: string = 'main'): Promise<string> {
         log.debug('TezosNodeWriter.forgeOperations:');
         log.debug(JSON.stringify(operations));
         log.warn('forgeOperationsRemotely() is not intrinsically trustless');
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/forge/operations`, { branch: blockHead.hash, contents: operations });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/forge/operations`, { branch: branch, contents: operations });
         const forgedOperation = await response.text();
         const ops = forgedOperation.replace(/\n/g, '').replace(/['"]+/g, '');
 

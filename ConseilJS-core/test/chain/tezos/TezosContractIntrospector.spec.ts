@@ -1,5 +1,4 @@
 import { expect } from 'chai';
-import 'mocha';
 
 import { TezosContractIntrospector } from '../../../src/chain/tezos/TezosContractIntrospector';
 import { Parameter, EntryPoint } from '../../../src/types/tezos/ContractIntrospectionTypes';

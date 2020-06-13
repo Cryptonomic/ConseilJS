@@ -1,0 +1,19 @@
+{
+    "accounts": [
+        {
+            "publicKeyHash": "tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy",
+            "publicKey": "edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj",
+            "secretKey": "edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH"
+        },
+        {
+            "publicKeyHash": "tz1PeujDVukPiHypGRVVsZaAzXjtWAMxu1bn",
+            "publicKey": "edpktfRaYy9C4jhJCXYecwn63AgnfDQcserE2WUH3ZkJ5gksdwHYFm",
+            "secretKey": "edskRtkDq2Z2Z9jMfYjiBvwqky6E7xK8uXxBVnSTdUTALeyqckSdkaSnLSCpx4HCNBBMoLcLo9254tYvBVeoPzfb92xWSHhTSb"
+        }
+    ],
+    "contracts": {
+        "basicContract": {
+            "address": ""
+        }
+    }
+}

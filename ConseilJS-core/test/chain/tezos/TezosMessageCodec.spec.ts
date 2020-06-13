@@ -2,7 +2,6 @@ import { expect } from "chai";
 import { TezosMessageCodec } from "../../../src/chain/tezos/TezosMessageCodec";
 import { Activation, Ballot, BallotVote, Reveal, Origination, Transaction, Delegation } from "../../../src/types/tezos/TezosP2PMessageTypes";
 import { OperationKindType } from "../../../src/types/tezos/TezosChainTypes";
-import "mocha";
 
 describe("Tezos P2P message decoder test suite", () => {
     it("correctly parse a transaction (send from tz1 to tz1)", () => {
