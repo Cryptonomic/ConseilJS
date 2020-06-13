@@ -5,7 +5,6 @@ import { KeyStoreUtils } from '../src/KeyStoreUtils';
 
 use(chaiAsPromised);
 
-
 describe('KeyStoreUtils tests', () => {
     it('generateMnemonic 24-words', async () => {
         expect(KeyStoreUtils.generateMnemonic().split(' ').length).to.equal(24);
@@ -40,7 +39,18 @@ describe('KeyStoreUtils tests', () => {
     });
 
     it('restoreIdentityFromMnemonic fail verification', async () => {
-        
+        await expect(KeyStoreUtils.restoreIdentityFromMnemonic('resist winner shift attract issue penalty feed disease guess ridge grace warfare brave cause jar track exhibit movie seminar light broken light few tomato', 'Nachos Tacos', 'tz1WRm1WMpioh4Gm1eopgvudaEoY6wX7cTTg'))
+            .to.be.rejectedWith('The given mnemonic and passphrase do not correspond to the supplied public key hash');
+    });
+
+    it('restoreIdentityFromMnemonic fail mnemonic length', async () => {
+        await expect(KeyStoreUtils.restoreIdentityFromMnemonic('resist winner shift'))
+            .to.be.rejectedWith('Invalid mnemonic length.');
+    });
+
+    it('restoreIdentityFromMnemonic fail mnemonic length', async () => {
+        await expect(KeyStoreUtils.restoreIdentityFromMnemonic('coffee c0ffee c0ff33 coffee c0ffee c0ff33 coffee c0ffee c0ff33 coffee c0ffee c0ff33 coffee c0ffee c0ff33'))
+            .to.be.rejectedWith('The given mnemonic could not be validated.');
     });
 
     it('restoreIdentityFromFundraiser', async () => {
