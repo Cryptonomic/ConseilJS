@@ -7,3 +7,4 @@ const mochaAsync = (fn) => {
   };
   
   export default mochaAsync;
+  
