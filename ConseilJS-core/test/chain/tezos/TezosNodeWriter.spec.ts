@@ -8,7 +8,7 @@ import { registerFetch, registerLogger } from '../../../src/index';
 import { KeyStoreUtils, SoftSigner } from '../../../../ConseilJS-softsigner';
 
 import mochaAsync from '../../mochaTestHelper';
-import { accounts } from "../../_staticData/accounts.json";
+import { accounts, contracts, drips } from "../../_staticData/accounts.json";
 import * as responses from "../../_staticData/TezosResponses.json";
 
 import { TezosNodeWriter } from "../../../src/chain/tezos/TezosNodeWriter";
@@ -19,9 +19,11 @@ use(chaiAsPromised);
 
 describe('TezosNodeWriter tests', () => {
     const serverUrl = 'https://tezos.node';
-    const server = nock(serverUrl);
-    let signer: Signer;
+
     let keyStore: KeyStore;
+    let signer: Signer;
+    let faucetKeyStore: KeyStore;
+    let faucetSigner: Signer;
 
     before(mochaAsync(async () => {
         const logger = log.getLogger('conseiljs');
@@ -32,18 +34,16 @@ describe('TezosNodeWriter tests', () => {
         keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey(accounts[0].secretKey);
         signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
 
-        server.persist().get(`/chains/main/blocks/head`)
-            .reply(200, responses['blocks/head']);
-        server.persist().get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`)
-            .reply(200, responses['chains/main/blocks/head/context/contracts/tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy/counter']);
-        server.persist().get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`)
-            .reply(200, responses['chains/main/blocks/head/context/contracts/tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy/manager_key']);
+        faucetKeyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(drips[0].mnemonic.join(' '), drips[0].email, drips[0].password, drips[0].pkh);
+        faucetSigner = new SoftSigner(TezosMessageUtils.writeKeyWithHint(faucetKeyStore.secretKey, 'edsk'));
     }));
 
     it('forgeOperationsRemotely test', mochaAsync(async () => {
-        server.filteringRequestBody(body => '*')
+        const server = nock(serverUrl);
+        server
+            .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/forge/operations`)
-            .reply(200, responses['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy-forgeOperationsRemotely-success'])
+                .reply(200, responses[`${accounts[0].publicKeyHash}-forgeOperationsRemotely-success`])
 
         const transaction = {
             kind: 'transaction',
@@ -56,7 +56,7 @@ describe('TezosNodeWriter tests', () => {
             destination: accounts[1].publicKeyHash,
         }
 
-        const sendResult = await TezosNodeWriter.forgeOperationsRemotely(serverUrl, responses['blocks/head'].hash, [transaction]);
+        const sendResult = await TezosNodeWriter.forgeOperationsRemotely(serverUrl, responses['sendTransactionOperation-blocks/head'].hash, [transaction]);
         expect(sendResult).to.exist;
         expect(sendResult).to.be.a('string');
     }));
@@ -70,11 +70,20 @@ describe('TezosNodeWriter tests', () => {
     it('appendRevealOperation test', mochaAsync(async () => { }));
 
     it('sendTransactionOperation test', mochaAsync(async () => {
-        server.filteringRequestBody(body => '*')
+        const server = nock(serverUrl);
+        server
+            .get(`/chains/main/blocks/head`)
+                .reply(200, responses['sendTransactionOperation-blocks/head'])
+        server
+            .get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`)
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`])
+            .get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`)
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`])
+            .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/preapply/operations`)
-            .reply(200, responses['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy-sendTransactionOperation-preapply-success'])
+                .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
             .post(`/injection/operation?chain=main`)
-            .reply(200, responses['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy-sendTransactionOperation-injection-success']);
+                .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
 
         const destination = 'tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa';
         const amount = 1_000;
@@ -84,6 +93,31 @@ describe('TezosNodeWriter tests', () => {
 
         expect(sendResult).to.exist;
         expect(sendResult.operationGroupID).to.equal('"onjsJjd5jK6yA3V3g4bQ1UVdeLzBePaVmNybG4yzhePeXyFhPLB"');
+    }));
+
+    it('sendTransactionOperation test with Reveal', mochaAsync(async () => {
+        const server = nock(serverUrl);
+        server
+            .get(`/chains/main/blocks/head`)
+                .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
+            .get(`/chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/counter`)
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/counter`])
+            .get(`/chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/manager_key`)
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/manager_key`])
+            .filteringRequestBody(body => '*')
+            .post(`/chains/main/blocks/head/helpers/preapply/operations`)
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
+            .post(`/injection/operation?chain=main`)
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
+
+        const destination = accounts[0].publicKeyHash;
+        const amount = 1_000;
+        const fee = 100_000;
+
+        const sendResult = await TezosNodeWriter.sendTransactionOperation(serverUrl, faucetSigner, faucetKeyStore, destination, amount, fee);
+
+        expect(sendResult).to.exist;
+        expect(sendResult.operationGroupID).to.equal('"onot1enXXuvjebJSnp1zAfvpAefmaHidw7U6FEDvUXrP63w6QBc"');
     }));
 
     it('sendDelegationOperation test', mochaAsync(async () => { }));
@@ -98,9 +132,27 @@ describe('TezosNodeWriter tests', () => {
 
     it('sendKeyRevealOperation test', mochaAsync(async () => { }));
 
-    it('sendIdentityActivationOperation test', mochaAsync(async () => { }));
+    it('sendIdentityActivationOperation test', mochaAsync(async () => {
+        const server = nock(serverUrl);
+        server
+            .get(`/chains/main/blocks/head`)
+                .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
+            .filteringRequestBody(body => '*')
+            .post(`/chains/main/blocks/head/helpers/preapply/operations`)
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-preapply-success`])
+            .post(`/injection/operation?chain=main`)
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-injection-success`]);
+                
+
+        const sendResult = await TezosNodeWriter.sendIdentityActivationOperation(serverUrl, faucetSigner, faucetKeyStore, drips[0].secret);
+
+        expect(sendResult).to.exist;
+        expect(sendResult.operationGroupID).to.equal('"ooZ5Yc4bzUK76eXh4h5SBAMtMTBXhrHwVQe6McwfJsfrtXbnsPr"');
+    }));
 
     it('testContractInvocationOperation test', mochaAsync(async () => { }));
 
     it('testContractDeployOperation test', mochaAsync(async () => { }));
+
+    it('estimateOperation test', mochaAsync(async () => { }));
 });

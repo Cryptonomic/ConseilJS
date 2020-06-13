@@ -15,5 +15,23 @@
         "basicContract": {
             "address": ""
         }
-    }
+    },
+    "drips": [
+        {
+            "mnemonic": [ "solve", "situate", "timber", "panther", "guide", "media", "dad", "style", "govern", "bracket", "hurry", "okay", "slide", "ripple", "rug" ],
+            "secret": "03e04299bb331d9855e1e0c86d684dceeff4f60e",
+            "amount": "32492613852",
+            "pkh": "tz1MRXFvJdkZdsr4CpGNB9dwA37LvMoNf7pM",
+            "password": "8PXlLLjH6e",
+            "email": "tsmnpgbq.ltvhiwzm@tezos.example.org"
+        },
+        {
+            "mnemonic": [ "thunder", "marine", "shadow", "meadow", "toward", "nephew", "illness", "hammer", "trouble", "library", "canoe", "movie", "floor", "little", "start" ],
+            "secret": "5b27ab56f38d5a3b9b13a727b2822f8f5240fb82",
+            "amount": "58463975189",
+            "pkh": "tz1S6wUjuHNWWfpXgHtA6hqyNWHbJQCTT5Gj",
+            "password": "HMFqwfBdtL",
+            "email": "crepyfal.evrmhdjv@tezos.example.org"
+          }
+    ]
 }
