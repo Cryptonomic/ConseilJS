@@ -1,64 +1,39 @@
-import { expect } from 'chai';
+import { expect, use } from "chai";
+import chaiAsPromised from 'chai-as-promised';
+import nock from 'nock';
+import fetch from 'node-fetch';
+import * as log from 'loglevel';
+
+import { registerFetch, registerLogger } from '../../../src/index';
+
+import mochaAsync from '../../mochaTestHelper';
+import * as responses from "../../_staticData/ConseilResponses.json";
 
 import { TezosContractIntrospector } from '../../../src/chain/tezos/TezosContractIntrospector';
-import { Parameter, EntryPoint } from '../../../src/types/tezos/ContractIntrospectionTypes';
 
+use(chaiAsPromised);
 
-describe("Generate EntryPoints From Params", () => {
-    it('multi-sig', async () => { // https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/multisig.tz as of 2019/dec/30
-        const entryPoints = await TezosContractIntrospector.generateEntryPointsFromParams(`parameter
-            (pair
-              (pair :payload
-                (nat %counter) # counter, used to prevent replay attacks
-                (or :action    # payload to sign, represents the requested action
-                  (pair :transfer    # transfer tokens
-                    (mutez %amount) # amount to transfer
-                    (contract %dest unit)) # destination to transfer to
-                  (or
-                    (option %delegate key_hash) # change the delegate to this address
-                    (pair %change_keys          # change the keys controlling the multisig
-                      (nat %threshold)         # new threshold
-                      (list %keys key)))))     # new list of keys
-            (list %sigs (option signature)));    # signatures`);
+describe("TezosContractIntrospector test", () => {
+    const serverConfig = { url: 'https://conseil.server', apiKey: 'key', network: 'mainnet' };
+    
+    before(mochaAsync(async () => {
+        const logger = log.getLogger('conseiljs');
+        logger.setLevel('error', false);
+        registerLogger(logger);
+        registerFetch(fetch);
+    }));
 
-        entryPoints.forEach(e => {
-            console.log(formatEntryPoint(e));
-            //console.log(`invocation pattern: ${e.generateInvocationString()}`);
-            console.log(`invocation pattern: ${e.generateSampleInvocation()}`);
-        });
+    it('getAccountForBlock test', mochaAsync(async () => {
+        const server = nock(serverConfig.url);
+        server
+            .filteringRequestBody(body => '*')
+            .post(`/v2/data/tezos/mainnet/accounts`)
+                .reply(200, responses['KT1UvS7eBoNoP7qmGkfPtTGM7s7pYxLnkUzR-/v2/data/tezos/mainnet/accounts']);
 
-        expect(entryPoints.length).to.be.greaterThan(0);
-    });
+        const result = await TezosContractIntrospector.generateEntryPointsFromAddress(serverConfig, 'mainnet', 'KT1UvS7eBoNoP7qmGkfPtTGM7s7pYxLnkUzR');
 
-    /*it('generic multi-sig', async () => { // https://github.com/murbard/smart-contracts/blob/master/multisig/michelson/generic.tz as of 2019/dec/30
-        const entryPoints = await TezosContractIntrospector.generateEntryPointsFromParams(`parameter
-        (or
-          (unit %default)
-          (pair %main
-            (pair :payload
-              (nat %counter) # counter, used to prevent replay attacks
-              (or :action    # payload to sign, represents the requested action
-                  (lambda %operation unit (list operation))
-                  (pair %change_keys          # change the keys controlling the multisig
-                    (nat %threshold)         # new threshold
-                    (list %keys key))))     # new list of keys
-            (list %sigs (option signature))));    # signatures`);
-
-        entryPoints.forEach(e => {
-            console.log(`\n${e.name + '(' + e.parameters.map(p => p.type + ' ' + p.name).join(', ') + ')'}`)
-            //console.log(`invocation pattern: ${e.generateInvocationString()}`);
-            console.log(`invocation pattern: ${e.generateSampleInvocation()}`);
-        });
-
-        expect(entryPoints.length).to.be.greaterThan(0);
-    });*/
+        expect(result).to.exist;
+        expect(result.length).to.equal(1);
+        expect(result[0].name).to.equal('default');
+    }));
 });
-
-function formatEntryPoint(e: EntryPoint) {
-    let s = '';
-    s += !!e.name ? e.name : '';
-    s += '(';
-    s += e.parameters.map(p => p.type + (!!p.name ? ` ${p.name}`: '')).join(', ');
-    s += ')';
-    return s;
-}

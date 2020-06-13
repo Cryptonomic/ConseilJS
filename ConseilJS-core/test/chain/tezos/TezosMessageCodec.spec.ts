@@ -105,14 +105,25 @@ describe("Tezos P2P message decoder test suite", () => {
         // TODO
     });
 
-    it("correctly parse a reveal", () => {
+    it("correctly parse a reveal (Athens)", () => {
         let forgedReveal = "97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6";
+                                                                                            //6b0034a00f9b7964943b4ab583a8d1f7241a0cb9742c00bac104904e0000e92113585804d494a642fb1aa6f0e6c33e5d54a2fe7f05f54de080f30662d554
         const result = TezosMessageCodec.parseReveal(forgedReveal);
         expect(result.operation.kind).to.equal("reveal");
         expect(result.operation.source).to.equal("tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX");
         expect(result.operation.fee).to.equal('0'); // microtez
         expect(result.operation.gas_limit).to.equal('10000'); // microtez
         expect(result.operation.storage_limit).to.equal('0'); // microtez
+    });
+
+    it("correctly parse a reveal (Babylon)", () => {
+        let forgedReveal = "97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e6b0034a00f9b7964943b4ab583a8d1f7241a0cb9742c00bac104904e0000e92113585804d494a642fb1aa6f0e6c33e5d54a2fe7f05f54de080f30662d554";
+        const result = TezosMessageCodec.parseReveal(forgedReveal);
+        expect(result.operation.kind).to.equal("reveal");
+        expect(result.operation.source).to.equal("tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy");
+        expect(result.operation.fee).to.equal('0'); // microtez
+        expect(result.operation.gas_limit).to.equal('10000'); // microtez
+        expect(result.operation.storage_limit).to.equal('0'); // microtez*/
     });
 });
 

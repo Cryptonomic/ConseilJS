@@ -73,7 +73,7 @@ describe('TezosNodeWriter tests', () => {
         const server = nock(serverUrl);
         server
             .get(`/chains/main/blocks/head`)
-                .reply(200, responses['sendTransactionOperation-blocks/head'])
+                .reply(200, responses['sendTransactionOperation-blocks/head']);
         server
             .get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`)
                 .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`])

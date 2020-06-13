@@ -7,11 +7,9 @@ import * as log from 'loglevel';
 import { registerFetch, registerLogger } from '../../../src/index';
 
 import mochaAsync from '../../mochaTestHelper';
-import { accounts, contracts, drips } from "../../_staticData/accounts.json";
 import * as responses from "../../_staticData/TezosResponses.json";
 
 import { TezosNodeReader } from "../../../src/chain/tezos/TezosNodeReader";
-import { TezosMessageUtils } from "../../../src/chain/tezos/TezosMessageUtil";
 
 use(chaiAsPromised);
 
@@ -101,5 +99,14 @@ describe('TezosNodeWriter tests', () => {
 
     it('estimateBranchTimeout test', mochaAsync(async () => { }));
 
-    it('getMempoolOperationsForAccount test', mochaAsync(async () => { }));
+    it('getMempoolOperationsForAccount test', mochaAsync(async () => {
+        const server = nock(serverUrl);
+        server
+            .get(`/chains/main/mempool/pending_operations`)
+                .reply(200, responses['chains/main/mempool/pending_operations']);
+
+        const result = await TezosNodeReader.getMempoolOperationsForAccount(serverUrl, 'tz1Y8zdtVe2wWe7QdNTnAdwBceqYBCdA3Jj8');
+
+        expect(result).to.exist;
+    }));
 });
