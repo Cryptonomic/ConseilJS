@@ -9,11 +9,11 @@
     "dist"
   ],
   "scripts": {
-    "test": "mocha \"test/**/*.spec.ts\"",
-    "integration-test": "mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
+    "test": "mocha --require ts-node/register \"test/**/*.spec.ts\"",
+    "integration-test": "mocha --require ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\"",
     "format": "eslint --fix-dry-run src/*/*.ts",
     "coverage": "nyc mocha \"test/**/*.spec.ts\" || nyc report | coveralls",
-    "integration-coverage": "nyc mocha -r source-map-support/register -r ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
+    "integration-coverage": "nyc mocha --require ts-node/register --full-trace -t 600000 -b false \"integration_test/**/*.spec.ts\" && nyc report | coveralls",
     "release-check": "npm run test && npm audit && npm outdated",
     "doc": "rm -rf ./tsdoc && typedoc --readme none --excludeNotExported --mode file --theme markdown --out ./tsdoc ./src",
     "package": "rm -rf ./dist && tsc && copyfiles -u 1 \"./src/**/*.js\" dist/",
@@ -84,11 +84,10 @@
     "eslint": "7.2.0",
     "eslint-config-airbnb-base": "14.2.0",
     "eslint-plugin-import": "2.21.2",
-    "mocha": "8.0.1",
+    "mocha": "7.2.0",
     "nyc": "15.1.0",
     "request-promise": "4.2.5",
-    "source-map-support": "0.5.19",
-    "terser-webpack-plugin": "2.3.5",
+    "terser-webpack-plugin": "3.0.3",
     "ts-loader": "7.0.5",
     "ts-node": "8.10.2",
     "tsconfig-paths-webpack-plugin": "3.2.0",
@@ -158,5 +157,13 @@
         }
       ]
     }
+  },
+  "mocha": {
+    "extensions": [
+      "ts"
+    ],
+    "full-trace": true,
+    "timeout": 20000,
+    "bail": false
   }
 }

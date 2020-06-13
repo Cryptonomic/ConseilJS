@@ -1,4 +1,3 @@
-import 'mocha';
 import { expect } from 'chai';
 
 import * as bip39 from 'bip39';
@@ -11,11 +10,11 @@ import { SoftSigner } from '../src/SoftSigner';
 describe('encryptMessage() and decryptMessage()', () => {
     it('should correctly encrypt and decrypt text', async () => {
         const salt = await CryptoUtils.generateSaltForPwHash();
-        const message = Buffer.from('Tacos Nachos Burritos Guacamole', 'utf8');
+        const message = 'Tacos Nachos Burritos Guacamole';
         const passphrase = '$T3Z0s!';
-        const encrypted = await CryptoUtils.encryptMessage(message, passphrase, salt);
+        const encrypted = await CryptoUtils.encryptMessage(Buffer.from(message, 'utf8'), passphrase, salt);
         const decrypted = await CryptoUtils.decryptMessage(encrypted, passphrase, salt);
-        expect(decrypted).to.equal(message);
+        expect(decrypted.toString('utf8')).to.equal(message);
     });
 
     it('fail encryption operation due to password strength', async () => {
@@ -72,9 +71,9 @@ describe('generateKeys() and recoverPublicKey()', () => {
     });
 
     it('sign a message with secret key, verify signature with public key (Tezos encoding)', async () => {
-        const signer = new SoftSigner();
-        const keyStore = await KeyStoreUtils.RestoreIdentityFromSecretKey('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc', signer);
-        const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
+        const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc');
+        const signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+        const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk');
         const publicKey = TezosMessageUtils.writeKeyWithHint(keyStore.publicKey, 'edpk');
 
         const message = Buffer.from('Tacos Nachos Burritos Guacamole', 'utf8');
