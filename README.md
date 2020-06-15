@@ -16,6 +16,8 @@ Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus
 
 As of version 5.0.0, ConseilJS has been split into three parts: this library, which is considered to be the core, ConseilJS-softsigner and ConseilJS-ledgersigner. This was done in an effort to make the library more portable across different environments. If neither of these additional modules meet your needs, the `Signer` and `KeyStore` [interfaces](https://github.com/Cryptonomic/ConseilJS/blob/master/ConseilJS-core/src/types/ExternalInterfaces.ts) can be implemented separately. In addition to a `Signer` and a `KeyStore`, `fetch` and `logger` objects are required to be provided, see below.
 
+For more details on how to use these libraries see their respective readme files: [ConseilJS-core](./blob/master/ConseilJS/docs/README.md), [ConseilJS-softsigner](https://github.com/Cryptonomic/ConseilJS-softsigner/blob/master/README.md), [ConseilJS-ledgersigner](https://github.com/Cryptonomic/ConseilJS-ledgersigner/blob/master/README.md).
+
 ## Use with Nodejs
 
 Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project and a signing library.
