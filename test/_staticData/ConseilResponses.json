@@ -1,0 +1,17 @@
+{
+    "KT1UvS7eBoNoP7qmGkfPtTGM7s7pYxLnkUzR-/v2/data/tezos/mainnet/accounts": [ {
+            "block_level": 655361,
+            "is_activated": false,
+            "balance": 0,
+            "is_baker": false,
+            "delegate_value": null,
+            "spendable": null,
+            "account_id": "KT1UvS7eBoNoP7qmGkfPtTGM7s7pYxLnkUzR",
+            "manager": null,
+            "storage": "\"hello\"",
+            "counter": null,
+            "block_id": "BLu2kYLJuELGnxqeX1DCKWsnAy6kM3Qii563Ja9nkPtqy3iSCaf",
+            "script": "parameter string;\nstorage string;\ncode { CAR ;\n       NIL operation ;\n       PAIR }",
+            "delegate_setable": null
+        } ]
+}
