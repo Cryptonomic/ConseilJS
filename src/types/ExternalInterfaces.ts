@@ -1,5 +1,5 @@
 export interface Signer {
-    sign: (bytes: Buffer) => Promise<Buffer>;
+    signOperation: (bytes: Buffer) => Promise<Buffer>;
     signText: (message: string) => Promise<string>;
 }
 

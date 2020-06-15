@@ -172,7 +172,7 @@ export namespace TezosNodeWriter {
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
 
-        const opSignature = await signer.sign(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
+        const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
         const hexSignature = TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig');
