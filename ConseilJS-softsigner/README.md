@@ -1,2 +1,0 @@
-# ConseilJS-softsigner
-
