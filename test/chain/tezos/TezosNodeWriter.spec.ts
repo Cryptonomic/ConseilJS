@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import * as log from 'loglevel';
 
 import { registerFetch, registerLogger } from '../../../src/index';
-import { KeyStoreUtils, SoftSigner } from '../../../../ConseilJS-softsigner';
+import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 import mochaAsync from '../../mochaTestHelper';
 import { accounts, contracts, drips } from "../../_staticData/accounts.json";
