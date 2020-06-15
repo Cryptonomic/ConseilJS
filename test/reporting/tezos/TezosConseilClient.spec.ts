@@ -51,7 +51,7 @@ describe('TezosConseilClient tests', () => {
 
         const result = await TezosConseilClient.getBlockByLevel(conseilServer, conseilServer.network, 173137);
 
-        expect(result[0]['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
+        expect(result['predecessor']).to.equal('BLyxiXprmaDkCeZo3b9JHU4udjPiVUpuTR1eKXSxtJe9o8JMbiM');
     }));
 
     it('TezosConseilClient.getAccount', mochaAsync(async () => {
