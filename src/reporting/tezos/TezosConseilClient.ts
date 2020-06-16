@@ -124,7 +124,7 @@ export namespace TezosConseilClient {
      * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
-        return getTezosEntityData(serverInfo, network, BLOCKS, query)
+        return getTezosEntityData(serverInfo, network, BLOCKS, query);
     }
 
     /**

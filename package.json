@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "5.0.2-beta.0",
+  "version": "5.0.2-beta.2",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
@@ -58,9 +58,7 @@
     "require": [
       "ts-node/register"
     ],
-    "reporter": [
-      "text-lcov"
-    ],
+    "reporter": [ "text", "text-lcov" ],
     "sourceMap": true,
     "instrument": true
   },
@@ -84,7 +82,7 @@
     "awesome-typescript-loader": "5.2.1",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
-    "conseiljs-softsigner": "5.0.2-beta.0",
+    "conseiljs-softsigner": "5.0.2-beta.1",
     "copyfiles": "2.3.0",
     "coveralls": "3.1.0",
     "eslint": "7.2.0",

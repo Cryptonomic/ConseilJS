@@ -33,6 +33,7 @@ export * from './reporting/ConseilQueryBuilder';
 
 export * from './types/conseil/MetadataTypes';
 export * from './types/conseil/QueryTypes';
+export * from './types/tezos/TezosConstants';
 export * from './types/tezos/ContractIntrospectionTypes';
 export * from './types/tezos/TezosChainTypes';
 export * from './types/tezos/TezosP2PMessageTypes';

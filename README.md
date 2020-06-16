@@ -40,7 +40,7 @@ registerLogger(logger);
 registerFetch(fetch);
 
 let signer: Signer;
-const keyStore = KeyStoreUtils.RestoreIdentityFromSecretKey ('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
+const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey ('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
 signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
 ```
 
@@ -56,7 +56,7 @@ TBD
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-/Zw9+ejb8b2df21bw3+z5azbgdiFLvEks7esYyGtjFiWNHEGsnjnPYSfcztio8lq"
+        integrity="sha384-zf1JnFgeBkUovmAPQjLAJl81QYeEwY3HcMv626FdnOq1cS9pnxSbuBi4tZPfhGjd"
         crossorigin="anonymous"></script>
 ```
 
