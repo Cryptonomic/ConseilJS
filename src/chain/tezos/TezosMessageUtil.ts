@@ -477,6 +477,9 @@ export namespace TezosMessageUtils {
 
     /**
      * Computes a BLAKE2b message hash of the requested length.
+     * 
+     * @param {Buffer} payload Buffer to hash
+     * @param {number} length Length of hash to produce
      */
     export function simpleHash(payload: Buffer, length: number) : Buffer {
         return Buffer.from(blakejs.blake2b(payload, null, length)); // Same as libsodium.crypto_generichash

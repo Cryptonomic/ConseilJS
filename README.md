@@ -31,7 +31,7 @@ npm i conseiljs-softsigner
 import fetch from 'node-fetch';
 import * as log from 'loglevel';
 
-import { registerFetch, registerLogger } from 'conseiljs';
+import { registerFetch, registerLogger, Signer, TezosMessageUtils } from 'conseiljs';
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 const logger = log.getLogger('conseiljs');
@@ -40,7 +40,7 @@ registerLogger(logger);
 registerFetch(fetch);
 
 let signer: Signer;
-const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey ('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
+const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
 signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
 ```
 
