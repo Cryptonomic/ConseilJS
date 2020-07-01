@@ -300,7 +300,9 @@ export namespace TezosConseilClient {
     }
 
     /**
-     * Returns a value for a given key. The big map id is either provided as a paramter or the smallest of the possibly multiple big maps associated with the given contract address is used. Note that sometimes key values must be wrapped in quotes for key types that are non-numeric and not byte type.
+     * Returns a value for a given plain-text key. The big map id is either provided as a paramter or the smallest of the possibly multiple big maps associated with the given contract address is used. Note that sometimes key values must be wrapped in quotes for key types that are non-numeric and not byte type.
+     * 
+     * Under normal circumstances these keys are hashed and TezosNodeReader.getValueForBigMapKey() expects such an encoded key. However, with the Conseil indexer it's possible to query for plain-text keys.
      * 
      * @param serverInfo Conseil server connection definition.
      * @param key Key to query for.
