@@ -1,6 +1,7 @@
 export interface Signer {
     signOperation: (bytes: Buffer) => Promise<Buffer>;
     signText: (message: string) => Promise<string>;
+    signTextHash: (message: string) => Promise<string>;
 }
 
 export interface KeyStore {
