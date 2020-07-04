@@ -58,7 +58,10 @@
     "require": [
       "ts-node/register"
     ],
-    "reporter": [ "text", "text-lcov" ],
+    "reporter": [
+      "text",
+      "text-lcov"
+    ],
     "sourceMap": true,
     "instrument": true
   },
@@ -82,7 +85,7 @@
     "awesome-typescript-loader": "5.2.1",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
-    "conseiljs-softsigner": "5.0.2-beta.1",
+    "conseiljs-softsigner": "5.0.2-beta.3",
     "copyfiles": "2.3.0",
     "coveralls": "3.1.0",
     "eslint": "7.2.0",

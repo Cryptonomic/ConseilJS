@@ -32,10 +32,10 @@ describe('TezosNodeWriter tests', () => {
         registerFetch(fetch);
 
         keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey(accounts[0].secretKey);
-        signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+        signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
 
         faucetKeyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(drips[0].mnemonic.join(' '), drips[0].email, drips[0].password, drips[0].pkh);
-        faucetSigner = new SoftSigner(TezosMessageUtils.writeKeyWithHint(faucetKeyStore.secretKey, 'edsk'));
+        faucetSigner = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(faucetKeyStore.secretKey, 'edsk'));
     }));
 
     it('forgeOperationsRemotely test', mochaAsync(async () => {
