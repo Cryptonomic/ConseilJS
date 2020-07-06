@@ -1,11 +1,11 @@
-import * as blakejs from 'blakejs';
 import { JSONPath } from 'jsonpath-plus';
 
+import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
+import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
-import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
-import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
+import { TezosContractUtils } from './TezosContractUtils';
 
 /**
  * Interface for the Name Service contract developed by Cryptonomic, Inc.
@@ -18,15 +18,7 @@ export namespace CryptonomicNameServiceHelper {
      * @param address Contract address to query.
      */
     export async function verifyDestination(server: string, address: string): Promise<boolean> {
-        const contract = await TezosNodeReader.getAccountForBlock(server, 'head', address);
-
-        if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
-
-        const k = Buffer.from(blakejs.blake2s(contract['script'].toString(), null, 16)).toString('hex');
-
-        if (k !== 'c020219e31ee3b462ed93c33124f117f') { throw new Error(`Contract at ${address} does not match the expected code hash: ${k}, 'c020219e31ee3b462ed93c33124f117f'`); }
-
-        return true;
+        return TezosContractUtils.verifyDestination(server, address, 'c020219e31ee3b462ed93c33124f117f');
     }
 
     /**
@@ -53,7 +45,7 @@ export namespace CryptonomicNameServiceHelper {
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, registrationFee, operationFee, 6000, 300_000, 'registerName', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function transferNameOwnership(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, newNameOwner: string, fee: number, freight?: number, gas?: number) {
@@ -68,7 +60,7 @@ export namespace CryptonomicNameServiceHelper {
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transferNameOwnership', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function updateResolver(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, resolver: string, fee: number, freight?: number, gas?: number) {
@@ -83,7 +75,7 @@ export namespace CryptonomicNameServiceHelper {
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'updateResolver', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function updateRegistrationPeriod(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, newRegistrationPeriod: number, registrationFee: number, operationFee: number, freight?: number, gas?: number) {
@@ -98,7 +90,7 @@ export namespace CryptonomicNameServiceHelper {
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, registrationFee, operationFee, freight, gas, 'updateRegistrationPeriod', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function deleteName(server: string, signer: Signer, keystore: KeyStore, contract: string, name: string, fee: number, freight?: number, gas?: number) {
@@ -113,7 +105,7 @@ export namespace CryptonomicNameServiceHelper {
         }
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'deleteName', parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function getNameForAddress(server: string, mapid: number, address: string) {
@@ -162,9 +154,5 @@ export namespace CryptonomicNameServiceHelper {
             maxDuration: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]), 
             intervalFee: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0])
         };
-    }
-
-    function clearRPCOperationGroupHash(hash: string) {
-        return hash.replace(/\"/g, '').replace(/\n/, '');
     }
 }

@@ -1,12 +1,11 @@
-import * as blakejs from 'blakejs';
 import { JSONPath } from 'jsonpath-plus';
 
-import { TezosLanguageUtil } from '../../TezosLanguageUtil';
 import { TezosMessageUtils } from '../../TezosMessageUtil';
 import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
+import { TezosContractUtils } from '../TezosContractUtils';
 
 interface SingleAssetSimpleStorage {
     administrator: string;
@@ -50,16 +49,7 @@ export namespace SingleAssetTokenHelper {
      * @param address Contract address to query.
      */
     export async function verifyDestination(server: string, address: string): Promise<boolean> {
-        const contract = await TezosNodeReader.getAccountForBlock(server, 'head', address);
-
-        if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
-
-        const k = Buffer.from(blakejs.blake2s(JSON.stringify(contract.script.code), null, 16)).toString('hex');
-        const expectedHash = '17aab0975df6139f4ff29be76a67f348';
-
-        if (k !== expectedHash) { throw new Error(`Contract code hash "${k}" doesn't match expected ${expectedHash}`); }
-
-        return true;
+        return TezosContractUtils.verifyDestination(server, address, '17aab0975df6139f4ff29be76a67f348');
     }
 
     /**
@@ -68,12 +58,7 @@ export namespace SingleAssetTokenHelper {
      * @param script 
      */
     export function verifyScript(script: string): boolean {
-        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
-        const expectedHash = '000';
-
-        if (k !== expectedHash) { throw new Error(`Contract code hash "${k}" doesn't match expected ${expectedHash}`); }
-
-        return true;
+        return TezosContractUtils.verifyScript(script, '000');
     }
 
     /**
@@ -99,7 +84,7 @@ export namespace SingleAssetTokenHelper {
         const storage = `( Pair ( Pair ( Pair "${administrator}" ${pause ? 'True' : 'False'} ) None ) ( Pair ( Pair { } { } ) ( Pair { Elt ${tokenid} ( Pair ${tokenid} ( Pair "${symbol}" ( Pair "${name}" ( Pair ${scale} { } ) ) ) ) } ${supply} ) ) )`;
 
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(server, signer, keystore, 0, undefined, fee, freight, gas, contract, storage, TezosTypes.TezosParameterFormat.Michelson);
-        return clearRPCOperationGroupHash(nodeResult['operationGroupID']);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult['operationGroupID']);
     }
 
     /**
@@ -148,26 +133,16 @@ export namespace SingleAssetTokenHelper {
      * @param signer 
      * @param keystore 
      * @param fee 
-     * @param issue 
      * @param gas 
      * @param freight 
      */
-    export async function mint(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, issue: BalancePair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
-        const entryPoint = 'mint_tokens';
-        const parameters = `{ ${issue.map(i => '( Pair ' + i.balance + ' "' + i.address + '" )').join(' ; ')} }`;
-
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
-
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
-
     export async function activate(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'pause';
         const parameters = 'False';
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     /**
@@ -186,8 +161,34 @@ export namespace SingleAssetTokenHelper {
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
+
+    /**
+     * 
+     * @param server 
+     * @param address 
+     * @param signer 
+     * @param keystore 
+     * @param fee 
+     * @param issue 
+     * @param gas 
+     * @param freight 
+     */
+    export async function mint(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, issue: BalancePair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'mint_tokens';
+        const parameters = `{ ${issue.map(i => '( Pair ' + i.balance + ' "' + i.address + '" )').join(' ; ')} }`;
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    //(list %burn_tokens (pair (nat %amount) (address %owner)))
+
+    //(unit %confirm_admin)
+
+    //(address %set_admin)
 
     /**
      * 
@@ -206,8 +207,12 @@ export namespace SingleAssetTokenHelper {
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
-        return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
+
+    //(pair %add_operator (address %owner) (address %operator))
+
+    //(pair %remove_operator (address %owner) (address %operator)))))))
 
     /**
      * 
@@ -223,9 +228,5 @@ export namespace SingleAssetTokenHelper {
 
         const jsonresult = JSONPath({ path: '$.int', json: mapResult });
         return Number(jsonresult[0]);
-    }
-
-    function clearRPCOperationGroupHash(hash: string) {
-        return hash.replace(/\"/g, '').replace(/\n/, '');
     }
 }

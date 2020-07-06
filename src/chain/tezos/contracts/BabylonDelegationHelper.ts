@@ -1,12 +1,11 @@
-import * as blakejs from 'blakejs';
 import { JSONPath } from 'jsonpath-plus';
 
-import { TezosLanguageUtil } from '../TezosLanguageUtil';
-import { TezosNodeReader } from '../TezosNodeReader';
-import { TezosNodeWriter } from '../TezosNodeWriter';
 import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../../types/tezos/TezosConstants';
+import { TezosNodeReader } from '../TezosNodeReader';
+import { TezosNodeWriter } from '../TezosNodeWriter';
+import { TezosContractUtils } from './TezosContractUtils';
 
 export namespace BabylonDelegationHelper {
     /**
@@ -16,15 +15,7 @@ export namespace BabylonDelegationHelper {
      * @param address Contract address to query.
      */
     export async function verifyDestination(server: string, address: string): Promise<boolean> {
-        const contract = await TezosNodeReader.getAccountForBlock(server, 'head', address);
-
-        if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
-
-        const k = Buffer.from(blakejs.blake2s(JSON.stringify(contract.script.code), null, 16)).toString('hex');
-
-        if (k !== 'd99cb8b4c7e40166f59c0f3c30724225') { throw new Error(`Contract does not match the expected code hash: ${k}, 'd99cb8b4c7e40166f59c0f3c30724225'`); }
-
-        return true;
+        return TezosContractUtils.verifyDestination(server, address, 'd99cb8b4c7e40166f59c0f3c30724225');
     }
 
     /**
@@ -33,11 +24,7 @@ export namespace BabylonDelegationHelper {
      * @param script 
      */
     export function verifyScript(script: string): boolean {
-        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
-
-        if (k !== 'a585489ffaee60d07077059539d5bfc8') { throw new Error(`Contract does not match the expected code hash: ${k}, 'a585489ffaee60d07077059539d5bfc8'`); }
-
-        return true;
+        return TezosContractUtils.verifyScript(script, 'a585489ffaee60d07077059539d5bfc8');
     }
 
     export async function getSimpleStorage(server: string, address: string): Promise<{administrator: string}> {
