@@ -11,9 +11,9 @@ import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 /**
  * Interface for the FA2.0 contract implementation outlined here: https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-12/tzip-12.md.
  * 
- * Compatible with the contract as of May 19, 2020 from https://gitlab.com/smondet/fa2-smartpy/-/raw/4b5704099fb5d10fb550b1f9648ff4859875a3e0/michelson/20200519-140638+0000_29bfe43_mutran_contract.tz
+ * Compatible with the contract as of July 4, 2020 from https://gitlab.com/smondet/fa2-smartpy/-/blob/master/michelson/20200615-162614+0000_e1e6c44_contract.tz
  */
-export namespace NFTReferenceTokenHelper {
+export namespace MultiAssetReferenceTokenHelper {
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
      * 

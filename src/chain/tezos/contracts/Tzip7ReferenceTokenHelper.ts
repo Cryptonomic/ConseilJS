@@ -29,8 +29,9 @@ export namespace Tzip7ReferenceTokenHelper {
         if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
 
         const k = Buffer.from(blakejs.blake2s(JSON.stringify(contract.script.code), null, 16)).toString('hex');
+        const expectedHash = '0e3e137841a959521324b4ce20ca2df7';
 
-        if (k !== '0e3e137841a959521324b4ce20ca2df7') { throw new Error(`Contract does not match the expected code hash: ${k}, '0e3e137841a959521324b4ce20ca2df7'`); }
+        if (k !== expectedHash) { throw new Error(`Contract code hash "${k}" doesn't match expected ${expectedHash}`); }
 
         return true;
     }
@@ -42,8 +43,9 @@ export namespace Tzip7ReferenceTokenHelper {
      */
     export function verifyScript(script: string): boolean {
         const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
+        const expectedHash = 'b77ada691b1d630622bea243696c84d7';
 
-        if (k !== 'b77ada691b1d630622bea243696c84d7') { throw new Error(`Contract does not match the expected code hash: ${k}, 'b77ada691b1d630622bea243696c84d7'`); }
+        if (k !== expectedHash) { throw new Error(`Contract code hash "${k}" doesn't match expected ${expectedHash}`); }
 
         return true;
     }
@@ -63,7 +65,7 @@ export namespace Tzip7ReferenceTokenHelper {
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
-    
+
         const jsonresult = JSONPath({ path: '$.args[0].int', json: mapResult });
         return Number(jsonresult[0]);
     }

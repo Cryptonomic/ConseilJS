@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "5.0.2-beta.3",
+  "version": "5.0.3-beta.0",
   "description": "Client-side library for dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
