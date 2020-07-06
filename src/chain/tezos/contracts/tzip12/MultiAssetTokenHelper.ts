@@ -1,7 +1,6 @@
 import { JSONPath } from 'jsonpath-plus';
 import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
-import { TezosLanguageUtil } from '../../TezosLanguageUtil';
 import { TezosMessageUtils } from '../../TezosMessageUtil';
 import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
