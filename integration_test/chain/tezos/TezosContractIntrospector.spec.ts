@@ -25,7 +25,7 @@ describe('TezosContractIntrospector integration test suite', () => {
         contractQuery = ConseilQueryBuilder.addPredicate(contractQuery, 'account_id', ConseilOperator.STARTSWITH, ['KT1']);
         contractQuery = ConseilQueryBuilder.addPredicate(contractQuery, 'script', ConseilOperator.ISNULL, [], true);
         contractQuery = ConseilQueryBuilder.addAggregationFunction(contractQuery, 'account_id', ConseilFunction.count);
-        contractQuery = ConseilQueryBuilder.addOrdering(contractQuery, 'count_account_id', ConseilSortDirection.DESC)
+        contractQuery = ConseilQueryBuilder.addOrdering(contractQuery, 'count_account_id', ConseilSortDirection.DESC);
         contractQuery = ConseilQueryBuilder.setLimit(contractQuery, cap);
 
         const contractList = await ConseilDataClient.executeEntityQuery(conseilServer, 'tezos', conseilServer.network, 'accounts', contractQuery);

@@ -31,7 +31,7 @@ npm i conseiljs-softsigner
 import fetch from 'node-fetch';
 import * as log from 'loglevel';
 
-import { registerFetch, registerLogger } from 'conseiljs';
+import { registerFetch, registerLogger, Signer, TezosMessageUtils } from 'conseiljs';
 import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 const logger = log.getLogger('conseiljs');
@@ -40,8 +40,8 @@ registerLogger(logger);
 registerFetch(fetch);
 
 let signer: Signer;
-const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey ('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
-signer = new SoftSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
+signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'), -1);
 ```
 
 ## Use with React
@@ -56,7 +56,7 @@ TBD
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-zf1JnFgeBkUovmAPQjLAJl81QYeEwY3HcMv626FdnOq1cS9pnxSbuBi4tZPfhGjd"
+        integrity="sha384-CDpCW4rM4qw7oEyOr5wSQNqnPmQw9vtCoqWyKSDIys50jRONU+j+uxk/aEy0QzRJ"
         crossorigin="anonymous"></script>
 ```
 
