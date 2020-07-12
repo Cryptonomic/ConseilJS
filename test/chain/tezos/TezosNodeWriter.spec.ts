@@ -5,7 +5,7 @@ import fetch from 'node-fetch';
 import * as log from 'loglevel';
 
 import { registerFetch, registerLogger } from '../../../src/index';
-import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner'
+import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
 
 import mochaAsync from '../../mochaTestHelper';
 import { accounts, contracts, drips } from "../../_staticData/accounts.json";
@@ -43,7 +43,7 @@ describe('TezosNodeWriter tests', () => {
         server
             .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/forge/operations`)
-            .reply(200, responses[`${accounts[0].publicKeyHash}-forgeOperationsRemotely-success`])
+                .reply(200, responses[`${accounts[0].publicKeyHash}-forgeOperationsRemotely-success`])
 
         const transaction = {
             kind: 'transaction',
@@ -73,17 +73,17 @@ describe('TezosNodeWriter tests', () => {
         const server = nock(serverUrl);
         server
             .get(`/chains/main/blocks/head`)
-            .reply(200, responses['sendTransactionOperation-blocks/head']);
+                .reply(200, responses['sendTransactionOperation-blocks/head']);
         server
             .get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`)
-            .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`])
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/counter`])
             .get(`/chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`)
-            .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`])
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${accounts[0].publicKeyHash}/manager_key`])
             .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/preapply/operations`)
-            .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
+                .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
             .post(`/injection/operation?chain=main`)
-            .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
+                .reply(200, responses[`${keyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
 
         const destination = 'tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa';
         const amount = 1_000;
@@ -99,16 +99,16 @@ describe('TezosNodeWriter tests', () => {
         const server = nock(serverUrl);
         server
             .get(`/chains/main/blocks/head`)
-            .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
+                .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
             .get(`/chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/counter`)
-            .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/counter`])
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/counter`])
             .get(`/chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/manager_key`)
-            .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/manager_key`])
+                .reply(200, responses[`chains/main/blocks/head/context/contracts/${faucetKeyStore.publicKeyHash}/manager_key`])
             .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/preapply/operations`)
-            .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-preapply-success`])
             .post(`/injection/operation?chain=main`)
-            .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendTransactionOperation-injection-success`]);
 
         const destination = accounts[0].publicKeyHash;
         const amount = 1_000;
@@ -136,13 +136,13 @@ describe('TezosNodeWriter tests', () => {
         const server = nock(serverUrl);
         server
             .get(`/chains/main/blocks/head`)
-            .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
+                .reply(200, responses['sendIdentityActivationOperation-blocks/head'])
             .filteringRequestBody(body => '*')
             .post(`/chains/main/blocks/head/helpers/preapply/operations`)
-            .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-preapply-success`])
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-preapply-success`])
             .post(`/injection/operation?chain=main`)
-            .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-injection-success`]);
-
+                .reply(200, responses[`${faucetKeyStore.publicKeyHash}-sendIdentityActivationOperation-injection-success`]);
+                
 
         const sendResult = await TezosNodeWriter.sendIdentityActivationOperation(serverUrl, faucetSigner, faucetKeyStore, drips[0].secret);
 
