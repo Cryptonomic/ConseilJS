@@ -438,9 +438,10 @@ export namespace TezosMessageUtils {
     }
 
     /**
+     * Reads PACKed data into an output format specified in the type parameter.
      * 
-     * @param hex 
-     * @param type 
+     * @param {string} hex 
+     * @param {string} type One of int, nat, string, key_hash, address, bytes, michelson, micheline (default)
      */
     export function readPackedData(hex: string, type: string) : string | number {
         switch(type) {
@@ -461,6 +462,9 @@ export namespace TezosMessageUtils {
             }
             case 'bytes': {
                 return hex.slice(4 + 8);
+            }
+            case 'michelson': {
+                return TezosLanguageUtil.normalizeMichelsonWhiteSpace(TezosLanguageUtil.hexToMichelson(hex.slice(2)).code);
             }
             default: {
                 return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;
