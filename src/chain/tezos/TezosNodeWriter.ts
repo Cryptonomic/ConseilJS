@@ -16,7 +16,6 @@ import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
-import { assert } from 'console';
 const log = LogSelector.log;
 
 let operationQueues = {}
