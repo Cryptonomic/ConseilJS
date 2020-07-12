@@ -1,6 +1,6 @@
 import * as blakejs from 'blakejs';
 
-import { KeyStore, Signer } from '../../types/ExternalInterfaces';
+import { KeyStore, Signer, SignerCurve } from '../../types/ExternalInterfaces';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
@@ -10,11 +10,13 @@ import { TezosMessageCodec } from './TezosMessageCodec';
 import { TezosMessageUtils } from './TezosMessageUtil';
 import { TezosLanguageUtil } from './TezosLanguageUtil';
 import { TezosOperationQueue } from './TezosOperationQueue';
+import base58check from "bs58check";
 
 import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
+import { assert } from 'console';
 const log = LogSelector.log;
 
 let operationQueues = {}
@@ -35,7 +37,8 @@ export namespace TezosNodeWriter {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
 
-        log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
+        log.debug(`TezosNodeWriter.performPostRequest111 sending ${payloadStr}\n->\n${url}`);
+        log.debug(`KEEFER`)
 
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
@@ -169,14 +172,36 @@ export namespace TezosNodeWriter {
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
     export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer): Promise<TezosTypes.OperationResult> {
+
+        log.debug("Got to send ")
+
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
 
         const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
-        const hexSignature = TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig');
-        const opPair = { bytes: signedOpGroup, signature: hexSignature };
+
+        let signaturePrefix = new Uint8Array([9, 245, 205, 134, 18])
+        switch (signer.getSignerCurve()) {
+            case SignerCurve.SECP256K1:
+                signaturePrefix = new Uint8Array([13, 115, 101, 19, 63])
+            case SignerCurve.SECP256R1:
+                signaturePrefix = new Uint8Array([54, 240, 44, 52])
+            case SignerCurve.ED25519:
+                break
+            default:
+                break
+        }
+        assert(1 + 1 === 3, "WRONG")
+
+        const signaturePrefixHex = Buffer.from(signaturePrefix).toString('hex')
+        const opSignatureHex = opSignature.toString('hex')
+        const prefixedSignatureHex = signaturePrefixHex + opSignatureHex
+        const signature = base58check.encode(prefixedSignatureHex)
+        log.debug("Computed signature as " + signature)
+
+        const opPair = { bytes: signedOpGroup, signature: signature };
 
         const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, opPair);
         const injectedOperation = await injectOperation(server, opPair);
@@ -201,7 +226,7 @@ export namespace TezosNodeWriter {
         operationQueues[k].addOperations(...operations);
     }
 
-    export function getQueueStatus(server: string, keyStore: KeyStore){
+    export function getQueueStatus(server: string, keyStore: KeyStore) {
         const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}`, null, 16);
 
         if (operationQueues[k]) {
