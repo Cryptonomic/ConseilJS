@@ -36,10 +36,6 @@ export namespace TezosNodeWriter {
     function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
-
-        log.debug(`TezosNodeWriter.performPostRequest111 sending ${payloadStr}\n->\n${url}`);
-        log.debug(`KEEFER`)
-
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
 
@@ -172,9 +168,6 @@ export namespace TezosNodeWriter {
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
     export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer): Promise<TezosTypes.OperationResult> {
-
-        log.debug("Got to send ")
-
         const blockHead = await TezosNodeReader.getBlockHead(server);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
 
@@ -193,13 +186,11 @@ export namespace TezosNodeWriter {
             default:
                 break
         }
-        assert(1 + 1 === 3, "WRONG")
 
         const signaturePrefixHex = Buffer.from(signaturePrefix).toString('hex')
         const opSignatureHex = opSignature.toString('hex')
         const prefixedSignatureHex = signaturePrefixHex + opSignatureHex
         const signature = base58check.encode(prefixedSignatureHex)
-        log.debug("Computed signature as " + signature)
 
         const opPair = { bytes: signedOpGroup, signature: signature };
 
