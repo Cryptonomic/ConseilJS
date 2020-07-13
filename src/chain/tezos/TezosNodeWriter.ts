@@ -117,8 +117,6 @@ export namespace TezosNodeWriter {
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
     export async function preapplyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
-        log.debug("Computed signature: " + signedOpGroup.signature)
-
         const payload = [{
             protocol: protocol,
             branch: branch,
