@@ -1,6 +1,6 @@
 import * as blakejs from 'blakejs';
 
-import { KeyStore, Signer, SignerCurve } from '../../types/ExternalInterfaces';
+import { KeyStore, Signer } from '../../types/ExternalInterfaces';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
@@ -10,7 +10,6 @@ import { TezosMessageCodec } from './TezosMessageCodec';
 import { TezosMessageUtils } from './TezosMessageUtil';
 import { TezosLanguageUtil } from './TezosLanguageUtil';
 import { TezosOperationQueue } from './TezosOperationQueue';
-import base58check from "bs58check";
 
 import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.fetch;
@@ -35,6 +34,9 @@ export namespace TezosNodeWriter {
     function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
+
+        log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
+
         return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
     }
 
@@ -173,26 +175,8 @@ export namespace TezosNodeWriter {
         const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
-
-        let signaturePrefix = new Uint8Array([9, 245, 205, 134, 18])
-        switch (signer.getSignerCurve()) {
-            case SignerCurve.SECP256K1:
-                signaturePrefix = new Uint8Array([54, 240, 44, 52])
-            case SignerCurve.SECP256R1:
-                signaturePrefix = new Uint8Array([13, 115, 101, 19, 63])
-            case SignerCurve.ED25519:
-                break
-            default:
-                break
-        }
-
-        const signaturePrefixHex = Buffer.from(signaturePrefix).toString('hex')
-        const opSignatureHex = opSignature.toString('hex')
-        const prefixedSignatureHex = signaturePrefixHex + opSignatureHex
-        const signature = base58check.encode(Buffer.from(prefixedSignatureHex, 'hex'))
-
-        const opPair = { bytes: signedOpGroup, signature: signature };
-
+        const base58signature = TezosMessageUtils.readSignatureWithHint(opSignature, signer.getSignerCurve());
+        const opPair = { bytes: signedOpGroup, signature: base58signature };
         const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, opPair);
         const injectedOperation = await injectOperation(server, opPair);
 
