@@ -329,9 +329,13 @@ export namespace TezosMessageUtils {
      * @param key Key to encode, input is expected to be a base58-check encoded string.
      * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
      */
-    export function writeSignatureWithHint(sig: string, hint: string): Buffer {
-        if (hint === 'edsig') {
-            return base58check.decode(sig).slice(5);
+    export function writeSignatureWithHint(sig: string, hint: string | SignerCurve): Buffer {
+        if (hint === 'edsig' || hint === SignerCurve.ED25519) {
+            return base58check.decode(sig).slice("edsig".length);
+        } else if (hint === 'spsig' || hint === SignerCurve.SECP256K1) {
+            return base58check.decode(sig).slice("spsig".length);
+        } else if (hint === 'p2sig' || hint === SignerCurve.SECP256R1) {
+            return base58check.decode(sig).slice("p2sig".length);
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
