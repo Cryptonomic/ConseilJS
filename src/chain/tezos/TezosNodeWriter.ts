@@ -117,6 +117,8 @@ export namespace TezosNodeWriter {
      * @returns {Promise<AppliedOperation>} Array of contract handles
      */
     export async function preapplyOperation(server: string, branch: string, protocol: string, operations: TezosP2PMessageTypes.Operation[], signedOpGroup: TezosTypes.SignedOperationGroup, chainid: string = 'main'): Promise<TezosTypes.AlphaOperationsWithMetadata[]> {
+        log.debug("Computed signature: " + signedOpGroup.signature)
+
         const payload = [{
             protocol: protocol,
             branch: branch,
@@ -177,9 +179,9 @@ export namespace TezosNodeWriter {
         let signaturePrefix = new Uint8Array([9, 245, 205, 134, 18])
         switch (signer.getSignerCurve()) {
             case SignerCurve.SECP256K1:
-                signaturePrefix = new Uint8Array([13, 115, 101, 19, 63])
-            case SignerCurve.SECP256R1:
                 signaturePrefix = new Uint8Array([54, 240, 44, 52])
+            case SignerCurve.SECP256R1:
+                signaturePrefix = new Uint8Array([13, 115, 101, 19, 63])
             case SignerCurve.ED25519:
                 break
             default:
