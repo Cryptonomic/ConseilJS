@@ -189,7 +189,7 @@ export namespace TezosNodeWriter {
         const signaturePrefixHex = Buffer.from(signaturePrefix).toString('hex')
         const opSignatureHex = opSignature.toString('hex')
         const prefixedSignatureHex = signaturePrefixHex + opSignatureHex
-        const signature = base58check.encode(prefixedSignatureHex)
+        const signature = base58check.encode(Buffer.from(prefixedSignatureHex, 'hex'))
 
         const opPair = { bytes: signedOpGroup, signature: signature };
 
