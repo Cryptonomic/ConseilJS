@@ -175,9 +175,8 @@ export namespace TezosNodeWriter {
         const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
-        const hexSignature = TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig');
-        const opPair = { bytes: signedOpGroup, signature: hexSignature };
-
+        const base58signature = TezosMessageUtils.readSignatureWithHint(opSignature, signer.getSignerCurve());
+        const opPair = { bytes: signedOpGroup, signature: base58signature };
         const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, opPair);
         const injectedOperation = await injectOperation(server, opPair);
 
@@ -201,7 +200,7 @@ export namespace TezosNodeWriter {
         operationQueues[k].addOperations(...operations);
     }
 
-    export function getQueueStatus(server: string, keyStore: KeyStore){
+    export function getQueueStatus(server: string, keyStore: KeyStore) {
         const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}`, null, 16);
 
         if (operationQueues[k]) {

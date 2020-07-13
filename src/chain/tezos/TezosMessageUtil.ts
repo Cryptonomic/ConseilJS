@@ -6,6 +6,7 @@ import * as blakejs from 'blakejs';
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { TezosLanguageUtil } from './TezosLanguageUtil';
 import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
+import { SignerCurve } from "../../types/ExternalInterfaces";
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
@@ -295,8 +296,8 @@ export namespace TezosMessageUtils {
     export function writeKeyWithHint(key: string, hint: string): Buffer {
         if (hint === 'edsk' || hint === 'edpk') { // ed25519
             return base58check.decode(key).slice(4);
-        //} else if (hint === 'sppk') { // secp256k1
-        //} else if (hint === 'p2pk') { // secp256r1
+            //} else if (hint === 'sppk') { // secp256k1
+            //} else if (hint === 'p2pk') { // secp256r1
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
@@ -308,11 +309,15 @@ export namespace TezosMessageUtils {
      * @param {Buffer | Uint8Array} b Bytes containing signature.
      * @param hint Support 'edsig'.
      */
-    export function readSignatureWithHint(b: Buffer | Uint8Array, hint: string): string {
+    export function readSignatureWithHint(b: Buffer | Uint8Array, hint: string | SignerCurve): string {
         const sig = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
-        if (hint === 'edsig') {
+        if (hint === 'edsig' || hint === SignerCurve.ED25519) {
             return base58check.encode(Buffer.from('09f5cd8612' + sig.toString('hex'), 'hex'));
+        } else if (hint === 'spsig' || hint === SignerCurve.SECP256K1) {
+            return base58check.encode(Buffer.from('0d7365133f' + sig.toString('hex'), 'hex'));
+        } else if (hint === 'p2sig' || hint === SignerCurve.SECP256R1) {
+            return base58check.encode(Buffer.from('36f02c34' + sig.toString('hex'), 'hex'));
         } else {
             throw new Error(`Unrecognized signature hint, '${hint}'`);
         }
@@ -324,9 +329,13 @@ export namespace TezosMessageUtils {
      * @param key Key to encode, input is expected to be a base58-check encoded string.
      * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
      */
-    export function writeSignatureWithHint(sig: string, hint: string): Buffer {
-        if (hint === 'edsig') {
-            return base58check.decode(sig).slice(5);
+    export function writeSignatureWithHint(sig: string, hint: string | SignerCurve): Buffer {
+        if (hint === 'edsig' || hint === SignerCurve.ED25519) {
+            return base58check.decode(sig).slice("edsig".length);
+        } else if (hint === 'spsig' || hint === SignerCurve.SECP256K1) {
+            return base58check.decode(sig).slice("spsig".length);
+        } else if (hint === 'p2sig' || hint === SignerCurve.SECP256R1) {
+            return base58check.decode(sig).slice("p2sig".length);
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
@@ -398,7 +407,7 @@ export namespace TezosMessageUtils {
      * @param format value format, this argument is used to encode complex values, Michelson and Micheline encoding is supported with the internal parser.
      */
     export function writePackedData(value: string | number | Buffer, type: string, format: TezosParameterFormat = TezosParameterFormat.Micheline): string {
-        switch(type) {
+        switch (type) {
             case 'int': {
                 return '0500' + writeSignedInt(value as number);
             }
@@ -443,8 +452,8 @@ export namespace TezosMessageUtils {
      * @param {string} hex 
      * @param {string} type One of int, nat, string, key_hash, address, bytes, michelson, micheline (default)
      */
-    export function readPackedData(hex: string, type: string) : string | number {
-        switch(type) {
+    export function readPackedData(hex: string, type: string): string | number {
+        switch (type) {
             case 'int': {
                 return readSignedInt(hex.slice(4));
             }
@@ -485,7 +494,7 @@ export namespace TezosMessageUtils {
      * @param {Buffer} payload Buffer to hash
      * @param {number} length Length of hash to produce
      */
-    export function simpleHash(payload: Buffer, length: number) : Buffer {
+    export function simpleHash(payload: Buffer, length: number): Buffer {
         return Buffer.from(blakejs.blake2b(payload, null, length)); // Same as libsodium.crypto_generichash
     }
 
@@ -493,7 +502,7 @@ export namespace TezosMessageUtils {
      * Encodes the provided number as base128.
      * @param n 
      */
-    function twoByteHex(n: number) : string {
+    function twoByteHex(n: number): string {
         if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
 
         let h = '';
@@ -518,7 +527,7 @@ export namespace TezosMessageUtils {
      * Decodes the provided base128 string into a number
      * @param s 
      */
-    function fromByteHex(s: string) : number {
+    function fromByteHex(s: string): number {
         if (s.length === 2) { return parseInt(s, 16); }
 
         if (s.length <= 8) {
