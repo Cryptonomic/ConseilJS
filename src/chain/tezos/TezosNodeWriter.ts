@@ -31,13 +31,17 @@ export namespace TezosNodeWriter {
      * @param {object} payload Payload to submit
      * @returns {Promise<object>} JSON-encoded response
      */
-    function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
+    async function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
 
         log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
+        log.debug(`hitting server: ${url}`)
 
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+        const result = await fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+        log.debug(`1111 TezosNodeWriter.performPostRequest returned ${JSON.stringify(result)}`)
+
+        return result
     }
 
     /**
@@ -701,6 +705,8 @@ export namespace TezosNodeWriter {
      * @returns Error text or `undefined`
      */
     function parseRPCError(response: string) {
+        log.debug(`parsing response:\n${response}`)
+
         let errors = '';
 
         try {
