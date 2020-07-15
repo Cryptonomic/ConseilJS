@@ -31,14 +31,14 @@ export namespace TezosNodeWriter {
      * @param {object} payload Payload to submit
      * @returns {Promise<object>} JSON-encoded response
      */
-    async function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
+    function performPostRequest(server: string, command: string, payload = {}): Promise<Response> {
         const url = `${server}/${command}`;
         const payloadStr = JSON.stringify(payload);
 
         log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
         log.debug(`hitting server: ${url}`)
 
-        const result = await fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+        const result = fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
         log.debug(`1111 TezosNodeWriter.performPostRequest returned ${JSON.stringify(result)}`)
 
         return result
