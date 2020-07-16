@@ -4,10 +4,8 @@ import * as log from 'loglevel';
 import FetchSelector from './utils/FetchSelector';
 import DeviceSelector from './utils/DeviceSelector';
 import LogSelector from './utils/LoggerSelector';
-import { TezosLedgerWallet } from './identity/tezos/TezosLedgerWallet';
 
 FetchSelector.setFetch(fetch);
-DeviceSelector.setLedgerUtils(TezosLedgerWallet);
 LogSelector.setLogger(log.getLogger('conseiljs'));
 LogSelector.setLevel('error');
 
@@ -30,7 +28,6 @@ export * from './chain/tezos/contracts/Tzip7ReferenceTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
 
 export * from "./identity/tezos/TezosFileWallet";
-export * from "./identity/tezos/TezosLedgerWallet";
 export * from "./identity/tezos/TezosWalletUtil";
 
 export * from "./reporting/tezos/TezosConseilClient";
@@ -48,3 +45,11 @@ export * from './types/tezos/TezosRPCResponseTypes';
 export * from './types/wallet/KeyStore';
 
 export * from './utils/CryptoUtils';
+
+let TezosLedgerWallet;
+
+if (process.env.TEZOS_LEDGER_WALLET_IMPORT) {
+    TezosLedgerWallet = require('./identity/tezos/TezosLedgerWallet').TezosLedgerWallet;
+
+    DeviceSelector.setLedgerUtils(TezosLedgerWallet);
+}

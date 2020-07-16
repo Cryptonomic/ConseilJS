@@ -95,7 +95,6 @@
     "copyfiles": "2.2.0",
     "coveralls": "3.0.12",
     "eslint": "6.8.0",
-    "eslint-config-airbnb-base": "14.1.0",
     "eslint-plugin-import": "2.20.2",
     "glob": "7.1.6",
     "mocha": "7.1.1",
@@ -137,42 +136,6 @@
           "lexer/*.ts"
         ]
       }
-    ],
-    "extends": "airbnb-base",
-    "rules": {
-      "comma-dangle": [
-        2,
-        "never"
-      ],
-      "curly": [
-        2,
-        "all"
-      ],
-      "indent": [
-        1,
-        4
-      ],
-      "max-len": [
-        2,
-        {
-          "code": 200,
-          "ignoreTrailingComments": true
-        }
-      ],
-      "no-tabs": [
-        2
-      ],
-      "quotes": [
-        2,
-        "single"
-      ],
-      "array-element-newline": [
-        2,
-        {
-          "multiline": true,
-          "minItems": 5
-        }
-      ]
-    }
+    ]
   }
 }
