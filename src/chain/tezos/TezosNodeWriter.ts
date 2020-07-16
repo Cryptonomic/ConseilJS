@@ -20,9 +20,7 @@ import DeviceSelector from '../../utils/DeviceSelector';
 let LedgerUtils = DeviceSelector.getLedgerUtils();
 
 import LogSelector from '../../utils/LoggerSelector';
-const log = LogSelector.log;
 
-const { fetch } = FetchSelector;
 const { log } = LogSelector;
 
 const operationQueues = {};
@@ -226,11 +224,11 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * 
-     * @param server 
-     * @param operations 
-     * @param keyStore 
-     * @param derivationPath 
+     *
+     * @param server
+     * @param operations
+     * @param keyStore
+     * @param derivationPath
      * @param {number} batchDelay Number of seconds to wait before sending transactions off.
      */
     export function queueOperation(server: string, operations: TezosP2PMessageTypes.Operation[], keyStore: KeyStore, derivationPath: string = '', batchDelay: number = 25): void {
