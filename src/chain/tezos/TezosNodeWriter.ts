@@ -591,7 +591,7 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Operation dry-run to get consumed gas and storage numbers
+     * Operation dry-run to simulate a transaction
      *
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on.
@@ -782,7 +782,7 @@ export namespace TezosNodeWriter {
             } else {
                 errors = arr.map((r) => r.contents)
                     .map((o) => o.map((c) => c.metadata.operation_result)
-                        .filter((r) => r.status !== 'applied')
+                        .filter((r) => r.status === 'failed')
                         .map((r) => `${r.status}: ${r.errors.map((e) => `(${e.kind}: ${e.id})`).join(', ')}\n`))
                     .join('');
             }
