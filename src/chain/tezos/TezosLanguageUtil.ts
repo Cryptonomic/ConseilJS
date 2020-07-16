@@ -1,6 +1,5 @@
 import * as Micheline from './lexer/Micheline';
 import * as Michelson from './lexer/Michelson';
-import * as MichelsonParameters from './lexer/MichelsonParameters';
 import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
@@ -14,7 +13,7 @@ const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"El
 export namespace TezosLanguageUtil {
     /**
      * Parse out a single message from a hex string.
-     * @param {string} hex 
+     * @param {string} hex
      * @returns {codeEnvelope} Parsed Micheline object as a string along with the number of bytes that was consumed in the process.
      */
     export function hexToMicheline(hex: string): codeEnvelope {
@@ -25,7 +24,7 @@ export namespace TezosLanguageUtil {
         offset += 2;
 
         switch (fieldType) {
-            case '00': { // literal natural int
+            case '00': { // literal int or nat
                 const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
                 code += `{ "int": "${value.value}" }`;
                 offset += value.length;
@@ -41,7 +40,7 @@ export namespace TezosLanguageUtil {
                 const length = parseInt(hex.substring(offset, offset + 8), 16);
                 offset += 8;
                 let buffer: string[] = [];
-                let consumed = 0;   
+                let consumed = 0;
                 while (consumed < length) {
                     let envelope = hexToMicheline(hex.substring(offset));
                     buffer.push(envelope.code);
@@ -157,7 +156,7 @@ export namespace TezosLanguageUtil {
      * Converts Michelson to Micheline and wraps the result in a script property.
      */
     export function translateMichelsonToMicheline(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson.default));
         preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
 
         return parser.results[0];
@@ -167,15 +166,12 @@ export namespace TezosLanguageUtil {
      * Converts simple (read non-lambda) Michelson parameters to Micheline and wraps the result in a script property.
      */
     export function translateParameterMichelsonToMicheline(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(MichelsonParameters));
-        preProcessMichelsonScript(code).forEach(p => { parser.feed(p); });
-
-        return parser.results[0];
+        return translateMichelsonToMicheline(code);
     }
 
     /**
-     * Convenience function to take Michelson code straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
-     * 
+     * Convenience function to take Michelson contract straight to hex, calls translateMichelsonToMicheline() then translateMichelineToHex() internally.
+     *
      * @param {string} code Michelson code string
      * @returns {string} hex-encoded contract content
      */
@@ -195,9 +191,9 @@ export namespace TezosLanguageUtil {
 
         return parts;
     }
-    
+
     function getSection(container: any, key: string): string {
-        let root = container; 
+        let root = container;
         if (!!container.script) { root = container.script; }
 
         for (let i = 0; i < root.length; i++) {
@@ -213,7 +209,7 @@ export namespace TezosLanguageUtil {
      * Translate Micheline fragment into hex. Resulting hex string may need to be processed further before being submitted to the server.
      */
     export function translateMichelineToHex(code: string): string {
-        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline));
+        const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Micheline.default));
         parser.feed(normalizeMichelineWhiteSpace(code));
         return parser.results.join('');
     }
@@ -232,7 +228,7 @@ export namespace TezosLanguageUtil {
 
     /**
      * Translated a plain hex-encoded int into a Michelson/Micheline keyword.
-     * 
+     *
      * @param hex Hex-encoded contract to process
      * @param offset Offset to read one byte from
      * @returns {string} Michelson/Micheline keyword
@@ -243,10 +239,10 @@ export namespace TezosLanguageUtil {
 
     /**
      * Translates hex-encoded stream into a collection of annotations. Determines the length internally. Annotations are prefixed with ':', '@', or '%' for type, variable, and field annotations.
-     * 
+     *
      * @param {string} hex Hex-encoded contract fragment to process
      * @returns {codeEnvelope} Parsed annotations and the number of consumed bytes.
-     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/master/whitedoc/michelson.html#annotations}
+     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/whitedoc/michelson.html#annotations}
      */
     function michelineHexToAnnotations(hex: string): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);
@@ -294,6 +290,15 @@ export namespace TezosLanguageUtil {
             .replace(/"\]/g, '" \]')
             .replace(/\[ +\]/g, '\[\]')
             .trim();
+    }
+
+    /**
+     * 
+     * 
+     * @param fragment 
+     */
+    export function stripComments(fragment: string): string {
+        return fragment.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' ');
     }
 
     interface codeEnvelope {

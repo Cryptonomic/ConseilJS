@@ -1,8 +1,8 @@
 import * as bip39 from 'bip39';
 
-import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
-import {KeyStore, StoreType} from '../../types/wallet/KeyStore';
-import {CryptoUtils} from '../../utils/CryptoUtils'
+import { TezosMessageUtils } from '../../chain/tezos/TezosMessageUtil';
+import { KeyStore, StoreType } from '../../types/wallet/KeyStore';
+import { CryptoUtils } from '../../utils/CryptoUtils'
 
 export namespace TezosWalletUtil {
     /**
@@ -41,7 +41,7 @@ export namespace TezosWalletUtil {
      * @param {number} strength Mnemonic strength, defaults to 256/24-words. Tezos fundraiser mnemonics are 160/15-word.
      */
     export function generateMnemonic(strength: number = 256): string {
-        return bip39.generateMnemonic(strength)
+        return bip39.generateMnemonic(strength);
     }
 
     /**
@@ -78,5 +78,32 @@ export namespace TezosWalletUtil {
         if (!!pkh && publicKeyHash !== pkh) { throw new Error('The given mnemonic and passphrase do not correspond to the applied public key hash'); }
 
         return { publicKey, privateKey, publicKeyHash, seed: '', storeType };
+    }
+
+    /**
+     * Signs arbitrary text using libsodium/ed25519.
+     * 
+     * @param keyStore Key pair to use for signing
+     * @param message UTF-8 test
+     * @returns {Promise<string>} base58check-encoded signature prefixed with 'edsig'
+     */
+    export async function signText(keyStore: KeyStore, message: string): Promise<string> {
+        const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
+        const messageSig = await CryptoUtils.signDetached(Buffer.from(message, 'utf8'), privateKey);
+        return TezosMessageUtils.readSignatureWithHint(messageSig, 'edsig');
+    }
+
+    /**
+     * 
+     * @param signature 
+     * @param message 
+     * @param publicKey 
+     * * @returns {Promise<boolean>}
+     */
+    export async function checkSignature(signature: string, message: string, publicKey): Promise<boolean> {
+        const sig = TezosMessageUtils.writeSignatureWithHint(signature, 'edsig');
+        const pk = TezosMessageUtils.writeKeyWithHint(publicKey, 'edpk');
+
+        return await CryptoUtils.checkSignature(sig, Buffer.from(message, 'utf8'), pk);
     }
 }

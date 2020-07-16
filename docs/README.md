@@ -7,16 +7,22 @@
 [![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
 [![dependencies](https://david-dm.org/Cryptonomic/ConseilJS/status.svg)](https://david-dm.org/Cryptonomic/ConseilJS)
 
-A library for building decentralized applications, currently focused on [Tezos](http://tezos.com/).
+A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
 
-ConseilJS connects to the [Nautilus](https://github.com/Cryptonomic/Nautilus) infrastructure for high-performance analytics provided by [Conseil](https://github.com/Cryptonomic/Conseil) and for live chain data and operations via the integrated Tezos node. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
+ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax.io), [Mininax](https://mininax.io) and certainly [Galleon](https://galleon-wallet.tech). There are [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
+
+Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
+
+## Other Resources
+
+In addition to these materials, there is an [automated walk-through for common Tezos workflows](https://gist.github.com/anonymoussprocket/148d82fc9bf6c413be04155a90d57be6) available. The [mininax](https://mininax.io) block explorer is handy for viewing operations submitted during that run. Cryptonomic holds regular dApp development workshops internationally, if you are interested in one, reach out to organize it. The materials for these events are continuously updated and [are available](https://medium.com/the-cryptonomic-aperiodical/blockchain-development-with-tezos-698aa930e50f) on [Medium](https://medium.com/the-cryptonomic-aperiodical).
 
 ## Use with Nodejs
 
 Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
 
 ```bash
-npm i conseiljs
+npm i conseiljs 
 ```
 
 If you are using webpack in your project, add below lines to your `webpack.config.js` file:
@@ -31,7 +37,7 @@ We have a complete [React application example](https://github.com/Cryptonomic/Co
 
 ```html
 <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-3S7SLnF0vWFuX0qraO4vpX6upkLADLtmzndMZlPRhAmqYyENSbYKtQfaVR5K65jX"
+        integrity="sha384-g7ZPuT8xCBXLdgu2vBXWuOiEQIes6tPyFP4DIJBbgGfGSLRkOvET5Ra6dN9AePbQ"
         crossorigin="anonymous"></script>
 ```
 
@@ -70,7 +76,7 @@ If you want to skip straight to working on Michelson smart contracts simply foll
 1. [Create node project](https://nodejs.org/en/docs/guides/getting-started-guide/)
 2. [Install ConseilJS](#Use-with-Nodejs)
 3. [Get an API key](#API-Key)
-4. [Create a Tezos alphanet account](#Create-an-Tezos-alphanet-account)
+4. [Create a Tezos testnet account](#Create-an-Tezos-testnet-account)
 5. [Initialize the account](#Initialize-the-account)
 6. [Deploy a contract](#Deploy-a-Contract)
 7. [Invoke a contract](#Invoke-a-Contract)
@@ -88,15 +94,15 @@ If your interests lay in statistics and business intelligence, ConseilJS has too
 
 Some ConseilJS functions require an API key for a Conseil service instance. While direct chain interactions happen via a Tezos node, Conseil read operations like those in `TezosConseilClient` namespace do require an API key however.
 
-Obtaining a development key is easy. Hit us on the [Riot Dev Channel](https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech?via=cryptonomic.tech&via=matrix.org&via=ostez.com) and we'll hook you up.
+Obtaining a development key is easy. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
 ### Tezos Chain Operations
 
-To execute operations on the Tezos chain a link to a Tezos node is required. One can be found on the [tzscan public node page](https://tzscan.io/nodes). Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
+To execute operations on the Tezos chain a link to a Tezos node is required. One can be found after logging into [Nautilus Cloud](https://nautilus.cloud) for both testnet and mainnet. Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
 
-#### Create a Tezos alphanet account
+#### Create a Tezos testnet account
 
-Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in the network. In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
+Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. Cryptnomic provides access to the Tezos **mainnet** and **carthagenet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -106,9 +112,9 @@ import { TezosWalletUtil } from 'conseiljs';
 
 const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
-    "secret": "96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723",
+    "secret": "0a09075426ab2658814c1faf101f53e5209a62f5",
     "amount": "5652123072",
-    "pkh": "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z",
+    "pkh": "tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy",
     "password": "VvLbJMu1fF",
     "email": "yoyhmapi.ugewcsiv@tezos.example.org"
 }
@@ -128,9 +134,9 @@ initAccount();
 const conseiljs = require('conseiljs');
 const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
-    "secret": "96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723",
+    "secret": "0a09075426ab2658814c1faf101f53e5209a62f5",
     "amount": "5652123072",
-    "pkh": "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z",
+    "pkh": "tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy",
     "password": "VvLbJMu1fF",
     "email": "yoyhmapi.ugewcsiv@tezos.example.org"
 }
@@ -145,7 +151,7 @@ initAccount();
 ```
 <!-- tabs:end -->
 
-This produces a public key of `edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG` and secret key of `edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB`. **Secret keys must be kept secure!**
+This produces a public key of `edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj` and secret key of `edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH`. **Secret keys must be kept secure!**
 
 #### Create an empty Tezos account
 
@@ -201,13 +207,13 @@ const tezosNode = '';
 
 async function activateAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
-    const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723', '');
+    const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
     console.log(`Injected operation group id ${result.operationGroupID}`)
 }
 
@@ -222,13 +228,13 @@ const tezosNode = '';
 
 async function activateAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
-    const result = await conseiljs.TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '96391f810cbe7d0a7dd4ed851f7fb20e3c5bc723', '');
+    const result = await conseiljs.TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
     console.log(`Injected operation group id ${result.operationGroupID}`)
 }
 
@@ -236,8 +242,6 @@ activateAccount();
 
 ```
 <!-- tabs:end -->
-
-Operation result can be viewed on a [block explorer](https://mininax.io/#/alphanet/operations/ont2jgMsL51w3BAMJhqgsg6AoySLXsAXKzBrF1Xdyqw9f6dq8hE) for more details.
 
 The next step on Tezos is an account revelation.
 
@@ -251,9 +255,9 @@ const tezosNode = '';
 
 async function revealAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -273,9 +277,9 @@ const tezosNode = '';
 
 async function revealAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -288,11 +292,9 @@ revealAccount();
 ```
 <!-- tabs:end -->
 
-Once again we can confirm the results: [ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM](https://mininax.io/#/alphanet/operations/ooFjXs4oCWfpm5XbbMPa9spohRk3933qmDDBBLkbDPcdPpxL9eM).
-
 #### Transfer value
 
-The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z` and some random Alphanet address to test with: `tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
+The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random carthagenet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -304,14 +306,14 @@ const tezosNode = '';
 
 async function sendTransaction() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
 
-    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, '');
+    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -326,77 +328,28 @@ const tezosNode = '';
 
 async function sendTransaction() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
 
-    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, '');
+    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
 sendTransaction();
 ```
 <!-- tabs:end -->
-
-The results: [onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h](https://mininax.io/#/alphanet/operations/onj7NTxcaW5Gopx7cy6Wwxxfe6ttFFyZmgqkHEhCxTsZ7Qx7a5h).
 
 #### Delegate
 
-One of the most exciting features of Tezos is delegation. To delegate tz, an account must be originated. We picked a random Alphanet baker to delegate to: `tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB`. Note, this is an initial delegation which can be done together with an origination operation.
+One of the most exciting features of Tezos is delegation. This is a means for non-baker accounts to participate in the on-chain governance process and receive staking rewards. It is possible to delegate both implicit and originated accounts. For implicit addresses, those starting with tz1, tz2 and tz3, simply call `sendDelegationOperation`. Originated accounts, that is smart contracts, must explicitly support delegate setting, but can be deployed with a delegate already set.
 
-<!-- tabs:start -->
-##### **Typescript**
+Note that calling `sendDelegationOperation` will change an existing delegation if one is set. To cancel delegation use `sendUndelegationOperation`.
 
-```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
-
-const tezosNode = '';
-
-async function originateAccount() {
-    const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
-        seed: '',
-        storeType: StoreType.Fundraiser
-    };
-    const result = await TezosNodeWriter.sendAccountOriginationOperation(tezosNode, keystore, 100000000, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', true, true, 10000, '');
-    console.log(`Injected operation group id ${result.operationGroupID}`);
-}
-
-originateAccount();
-```
-
-##### **JavaScript**
-
-```javascript
-const conseiljs = require('conseiljs');
-const tezosNode = '';
-
-async function originateAccount() {
-    const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
-        seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
-    };
-    const result = await conseiljs.TezosNodeWriter.sendAccountOriginationOperation(tezosNode, keystore, 100000000, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', true, true, 10000, '');
-    console.log(`Injected operation group id ${result.operationGroupID}`);
-}
-
-originateAccount();
-```
-<!-- tabs:end -->
-
-The results: [ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA](https://mininax.io/#/alphanet/operations/ooqNtzH1Pxt3n7Bas9JsRW1f8QLEU4yABQbqHiXL5aws4H2rwVA). Note that as demonstrated above, it is possible to originate a new account and delegate it in one opration. To re-delegate an existing originated account use [sendDelegationOperation](#sendDelegationOperation), to remove the delegate, call [sendDelegationOperation](#sendUndelegationOperation)
-
-#### Re-delegate
-
-Implicit accounts, ones starting with tz1, tz2 and tz3, can control multiple originated, KT1, accounts, more than one of which can be delegated. To change the delegate on an existing originated account use the `sendDelegationOperation` method.
+Another important point is that delegation is applied per account for the full balance of that account. To delegate to multiple bakers from a single address, use `BabylonDelegationHelper`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -408,14 +361,14 @@ const tezosNode = '';
 
 async function delegateAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
 
-    const result = await TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', 10000);
+    const result = await TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz1LhS2WFCinpwUTdUb991ocL2D9Uk6FJGJK', 10000);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -430,14 +383,14 @@ const tezosNode = '';
 
 async function delegateAccount() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
 
-    const result = await conseiljs.TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz3gN8NTLNLJg5KRsUU47NHNVHbdhcFXjjaB', 10000);
+    const result = await conseiljs.TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz1LhS2WFCinpwUTdUb991ocL2D9Uk6FJGJK', 10000);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -447,13 +400,13 @@ delegateAccount();
 
 ### Smart Contract Interactions
 
-Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/demo/#).
+Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/demo/).
 
 #### Deploy a Contract
 
 A note of warning, as of Tezos Protocol 4, deployed in the spring of 2019, originated accounts with code (smart contracts) are no longer 'spendable'. What this means is, deploying a contract with an initial balance that does not have functionality internally that enables transfer of this balance, will permanently lock that amount of XTZ.
 
-Deploying a contract with Micheline code is possible with local forging as of ConseilJS 0.2.5.
+One of the more existing features of ConseilJS is that it allow for trustless chain interactions, including contract deployment directly from Michelson. For the curious the language parsing and transformation code lives inside the following: [`Michelson.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Michelson.ne), [`Micheline.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Micheline.ne), [`TezosLanguageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosLanguageUtil.ts)), [`TezosMessageCodec`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageCodec.ts), [`TezosMessageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageUtil.ts). To find out more about the Michelson language, visit [the guide](https://michelson.nomadic-labs.com) from Nomadic Labs and the [Tezos platform documentation](https://tezos.gitlab.io/whitedoc/michelson.html).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -467,9 +420,9 @@ const tezosNode = '';
 
 async function deployContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -495,7 +448,7 @@ async function deployContract() {
      ]`;
     const storage = '{"string": "Sample"}';
 
-    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -512,9 +465,9 @@ setLogLevel('debug');
 
 async function deployContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -540,7 +493,7 @@ async function deployContract() {
      ]`;
     const storage = '{"string": "Sample"}';
 
-    const result = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Micheline);
+    const result = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -563,9 +516,9 @@ const tezosNode = '';
 
 async function deployContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -578,11 +531,11 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+    const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'alphanet', groupid, 5);
+    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_contracts}`);
 }
 
@@ -594,16 +547,16 @@ deployContract();
 ```javascript
 const conseiljs = require('conseiljs');
 const tezosNode = '';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const conseilServer = { url: '', apiKey: '', network };
 
 conseiljs.setLogLevel('debug');
 
 async function deployContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -616,11 +569,11 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const nodeResult = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, false, true, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
+    const nodeResult = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'alphanet', groupid, 5);
+    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_accounts}`);
 }
 
@@ -628,8 +581,6 @@ deployContract();
 
 ```
 <!-- tabs:end -->
-
-The results: [opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W](https://mininax.io/#/alphanet/operations/opAWf95rPHjognVGXtcpwjZa9RyXsgFAckbRiXuQcNVguVDBR8W). The new contract address is [KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY](https://mininax.io/#/alphanet/accounts//KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY)
 
 #### Invoke a Contract
 
@@ -647,9 +598,9 @@ const tezosNode = '';
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -672,9 +623,9 @@ conseiljs.setLogLevel('debug');
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -688,8 +639,6 @@ invokeContract();
 ```
 <!-- tabs:end -->
 
-The results: [op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc](https://mininax.io/#/alphanet/operations/op8WNZqeWRxDHxTWRXroGmbDTEJvcBPbcXxPvmmg7KsDVeq5mnc).
-
 <!-- tabs:start -->
 ##### **Typescript**
 
@@ -702,15 +651,15 @@ const tezosNode = '';
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '{"string": "Cryptonomicon"}', TezosParameterFormat.Micheline);
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '', '{"string": "Cryptonomicon"}', TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -727,15 +676,15 @@ conseiljs.setLogLevel('debug');
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '{"string": "Cryptonomicon"}', conseiljs.TezosParameterFormat.Micheline);
+    const result = await conseiljs.TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '', '{"string": "Cryptonomicon"}', conseiljs.TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -755,9 +704,9 @@ const tezosNode = '';
 
 async function pingContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -780,9 +729,9 @@ conseiljs.setLogLevel('debug');
 
 async function pingContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -881,9 +830,9 @@ const tezosNode = '';
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: StoreType.Fundraiser
     };
@@ -906,9 +855,9 @@ conseiljs.setLogLevel('debug');
 
 async function invokeContract() {
     const keystore = {
-        publicKey: 'edpkuuGJ4ssH3N5k7ovwkBe16p8rVX1XLENiZ4FAayrcwUf9sCKXnG',
-        privateKey: 'edskRpVqFG2FHo11aB9pzbnHBiPBWhNWdwtNyQSfEEhDf5jhFbAtNS41vg9as7LSYZv6rEbtJTwyyEg9cNDdcAkSr9Z7hfvquB',
-        publicKeyHash: 'tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z',
+        publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
         storeType: conseiljs.StoreType.Fundraiser
     };
@@ -977,7 +926,7 @@ const tezosNode = '';
 async function sendTransaction(derivationPath: string) {
     const keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
 
-    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, derivationPath);
+    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, derivationPath);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -993,7 +942,7 @@ const tezosNode = '';
 async function sendTransaction(derivationPath) {
     const keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath);
 
-    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2', 500000, 1500, derivationPath);
+    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keyStore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, derivationPath);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -1003,7 +952,7 @@ sendTransaction("44'/1729'/0'/0'/0'");
 
 ### Metadata Discovery Functions
 
-[Conseil](https://github.com/Cryptonomic/Conseil) blockchain indexer service is metadata-driven. Reports can be constructed in a fully dynamic fashion by discovering what a particular Conseil node has available. Unless you are running your own [Nautilus](https://github.com/Cryptonomic/Nautilus) instance, you'll need access to an existing one. Cryptonomic provides a small server for developers to try. Reach out on the [Riot Dev Channel](https://matrix.to/#/!rUwpbdwWhWgKINPyOD:cryptonomic.tech?via=cryptonomic.tech&via=matrix.org&via=ostez.com) for details.
+[Conseil](https://github.com/Cryptonomic/Conseil) blockchain indexer service is metadata-driven. Reports can be constructed in a fully dynamic fashion by discovering what a particular Conseil node has available. Unless you are running your own [Nautilus](https://github.com/Cryptonomic/Nautilus) instance, you'll need access to an existing one. Cryptonomic provides an infrastructure service for Tezos – [Nautilus Cloud](https://nautilus.cloud).
 
 All metadata functions are in the `ConseilMetadataClient` namespace. Internally all of these are REST GET requests. An `apiKey` header is required. The ConseilJS api takes care of these details. Each successive request relies on the results of the previous one. Using the information provide by this service it's possible to construct data queries discussed in the next section.
 
@@ -1091,12 +1040,12 @@ The service might return:
 
 ```json
 [ { "name": "zeronet", "displayName": "Zeronet", "platform": "tezos", "network": "zeronet" },
-  { "name": "babylonnet", "displayName": "Babylonnet", "platform": "tezos", "network": "babylonnet" } ]
+  { "name": "carthagenet", "displayName": "carthagenet", "platform": "tezos", "network": "carthagenet" } ]
 ```
 
 #### Entities
 
-Query for available chain entities on `Tezos` `babylonnet`.
+Query for available chain entities on `Tezos` `carthagenet`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1105,10 +1054,10 @@ Query for available chain entities on `Tezos` `babylonnet`.
 import { ConseilMetadataClient } from 'conseiljs';
 import * as util from 'util';
 
-const conseilServerInfo = { url: '', apiKey: '', network: 'babylonnet' };
+const conseilServerInfo = { url: '', apiKey: '', network: 'carthagenet' };
 
 async function listEntities() {
-    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'babylonnet');
+    const platforms = await ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'carthagenet');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1123,7 +1072,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listEntities() {
-    const platforms = await conseiljs.ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'alphanet');
+    const platforms = await conseiljs.ConseilMetadataClient.getEntities(conseilServerInfo, 'tezos', 'carthagenet');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1160,7 +1109,7 @@ import * as util from 'util';
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributes() {
-    const platforms = await ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'alphanet', 'operations');
+    const platforms = await ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'carthagenet', 'operations');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1175,7 +1124,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributes() {
-    const platforms = await conseiljs.ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'alphanet', 'operations');
+    const platforms = await conseiljs.ConseilMetadataClient.getAttributes(conseilServerInfo, 'tezos', 'carthagenet', 'operations');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1203,7 +1152,7 @@ A result may look like this. The sample has been truncated for size.
 
 #### Attribute Values
 
-The metadata services provides distinct values for some low-cardinality fields. In this case we're querying for `operation` `kind` on `Tezos` `alphanet`.
+The metadata services provides distinct values for some low-cardinality fields. In this case we're querying for `operation` `kind` on `Tezos` `carthagenet`.
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -1215,7 +1164,7 @@ import * as util from 'util';
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributeValues() {
-    const platforms = await ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'alphanet', 'operations', 'kind');
+    const platforms = await ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'carthagenet', 'operations', 'kind');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1230,7 +1179,7 @@ const util = require('util');
 const conseilServerInfo = { url: '', apiKey: '' };
 
 async function listAttributeValues() {
-    const platforms = await conseiljs.ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'alphanet', 'operations', 'kind');
+    const platforms = await conseiljs.ConseilMetadataClient.getAttributeValues(conseilServerInfo, 'tezos', 'carthagenet', 'operations', 'kind');
     console.log(`${util.inspect(platforms, false, 2, false)}`);
 }
 
@@ -1256,7 +1205,7 @@ For the Tezos chain these methods are in the `TezosConseilClient` namespace, in 
 
 #### List transactions for an address
 
-Notice that it is possible to sort on and filter by fields that are not returned in the result set. Sent and received transactions must be queried for separately. Same address is used as an example: `tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z`.
+Notice that it is possible to sort on and filter by fields that are not returned in the result set. Sent and received transactions must be queried for separately. Same address is used as an example: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy`.
 
 <!-- tabs:start -->
 
@@ -1267,7 +1216,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1276,7 +1225,7 @@ async function listAccountTransactions() {
     let sendQuery = ConseilQueryBuilder.blankQuery();
     sendQuery = ConseilQueryBuilder.addFields(sendQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     sendQuery = ConseilQueryBuilder.addPredicate(sendQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
-    sendQuery = ConseilQueryBuilder.addPredicate(sendQuery, 'source', ConseilOperator.EQ, ['tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z'], false);
+    sendQuery = ConseilQueryBuilder.addPredicate(sendQuery, 'source', ConseilOperator.EQ, ['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy'], false);
     sendQuery = ConseilQueryBuilder.addPredicate(sendQuery, 'status', ConseilOperator.EQ, ['applied'], false);
     sendQuery = ConseilQueryBuilder.addOrdering(sendQuery, 'block_level', ConseilSortDirection.DESC);
     sendQuery = ConseilQueryBuilder.setLimit(sendQuery, 100);
@@ -1284,7 +1233,7 @@ async function listAccountTransactions() {
     let receiveQuery = ConseilQueryBuilder.blankQuery();
     receiveQuery = ConseilQueryBuilder.addFields(receiveQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     receiveQuery = ConseilQueryBuilder.addPredicate(receiveQuery, 'kind', ConseilOperator.EQ, ['transaction'], false);
-    receiveQuery = ConseilQueryBuilder.addPredicate(receiveQuery, 'destination', ConseilOperator.EQ, ['tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z'], false);
+    receiveQuery = ConseilQueryBuilder.addPredicate(receiveQuery, 'destination', ConseilOperator.EQ, ['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy'], false);
     receiveQuery = ConseilQueryBuilder.addPredicate(receiveQuery, 'status', ConseilOperator.EQ, ['applied'], false);
     receiveQuery = ConseilQueryBuilder.addOrdering(receiveQuery, 'block_level', ConseilSortDirection.DESC);
     receiveQuery = ConseilQueryBuilder.setLimit(receiveQuery, 100);
@@ -1306,7 +1255,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1315,7 +1264,7 @@ async function listAccountTransactions() {
     let sendQuery = conseiljs.ConseilQueryBuilder.blankQuery();
     sendQuery = conseiljs.ConseilQueryBuilder.addFields(sendQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     sendQuery = conseiljs.ConseilQueryBuilder.addPredicate(sendQuery, 'kind', conseiljs.ConseilOperator.EQ, ['transaction'], false);
-    sendQuery = conseiljs.ConseilQueryBuilder.addPredicate(sendQuery, 'source', conseiljs.ConseilOperator.EQ, ['tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z'], false);
+    sendQuery = conseiljs.ConseilQueryBuilder.addPredicate(sendQuery, 'source', conseiljs.ConseilOperator.EQ, ['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy'], false);
     sendQuery = conseiljs.ConseilQueryBuilder.addPredicate(sendQuery, 'status', conseiljs.ConseilOperator.EQ, ['applied'], false);
     sendQuery = conseiljs.ConseilQueryBuilder.addOrdering(sendQuery, 'block_level', conseiljs.ConseilSortDirection.DESC);
     sendQuery = conseiljs.ConseilQueryBuilder.setLimit(sendQuery, 100);
@@ -1323,7 +1272,7 @@ async function listAccountTransactions() {
     let receiveQuery = conseiljs.ConseilQueryBuilder.blankQuery();
     receiveQuery = conseiljs.ConseilQueryBuilder.addFields(receiveQuery, 'block_level', 'timestamp', 'source', 'destination', 'amount', 'fee', 'counter');
     receiveQuery = conseiljs.ConseilQueryBuilder.addPredicate(receiveQuery, 'kind', conseiljs.ConseilOperator.EQ, ['transaction'], false);
-    receiveQuery = conseiljs.ConseilQueryBuilder.addPredicate(receiveQuery, 'destination', conseiljs.ConseilOperator.EQ, ['tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z'], false);
+    receiveQuery = conseiljs.ConseilQueryBuilder.addPredicate(receiveQuery, 'destination', conseiljs.ConseilOperator.EQ, ['tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy'], false);
     receiveQuery = conseiljs.ConseilQueryBuilder.addPredicate(receiveQuery, 'status', conseiljs.ConseilOperator.EQ, ['applied'], false);
     receiveQuery = conseiljs.ConseilQueryBuilder.addOrdering(receiveQuery, 'block_level', conseiljs.ConseilSortDirection.DESC);
     receiveQuery = conseiljs.ConseilQueryBuilder.setLimit(receiveQuery, 100);
@@ -1342,12 +1291,12 @@ listAccountTransactions();
 A result of that request might look like this.
 
 ```json
-[ { "source": "tz1WpPzK6NwWVTJcXqFvYmoA6msQeVy1YP6z",
+[ { "source": "tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy",
     "timestamp": 1554614628000,
     "block_level": 286240,
     "amount": 500000,
     "counter": 36041,
-    "destination": "tz1aCy8b6Ls4Gz7m5SbANjtMPiH6dZr9nnS2",
+    "destination": "tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc",
     "fee": 1500 } ]
 ```
 
@@ -1363,7 +1312,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1392,7 +1341,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'operations';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1439,7 +1388,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1465,7 +1414,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1496,7 +1445,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1524,7 +1473,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1558,7 +1507,7 @@ import { ConseilDataClient, ConseilQueryBuilder, ConseilSortDirection, ConseilOp
 import * as util from 'util';
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1586,7 +1535,7 @@ const conseiljs = require('conseiljs');
 const util = require('util');
 
 const platform = 'tezos';
-const network = 'babylonnet';
+const network = 'carthagenet';
 const entity = 'accounts';
 
 const conseilServer = { url: '', apiKey: '', network };
@@ -1613,29 +1562,35 @@ accountBalance('tz1aQuhhKCvjFZ4XbnvTU5BjaBiz3ceoMNag');
 
 #### ConseilQueryBuilder
 
-This collection of methods crates entity queries.
+This collection of methods for creating entity queries.
 
-##### blankQuery()
+##### addAggregationFunction(query, field, aggregationFunction)
 
-This method creates a minimum viable query that can be sent a Conseil data service like `TezosConseilClient`.
+It is possible to apply an aggregation function to a field in the query. This field must be present in the `fields` collection. The aggregation function is one of `avg`, `count`, `max`, `min`, `sum` as defined in the `ConseilFunction` enum. `count` can be applied to any field type; `max`, `min` can be applied to a datetime or numeric fields, while `avg` and `sum` are only valid on numeric fields.
 
 ##### addFields(query, ...fields)
 
 By default, all fields are returned, but using the information from the ConseilMetadataClient for the appropriate platform/network/entity combination.
-
-##### addPredicate(query, field, operation, values, invert)
-
-Several predicate operations are supported. For string values: `EQ`, `IN`, `LIKE`, `STARTSWITH`, `ENDSWITH`, `ISNULL`. For numbers and dates: `EQ`, `IN`, `BETWEEN`, `LT` or `BEFORE`, `GT` or `AFTER`, `ISNULL`. The operation values are located in the `ConseilOperator` enum. The difference between `LIKE` and `STARTSWITH` and `ENDSWITH`, is that the former will do a match at any point in the text.
-
-There are limitations on the contents of the values array depending on the supplied operation. `EQ` requires a single value, `IN` an contain multiple, `BETWEEN` only accepts two.
-
-The last parameter is to allow for queries like `not in`, or `is not null`, `!=`. Default is `false`.
 
 ##### addOrdering(query, field, direction)
 
 One or more ordering instructions can be added to a query and they may be applied on fields that are not part of the result set.
 
 The default direction is `ASC`. Direction values are in the `ConseilSortDirection` enum.
+
+##### addPredicate(query, field, operation, values, invert, group)
+
+Several predicate operations are supported. For string values: `EQ`, `IN`, `LIKE`, `STARTSWITH`, `ENDSWITH`, `ISNULL`. For numbers and dates: `EQ`, `IN`, `BETWEEN`, `LT` or `BEFORE`, `GT` or `AFTER`, `ISNULL`. The operation values are located in the `ConseilOperator` enum. The difference between `LIKE` and `STARTSWITH` and `ENDSWITH`, is that the former will do a match at any point in the text.
+
+There are limitations on the contents of the values array depending on the supplied operation. `EQ` requires a single value, `IN` an contain multiple, `BETWEEN` only accepts two.
+
+The `invert` parameter is to allow for queries like `not in`, or `is not null`, `!=`. Default is `false`.
+
+Lastly, the optional `group` parameter allows to associated predicates into groups so they can be applied with and OR condition instead of AND.
+
+##### blankQuery()
+
+This method creates a minimum viable query that can be sent a Conseil data service like `TezosConseilClient`.
 
 ##### setLimit(query, limit)
 
@@ -1645,15 +1600,15 @@ The default record set is 100 rows. This can be changed using this method, howev
 
 By default, the service will return json data. For large datasets this is suboptimal. This function sets the output parameter of the ConseilQuery to one of 'json' or 'csv' as defined in `ConseilOutput` enum.
 
-##### addAggregationFunction(query, field, aggregationFunction)
-
-It is possible to apply an aggregation function to a field in the query. This field must be present in the `fields` collection. The aggregation function is one of `avg`, `count`, `max`, `min`, `sum` as defined in the `ConseilFunction` enum. `count` can be applied to any field type; `max`, `min` can be applied to a datetime or numeric fields, while `avg` and `sum` are only valid on numeric fields.
-
 #### ConseilMetadataClient
 
 For details, see [API Examples](#metadata-discovery-functions) below.
 
 #### ConseilDataClient
+
+#### executeEntityQuery(serverInfo, platform, network, entity, query)
+
+The single method of this namespace submits queries from the `ConseilQueryBuilder` to the Conseil service endpoint.
 
 #### TezosConseilClient
 
@@ -1661,9 +1616,27 @@ Functions for querying the Conseil back-end REST API v2 for Tezos. This function
 
 All of these methods require Conseil connection object which is a URL and API key. The `serverInfo` parameter below is of type `ConseilServerInfo`. Some of the methods also take a `query` parameter of type `ConseilQuery`, these are best constructed with `ConseilQueryBuilder` described [earlier](#ConseilQueryBuilder).
 
-##### getBlockHead(serverInfo, network)
+##### awaitOperationConfirmation(serverInfo, network, hash, duration, blocktime)
 
-Returns the most recent block on the chain for a given `network`. Internally this is implemented with a `ConseilQuery` ordered by block level with limit 1. All block entity fields are returned. To get just a subset of fields, use `getBlocks(serverInfo, network, query)`.
+This function will monitor the chain for an operation with the given `hash` for up a `duration` blocks on some `network`. If the operation is found, it will be returned, otherwise an `Error` is thrown.
+
+##### awaitOperationForkConfirmation(serverInfo, network, hash, duration, depth)
+
+##### getAccount(serverInfo, network, accountID)
+
+Returns a specific account on the given `network` with the provided `accountID`. In Tezos account id, account address, public key hash (phk) all refer to the same thing. All account entity fields are returned. To get just a subset of fields, use `getAccounts(serverInfo, network, query)`.
+
+##### getAccounts(serverInfo, network, query)
+
+Returns account information subject to the provided `query` on a given `network`.
+
+##### getBakers(serverInfo, network, query)
+
+Returns baker information subject to the provided `query` on a given `network`.
+
+##### getBallots(serverInfo, network, query)
+
+Returns ballot information subject to the provided `query` on a given `network`.
 
 ##### getBlock(serverInfo, network, hash)
 
@@ -1673,21 +1646,25 @@ Returns a specific block with the given `hash` and `network`. All block entity f
 
 Returns a specific block at the provided `level` from the `network`. All block entity fields are returned.
 
-##### getAccount(serverInfo, network, accountID)
+##### getBlockHead(serverInfo, network)
 
-Returns a specific account on the given `network` with the provided `accountID`. In Tezos account id, account address, public key hash (phk) all refer to the same thing. All account entity fields are returned. To get just a subset of fields, use `getAccounts(serverInfo, network, query)`.
-
-##### getOperationGroup(serverInfo, network, operationGroupID)
-
-Returns a specific operation group on the given `network` with the provided `operationGroupID`. In Tezos individual operations are not keyed. All operation group entity fields are returned. To get just a subset of fields, use `getOperationGroups(serverInfo, network, query)`.
+Returns the most recent block on the chain for a given `network`. Internally this is implemented with a `ConseilQuery` ordered by block level with limit 1. All block entity fields are returned. To get just a subset of fields, use `getBlocks(serverInfo, network, query)`.
 
 ##### getBlocks(serverInfo, network, query)
 
 Returns block information subject to the provided `query` on a given `network`.
 
-##### getAccounts(serverInfo, network, query)
+##### getEntityQueryForId(id)
 
-Returns account information subject to the provided `query` on a given `network`.
+A conveniences function that enabled dynamic id-based search. For a specified `id`, it returns the entity type and a query necessary to get it from the service. Numeric ids are assumed to be block level.
+
+##### getFeeStatistics(serverInfo, network, operationType)
+
+Conseil indexer calculates running average fees by operation type. This is a convenience method to get that information. [Tezori](https://github.com/Cryptonomic/Tezori/blob/master/app/utils/general.js#L168) for example uses this information to suggest an appropriate fee to the user via a drop-down.
+
+##### getOperationGroup(serverInfo, network, operationGroupID)
+
+Returns a specific operation group on the given `network` with the provided `operationGroupID`. In Tezos individual operations are not keyed. All operation group entity fields are returned. To get just a subset of fields, use `getOperationGroups(serverInfo, network, query)`.
 
 ##### getOperationGroups(serverInfo, network, query)
 
@@ -1701,25 +1678,9 @@ Returns operation information subject to the provided `query` on a given `networ
 
 Returns proposal information subject to the provided `query` on a given `network`.
 
-##### getBakers(serverInfo, network, query)
+##### getTezosEntityData(serverInfo, network, entity, query)
 
-Returns baker information subject to the provided `query` on a given `network`.
-
-##### getBallots(serverInfo, network, query)
-
-Returns ballot information subject to the provided `query` on a given `network`.
-
-##### getFeeStatistics(serverInfo, network, operationType)
-
-Conseil indexer calculates running average fees by operation type. This is a convenience method to get that information. [Tezori](https://github.com/Cryptonomic/Tezori/blob/master/app/utils/general.js#L168) for example uses this information to suggest an appropriate fee to the user via a drop-down.
-
-##### awaitOperationConfirmation(serverInfo, network, hash, duration)
-
-This function will monitor the chain for an operation with the given `hash` for up a `duration` blocks on some `network`. If the operation is found, it will be returned, otherwise an `Error` is thrown.
-
-##### getEntityQueryForId(id)
-
-A conveniences function that enabled dynamic id-based search. For a specified `id`, it returns the entity type and a query necessary to get it from the service. Numeric ids are assumed to be block level.
+Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using `ConseilMetadataClient`.
 
 #### TezosLedgerWallet
 
@@ -1733,7 +1694,7 @@ Before the Ledger device can be used, the connection must be initialized with th
 
 Returns a partial `KeyStore` container public key and public key hash (address) for a given `derivationPath`. The private key does not leave the device. `deviceType` must be `HardwareDeviceType.LedgerNanoS`.
 
-##### getTezosPublicKey(derivationPath: string): Promise<string> 
+##### getTezosPublicKey(derivationPath: string): Promise&lt;string&gt;
 
 Returns just the public key for a given `derivationPath`.
 
@@ -1867,14 +1828,6 @@ JSON message definitions for RPC service responses.
 
 There are many ways to contribute to this project. You can develop applications or dApps with it. You can submit bug reports or feature requests. You can ask questions about it on [r/Tezos](http://reddit.com/r/tezos/) or the [Tezos StackExchange](https://tezos.stackexchange.com). We certainly welcome pull requests as well.
 
-### Known Issues
-
-- Some of the P2P messages are not implemented, specifically those used in baking operations.
-
-### Dependency Requirements
-
-- AWS-SDK dependency must remain as the Ledger Connect feature requires it.
-
 ### NPM Target Overview
 
 #### `npm run test`
@@ -1882,6 +1835,8 @@ There are many ways to contribute to this project. You can develop applications 
 #### `npm run coverage`
 
 #### `npm run format`
+
+#### `npm run package`
 
 ## Other references
 

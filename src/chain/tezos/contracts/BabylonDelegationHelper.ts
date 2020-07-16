@@ -1,12 +1,51 @@
-import { KeyStore } from '../../types/wallet/KeyStore';
-import * as TezosTypes from '../../types/tezos/TezosChainTypes';
-import { TezosConstants } from '../../types/tezos/TezosConstants';
-import { TezosNodeWriter } from './TezosNodeWriter';
+import * as blakejs from 'blakejs';
+import { JSONPath } from 'jsonpath-plus';
 
-/**
- * Code here should be considered deprecated. It exists to simplify transition between Tezos protocol versions.
- */
-export namespace TezosProtocolHelper {
+import { TezosLanguageUtil } from '../TezosLanguageUtil';
+import { TezosNodeReader } from '../TezosNodeReader';
+import { TezosNodeWriter } from '../TezosNodeWriter';
+import { KeyStore } from '../../../types/wallet/KeyStore';
+import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
+import { TezosConstants } from '../../../types/tezos/TezosConstants';
+
+export namespace BabylonDelegationHelper {
+    /**
+     * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
+     * 
+     * @param server Destination Tezos node.
+     * @param address Contract address to query.
+     */
+    export async function verifyDestination(server: string, address: string): Promise<boolean> {
+        const contract = await TezosNodeReader.getAccountForBlock(server, 'head', address);
+
+        if (!!!contract.script) { throw new Error(`No code found at ${address}`); }
+
+        const k = Buffer.from(blakejs.blake2s(JSON.stringify(contract.script.code), null, 16)).toString('hex');
+
+        if (k !== 'd99cb8b4c7e40166f59c0f3c30724225') { throw new Error(`Contract does not match the expected code hash: ${k}, 'd99cb8b4c7e40166f59c0f3c30724225'`); }
+
+        return true;
+    }
+
+    /**
+     * In contrast to verifyDestination, this function uses compares Michelson hashes.
+     * 
+     * @param script 
+     */
+    export function verifyScript(script: string): boolean {
+        const k = Buffer.from(blakejs.blake2s(TezosLanguageUtil.preProcessMichelsonScript(script).join('\n'), null, 16)).toString('hex');
+
+        if (k !== 'a585489ffaee60d07077059539d5bfc8') { throw new Error(`Contract does not match the expected code hash: ${k}, 'a585489ffaee60d07077059539d5bfc8'`); }
+
+        return true;
+    }
+
+    export async function getSimpleStorage(server: string, address: string): Promise<{administrator: string}> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        return { administrator: JSONPath({ path: '$.string', json: storageResult })[0] };
+    }
+
     /**
      * 
      * @param server Destination Tezos node.
@@ -82,7 +121,7 @@ export namespace TezosProtocolHelper {
             { "prim": "TRANSFER_TOKENS" },
             { "prim": "CONS" } ]`;
 
-        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, 0, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
+        return TezosNodeWriter.sendContractInvocationOperation(server, keyStore, contract, 0, fee, derivationPath, TezosConstants.P005ManagerContractWithdrawalStorageLimit, TezosConstants.P005ManagerContractWithdrawalGasLimit, 'do', parameters, TezosTypes.TezosParameterFormat.Micheline);
     }
 
     /**

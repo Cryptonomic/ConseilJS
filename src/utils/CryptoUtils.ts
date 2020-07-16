@@ -1,5 +1,5 @@
 import * as blakejs from 'blakejs';
-import zxcvbn from 'zxcvbn';
+import bigInt from 'big-integer';
 const wrapper = require('./WrapperWrapper');
 
 /**
@@ -25,9 +25,6 @@ export namespace CryptoUtils {
      * @returns {Buffer} Concatenated bytes of nonce and cipher text
      */
     export async function encryptMessage(message: string, passphrase: string, salt: Buffer) : Promise<Buffer> {
-        const passwordStrength = getPasswordStrength(passphrase);
-        if (passwordStrength < 3) { throw new Error('The password strength should not be less than 3.'); }
-
         const messageBytes = Buffer.from(message);
         const keyBytes = await wrapper.pwhash(passphrase, salt)
         const n = await wrapper.nonce();
@@ -60,16 +57,6 @@ export namespace CryptoUtils {
     }
 
     /**
-     * Checking the password strength using zxcvbn
-     * 
-     * @returns {number} Password score
-     */
-    export function getPasswordStrength(password: string) : number {
-        const results = zxcvbn(password);
-        return results.score;
-    }
-
-    /**
      * Generate key pair from seed.
      * 
      * @param seed 
@@ -97,8 +84,55 @@ export namespace CryptoUtils {
      * @param payload 
      * @param secretKey 
      */
-    export async function signDetached(payload: Buffer, secretKey: Buffer) : Promise<Buffer> {
+    export async function signDetached(payload: Buffer, secretKey: Buffer): Promise<Buffer> {
         const b = await wrapper.sign(payload, secretKey)
         return Buffer.from(b);
+    }
+
+    export async function checkSignature(signature: Buffer, payload: Buffer, publicKey: Buffer): Promise<boolean> {
+        return await wrapper.checkSignature(signature, payload, publicKey);
+    }
+
+    export function twoByteHex(n: number) : string {
+        if (n < 128) { return ('0' + n.toString(16)).slice(-2); }
+
+        let h = '';
+        if (n > 2147483648) {
+            let r = bigInt(n);
+            while (r.greater(0)) {
+                h = ('0' + (r.and(127)).toString(16)).slice(-2) + h;
+                r = r.shiftRight(7);
+            }
+        } else {
+            let r = n;
+            while (r > 0) {
+                h = ('0' + (r & 127).toString(16)).slice(-2) + h;
+                r = r >> 7;
+            }
+        }
+
+        return h;
+    }
+
+    export function fromByteHex(s: string) : number {
+        if (s.length === 2) { return parseInt(s, 16); }
+
+        if (s.length <= 8) {
+            let n = parseInt(s.slice(-2), 16);
+
+            for (let i = 1; i < s.length / 2; i++) {
+                n += parseInt(s.slice(-2 * i - 2, -2 * i), 16) << (7 * i);
+            }
+
+            return n;
+        }
+
+        let n = bigInt(parseInt(s.slice(-2), 16));
+
+        for (let i = 1; i < s.length / 2; i++) {
+            n = n.add(bigInt(parseInt(s.slice(-2 * i - 2, -2 * i), 16)).shiftLeft(7 * i));
+        }
+
+        return n.toJSNumber();
     }
 }

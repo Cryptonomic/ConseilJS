@@ -289,12 +289,8 @@ export const accountMockList = [
 ];
 
 export const managerKeyMockList = [
-  {
-    "manager":  "tz1LoKbFyYHTkCnj9mgRKFb9g8pP4Lr3zniP",
-    "key":  "edpku88EkY42ZKGTkiWTLkz8Th977n82AJWaZrmyBcrQ1dzo26aWKp"
-  }, {
-    "manager":  "tz1fX6A2miVXjNyReg2dpt2TsXLkZ4w7zRGa"
-  }
+  'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+  'null'
 ];
 
 export const walletInfoLists = [

@@ -25,7 +25,7 @@ const sepyTnoitarepo: Map<string, number> = [...operationTypes.keys()].reduce((m
 export namespace TezosMessageCodec {
     /**
      * Parse operation type from a bounded hex string and translate to enum.
-     * @param {string} hex 
+     * @param {string} hex
      */
     export function getOperationType(hex: string): string {
         return operationTypes.get(TezosMessageUtils.readInt(hex)) || '';
@@ -41,7 +41,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse an operation of unknown length, possibly containing siblings.
-     * 
+     *
      * @param {string} hex Encoded message
      * @param {string} opType Operation type to parse
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group
@@ -77,9 +77,9 @@ export namespace TezosMessageCodec {
 
     /**
      * "Forges" Tezos P2P messages.
-     * 
+     *
      * @param {any} hex Message to encode
-     * 
+     *
      * @returns {string} Hex string of the message content
      */
     export function encodeOperation(message: any): string {
@@ -104,7 +104,7 @@ export namespace TezosMessageCodec {
 
     /**
      * "Forges" Tezos P2P Activation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
-     * 
+     *
      * @param activation Message to encode
      */
     export function encodeActivation(activation: Activation): string {
@@ -117,7 +117,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse a Ballot, tag 6, message possibly containing siblings.
-     * 
+     *
      * @param {string} ballotMessage Encoded ballot message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
      */
@@ -173,7 +173,7 @@ export namespace TezosMessageCodec {
 
     /**
      * "Forges" Tezos P2P Ballot message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
-     * 
+     *
      * @param ballot Message to encode
      */
     export function encodeBallot(ballot: Ballot): string {
@@ -188,7 +188,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse a Reveal, tag 7, message possibly containing siblings.
-     * 
+     *
      * @param {string} revealMessage Encoded reveal-type message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
      */
@@ -258,7 +258,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Creates a hex string for the provided reveal operation. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
-     * 
+     *
      * @param {string} reveal A reveal operation to be encoded.
      */
     export function encodeReveal(reveal: Reveal): string {
@@ -277,7 +277,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse a Transaction, tag 8, message possibly containing siblings.
-     * 
+     *
      * @param {string} transactionMessage Encoded transaction-type message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
      */
@@ -396,13 +396,13 @@ export namespace TezosMessageCodec {
 
     /**
      * Encodes a Transaction operation.
-     * 
+     *
      * Warning, `Operation.parameters` is expected to be of type `ContractParameters`. Furthermore, `ContractParameters.entrypoint` is expected to exclude the leading '%'. Finally P005 requires that the entry point name be no more than 31 chars.
-     * 
-     * @param {Operation} transaction 
+     *
+     * @param {Operation} transaction
      * @returns {string}
-     * 
-     * @see {@link https://tezos.gitlab.io/mainnet/api/p2p.html#transaction-tag-8|Tezos P2P message format}
+     *
+     * @see {@link https://tezos.gitlab.io/api/p2p.html#transaction-tag-108 | Tezos P2P message format}
      */
     export function encodeTransaction(transaction: Transaction): string {
         if (transaction.kind !== 'transaction') { throw new Error('Incorrect operation type'); }
@@ -420,25 +420,34 @@ export namespace TezosMessageCodec {
             const composite = transaction.parameters as ContractParameters;
             const code = TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(composite.value));
             const result = TezosLanguageUtil.translateMichelineToHex(code);
-            hex += 'ff';
 
-            if (composite.entrypoint === 'default') {
+            if ((composite.entrypoint === 'default' || composite.entrypoint === '') && result === '030b') {
                 hex += '00';
-            } else if (composite.entrypoint === 'root') {
-                hex += '01';
-            } else if (composite.entrypoint === 'do') {
-                hex += '02';
-            } else if (composite.entrypoint === 'set_delegate') {
-                hex += '03';
-            } else if (composite.entrypoint === 'remove_delegate') {
-                hex += '04';
             } else {
-                hex += 'ff'
-                    + ('0' + composite.entrypoint.length.toString(16)).slice(-2)
-                    + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
-            }
+                hex += 'ff';
 
-            hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+                if (composite.entrypoint === 'default' || composite.entrypoint === '') {
+                    hex += '00';
+                } else if (composite.entrypoint === 'root') {
+                    hex += '01';
+                } else if (composite.entrypoint === 'do') {
+                    hex += '02';
+                } else if (composite.entrypoint === 'set_delegate') {
+                    hex += '03';
+                } else if (composite.entrypoint === 'remove_delegate') {
+                    hex += '04';
+                } else {
+                    hex += 'ff'
+                        + ('0' + composite.entrypoint.length.toString(16)).slice(-2)
+                        + composite.entrypoint.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+                }
+
+                if (result === '030b') { // { "prim": "Unit" }
+                    hex += '00';
+                } else {
+                    hex += ('0000000' + (result.length / 2).toString(16)).slice(-8) + result; // prefix byte length
+                }
+            }
         } else {
             hex += '00';
         }
@@ -448,7 +457,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse an Origination, tag 9, message possibly containing siblings.
-     * 
+     *
      * @param {string} originationMessage Encoded origination-type message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
      */
@@ -574,7 +583,7 @@ export namespace TezosMessageCodec {
 
     /**
      * "Forges" Tezos P2P Origination message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch. Script parameter, if present, is expected to be in Micheline format.
-     * 
+     *
      * @param origination Message to encode
      */
     export function encodeOrigination(origination: Origination): string {
@@ -611,7 +620,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse an Delegation, tag 10, message possibly containing siblings.
-     * 
+     *
      * @param {string} delegationMessage Encoded delegation-type message
      * @param {boolean} isFirst Flag to indicate first operation of Operation Group.
      */
@@ -687,7 +696,7 @@ export namespace TezosMessageCodec {
 
     /**
      * "Forges" Tezos P2P Delegation message. Note that to be sent to the node it will need to be added to an operation group or be prepended with a Branch.
-     * 
+     *
      * @param delegation Message to encode
      */
     export function encodeDelegation(delegation: Delegation): string {
@@ -712,7 +721,7 @@ export namespace TezosMessageCodec {
 
     /**
      * Parse an operation group.
-     * 
+     *
      * @param {string} hex Encoded message stream
      */
     export function parseOperationGroup(hex: string): Array<any> {

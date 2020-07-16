@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import { TezosMessageUtils } from '../../../src/chain/tezos/TezosMessageUtil';
 import 'mocha';
+import { TezosParameterFormat } from '../../../src/types/tezos/TezosChainTypes';
 
 describe('Tezos P2P message codec helper tests', () => {
   it('test address read functions', () => {
@@ -67,12 +68,30 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.readInt('1e');
     expect(result).to.equal(30);
 
+    result = TezosMessageUtils.readInt('20');
+    expect(result).to.equal(32);
+
     result = TezosMessageUtils.readInt('fe1f');
     expect(result).to.equal(4094);
+
+    result = TezosMessageUtils.readInt('8020');
+    expect(result).to.equal(4096);
+
+    result = TezosMessageUtils.readInt('90dd78');
+    expect(result).to.equal(1978000);
+
+    result = TezosMessageUtils.readInt('8086f7840d');
+    expect(result).to.equal(3500000000);
+
+    result = TezosMessageUtils.readInt('80d683bba318');
+    expect(result).to.equal(834152753920);
   });
 
-  it('test int write function', () => {
-    let result = TezosMessageUtils.writeInt(7);
+  it('test writeInt function', () => {
+    let result = TezosMessageUtils.writeInt(0);
+    expect(result).to.equal('00');
+
+    result = TezosMessageUtils.writeInt(7);
     expect(result).to.equal('07');
 
     result = TezosMessageUtils.writeInt(32);
@@ -81,10 +100,18 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.writeInt(4096);
     expect(result).to.equal('8020');
 
-    result = TezosMessageUtils.writeInt(0);
-    expect(result).to.equal('00');
+    result = TezosMessageUtils.writeInt(1395000);
+    expect(result).to.equal('b89255');
 
-    result = TezosMessageUtils.writeSignedInt(0);
+    result = TezosMessageUtils.writeInt(6300010000);
+    expect(result).to.equal('908c8abc17');
+
+    result = TezosMessageUtils.writeInt(794254710954);
+    expect(result).to.equal('aab194ea8e17');
+  });
+
+  it('test writeSignedInt function', () => {
+    let result = TezosMessageUtils.writeSignedInt(0);
     expect(result).to.equal('00');
 
     result = TezosMessageUtils.writeSignedInt(-64);
@@ -100,9 +127,8 @@ describe('Tezos P2P message codec helper tests', () => {
     expect(result).to.equal('80f9b9d4c723');
   });
 
-  it('test int read function', () => {
+  it('test findInt function', () => {
     let result = TezosMessageUtils.findInt('d3dade57fae2', 0);
-
     expect(result.value).to.equal(184003923);
     expect(result.length).to.equal(8);
   });
@@ -114,6 +140,90 @@ describe('Tezos P2P message codec helper tests', () => {
     result = TezosMessageUtils.readBranch('8ed2aea5289f290444a0abafc51a0a52bce793dbbf3c2eb2ff8d8bd6c48689d2');
     expect(result).to.equal('BLoBZFawGRjGwk53VW76xBDhxKKMpnk3k3FWdkYZhcusd3aVwUM');
   });
+
+  it('test value PACKing', () => {
+    let result = TezosMessageUtils.writePackedData(9, 'int');
+    expect(result).to.equal('050009');
+    
+    result = TezosMessageUtils.writePackedData(9, 'nat');
+    expect(result).to.equal('050009');
+    
+    result = TezosMessageUtils.writePackedData(-9, 'int');
+    expect(result).to.equal('050049');
+
+    result = TezosMessageUtils.writePackedData(-6407, 'int');
+    expect(result).to.equal('0500c764');
+
+    result = TezosMessageUtils.writePackedData(98978654, 'int');
+    expect(result).to.equal('05009eadb25e');
+
+    result = TezosMessageUtils.writePackedData(-78181343541, 'int');
+    expect(result).to.equal('0500f584c5bfc604');
+
+    result = TezosMessageUtils.writePackedData('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8', 'address');
+    expect(result).to.equal('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2');
+
+    result = TezosMessageUtils.writePackedData('Tezos Tacos Nachos', 'string');
+    expect(result).to.equal('05010000001254657a6f73205461636f73204e6163686f73');
+
+    result = TezosMessageUtils.writePackedData(Buffer.from('0a0a0a', 'hex'), 'bytes');
+    expect(result).to.equal('050a000000030a0a0a');
+
+    result = TezosMessageUtils.writePackedData('{ "prim": "Pair", "args": [ { "int": "1" }, { "int": "12" } ] }', '{ "prim":"pair", "args":[ { "prim":"int" }, { "prim":"int" }] }');
+    expect(result).to.equal('0507070001000c');
+
+    result = TezosMessageUtils.writePackedData('(Pair 1 12)', '(pair int int)', TezosParameterFormat.Michelson);
+    expect(result).to.equal('0507070001000c');
+
+    result = TezosMessageUtils.writePackedData('{ "prim": "Pair", "args": [ { "int": "42" }, { "prim": "Left", "args": [ { "prim": "Left", "args": [ { "prim": "Pair", "args": [ { "int": "1585470660" }, { "int": "900100" } ] } ] } ] } ] }', '');
+    expect(result).to.equal('050707002a0505050507070084f382e80b0084f06d');
+  });
+
+  it('test value UNPACKing', () => {
+    let result = TezosMessageUtils.readPackedData('050009', 'int');
+    expect(result).to.equal(9);
+    
+    result = TezosMessageUtils.readPackedData('050009', 'nat');
+    expect(result).to.equal(9);
+    
+    result = TezosMessageUtils.readPackedData('050049', 'int');
+    expect(result).to.equal(-9);
+
+    result = TezosMessageUtils.readPackedData('0500c764', 'int');
+    expect(result).to.equal(-6407);
+
+    result = TezosMessageUtils.readPackedData('05009eadb25e', 'int');
+    expect(result).to.equal(98978654);
+
+    result = TezosMessageUtils.readPackedData('0500f584c5bfc604', 'int');
+    expect(result).to.equal(-78181343541);
+
+    result = TezosMessageUtils.readPackedData('050a0000001500cc04e65d3e38e4e8059041f27a649c76630f95e2', 'key_hash');
+    expect(result).to.equal('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8');
+
+    result = TezosMessageUtils.readPackedData('050a0000001601e67bac124dff100a57644de0cf26d341ebf9492600', 'address');
+    expect(result).to.equal('KT1VbT8n6YbrzPSjdAscKfJGDDNafB5yHn1H');
+
+    result = TezosMessageUtils.readPackedData('05010000001254657a6f73205461636f73204e6163686f73', 'string');
+    expect(result).to.equal('Tezos Tacos Nachos');
+
+    result = TezosMessageUtils.readPackedData('050a000000030a0a0a', 'bytes');
+    expect(result).to.equal('0a0a0a');
+
+    result = TezosMessageUtils.readPackedData('0507070001000c', '');
+    expect(result).to.equal('{ "prim": "Pair", "args": [ { "int": "1" }, { "int": "12" } ] }');
+  });
+
+  it('test big_map key hashing', () => {
+    let result = TezosMessageUtils.encodeBigMapKey(Buffer.from('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2', 'hex'));
+    expect(result).to.equal('exprv7U7pkJHbeUGhs7Wj8GTUnvfZfJRUcSCRo2EYqRSnUx1xWKrY9');
+
+    result = TezosMessageUtils.encodeBigMapKey(Buffer.from('05010000001254657a6f73205461636f73204e6163686f73', 'hex'));
+    expect(result).to.equal('expruGmscHLuUazE7d79EepWCnDuPJreo8R87wsDGUgKAuH4E5ayEj');
+  });
+
+  //readSignatureWithHint
+  //writeSignatureWithHint
 
   it("test various parsing and encoding failures", () => {
     expect(() => TezosMessageUtils.readAddress('c0ffeec0ffeec0ffeec0ffeec0ffeec0ffeec0ffee')).to.throw('Unrecognized address type');

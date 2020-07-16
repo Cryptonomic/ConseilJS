@@ -35,7 +35,7 @@ let keyStore1;
 let opIndex = 0;
 let testCondition = true;
 
-describe('Ledger Test', () => {
+/*describe('Ledger Test', () => {
     before(async () => {
         keyStore = await TezosLedgerWallet.unlockAddress(HardwareDeviceType.LedgerNanoS, derivationPath).catch(() => false);
 
@@ -122,4 +122,4 @@ describe('Ledger Test', () => {
         expect(delegationResult).to.exist;
         expect(delegationResult.operationGroupID).to.be.a('string');
     }));
-});
+});*/

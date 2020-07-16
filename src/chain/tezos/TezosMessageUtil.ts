@@ -1,14 +1,11 @@
 /*eslint no-bitwise: 0*/
 import base58check from "bs58check";
-import baseN from "base-n";
 import bigInt from 'big-integer';
 
 import { SignedOperationGroup } from '../../types/tezos/TezosChainTypes';
 import { CryptoUtils } from '../../utils/CryptoUtils';
-
-const base128 = baseN.create({
-    characters: [...Array(128).keys()].map(k => ('0' + k.toString(16)).slice(-2))
-});
+import { TezosLanguageUtil } from './TezosLanguageUtil';
+import { TezosParameterFormat } from '../../types/tezos/TezosChainTypes';
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
@@ -31,13 +28,13 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Encodes an integer into hex after converting it to Zarith format.
+     * Encodes an uint into hex after converting it to Zarith format.
      * @param {number} value Number to be obfuscated.
      */
     export function writeInt(value: number): string {
         if (value < 0) { throw new Error('Use writeSignedInt to encode negative numbers'); }
         //@ts-ignore
-        return Buffer.from(Buffer.from(base128.encode(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
+        return Buffer.from(Buffer.from(CryptoUtils.twoByteHex(value), 'hex').map((v, i) => { return i === 0 ? v : v ^ 0x80; }).reverse()).toString('hex');
     }
 
     /**
@@ -77,14 +74,13 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Takes a bounded hex string that is known to contain a number and decodes the int.
+     * Takes a bounded hex string that is known to contain a number in Zarith format and decodes the uint.
      * @param {string} hex Encoded message part.
      */
     export function readInt(hex: string): number {
-        return base128.decode(
-            //@ts-ignore
-            Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex')
-        );
+        //@ts-ignore
+        const h = Buffer.from(Buffer.from(hex, 'hex').reverse().map((v, i) => { return i === 0 ? v : v & 0x7f; })).toString('hex')
+        return CryptoUtils.fromByteHex(h);
     }
 
     export function readSignedInt(hex: string): number {
@@ -122,6 +118,27 @@ export namespace TezosMessageUtils {
         }
 
         return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
+    }
+
+    export function writeString(value: string): string {
+        const len = dataLength(value.length);
+        const text = value.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+
+        return len + text;
+    }
+
+    export function readString(hex: string): string {
+        const stringLen = parseInt(hex.substring(0, 8), 16);
+        if (stringLen === 0) { return ''; }
+
+        const stringHex = hex.slice(8);
+
+        let text = '';
+        for (let i = 0; i < stringHex.length; i += 2) {
+            text += String.fromCharCode(parseInt(stringHex.substring(i, i + 2), 16));
+        }
+
+        return text;
     }
 
     /**
@@ -229,7 +246,7 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from("0d0f25d9" + hex.substring(2), "hex"));
         } else if (hint === "01" && hex.length === 68) { // secp256k1
             return base58check.encode(Buffer.from("03fee256" + hex.substring(2), "hex"));
-        } else if (hint === "02" && hex.length === 68) { // p256
+        } else if (hint === "02" && hex.length === 68) { // secp256r1
             return base58check.encode(Buffer.from("03b28b7f" + hex.substring(2), "hex"));
         } else {
             throw new Error('Unrecognized key type');
@@ -276,8 +293,10 @@ export namespace TezosMessageUtils {
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
      */
     export function writeKeyWithHint(key: string, hint: string): Buffer {
-        if (hint === 'edsk' || hint === 'edpk') {
+        if (hint === 'edsk' || hint === 'edpk') { // ed25519
             return base58check.decode(key).slice(4);
+        //} else if (hint === 'sppk') { // secp256k1
+        //} else if (hint === 'p2pk') { // secp256r1
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
@@ -300,6 +319,20 @@ export namespace TezosMessageUtils {
     }
 
     /**
+     * Writes a Base58-check key into hex.
+     * 
+     * @param key Key to encode, input is expected to be a base58-check encoded string.
+     * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
+     */
+    export function writeSignatureWithHint(sig: string, hint: string): Buffer {
+        if (hint === 'edsig') {
+            return base58check.decode(sig).slice(5);
+        } else {
+            throw new Error(`Unrecognized key hint, '${hint}'`);
+        }
+    }
+
+    /**
      * Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
      * 
      * @param {Buffer | Uint8Array} b Bytes to encode
@@ -312,6 +345,8 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from('0574' + buffer.toString('hex'), 'hex'));
         } else if (hint === 'p') {
             return base58check.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
+        } else if (hint === 'expr') {
+            return base58check.encode(Buffer.from('0d2c401b' + buffer.toString('hex'), 'hex'));
         } else if (hint === '') {
             return base58check.encode(buffer);
         } else {
@@ -349,5 +384,94 @@ export namespace TezosMessageUtils {
     export function computeKeyHash(key: Buffer, prefix: string = 'tz1'): string {
         const hash = CryptoUtils.simpleHash(key, 20);
         return readAddressWithHint(hash, prefix);
+    }
+
+    function dataLength(value: number) {
+        return ('0000000' + (value).toString(16)).slice(-8);
+    }
+
+    /**
+     * Creates a binary representation of the provided value. This is the equivalent of the PACK instruction in Michelson.
+     * 
+     * @param value string, number or bytes to encode. A string value can also be code.
+     * @param type Type of data to encode, supports various Michelson primitives like int, nat, string, key_hash, address and bytes. This argument should be left blank if encoding a complex value, see format.
+     * @param format value format, this argument is used to encode complex values, Michelson and Micheline encoding is supported with the internal parser.
+     */
+    export function writePackedData(value: string | number | Buffer, type: string, format: TezosParameterFormat = TezosParameterFormat.Micheline): string {
+        switch(type) {
+            case 'int': {
+                return '0500' + writeSignedInt(value as number);
+            }
+            case 'nat': {
+                return '0500' + writeInt(value as number);
+            }
+            case 'string': {
+                return '0501' + writeString(value as string);
+            }
+            case 'key_hash': {
+                const address = writeAddress(value as string).slice(2);
+                return `050a${dataLength(address.length / 2)}${address}`;
+            }
+            case 'address': {
+                const address = writeAddress(value as string);
+                return `050a${dataLength(address.length / 2)}${address}`;
+            }
+            case 'bytes': {
+                const buffer = (value as Buffer).toString('hex');
+                return `050a${dataLength(buffer.length / 2)}${buffer}`;
+            }
+            default: {
+                try {
+                    if (format === TezosParameterFormat.Micheline) {
+                        return `05${TezosLanguageUtil.translateMichelineToHex(value as string)}`;
+                    } else if (format === TezosParameterFormat.Michelson) {
+                        const micheline = TezosLanguageUtil.translateMichelsonToMicheline(value as string)
+                        return `05${TezosLanguageUtil.translateMichelineToHex(micheline)}`;
+                    } else {
+                        throw new Error(`Unsupported format, ${format}, provided`);
+                    }
+                } catch (e) {
+                    throw new Error(`Unrecognized data type or format: '${type}', '${format}': ${e}`);
+                }
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param hex 
+     * @param type 
+     */
+    export function readPackedData(hex: string, type: string) : string | number {
+        switch(type) {
+            case 'int': {
+                return readSignedInt(hex.slice(4));
+            }
+            case 'nat': {
+                return readInt(hex.slice(4));
+            }
+            case 'string': {
+                return readString(hex.slice(4));
+            }
+            case 'key_hash': {
+                return readAddress(`00${hex.slice(4 + 8)}`);
+            }
+            case 'address': {
+                return readAddress(hex.slice(4 + 8));
+            }
+            case 'bytes': {
+                return hex.slice(4 + 8);
+            }
+            default: {
+                return TezosLanguageUtil.hexToMicheline(hex.slice(2)).code;
+            }
+        }
+    }
+
+    /**
+     * Created a hash of the provided buffer that can then be used to query a big_map structure on chain.
+     */
+    export function encodeBigMapKey(key: Buffer): string {
+        return readBufferWithHint(CryptoUtils.simpleHash(key, 32), 'expr');
     }
 }

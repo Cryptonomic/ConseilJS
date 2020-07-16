@@ -1,18 +1,16 @@
 # Config adapted from:
 # https://www.electron.build/multi-platform-build#sample-travisyml-to-build-electron-app-for-macos-linux-and-windows
+env:
+  global:
+    - COVERALLS_PARALLEL=true
 sudo: true
 matrix:
   include:
-    - os: osx
-      osx_image: xcode9.4
-      language: node_js
-      node_js:
-        - 11
     - os: linux
       services: docker
       language: node_js
       node_js:
-        - 11
+        - 12.14
       addons:
         apt:
           sources:

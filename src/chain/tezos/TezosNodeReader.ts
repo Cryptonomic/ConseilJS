@@ -1,3 +1,5 @@
+import { JSONPath } from 'jsonpath-plus';
+
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes'
 import { TezosRequestError } from '../../types/tezos/TezosErrorTypes';
 import FetchSelector from '../../utils/FetchSelector'
@@ -96,21 +98,21 @@ export namespace TezosNodeReader {
     export async function getSpendableBalanceForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`)
             .then(json => <TezosRPCTypes.Contract> json);
-        return parseInt(account.balance.toString(), 10); 
+        return parseInt(account.balance.toString(), 10);
     }
 
     /**
      * Fetches the manager public key of a specific account for a given block.
      * 
      * @param {string} server Tezos node to query
-     * @param {string} blockHash Hash of given block
+     * @param {string} block Hash of given block, will also accept block level and 'head'
      * @param {string} accountHash Account address
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      * @returns {Promise<string>} Manager public key
      */
-    export function getAccountManagerForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<string> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}/manager_key`)
-            .then(result => result ? result.toString() : '');
+    export function getAccountManagerForBlock(server: string, block: string, accountHash: string, chainid: string = 'main'): Promise<string> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/manager_key`)
+            .then(result => (result && result.toString() !== 'null') ? result.toString() : '').catch(err => '');
     }
 
     /**
@@ -121,8 +123,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<boolean>} Result
      */
     export async function isImplicitAndEmpty(server: string, accountHash: string): Promise<boolean> {
-        const blockHead = await getBlockHead(server);
-        const account = await getAccountForBlock(server, blockHead.hash, accountHash);
+        const account = await getAccountForBlock(server, 'head', accountHash);
 
         const isImplicit = accountHash.toLowerCase().startsWith('tz');
         const isEmpty = Number(account.balance) === 0;
@@ -138,9 +139,72 @@ export namespace TezosNodeReader {
      * @returns {Promise<boolean>} Result
      */
     export async function isManagerKeyRevealedForAccount(server: string, accountHash: string): Promise<boolean> {
-        const blockHead = await getBlockHead(server);
-        const managerKey = await getAccountManagerForBlock(server, blockHead.hash, accountHash);
+        const managerKey = await getAccountManagerForBlock(server, 'head', accountHash);
 
         return managerKey.length > 0;
+    }
+
+    export function getContractStorage(server: string, accountHash: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/contracts/${accountHash}/storage`);
+    }
+
+    /**
+     * Queries the node for a key of a big_map
+     * 
+     * @param {string} server Tezos node to connect to 
+     * @param index big_map index to query
+     * @param key encoded big_map key to get, see `TezosMessageUtils.encodeBigMapKey`, `TezosMessageUtils.writePackedData`
+     * @param {string} block Block reference, level or hash, 'head' is default
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
+    export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
+    }
+
+    /**
+     * Queries the /mempool/pending_operations RPC and parses it looking for the provided operation group id.
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param operationGroupId 
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
+    export async function getMempoolOperation(server: string, operationGroupId: string, chainid: string = 'main') {
+        const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
+        const jsonresult = JSONPath({ path: `$.applied[?(@.hash=='${operationGroupId}')]`, json: mempoolContent });
+
+        return jsonresult[0];
+    }
+
+    /**
+     * This method is meant to be used with the output of `getMempoolOperationsForAccount()` to estimate TTL of pending transactions.
+     * 
+     * @param {string} server Tezos node to connect to.
+     * @param {string} branch Branch field of the operation in question.
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     * @returns {Promise<number>} Number of blocks until the operation expires.
+     */
+    export async function estimateBranchTimeout(server: string, branch: string, chainid: string = 'main'): Promise<number> {
+        const refBlock = getBlock(server, branch, chainid);
+        const headBlock = getBlock(server, 'head', chainid);
+
+        var result = await Promise.all([refBlock, headBlock]).then(blocks => Number(blocks[1]['header']['level']) - Number(blocks[0]['header']['level']));
+
+        return 64 - result; // TODO: named const
+    }
+
+    /**
+     * Queries the /mempool/pending_operations RPC and parses it looking for applied operations submitted by the provided account
+     * 
+     * @param {string} server Tezos node to connect to 
+     * @param accountHash 
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
+    export async function getMempoolOperationsForAccount(server: string, accountHash: string, chainid: string = 'main') {
+        const mempoolContent: any = await performGetRequest(server, `chains/${chainid}/mempool/pending_operations`).catch(() => undefined);
+
+        const a = mempoolContent.applied.filter(g => g.contents.some(s => (s.source === accountHash || s.destination === accountHash)));
+        const o = a.map(g => { g.contents = g.contents.filter(s => (s.source === accountHash || s.destination === accountHash)); return g; });
+
+        return o;
     }
 }

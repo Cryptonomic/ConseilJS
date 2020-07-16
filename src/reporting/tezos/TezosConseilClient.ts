@@ -1,7 +1,8 @@
-import {ConseilQueryBuilder} from "../ConseilQueryBuilder";
-import {ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection} from "../../types/conseil/QueryTypes"
-import {ConseilDataClient} from "../ConseilDataClient";
-import {OperationKindType} from "../../types/tezos/TezosChainTypes";
+import { ConseilQueryBuilder } from "../ConseilQueryBuilder";
+import { ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection } from "../../types/conseil/QueryTypes"
+import { ConseilDataClient } from "../ConseilDataClient";
+import { OperationKindType } from "../../types/tezos/TezosChainTypes";
+import { ContractMapDetails, ContractMapDetailsItem } from '../../types/conseil/ConseilTezosTypes';
 
 /**
  * Functions for querying the Conseil backend REST API v2 for Tezos chain data.
@@ -18,7 +19,7 @@ export namespace TezosConseilClient {
 
     /**
      * Returns a record set for a specific entity of the Tezos platform. Entity list and metadata can be retrieved using ConseilMetadataClient.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param entity Entity to retrieve.
@@ -30,7 +31,7 @@ export namespace TezosConseilClient {
 
     /**
      * Get the head block from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      */
@@ -43,64 +44,84 @@ export namespace TezosConseilClient {
 
     /**
      * Get a block by hash from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param hash Block hash to query for.
      */
-    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any[]> {
+    export async function getBlock(serverInfo: ConseilServerInfo, network: string, hash: string): Promise<any> {
+        if (hash === 'head') { return getBlockHead(serverInfo, network); }
+
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [hash], false), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
      * Get a block by hash from the Tezos platform given a network.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {number} level Block level to query for.
      */
-    export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any[]> {
+    export async function getBlockByLevel(serverInfo: ConseilServerInfo, network: string, level: number): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'level', ConseilOperator.EQ, [level], false), 1);
 
-        return getTezosEntityData(serverInfo, network, BLOCKS, query);
+        const r = await getTezosEntityData(serverInfo, network, BLOCKS, query);
+        return r[0];
     }
 
     /**
      * Get an account from the Tezos platform given a network by account id.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param accountID Account hash to query for.
      */
-    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any[]> {
+    export async function getAccount(serverInfo: ConseilServerInfo, network: string, accountID: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 1);
 
-        return getTezosEntityData(serverInfo, network, ACCOUNTS, query);
+        const r = await getTezosEntityData(serverInfo, network, ACCOUNTS, query);
+        return r[0];
     }
 
     /**
-     * Get an operation group from the Tezos platform given a network by id.
-     * 
+     * Get an operation group from the Tezos platform given a network, by id.
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationGroupID Operation group hash to query for.
      */
-    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any[]> {
+    export async function getOperationGroup(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any> {
         const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'hash', ConseilOperator.EQ, [operationGroupID], false), 1);
 
-        return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
+        const r = await getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query);
+        return r[0];
+    }
+
+    /**
+     * Get an operation from the Tezos platform given a network, by id.
+     *
+     * @param serverInfo Conseil server connection definition.
+     * @param network Tezos network to query, mainnet, alphanet, etc.
+     * @param operationGroupID Operation group hash to query for.
+     */
+    export async function getOperation(serverInfo: ConseilServerInfo, network: string, operationGroupID: string): Promise<any> {
+        const query = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'operation_group_hash', ConseilOperator.EQ, [operationGroupID], false), 1);
+
+        const r = await getTezosEntityData(serverInfo, network, OPERATIONS, query);
+        return r[0];
     }
 
     /**
      * Request block-entity data for a given network. Rather than simply requesting a block by hash, this function allows modification of the response to contain a subset of block attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getBlocks(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, BLOCKS, query)
@@ -108,12 +129,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request account-entity data for a given network. Rather than simply requesting an account by hash, this function allows modification of the response to contain a subset of account attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getAccounts(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, ACCOUNTS, query)
@@ -121,12 +142,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request operation group-entity data for a given network. Rather than simply requesting an operation group by hash, this function allows modification of the response to contain a subset of operation group attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getOperationGroups(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATION_GROUPS, query)
@@ -134,12 +155,12 @@ export namespace TezosConseilClient {
 
     /**
      * Request operation-entity data for a given network. This function allows modification of the response to contain a subset of operation attributes subject to a filter on some of them.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param query Conseil JSON query. See reference.
-     * 
-     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/doc/Query.md}
+     *
+     * @see [Conseil Query Format Spec]{@link https://github.com/Cryptonomic/Conseil/blob/master/docs/README.md#tezos-chain-data-query}
      */
     export async function getOperations(serverInfo: ConseilServerInfo, network: string, query: ConseilQuery): Promise<any[]> {
         return getTezosEntityData(serverInfo, network, OPERATIONS, query);
@@ -147,7 +168,7 @@ export namespace TezosConseilClient {
 
     /**
      * Request pre-computed fee statistics for operation fees by operation kind. The query returns the latest record.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param operationType Tezos operation kind
@@ -175,16 +196,16 @@ export namespace TezosConseilClient {
 
     /**
      * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
      * @param {number} blocktime Expected number of seconds between blocks.
-     * 
+     *
      * @returns Operation record
      */
-    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any[]> {
+    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
         const initialLevel = (await getBlockHead(serverInfo, network))['level'];
         let currentLevel = initialLevel;
@@ -195,7 +216,7 @@ export namespace TezosConseilClient {
 
         while (initialLevel + duration > currentLevel) {
             const group = await getOperations(serverInfo, network, operationQuery);
-            if (group.length > 0) { return group; }
+            if (group.length > 0) { return group[0]; }
             currentLevel = (await getBlockHead(serverInfo, network))['level'];
             if (initialLevel + duration < currentLevel) { break; }
             await new Promise(resolve => setTimeout(resolve, blocktime * 1000));
@@ -206,13 +227,13 @@ export namespace TezosConseilClient {
 
     /**
      * Wait for the operation with the provided `hash` to appear on the chain for up to `duration` blocks. Then wait for an additional `depth` blocks to ensure that a fork has not occurred.
-     * 
+     *
      * @param serverInfo Conseil server connection definition.
      * @param network Tezos network to query, mainnet, alphanet, etc.
      * @param {string} hash Operation group hash of interest.
      * @param {number} duration Number of blocks to wait.
      * @param {number} depth Number of blocks to skip for fork validation.
-     * 
+     *
      * @returns `true` if the chain ids match between the original operation block and the current head, false otherwise.
      */
     export async function awaitOperationForkConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, depth: number): Promise<boolean> {
@@ -244,10 +265,45 @@ export namespace TezosConseilClient {
     }
 
     /**
+     * Returns big_map data for a given contract if any is available.
+     * 
+     * @param serverInfo Conseil server connection definition. 
+     * @param accountID Account hash to query for.
+     */
+    export async function getBigMapData(serverInfo: ConseilServerInfo, accountID: string): Promise<ContractMapDetails | undefined> {
+        if (!accountID.startsWith('KT1')) { throw new Error('Invalid address'); }
+
+        const ownerQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addFields(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'account_id', ConseilOperator.EQ, [accountID], false), 'big_map_id'), 100);
+        const ownerResult = await getTezosEntityData(serverInfo, serverInfo.network, 'originated_account_maps', ownerQuery);
+
+        if (ownerResult.length < 1) { return undefined; }
+
+        const definitionQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 100);
+        const definitionResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_maps', definitionQuery);
+
+        const contentQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addFields(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 'big_map_id', 'key', 'value'), 1000);
+        const contentResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', contentQuery);
+
+        let maps: ContractMapDetailsItem[] = [];
+        for (const d of definitionResult) {
+            const definition = { index: Number(d['big_map_id']), key: d['key_type'], value: d['value_type'] };
+
+            let content: { key: string, value: string }[] = [];
+            for(const c of contentResult.filter(r => r['big_map_id'] === definition.index)) {
+                content.push({ key: JSON.stringify(c['key']), value: JSON.stringify(c['value'])});
+            }
+
+            maps.push({definition, content});
+        }
+
+        return { contract: accountID, maps };
+    }
+
+    /**
      * Confirms that the specified operation was recorded on a continuous block sequence starting with the level below the block where
      * it appeared through the end of the sequence from `awaitOperationForkConfirmation()` with the depth that was called with. This method is
      * useful when the sequence of blocks retrieved by `awaitOperationForkConfirmation()` is the expected length, meaning `depth + 2`.
-     * 
+     *
      * Note, this is not an absolute guarantee that this operation is not part of a longer fork; just that the predecessor of each block
      * at position `n` matches the hash of the block preceding it.
      */
@@ -264,7 +320,7 @@ export namespace TezosConseilClient {
                     return a && c['level'] === initialLevel
                             && c['hash'] === initialHash
                             && c['predecessor'] === blocks[i - 1]['hash'];
-                } 
+                }
 
                 if (i === 0) {
                     return true;
@@ -287,8 +343,8 @@ export namespace TezosConseilClient {
 
     /**
      * Returns an entity query for the given ID. Positive numbers are interpreted as block level, strings starting with B as block hashes, strings starting with 'o' as operation group hashes, strings starting with 'tz1', 'tz2', 'tz3' or 'KT1' as account hashes.
-     * 
-     * @param id 
+     *
+     * @param id
      * @returns {{entity: string, query: ConseilQuery}} entity, query pair
      */
     export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {

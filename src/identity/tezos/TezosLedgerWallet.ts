@@ -1,12 +1,9 @@
-/**
- * These two lines allow us to interface with Ledgerjs and use their transport layer code
- */
-let Transport = require("@ledgerhq/hw-transport-node-hid").default;
-let App = require("basil-tezos-ledger").default;
+import Transport from '@ledgerhq/hw-transport-node-hid';
 
-import {TezosMessageUtils} from '../../chain/tezos/TezosMessageUtil';
-import {HardwareDeviceType} from "../../types/wallet/HardwareDeviceType";
-import {KeyStore, StoreType} from "../../types/wallet/KeyStore";
+import { TezosMessageUtils } from '../../chain/tezos/TezosMessageUtil';
+import { HardwareDeviceType } from "../../types/wallet/HardwareDeviceType";
+import { KeyStore, StoreType } from "../../types/wallet/KeyStore";
+import TezosLedgerConnector from "../../identity/tezos/TezosLedgerConnector"
 
 /**
  * Current solution to keep global instance of Ledgerjs transport object for signing use.
@@ -39,15 +36,12 @@ export namespace TezosLedgerWallet {
     /**
      * Given a BIP44 derivation path for Tezos, get the Tezos Public Key
      * 
-     * @param derivationPath BIP44 Derivation Path
+     * @param derivationPath BIP32/44 derivation path
      */
     export async function getTezosPublicKey(derivationPath: string): Promise<string> {
         const transport = await TransportInstance.getInstance();
-        const xtz = new App(transport);
-        const result = await xtz.getAddress(derivationPath, true);
-        const hexEncodedPublicKey = result.publicKey;
-
-        return hexEncodedPublicKey;
+        const xtz = new TezosLedgerConnector(transport);
+        return xtz.getAddress(derivationPath, true);
     }
 
     /**
@@ -58,12 +52,26 @@ export namespace TezosLedgerWallet {
      */
     export async function signTezosOperation(derivationPath: string, watermarkedOpInHex: string): Promise<Buffer> {
         const transport = await TransportInstance.getInstance();
-        const xtz = new App(transport);
+        const xtz = new TezosLedgerConnector(transport);
         const result = await xtz.signOperation(derivationPath, watermarkedOpInHex);
-        const hexEncodedSignature = result.signature;
-        const signatureBytes = Buffer.from(hexEncodedSignature, 'hex');
+        const signatureBytes = Buffer.from(result, 'hex');
 
         return signatureBytes;
+    }
+
+    /**
+     * Signs arbitrary text using Ledger devices.
+     * 
+     * @param message UTF-8 test.
+     * @returns {Promise<string>} base58check-encoded signature prefixed with 'edsig'.
+     */
+    export async function signText(derivationPath: string, message: string): Promise<string> {
+        const transport = await TransportInstance.getInstance();
+        const xtz = new TezosLedgerConnector(transport);
+        const result = await xtz.signHex(derivationPath, Buffer.from(message, 'utf8').toString('hex'));
+        const messageSig = Buffer.from(result, 'hex');
+
+        return TezosMessageUtils.readSignatureWithHint(messageSig, 'edsig');
     }
 
     export function initLedgerTransport() {

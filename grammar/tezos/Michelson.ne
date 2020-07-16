@@ -4,25 +4,9 @@
 const moo = require("moo");
 
 /*
-  Assumptions:
-  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
-  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
-  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
-    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
-  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
-    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
-  - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
-    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
-    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
-  - Postprocessor functions and grammar definitions could use a proper refactor
-  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
-  - of inputs, accounting for that in the lexer is necessary
-  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a different order
-  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
+  Michelson references:
+  https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
+  https://michelson.nomadic-labs.com/
 */
 
 const macroCADRconst = /C[AD]+R/;
@@ -44,7 +28,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -53,7 +38,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -63,7 +48,7 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -125,14 +110,24 @@ typeData ->
 data ->
     %constantData {% keywordToJson %}
   | %singleArgData _ data {% singleArgKeywordToJson %}
-  | %lparen _ %singleArgData _ data _ %rparen {% singleArgKeywordWithParenToJson %}
   | %doubleArgData _ data _ data {% doubleArgKeywordToJson  %}
-  | %lparen _ %doubleArgData _ data _ data _ %rparen {% doubleArgKeywordWithParenToJson %}
   | subData {% id %}
   | subElt {% id %}
-  | %number {% intToJson %}
   | %string {% stringToJson %}
-  # %lbrace _ %rbrace {% d => [] %}
+  | %bytes {% bytesToJson %}
+  | %number {% intToJson %}
+
+# Helper grammar for list of michelson data types.
+subData ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "(" _ (data _):+ ")" {% instructionSetToJsonSemi %}
+  | "{" _ (data _ ";":? _):+ "}" {% dataListToJsonSemi %}
+
+# Helper grammar for list of pairs of michelson data types.
+subElt ->
+    %lbrace _ %rbrace {% d => "[]" %}
+  | "{" _ (elt ";":? _):+ "}" {% dataListToJsonSemi %}
+elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
 
 # Helper grammar for list of michelson data types.
 subTypeData ->
@@ -143,10 +138,8 @@ subTypeData ->
 # Helper grammar for list of pairs of michelson data types.
 subTypeElt ->
     %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (typeElt ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (typeElt _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (typeElt _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
+  | "[{" _ (typeElt ";":? _):+ "}]" {% instructionSetToJsonSemi %}
+  | "[{" _ (typeElt _ ";":? _):+ "}]" {% instructionSetToJsonSemi %}
 
 typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
@@ -163,6 +156,7 @@ instructions -> %baseInstruction | %macroCADR | %macroDIP | %macroDUP | %macroSE
 # Grammar for michelson instruction.
 instruction ->
     instructions {% keywordToJson %}
+  | subInstruction {% id %}
   | instructions (_ %annot):+ _ {% keywordToJson %}
   | instructions _ subInstruction {% singleArgInstrKeywordToJson %}
   | instructions (_ %annot):+ _ subInstruction {% singleArgTypeKeywordToJson %}
@@ -179,24 +173,17 @@ instruction ->
   | "PUSH" _ type _ data {% doubleArgKeywordToJson %}
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
-  | %lbrace _ %rbrace {% d => "" %}
+  | "DIP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
+  | "DUP" _ [0-9]:+ {% dupnToJson %}
+  | "DUP" {% keywordToJson %}
+  | "DUP" (_ %annot):+ _ {% keywordToJson %}
+  | "DIG" _ [0-9]:+ {% dignToJson %}
+  | "DUG" _ [0-9]:+ {% dignToJson %}
+  | "DROP" _ [0-9]:+ {% dropnToJson %}
+  | "DROP" {% keywordToJson %}
   | "CREATE_CONTRACT" _ %lbrace _ parameter _ storage _ code _ %rbrace {% subContractToJson %}
-
-# Helper grammar for list of michelson data types.
-subData ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (data ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (data ";":? _):+ ")" {% instructionSetToJsonSemi %}
-  | "{" _ (data _ ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (data _ ";":? _):+ ")" {% instructionSetToJsonSemi %}
-
-# Helper grammar for list of pairs of michelson data types.
-subElt ->
-    %lbrace _ %rbrace {% d => "[]" %}
-  | "{" _ (elt ";":? _):+ "}" {% instructionSetToJsonSemi %}
-  | "(" _ (elt ";":? _):+ ")" {% instructionSetToJsonSemi %}
-elt -> %elt _ data _ data {% doubleArgKeywordToJson %}
-
+  | "EMPTY_MAP" _ type _ type {% doubleArgKeywordToJson %}
+  | "EMPTY_MAP" _ %lparen _ type _ %rparen _ type {% doubleArgParenKeywordToJson %}
 
 # Helper grammar for whitespace.
 _ -> [\s]:*
@@ -290,8 +277,16 @@ semicolons -> [;]:?
                 return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_NEQ':
                 return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
-            default:
+            case 'ASSERT_NONE': // IF_NONE {} {FAIL}
+                return '[{"prim":"IF_NONE","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]';
+            case 'ASSERT_SOME': // IF_NONE {FAIL} {RENAME @x}
+                return '[{"prim":"IF_NONE","args":[[[{"prim":"UNIT"},{"prim":"FAILWITH"}]],[]]}]';
+            case 'ASSERT_LEFT': // IF_LEFT {RENAME @x} {FAIL}
                 return '';
+            case 'ASSERT_RIGHT': // IF_LEFT {FAIL} {RENAME @x}
+                return '';
+            default:
+                throw new Error(`Could not process ${assert}`);
         }
     }
 
@@ -338,7 +333,7 @@ semicolons -> [;]:?
             case 'IF_SOME':
                 return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]${annotation}}]`;
             default:
-                return '';
+                throw new Error(`Could not process ${ifInstr}`);
         }
     }
 
@@ -452,6 +447,10 @@ semicolons -> [;]:?
     const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
+
+    /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
@@ -505,7 +504,7 @@ semicolons -> [;]:?
         if (check_dip(word)) {
             return expandDIP(word, d[2], annot)
         } else {
-            return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+            return `{ "prim": "${d[0]}", "args": [ ${d[3]} ], "annots": [${annot}] }`;
         }
     }
 
@@ -521,6 +520,7 @@ semicolons -> [;]:?
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
     const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
@@ -565,7 +565,8 @@ semicolons -> [;]:?
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
+    const dataListToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
@@ -596,11 +597,29 @@ semicolons -> [;]:?
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
+    const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
+
+    const dupnToJson = d => {
+        const n = Number(d[2]);
+
+        if (n === 1) {
+            return '{ "prim": "DUP" }';
+        } else if (n === 2) {
+            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
+        } else {
+            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
+        }
+    };
+
+    const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
+    const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
-        const instructionOne = [d[2]]
-        const instructionList = d[3].map(x => x[3])
-        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
+        const instructionOne = [d[2]];
+        const instructionList = d[3].map(x => x[3]);
+        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x));
     }
 %}

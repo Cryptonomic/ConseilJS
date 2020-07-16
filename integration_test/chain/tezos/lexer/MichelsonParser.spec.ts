@@ -8,12 +8,12 @@ import * as request from 'request-promise';
 function michelsonToMicheline(code: string): string {
     const processedCode = code.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).join(' ');
 
-    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson));
+    const parser = new nearley.Parser(nearley.Grammar.fromCompiled(Michelson.default));
     parser.feed(processedCode);
     return parser.results.join(' ');
 }
 
-const baseURL = 'https://gitlab.com/tezos/tezos/raw/master/src/bin_client/test/contracts/attic';
+const baseURL = 'https://gitlab.com/tezos/tezos/tree/master/src/bin_client/test/contracts/attic';
 const officialContractSamples = ['accounts.tz', 'add1.tz', 'add1_list.tz'];
 const michelineTranslations = {'accounts.tz': '', 'add1.tz': '', 'add1_list.tz': ''};
 

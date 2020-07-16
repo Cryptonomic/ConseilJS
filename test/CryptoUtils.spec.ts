@@ -3,14 +3,15 @@ import {expect} from 'chai';
 
 import * as bip39 from 'bip39';
 
-import {CryptoUtils} from "../src/utils/CryptoUtils";
-import {TezosMessageUtils} from '../src/chain/tezos/TezosMessageUtil';
+import { CryptoUtils } from "../src/utils/CryptoUtils";
+import { TezosMessageUtils } from '../src/chain/tezos/TezosMessageUtil';
+import { TezosWalletUtil } from '../src/identity/tezos/TezosWalletUtil';
 
 describe('encryptMessage() and decryptMessage()', () => {
     it('should correctly encrypt and decrypt text', async () => {
         const salt = await CryptoUtils.generateSaltForPwHash();
-        const message = "hello";
-        const passphrase = "Spring12345!!!";
+        const message = 'Tacos Nachos Burritos Guacamole';
+        const passphrase = '$T3Z0s!';
         const encrypted = await CryptoUtils.encryptMessage(message, passphrase, salt);
         const decrypted = await CryptoUtils.decryptMessage(encrypted, passphrase, salt);
         expect(decrypted).to.equal(message);
@@ -50,24 +51,34 @@ describe('generateKeys() and recoverPublicKey()', () => {
     });
 
     it('recover public key from secret key', async () => {
-        const sk = 'edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc'
-        const privateKey = TezosMessageUtils.writeKeyWithHint(sk, 'edsk');
+        const privateKey = TezosMessageUtils.writeKeyWithHint('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc', 'edsk');
         const keys = await CryptoUtils.recoverPublicKey(privateKey);
         const publicKeyHash = TezosMessageUtils.computeKeyHash(keys.publicKey, 'tz1');
 
         expect(publicKeyHash).to.equal('tz1io3eJUT6C3heVaewJiDio18QzkNNHaE2v');
     });
-});
 
+    it('sign a message with secret key, verify signature with public key', async () => {
+        const privateKey = TezosMessageUtils.writeKeyWithHint('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc', 'edsk');
+        const keys = await CryptoUtils.recoverPublicKey(privateKey);
+        const publicKey = keys.publicKey;
 
-describe('getPasswordStrength', () => {
-    it('should not be less than 3', () => {
-        const score = CryptoUtils.getPasswordStrength('Spring12345!');
-        expect(score).to.greaterThan(2);
+        const message = Buffer.from('Tacos Nachos Burritos Guacamole', 'utf8');
+        const messageSig = await CryptoUtils.signDetached(message, privateKey);
+        const check = await CryptoUtils.checkSignature(messageSig, message, publicKey);
+
+        expect(check).to.be.true;
     });
 
-    it('should be less than 3', () => {
-        const score = CryptoUtils.getPasswordStrength('Spring');
-        expect(score).to.lessThan(3);
+    it('sign a message with secret key, verify signature with public key (Tezos encoding)', async () => {
+        const keyStore = await TezosWalletUtil.restoreIdentityWithSecretKey('edskRqLyhpmvk7PGg6zvbEV3n325UsLF2qKuNrDHit4zbJtqEpBE925Jdx13d7ax1uiewmg4FR2TVisnuDL6epbips9NMLtsMc');
+        const privateKey = TezosMessageUtils.writeKeyWithHint(keyStore.privateKey, 'edsk');
+        const publicKey = TezosMessageUtils.writeKeyWithHint(keyStore.publicKey, 'edpk');
+
+        const message = Buffer.from('Tacos Nachos Burritos Guacamole', 'utf8');
+        const messageSig = await CryptoUtils.signDetached(message, privateKey);
+        const check = await CryptoUtils.checkSignature(messageSig, message, publicKey);
+
+        expect(check).to.be.true;
     });
 });

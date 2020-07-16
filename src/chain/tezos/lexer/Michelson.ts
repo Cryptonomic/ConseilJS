@@ -1,4 +1,4 @@
-// Generated automatically by nearley, version 2.18.0
+// Generated automatically by nearley, version 2.19.1
 // http://github.com/Hardmath123/nearley
 // Bypasses TS6133. Allow declared but unused functions.
 // @ts-ignore
@@ -20,6 +20,7 @@ declare var rbrace: any;
 declare var constantData: any;
 declare var singleArgData: any;
 declare var doubleArgData: any;
+declare var bytes: any;
 declare var elt: any;
 declare var semicolon: any;
 declare var baseInstruction: any;
@@ -32,25 +33,9 @@ declare var macroASSERTlist: any;
 const moo = require("moo");
 
 /*
-  Assumptions:
-  - Grammar defined here: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#xii-full-grammar
-  - In lexer, types and instructions may have zero, one, two, or three arguments based on the keyword.
-  - Issue: Some keywords like "DIP" can have zero and one arguments, and the lexer is order-dependent from top to bottom.
-    This may impact parsing and lead to awkward parse errors, and needs to be addressed accordingly.
-  - Issue: Splitting instructions by number of arguments hasn't been done, so certain invalid michelson expressions like
-    "PAIR key key {DROP;}" will pass through even though PAIR is a constant expression. This is a false positive.
-  - Issue: Some macros are still not implemented: http://tezos.gitlab.io/mainnet/whitedoc/michelson.html#macros
-  - Issue: There is an ambiguous parsing between commands LE and LEFT.
-  - Issue: In general, if you have multiple Michelson instructions in a code block, all of them, no matter how nested,
-    need to have a semicolon at the end, unless it's a singleton code block. In regular Michelson, you can have the very
-    last instruction in a code block not have a semicolon. A workaround has been made, but this sometimes results
-    in multiple parse results that are equivalent. In this case, we postprocess to get a single entry instead
-  - Postprocessor functions and grammar definitions could use a proper refactor
-  - While the lexer has achieved a significant speedup, certain macros are defined by a grammar, and as such, have an infinitude
-  - of inputs, accounting for that in the lexer is necessary
-  - PUSH <type> <data>, data can be empty, but fixing this causes bugs elsewhere for unknown reasons
-  - We do not handle instances where parameter, storage, and code are given in a different order
-  - There may not be an exhaustive handling of annotations for types, but it should be covered for instructions
+  Michelson references:
+  https://tezos.gitlab.io/whitedoc/michelson.html#full-grammar
+  https://michelson.nomadic-labs.com/
 */
 
 const macroCADRconst = /C[AD]+R/;
@@ -72,7 +57,8 @@ const lexer = moo.compile({
     rbrace: '}',
     ws: /[ \t]+/,
     semicolon: ";",
-    number: /-?[0-9]+/,
+    bytes: /0x[0-9a-fA-F]+/,
+    number: /-?[0-9]+(?!x)/,
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
@@ -81,7 +67,7 @@ const lexer = moo.compile({
     singleArgType: ['option', 'list', 'set', 'contract'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
-        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', 'CREATE_CONTRACT', 'DIP', 'DROP', 'DUP', 'EDIV', 'EMPTY_MAP',
+        'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
         'EMPTY_SET', 'EQ', 'EXEC', 'FAIL', 'FAILWITH', 'GE', 'GET', 'GT', 'HASH_KEY', 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE',
         'IF_RIGHT', 'IMPLICIT_ACCOUNT', 'INT', 'ISNAT', 'ITER', 'LAMBDA', 'LE', 'LEFT', 'LOOP', 'LOOP_LEFT', 'LSL', 'LSR', 'LT',
         'MAP', 'MEM', 'MUL', 'NEG', 'NEQ', 'NIL', 'NONE', 'NOT', 'NOW', 'OR', 'PACK', 'PAIR', /*'PUSH',*/ 'REDUCE', 'RENAME', 'RIGHT', 'SELF',
@@ -91,7 +77,7 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        'DIG', 'DUG', 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -192,8 +178,16 @@ const lexer = moo.compile({
                 return `[{"prim":"LT"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
             case 'ASSERT_NEQ':
                 return `[{"prim":"NEQ"},{"prim":"IF","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"${annotation}}]]]}]`;
-            default:
+            case 'ASSERT_NONE': // IF_NONE {} {FAIL}
+                return '[{"prim":"IF_NONE","args":[[],[[{"prim":"UNIT"},{"prim":"FAILWITH"}]]]}]';
+            case 'ASSERT_SOME': // IF_NONE {FAIL} {RENAME @x}
+                return '[{"prim":"IF_NONE","args":[[[{"prim":"UNIT"},{"prim":"FAILWITH"}]],[]]}]';
+            case 'ASSERT_LEFT': // IF_LEFT {RENAME @x} {FAIL}
                 return '';
+            case 'ASSERT_RIGHT': // IF_LEFT {FAIL} {RENAME @x}
+                return '';
+            default:
+                throw new Error(`Could not process ${assert}`);
         }
     }
 
@@ -240,7 +234,7 @@ const lexer = moo.compile({
             case 'IF_SOME':
                 return `[{"prim":"IF_NONE","args":[ [${ifFalse}], [${ifTrue}]]${annotation}}]`;
             default:
-                return '';
+                throw new Error(`Could not process ${ifInstr}`);
         }
     }
 
@@ -354,6 +348,10 @@ const lexer = moo.compile({
     const stringToJson = d => `{ "string": ${d[0]} }`;
 
     /**
+    */
+    const bytesToJson = d => `{ "bytes": "${d[0].toString().slice(2)}" }`;
+
+    /**
      * Given a keyword, convert it to JSON.
      * Example: "int" -> "{ "prim" : "int" }"
      */
@@ -407,7 +405,7 @@ const lexer = moo.compile({
         if (check_dip(word)) {
             return expandDIP(word, d[2], annot)
         } else {
-            return `{ "prim": "${d[0]}", "args": [  ${d[3]}  ], "annots": [${annot}] }`;
+            return `{ "prim": "${d[0]}", "args": [ ${d[3]} ], "annots": [${annot}] }`;
         }
     }
 
@@ -423,6 +421,7 @@ const lexer = moo.compile({
      * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
      */
     const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
@@ -467,7 +466,8 @@ const lexer = moo.compile({
      * '{ prim: PAIR }' ]
      */
     const instructionSetToJsonNoSemi = d => { return d[2].map(x => x[0]).concat(d[3]).map(x => nestedArrayChecker(x)); }
-    const instructionSetToJsonSemi = d => { return d[2].map(x => x[0]).map(x => nestedArrayChecker(x)); }
+    const instructionSetToJsonSemi = d => { return `${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))}`; }
+    const dataListToJsonSemi = d => { return `[ ${d[2].map(x => x[0]).map(x => nestedArrayChecker(x))} ]`; }
 
     /**
      * parameter, storage, code
@@ -498,35 +498,61 @@ const lexer = moo.compile({
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
     }
 
+    const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
+
+    const dupnToJson = d => {
+        const n = Number(d[2]);
+
+        if (n === 1) {
+            return '{ "prim": "DUP" }';
+        } else if (n === 2) {
+            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
+        } else {
+            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
+        }
+    };
+
+    const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
+    const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
+
     const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
-        const instructionOne = [d[2]]
-        const instructionList = d[3].map(x => x[3])
-        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x))
+        const instructionOne = [d[2]];
+        const instructionList = d[3].map(x => x[3]);
+        return instructionOne.concat(instructionList).map(x => nestedArrayChecker(x));
     }
 
-export interface Token { value: any; [key: string]: any };
-
-export interface Lexer {
-  reset: (chunk: string, info: any) => void;
-  next: () => Token | undefined;
-  save: () => any;
-  formatError: (token: Token) => string;
-  has: (tokenType: string) => boolean
+interface NearleyToken {  value: any;
+  [key: string]: any;
 };
 
-export interface NearleyRule {
+interface NearleyLexer {
+  reset: (chunk: string, info: any) => void;
+  next: () => NearleyToken | undefined;
+  save: () => any;
+  formatError: (token: NearleyToken) => string;
+  has: (tokenType: string) => boolean;
+};
+
+interface NearleyRule {
   name: string;
   symbols: NearleySymbol[];
-  postprocess?: (d: any[], loc?: number, reject?: {}) => any
+  postprocess?: (d: any[], loc?: number, reject?: {}) => any;
 };
 
-export type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
+type NearleySymbol = string | { literal: any } | { test: (token: any) => boolean };
 
-export var Lexer: Lexer | undefined = lexer;
+interface Grammar {
+  Lexer: NearleyLexer | undefined;
+  ParserRules: NearleyRule[];
+  ParserStart: string;
+};
 
-export var ParserRules: NearleyRule[] = [
+const grammar: Grammar = {
+  Lexer: lexer,
+  ParserRules: [
     {"name": "main", "symbols": ["instruction"], "postprocess": id},
     {"name": "main", "symbols": ["data"], "postprocess": id},
     {"name": "main", "symbols": ["type"], "postprocess": id},
@@ -592,13 +618,38 @@ export var ParserRules: NearleyRule[] = [
     {"name": "typeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => []},
     {"name": "data", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data"], "postprocess": singleArgKeywordToJson},
-    {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
     {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
-    {"name": "data", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgKeywordWithParenToJson},
     {"name": "data", "symbols": ["subData"], "postprocess": id},
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
-    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
+    {"name": "data", "symbols": [(lexer.has("bytes") ? {type: "bytes"} : bytes)], "postprocess": bytesToJson},
+    {"name": "data", "symbols": [(lexer.has("number") ? {type: "number"} : number)], "postprocess": intToJson},
+    {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
+    {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", "_"]},
+    {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
+    {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", "_"]},
+    {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1", "subData$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$1", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
+    {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "subData$ebnf$2$subexpression$1", "symbols": ["data", "_", "subData$ebnf$2$subexpression$1$ebnf$1", "_"]},
+    {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2$subexpression$1"]},
+    {"name": "subData$ebnf$2$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
+    {"name": "subData$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "subData$ebnf$2$subexpression$2", "symbols": ["data", "_", "subData$ebnf$2$subexpression$2$ebnf$1", "_"]},
+    {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2", "subData$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$2", {"literal":"}"}], "postprocess": dataListToJsonSemi},
+    {"name": "subElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
+    {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
+    {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "subElt$ebnf$1$subexpression$1", "symbols": ["elt", "subElt$ebnf$1$subexpression$1$ebnf$1", "_"]},
+    {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1$subexpression$1"]},
+    {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
+    {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
+    {"name": "subElt$ebnf$1$subexpression$2", "symbols": ["elt", "subElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
+    {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1", "subElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": dataListToJsonSemi},
+    {"name": "elt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
     {"name": "subTypeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
@@ -627,34 +678,16 @@ export var ParserRules: NearleyRule[] = [
     {"name": "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "subTypeElt$ebnf$1$subexpression$2", "symbols": ["typeElt", "subTypeElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$1", "symbols": ["subTypeElt$ebnf$1", "subTypeElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$1", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
+    {"name": "subTypeElt$ebnf$2$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2$subexpression$1"]},
     {"name": "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
     {"name": "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$2$subexpression$2", "symbols": ["typeElt", "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
+    {"name": "subTypeElt$ebnf$2$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
     {"name": "subTypeElt$ebnf$2", "symbols": ["subTypeElt$ebnf$2", "subTypeElt$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$3$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$3$subexpression$1$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$3", "symbols": ["subTypeElt$ebnf$3$subexpression$1"]},
-    {"name": "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$3$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$3$subexpression$2$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$3", "symbols": ["subTypeElt$ebnf$3", "subTypeElt$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"{"}, "_", "subTypeElt$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$4$subexpression$1", "symbols": ["typeElt", "_", "subTypeElt$ebnf$4$subexpression$1$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$4", "symbols": ["subTypeElt$ebnf$4$subexpression$1"]},
-    {"name": "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subTypeElt$ebnf$4$subexpression$2", "symbols": ["typeElt", "_", "subTypeElt$ebnf$4$subexpression$2$ebnf$1", "_"]},
-    {"name": "subTypeElt$ebnf$4", "symbols": ["subTypeElt$ebnf$4", "subTypeElt$ebnf$4$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subTypeElt", "symbols": [{"literal":"("}, "_", "subTypeElt$ebnf$4", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
+    {"name": "subTypeElt", "symbols": [{"literal":"[{"}, "_", "subTypeElt$ebnf$2", {"literal":"}]"}], "postprocess": instructionSetToJsonSemi},
     {"name": "typeElt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
     {"name": "subInstruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "instruction", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => d[2]},
@@ -675,6 +708,7 @@ export var ParserRules: NearleyRule[] = [
     {"name": "instructions", "symbols": [(lexer.has("macroSETCADR") ? {type: "macroSETCADR"} : macroSETCADR)]},
     {"name": "instructions", "symbols": [(lexer.has("macroASSERTlist") ? {type: "macroASSERTlist"} : macroASSERTlist)]},
     {"name": "instruction", "symbols": ["instructions"], "postprocess": keywordToJson},
+    {"name": "instruction", "symbols": ["subInstruction"], "postprocess": id},
     {"name": "instruction$ebnf$1$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "instruction$ebnf$1", "symbols": ["instruction$ebnf$1$subexpression$1"]},
     {"name": "instruction$ebnf$1$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
@@ -723,71 +757,39 @@ export var ParserRules: NearleyRule[] = [
     {"name": "instruction$ebnf$8$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "instruction$ebnf$8", "symbols": ["instruction$ebnf$8", "instruction$ebnf$8$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "instruction", "symbols": [{"literal":"PUSH"}, "instruction$ebnf$8", "_", "type", "_", "data"], "postprocess": pushWithAnnotsToJson},
-    {"name": "instruction", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => ""},
+    {"name": "instruction$ebnf$9", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$9", "symbols": ["instruction$ebnf$9", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DIP"}, "_", "instruction$ebnf$9", "_", "subInstruction"], "postprocess": dipnToJson},
+    {"name": "instruction$ebnf$10", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$10", "symbols": ["instruction$ebnf$10", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10"], "postprocess": dupnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}], "postprocess": keywordToJson},
+    {"name": "instruction$ebnf$11$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11$subexpression$1"]},
+    {"name": "instruction$ebnf$11$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11", "instruction$ebnf$11$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "instruction$ebnf$11", "_"], "postprocess": keywordToJson},
+    {"name": "instruction$ebnf$12", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$12", "symbols": ["instruction$ebnf$12", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DIG"}, "_", "instruction$ebnf$12"], "postprocess": dignToJson},
+    {"name": "instruction$ebnf$13", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$13", "symbols": ["instruction$ebnf$13", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DUG"}, "_", "instruction$ebnf$13"], "postprocess": dignToJson},
+    {"name": "instruction$ebnf$14", "symbols": [/[0-9]/]},
+    {"name": "instruction$ebnf$14", "symbols": ["instruction$ebnf$14", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "instruction", "symbols": [{"literal":"DROP"}, "_", "instruction$ebnf$14"], "postprocess": dropnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DROP"}], "postprocess": keywordToJson},
     {"name": "instruction", "symbols": [{"literal":"CREATE_CONTRACT"}, "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", "parameter", "_", "storage", "_", "code", "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": subContractToJson},
-    {"name": "subData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
-    {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$1$subexpression$1", "symbols": ["data", "subData$ebnf$1$subexpression$1$ebnf$1", "_"]},
-    {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1$subexpression$1"]},
-    {"name": "subData$ebnf$1$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$1$subexpression$2", "symbols": ["data", "subData$ebnf$1$subexpression$2$ebnf$1", "_"]},
-    {"name": "subData$ebnf$1", "symbols": ["subData$ebnf$1", "subData$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$2$subexpression$1", "symbols": ["data", "subData$ebnf$2$subexpression$1$ebnf$1", "_"]},
-    {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2$subexpression$1"]},
-    {"name": "subData$ebnf$2$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$2$subexpression$2", "symbols": ["data", "subData$ebnf$2$subexpression$2$ebnf$1", "_"]},
-    {"name": "subData$ebnf$2", "symbols": ["subData$ebnf$2", "subData$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subData$ebnf$3$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$3$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$3$subexpression$1", "symbols": ["data", "_", "subData$ebnf$3$subexpression$1$ebnf$1", "_"]},
-    {"name": "subData$ebnf$3", "symbols": ["subData$ebnf$3$subexpression$1"]},
-    {"name": "subData$ebnf$3$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$3$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$3$subexpression$2", "symbols": ["data", "_", "subData$ebnf$3$subexpression$2$ebnf$1", "_"]},
-    {"name": "subData$ebnf$3", "symbols": ["subData$ebnf$3", "subData$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"{"}, "_", "subData$ebnf$3", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$4$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$4$subexpression$1", "symbols": ["data", "_", "subData$ebnf$4$subexpression$1$ebnf$1", "_"]},
-    {"name": "subData$ebnf$4", "symbols": ["subData$ebnf$4$subexpression$1"]},
-    {"name": "subData$ebnf$4$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subData$ebnf$4$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subData$ebnf$4$subexpression$2", "symbols": ["data", "_", "subData$ebnf$4$subexpression$2$ebnf$1", "_"]},
-    {"name": "subData$ebnf$4", "symbols": ["subData$ebnf$4", "subData$ebnf$4$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subData", "symbols": [{"literal":"("}, "_", "subData$ebnf$4", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subElt", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => "[]"},
-    {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subElt$ebnf$1$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subElt$ebnf$1$subexpression$1", "symbols": ["elt", "subElt$ebnf$1$subexpression$1$ebnf$1", "_"]},
-    {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1$subexpression$1"]},
-    {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subElt$ebnf$1$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subElt$ebnf$1$subexpression$2", "symbols": ["elt", "subElt$ebnf$1$subexpression$2$ebnf$1", "_"]},
-    {"name": "subElt$ebnf$1", "symbols": ["subElt$ebnf$1", "subElt$ebnf$1$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"{"}, "_", "subElt$ebnf$1", {"literal":"}"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subElt$ebnf$2$subexpression$1$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subElt$ebnf$2$subexpression$1", "symbols": ["elt", "subElt$ebnf$2$subexpression$1$ebnf$1", "_"]},
-    {"name": "subElt$ebnf$2", "symbols": ["subElt$ebnf$2$subexpression$1"]},
-    {"name": "subElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [{"literal":";"}], "postprocess": id},
-    {"name": "subElt$ebnf$2$subexpression$2$ebnf$1", "symbols": [], "postprocess": () => null},
-    {"name": "subElt$ebnf$2$subexpression$2", "symbols": ["elt", "subElt$ebnf$2$subexpression$2$ebnf$1", "_"]},
-    {"name": "subElt$ebnf$2", "symbols": ["subElt$ebnf$2", "subElt$ebnf$2$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "subElt", "symbols": [{"literal":"("}, "_", "subElt$ebnf$2", {"literal":")"}], "postprocess": instructionSetToJsonSemi},
-    {"name": "elt", "symbols": [(lexer.has("elt") ? {type: "elt"} : elt), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", "type", "_", "type"], "postprocess": doubleArgKeywordToJson},
+    {"name": "instruction", "symbols": [{"literal":"EMPTY_MAP"}, "_", (lexer.has("lparen") ? {type: "lparen"} : lparen), "_", "type", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen), "_", "type"], "postprocess": doubleArgParenKeywordToJson},
     {"name": "_$ebnf$1", "symbols": []},
     {"name": "_$ebnf$1", "symbols": ["_$ebnf$1", /[\s]/], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "_", "symbols": ["_$ebnf$1"]},
     {"name": "semicolons$ebnf$1", "symbols": [/[;]/], "postprocess": id},
     {"name": "semicolons$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "semicolons", "symbols": ["semicolons$ebnf$1"]}
-];
+  ],
+  ParserStart: "main",
+};
 
-export var ParserStart: string = "main";
+export default grammar;

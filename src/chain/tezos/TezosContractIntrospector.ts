@@ -16,9 +16,16 @@ export namespace TezosContractIntrospector {
      * @returns {EntryPoint[]} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
      */
     export function generateEntryPointsFromParams(params: string): EntryPoint[] {
-        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate));
-        parser.feed(params);
-        return parser.results[0];
+        const parser: nearley.Parser = new nearley.Parser(nearley.Grammar.fromCompiled(EntryPointTemplate.default));
+        parser.feed(TezosLanguageUtil.normalizeMichelineWhiteSpace(TezosLanguageUtil.stripComments(params)));
+
+        const entryPoints = parser.results[0];
+
+        if (entryPoints.length === 1) {
+            entryPoints[0].name = 'default';
+        }
+
+        return entryPoints;
     }
 
     /**
@@ -41,8 +48,8 @@ export namespace TezosContractIntrospector {
      * @returns {Promise<EntryPoint[]>} Information about the entry points, including name, parameters, structure, and invocation parameter generator.
      */
     export async function generateEntryPointsFromAddress(conseilServer: ConseilServerInfo, network: string, contractAddress: string): Promise<EntryPoint[]> {
-        const account: any[] = await TezosConseilClient.getAccount(conseilServer, network, contractAddress);
-        const contractCode: string = account[0].script;
+        const account = await TezosConseilClient.getAccount(conseilServer, network, contractAddress);
+        const contractCode: string = account.script;
         return generateEntryPointsFromCode(contractCode);
     }
 }

@@ -54,7 +54,6 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
     });
 
-
     it("correctly parse a P005 non-standard contract invocation", () => {
         const result = TezosMessageCodec.parseOperationGroup("011ac5e07d5772f15fb08bcc5a58fa1120cb4a81cc2f3411a598729d9045f81e6c000cb9f9da085607c05cac1ca4c62a3f3cfb8146aa0a0a0a0a00013cbecfc99420ac2c6898e7032aaa447966f8ce6600ffff0b63727970746f6e6f6d696300000009020000000405050306");
 
@@ -64,8 +63,8 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result[0].parameters.value).to.equal('[ { "prim": "Left", "args": [ { "prim": "None" } ] } ]');
     });
 
-    it("correctly encode a transaction operation", () => {
-        const transaction: Transaction = {
+    it("correctly encode some transactions", () => {
+        let transaction: Transaction = {
             kind: "transaction",
             source: "tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX",
             fee: "10000",
@@ -76,8 +75,23 @@ describe("Tezos P2P message decoder test suite", () => {
             destination: "tz2G4TwEbsdFrJmApAxJ1vdQGmADnBp95n9m"
         };
 
-        const result = TezosMessageCodec.encodeTransaction(transaction);
+        let result = TezosMessageCodec.encodeTransaction(transaction);
         expect(result).to.equal("6c0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e80ade204000154f5d8f71ce18f9f05bb885a4120e64c667bc1b400");
+
+        transaction = {
+            destination: "KT1X1rMCkifsoDJ1ynsHFqdvyagJKc9J6wEq",
+            amount: "10000",
+            storage_limit: "0",
+            gas_limit: "11697",
+            counter: "29892",
+            fee: "100000",
+            source: "tz1b2icJC4E7Y2ED1xsZXuqYpF7cxHDtduuP",
+            kind: "transaction",
+            parameters: { "entrypoint": "default", "value": { "prim": "Unit" } }
+        };
+
+        result = TezosMessageCodec.encodeTransaction(transaction);
+        expect(result).to.equal("6c00a8d45bdc966ddaaac83188a1e1c1fde2a3e05e5ca08d06c4e901b15b00904e01f61128c6abd2426d0c49b1fee1fa8c98dcc4ce0a0000");
     });
 
     it("correctly encode a 'root' contract invocation", () => {
