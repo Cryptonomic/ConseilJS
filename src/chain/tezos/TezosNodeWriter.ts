@@ -701,6 +701,8 @@ export namespace TezosNodeWriter {
      * @returns Error text or `undefined`
      */
     function parseRPCError(response: string) {
+        log.debug(`parsing response:\n${response}`)
+
         let errors = '';
 
         try {
