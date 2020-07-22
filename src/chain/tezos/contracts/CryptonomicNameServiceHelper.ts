@@ -122,11 +122,15 @@ export namespace CryptonomicNameServiceHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function getNameForAddress(server: string, mapid: number, address: string) {
+    export async function getNameForAddress(server: string, mapid: number, address: string): Promise<string> {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(address, 'address'), 'hex'));
-        const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
+        
+        try {
+            const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
+            return JSONPath({ path: '$.string', json: mapResult })[0];
+        } catch { }
 
-        return JSONPath({ path: '$.string', json: mapResult })[0];
+        return '';
     }
 
     /**
