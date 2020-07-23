@@ -165,19 +165,19 @@ export namespace TezosNodeWriter {
      * 
      * @param {string} server Tezos node to connect to
      * @param {Operation[]} operations The operations to create and send
-     * @param {Signer}
+     * @param {Signer} signer Cryptographic signature provider
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>}  The ID of the created operation group
      */
-    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer): Promise<TezosTypes.OperationResult> {
-        const blockHead = await TezosNodeReader.getBlockHead(server);
+    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer, offset: number = 54): Promise<TezosTypes.OperationResult> {
+        const blockHead = await TezosNodeReader.getBlockAtOffset(server, offset);
         const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
 
         const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
-        const hexSignature = TezosMessageUtils.readSignatureWithHint(opSignature, 'edsig');
-        const opPair = { bytes: signedOpGroup, signature: hexSignature };
-
+        const base58signature = TezosMessageUtils.readSignatureWithHint(opSignature, signer.getSignerCurve());
+        const opPair = { bytes: signedOpGroup, signature: base58signature };
         const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, opPair);
         const injectedOperation = await injectOperation(server, opPair);
 
@@ -201,7 +201,7 @@ export namespace TezosNodeWriter {
         operationQueues[k].addOperations(...operations);
     }
 
-    export function getQueueStatus(server: string, keyStore: KeyStore){
+    export function getQueueStatus(server: string, keyStore: KeyStore) {
         const k = blakejs.blake2s(`${server}${keyStore.publicKeyHash}`, null, 16);
 
         if (operationQueues[k]) {
@@ -253,10 +253,11 @@ export namespace TezosNodeWriter {
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {String} to Destination public key hash
      * @param {number} amount Amount to send
-     * @param {number} fee Fee to use
+     * @param {number} fee Transaction fee to spend
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendTransactionOperation(server: string, signer: Signer, keyStore: KeyStore, to: string, amount: number, fee: number) {
+    export async function sendTransactionOperation(server: string, signer: Signer, keyStore: KeyStore, to: string, amount: number, fee: number, offset: number = 54) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction: TezosP2PMessageTypes.Transaction = {
@@ -272,7 +273,7 @@ export namespace TezosNodeWriter {
 
         const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction])
 
-        return sendOperation(server, operations, signer);
+        return sendOperation(server, operations, signer, offset);
     }
 
     /**
@@ -282,9 +283,10 @@ export namespace TezosNodeWriter {
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} delegate Account address to delegate to, alternatively, '' or undefined if removing delegation
      * @param {number} fee Operation fee
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendDelegationOperation(server: string, signer: Signer, keyStore: KeyStore, delegate: string | undefined, fee: number = TezosConstants.DefaultDelegationFee) {
+    export async function sendDelegationOperation(server: string, signer: Signer, keyStore: KeyStore, delegate: string | undefined, fee: number = TezosConstants.DefaultDelegationFee, offset: number = 54) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const delegation: TezosP2PMessageTypes.Delegation = {
@@ -298,7 +300,7 @@ export namespace TezosNodeWriter {
         }
         const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [delegation]);
 
-        return sendOperation(server, operations, signer);
+        return sendOperation(server, operations, signer, offset);
     }
 
     /**
@@ -308,10 +310,11 @@ export namespace TezosNodeWriter {
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} delegator Account address to delegate from
      * @param {number} fee Operation fee
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendUndelegationOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultDelegationFee) {
-        return sendDelegationOperation(server, signer, keyStore, undefined, fee);
+    export async function sendUndelegationOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultDelegationFee, offset: number = 54) {
+        return sendDelegationOperation(server, signer, keyStore, undefined, fee, offset);
     }
 
     /**
@@ -327,6 +330,7 @@ export namespace TezosNodeWriter {
      * @param {string} code Contract code
      * @param {string} storage Initial storage value
      * @param {TezosParameterFormat} codeFormat Code format
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      */
     export async function sendContractOriginationOperation(
         server: string,
@@ -339,7 +343,8 @@ export namespace TezosNodeWriter {
         gasLimit: number,
         code: string,
         storage: string,
-        codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
+        codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline,
+        offset: number = 54
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
         const operation = constructContractOriginationOperation(
@@ -356,7 +361,7 @@ export namespace TezosNodeWriter {
         )
 
         const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
-        return sendOperation(server, operations, signer);
+        return sendOperation(server, operations, signer, offset);
     }
 
     /**
@@ -424,6 +429,7 @@ export namespace TezosNodeWriter {
      * @param {string} entrypoint Contract entry point
      * @param {string} parameters Contract arguments
      * @param {TezosParameterFormat} parameterFormat Contract argument format
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      */
     export async function sendContractInvocationOperation(
         server: string,
@@ -436,13 +442,14 @@ export namespace TezosNodeWriter {
         gasLimit: number,
         entrypoint: string | undefined,
         parameters: string | undefined,
-        parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
+        parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline,
+        offset: number = 54
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
         const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction]);
-        return sendOperation(server, operations, signer);
+        return sendOperation(server, operations, signer, offset);
     }
 
     /**
@@ -510,9 +517,10 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} fee Fee to pay
+     * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendKeyRevealOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultKeyRevealFee) {
+    export async function sendKeyRevealOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultKeyRevealFee, offset: number = 54) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const revealOp: TezosP2PMessageTypes.Reveal = {
@@ -526,7 +534,7 @@ export namespace TezosNodeWriter {
         };
         const operations = [revealOp];
 
-        return sendOperation(server, operations, signer)
+        return sendOperation(server, operations, signer, offset);
     }
 
     /**
@@ -733,6 +741,9 @@ export namespace TezosNodeWriter {
             }
         }
 
-        if (errors.length > 0) { throw new Error(errors); } // TODO: use TezosResponseError
+        if (errors.length > 0) {
+            log.debug(`errors found in response:\n${response}`);
+            throw new Error(errors); // TODO: use TezosResponseError
+        }
     }
 }

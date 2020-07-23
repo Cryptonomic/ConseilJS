@@ -1,13 +1,13 @@
 <!-- markdownlint-disable MD024 -->
 # ConseilJS Change Log
 
-## 5.0.0-beta
+## 5.0.3
 
 The purpose of this release is to split ConseilJS into several parts to minimize the number of direct dependencies. ConseilJS is packaged as three components: ConseilJS-core, ConseilJS-softsigner and ConseilJS-ledgersigner.
 
 ### Breaking Changes
 
-- New interfaceces were introduced to support external signing and key storage: `KeyStore`, `Signer`.
+- New interfaces were introduced to support external signing and key storage: `KeyStore`, `Signer`.
 - Any function that previously took a required `KeyStore`-type parameter now also requires a `Signer`. This includes many changes in `TezosNodeWriter`, `TezosOperationQueue`, and the contract wrappers in `src/chain/tezos/contracts/`.
 - `CryptoUtils` has moved to ConseilJS-softsigner. This removes dependencies on `crypto`, `libsodium` and others.
 - What used to be in `src/identity/tezos/` is not split between the ConseilJS-softsigner and ConseilJS-ledgersigner packages.
@@ -15,7 +15,11 @@ The purpose of this release is to split ConseilJS into several parts to minimize
 
 ### New Features
 
-- added TZIP 0012 (FA2) single-asset token contract interface `chain/tezos/contracts/Tzip12ReferenceTokenHelper`.
+- Added TZIP 0012 (FA2) multi-asset token contract interface `chain/tezos/contracts/tzip12/MultiAssetTokenHelper.ts`.
+- Added TZIP 0012 (FA2) single-asset token contract interface `chain/tezos/contracts/tzip12/SingleAssetTokenHelper.ts`.
+- Added ability to pick operation branch based on block age.
+- Added `TezosConseilClient.getBigMapValueForKey`
+- Added `TezosLanguageUtil.hexToMichelson`
 
 ### Fixes
 

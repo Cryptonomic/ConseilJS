@@ -60,6 +60,20 @@ export namespace TezosNodeReader {
     }
 
     /**
+     * Returns a block at a given offset below head. 
+     * 
+     * @param {string} server Tezos node to query
+     * @param {number} offset Number of blocks below head, must be positive, 0 = head
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
+     */
+    export async function getBlockAtOffset(server: string, offset: number, chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
+        if (offset <= 0) { return getBlock(server); }
+
+        const head = await getBlock(server);
+        return performGetRequest(server, `chains/${chainid}/blocks/${Number(head['header']['level']) - offset}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+    }
+
+    /**
      * Fetches a specific account for a given block.
      * 
      * @param {string} server Tezos node to query
