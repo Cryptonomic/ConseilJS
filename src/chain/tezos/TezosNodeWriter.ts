@@ -482,7 +482,6 @@ export namespace TezosNodeWriter {
         if (parameters !== undefined) {
             if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
                 const michelineParams = TezosLanguageUtil.translateParameterMichelsonToMicheline(parameters);
-
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineParams) };
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(parameters) };
