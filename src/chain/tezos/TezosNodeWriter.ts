@@ -468,9 +468,6 @@ export namespace TezosNodeWriter {
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): TezosP2PMessageTypes.Transaction {
-        console.log('constructing')
-        // entrypoint = 'update'
-
         let transaction: TezosP2PMessageTypes.Transaction = {
             destination: to,
             amount: amount.toString(),
@@ -482,15 +479,9 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
-        console.log('basic tx')
-        console.log("ENTRYPOINT: " + entrypoint)
-
         if (parameters !== undefined) {
             if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
-                console.log('got michelson')
-                console.log('parameters: ' + parameters)
                 const michelineParams = TezosLanguageUtil.translateParameterMichelsonToMicheline(parameters);
-                console.log(michelineParams)
 
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineParams) };
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
@@ -503,8 +494,6 @@ export namespace TezosNodeWriter {
 
             transaction.parameters = { entrypoint: entrypoint, value: [] };
         }
-
-        console.log('constructed')
 
         return transaction;
     }
@@ -594,8 +583,6 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{ gas: number, storageCost: number }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        console.log("got counter")
-
         const transaction = constructContractInvocationOperation(
             keyStore.publicKeyHash,
             counter,
@@ -669,9 +656,8 @@ export namespace TezosNodeWriter {
     /**
      * Dry run the given operation and return consumed resources. 
      * 
-     * Note: Estimating an operation on an unrevealed account is not supported and will fail.
-     *
-     * TODO: Add support for estimating multiple operations so that reveals can be processed.
+     * Note: Estimating an operation on an unrevealed account is not supported and will fail. Use
+     *       `estimateOperations` instead.
      * 
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
@@ -686,6 +672,14 @@ export namespace TezosNodeWriter {
         return estimateOperations(server, chainid, [operation])
     }
 
+    /**
+     * Dry run the given operation and return consumed resources. 
+     * 
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {TezosP2PMessageTypes.Operation} operations An array of operations to estimate.
+     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     */
     export async function estimateOperations(
         server: string,
         chainid: string,
@@ -697,7 +691,6 @@ export namespace TezosNodeWriter {
 
         const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: operations, signature: fake_signature } });
         const responseText = await response.text();
-        console.log("GOT BACK: " + responseText)
 
         parseRPCError(responseText);
 
@@ -735,8 +728,6 @@ export namespace TezosNodeWriter {
      * @returns Error text or `undefined`
      */
     function parseRPCError(response: string) {
-        log.debug(`parsing response:\n${response}`)
-
         let errors = '';
 
         try {
