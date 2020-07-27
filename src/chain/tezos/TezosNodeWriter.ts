@@ -468,6 +468,9 @@ export namespace TezosNodeWriter {
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): TezosP2PMessageTypes.Transaction {
+        console.log('constructing')
+        // entrypoint = 'update'
+
         let transaction: TezosP2PMessageTypes.Transaction = {
             destination: to,
             amount: amount.toString(),
@@ -479,9 +482,16 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
+        console.log('basic tx')
+        console.log("ENTRYPOINT: " + entrypoint)
+
         if (parameters !== undefined) {
             if (parameterFormat === TezosTypes.TezosParameterFormat.Michelson) {
+                console.log('got michelson')
+                console.log('parameters: ' + parameters)
                 const michelineParams = TezosLanguageUtil.translateParameterMichelsonToMicheline(parameters);
+                console.log(michelineParams)
+
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineParams) };
             } else if (parameterFormat === TezosTypes.TezosParameterFormat.Micheline) {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(parameters) };
@@ -490,8 +500,11 @@ export namespace TezosNodeWriter {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineLambda) };
             }
         } else if (entrypoint !== undefined) {
+
             transaction.parameters = { entrypoint: entrypoint, value: [] };
         }
+
+        console.log('constructed')
 
         return transaction;
     }
@@ -581,6 +594,8 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
     ): Promise<{ gas: number, storageCost: number }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
+        console.log("got counter")
+
         const transaction = constructContractInvocationOperation(
             keyStore.publicKeyHash,
             counter,
@@ -593,6 +608,7 @@ export namespace TezosNodeWriter {
             parameters,
             parameterFormat
         );
+        console.log("Constructed operation")
 
         return estimateOperation(server, chainid, transaction)
     }
@@ -667,12 +683,21 @@ export namespace TezosNodeWriter {
         chainid: string,
         operation: TezosP2PMessageTypes.Operation
     ): Promise<{ gas: number, storageCost: number }> {
+        return estimateOperations(server, chainid, [operation])
+    }
+
+    export async function estimateOperations(
+        server: string,
+        chainid: string,
+        operations: Array<TezosP2PMessageTypes.Operation>
+    ): Promise<{ gas: number, storageCost: number }> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
         const fake_chainid = 'NetXdQprcVkpaWU';
         const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
 
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [operation], signature: fake_signature } });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: operations, signature: fake_signature } });
         const responseText = await response.text();
+        console.log("GOT BACK: " + responseText)
 
         parseRPCError(responseText);
 
@@ -710,6 +735,8 @@ export namespace TezosNodeWriter {
      * @returns Error text or `undefined`
      */
     function parseRPCError(response: string) {
+        log.debug(`parsing response:\n${response}`)
+
         let errors = '';
 
         try {
