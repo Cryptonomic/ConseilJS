@@ -490,7 +490,6 @@ export namespace TezosNodeWriter {
                 transaction.parameters = { entrypoint: entrypoint || 'default', value: JSON.parse(michelineLambda) };
             }
         } else if (entrypoint !== undefined) {
-
             transaction.parameters = { entrypoint: entrypoint, value: [] };
         }
 
@@ -594,7 +593,6 @@ export namespace TezosNodeWriter {
             parameters,
             parameterFormat
         );
-        console.log("Constructed operation")
 
         return estimateOperation(server, chainid, transaction)
     }
@@ -672,7 +670,7 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Dry run the given operation and return consumed resources. 
+     * Dry run the given operations and return consumed resources. 
      * 
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
