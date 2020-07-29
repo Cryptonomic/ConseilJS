@@ -4,7 +4,6 @@ import { KeyStore, Signer } from '../../types/ExternalInterfaces';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
-import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes';
 import { TezosNodeReader } from './TezosNodeReader';
 import { TezosMessageCodec } from './TezosMessageCodec';
 import { TezosMessageUtils } from './TezosMessageUtil';

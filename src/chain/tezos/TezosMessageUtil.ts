@@ -71,7 +71,7 @@ export namespace TezosMessageUtils {
             arr.push(1);
         }
 
-        return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
+        return arr.map(w => ('0' + w.toString(16)).slice(-2)).join('');
     }
 
     /**
