@@ -5,6 +5,7 @@
 [![npm](https://img.shields.io/npm/dm/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
 [![Build Status](https://travis-ci.org/Cryptonomic/ConseilJS.svg?branch=master)](https://travis-ci.org/Cryptonomic/ConseilJS)
 [![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Cryptonomic_ConseilJS&metric=alert_status)](https://sonarcloud.io/dashboard?id=Cryptonomic_ConseilJS)
 [![dependencies](https://david-dm.org/Cryptonomic/ConseilJS/status.svg)](https://david-dm.org/Cryptonomic/ConseilJS)
 
 A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
@@ -15,59 +16,60 @@ Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus
 
 ## Other Resources
 
-In addition to these materials, there is an [automated walk-through for common Tezos workflows](https://gist.github.com/anonymoussprocket/148d82fc9bf6c413be04155a90d57be6) available. The [mininax](https://mininax.io) block explorer is handy for viewing operations submitted during that run. Cryptonomic holds regular dApp development workshops internationally, if you are interested in one, reach out to organize it. The materials for these events are continuously updated and [are available](https://medium.com/the-cryptonomic-aperiodical/blockchain-development-with-tezos-698aa930e50f) on [Medium](https://medium.com/the-cryptonomic-aperiodical).
+In addition to these materials, there is an [automated walk-through for common Tezos workflows](https://gist.github.com/anonymoussprocket/148d82fc9bf6c413be04155a90d57be6) available. The [Mininax](https://mininax.io) block explorer is handy for viewing operations submitted during that run. Cryptonomic holds regular dApp development workshops internationally, if you are interested in one, reach out to organize it. The materials for these events are continuously updated and [are available](https://medium.com/the-cryptonomic-aperiodical/blockchain-development-with-tezos-698aa930e50f) on [Medium](https://medium.com/the-cryptonomic-aperiodical).
 
 ## Use with Nodejs
 
-Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project.
+Add our [NPM package](https://www.npmjs.com/package/conseiljs) to your project and a signing library. As of ConseilJS 5.0.0 cryptographic signing functionality is external to the core library. Further more, it is necessary to provide a logger and fetch references as specified below. This is done separately to allow use of [proxy-aware fetch](https://www.npmjs.com/package/socks5-node-fetch) for example.
 
 ```bash
-npm i conseiljs 
+npm i conseiljs
+npm i conseiljs-softsigner
 ```
-
-If you are using webpack in your project, add below lines to your `webpack.config.js` file:
 
 ```javascript
-node: { fs: 'empty' }
-```
+import fetch from 'node-fetch';
+import * as log from 'loglevel';
 
-We have a complete [React application example](https://github.com/Cryptonomic/ConseilJS-Tutorials) for you to check out.
+import { registerFetch, registerLogger, Signer, TezosMessageUtils } from 'conseiljs';
+import { KeyStoreUtils, SoftSigner } from 'conseiljs-softsigner';
+
+const logger = log.getLogger('conseiljs');
+logger.setLevel('debug', false); // to see only errors, set to 'error'
+registerLogger(logger);
+registerFetch(fetch);
+
+let signer: Signer;
+const keyStore = await KeyStoreUtils.restoreIdentityFromSecretKey('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
+signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'), -1);
+```
 
 ## Use with Web
 
+Unlike the nodejs sample, it's not possible to configure fetch or logger references for the web-based version of ConseilJS.
+
 ```html
-<script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
         integrity="sha384-IufW5flMmPmFPiUm4GlKLocLuEWZlGoCA5ukejQgI66LcXELSsraBP7dux+BE9Ds"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
+        crossorigin="anonymous"></script>
+    <script>
+        const keyStore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromSecretKey('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
+        signer = await conseiljssoftsigner.SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'), -1);
+    </script>
+</head>
+<body>
+    ...
+</body>
+</html>
 ```
 
-A fully functional sample [webpage example](https://github.com/Cryptonomic/ConseilJS-HTML-Example) is available too.
+If you're using the integrity check mechanism, make sure to keep the hash up to date. There reference above points at [ConseilJS trunk on GitHub](https://github.com/Cryptonomic/ConseilJS/blob/master/dist-web/conseiljs.min.js) and it is updated when new releases are made, which will make previous hashes invalid and render your webpage non-functional. For this reason, subsequent code samples do not include the `integrity` attribute.
 
 ## API Overview and Examples
-
-### Logs
-
-When using ConseilJS in the context of Nodejs, it's possible to control how verbose the logs are.
-
-<!-- tabs:start -->
-#### **Typescript**
-
-```typescript
-import { setLogLevel } from 'conseiljs';
-
-setLogLevel('debug');
-```
-
-#### **JavaScript**
-
-```javascript
-const conseiljs = require('conseiljs');
-
-conseiljs.setLogLevel('debug');
-```
-<!-- tabs:end -->
-
-Default log level is 'error', the library used internally for logging is [loglevel](https://www.npmjs.com/package/loglevel). For more verbose logs, set it to 'info'.
 
 ### Contract Development Lightning Route
 
@@ -92,23 +94,23 @@ If your interests lay in statistics and business intelligence, ConseilJS has too
 
 ### API Key
 
-Some ConseilJS functions require an API key for a Conseil service instance. While direct chain interactions happen via a Tezos node, Conseil read operations like those in `TezosConseilClient` namespace do require an API key however.
+Some ConseilJS functions require an API key for a Conseil service instance. While direct chain interactions happen via a Tezos node, Conseil read operations like those in `TezosConseilClient` namespace do require an API key.
 
 Obtaining a development key is easy. Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
 ### Tezos Chain Operations
 
-To execute operations on the Tezos chain a link to a Tezos node is required. One can be found after logging into [Nautilus Cloud](https://nautilus.cloud) for both testnet and mainnet. Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeWriter` namespace.
+To execute operations on the Tezos chain a link to a Tezos node is required. One can be found after logging into [Nautilus Cloud](https://nautilus.cloud) for both the current testnet and mainnet. Be sure to initialize the `tezosNode` variable accordingly. Interface to this functionality is in the `TezosNodeReader` and `TezosNodeWriter` namespaces. These operations do not need an API Key. ConseilJS can be used with any compatible Tezos node. "Compatible" in this case means running a specific protocol version. At the time of writing the mainnet protocol was P006, Carthage which is supported by ConseilJS 5.0.3 and later.
 
 #### Create a Tezos testnet account
 
-Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. Cryptnomic provides access to the Tezos **mainnet** and **carthagenet** networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces.
+Visit the [Faucet](https://faucet.tzalpha.net) to get a test account with a healthy balance of fake XTZ to play with. With this information we can create the public and private keys necessary to participate in one of the test networks. Cryptonomic provides access to the Tezos **mainnet** and **carthagenet** (as of Q1 2020) networks via [Nautilus Cloud](https://nautilus.cloud). In the below examples, `faucetAccount` is assigned the contents of the file the faucet produces. Note that the `faucetAccount` used in these examples most-certainly will not work, please claim your own at the [faucet](https://faucet.tzalpha.net).
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { TezosWalletUtil } from 'conseiljs';
+import { KeyStoreUtils } from 'conseiljs-softsigner';
 
 const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
@@ -120,9 +122,9 @@ const faucetAccount = {
 }
 
 async function initAccount() {
-    const keystore = await TezosWalletUtil.unlockFundraiserIdentity(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    const keyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.privateKey}`);
+    console.log(`secret key: ${keystore.secretKey}`);
 }
 
 initAccount();
@@ -131,7 +133,8 @@ initAccount();
 ##### **JavaScript**
 
 ```javascript
-const conseiljs = require('conseiljs');
+const conseiljssoftsigner = require('conseiljs-softsigner');
+
 const faucetAccount = {
     "mnemonic": [ "letter", "pair", "shuffle", "exotic", "sword", "west", "build", "monster", "future", "senior", "salt", "satisfy", "knock", "alert", "gorilla"],
     "secret": "0a09075426ab2658814c1faf101f53e5209a62f5",
@@ -142,9 +145,9 @@ const faucetAccount = {
 }
 
 async function initAccount() {
-    const keystore = await conseiljs.TezosWalletUtil.unlockFundraiserIdentity(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    const keyStore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.privateKey}`);
+    console.log(`secret key: ${keystore.secretKey}`);
 }
 
 initAccount();
@@ -155,21 +158,21 @@ This produces a public key of `edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7X
 
 #### Create an empty Tezos account
 
-It is also possible to create unattached accounts on the chain. This would be the process for making accounts on mainnet that are not fundraiser accounts. Note that `unlockIdentityWithMnemonic` takes an optional password. This is not the same password that may have been used to encrypt the `TezosFileWallet` file. Presenting the intermediate mnemonic to the user may aid in key recovery.
+It is also possible to create unattached accounts on the chain. This would be the process for making accounts on mainnet that are not fundraiser accounts. Note that `restoreIdentityFromMnemonic` takes an optional password. This is not the same password that may have been used to encrypt the `KeyStoreUtils` file. Presenting the intermediate mnemonic to the user may aid in key recovery.
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { KeyStoreUtil } from 'conseiljs-softsigner';
+import { KeyStoreUtils } from 'conseiljs-softsigner';
 
 async function createAccount() {
-    const mnemonic = KeyStoreUtil.generateMnemonic();
+    const mnemonic = KeyStoreUtils.generateMnemonic();
     console.log(`mnemonic: ${mnemonic}`);
-    const keystore = await TezosWalletUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    const keystore = await KeyStoreUtils.restoreIdentityFromMnemonic(mnemonic, '');
     console.log(`account id: ${keystore.publicKeyHash}`);
     console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.privateKey}`);
+    console.log(`secret key: ${keystore.secretKey}`);
 }
 
 createAccount();
@@ -178,42 +181,47 @@ createAccount();
 ##### **JavaScript**
 
 ```javascript
-const conseiljsSoftsigner = require('conseiljs-softsigner');
+const conseiljssoftsigner = require('conseiljs-softsigner');
 
 async function createAccount() {
-    const mnemonic = conseiljsSoftsigner.KeyStoreUtil.generateMnemonic();
+    const mnemonic = conseiljssoftsigner.KeyStoreUtils.generateMnemonic();
     console.log(`mnemonic: ${mnemonic}`);
-    const keystore = await conseiljsSoftsigner.KeyStoreUtil.unlockIdentityWithMnemonic(mnemonic, '');
+    const keystore = await conseiljssoftsigner.KeyStoreUtils.unlockIdentityWithMnemonic(mnemonic, '');
     console.log(`account id: ${keystore.publicKeyHash}`);
     console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.privateKey}`);
+    console.log(`secret key: ${keystore.secretKey}`);
 }
 
 createAccount();
 ```
 <!-- tabs:end -->
 
+You can also use `KeyStoreUtils.generateIdentity()`
+
 #### Initialize the account
 
-An account must be activated on the chain before it can be used. With the combination of the faucet output and the keys generated in the step above we can send an account activation operation.
+A faucet or Fundraiser account must be activated on the chain before it can be used. With the combination of the faucet output and the keys generated in the step above we can send an account activation operation. It's not possible or necessary to activate an unattached account, this operation will simply fail for those.
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { TezosNodeWriter, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
 
-const tezosNode = '';
+const tezosNode = ''; // get access as https://nautilus.cloud
 
 async function activateAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: StoreType.Fundraiser
+        storeType: KeyStoreType.Fundraiser
     };
-    const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
+
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendIdentityActivationOperation(tezosNode, signer, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
     console.log(`Injected operation group id ${result.operationGroupID}`)
 }
 
@@ -224,16 +232,19 @@ activateAccount();
 
 ```javascript
 const conseiljs = require('conseiljs');
-const tezosNode = '';
+const conseiljssoftsigner = require('conseiljs-softsigner');
+const tezosNode = ''; // get access as https://nautilus.cloud
 
 async function activateAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
+        storeType: conseiljs.KeyStoreType.Fundraiser
     };
+
+    const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
     const result = await conseiljs.TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
     console.log(`Injected operation group id ${result.operationGroupID}`)
 }
@@ -241,28 +252,67 @@ async function activateAccount() {
 activateAccount();
 
 ```
+
+##### **Web**
+
+```html
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
+        crossorigin="anonymous"></script>
+    <script>
+        const tezosNode = ''; // get access as https://nautilus.cloud
+
+        async function activateAccount() {
+            const keystore = {
+                publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
+                secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+                publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
+                seed: '',
+                storeType: conseiljs.KeyStoreType.Fundraiser
+            };
+
+            const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+            const result = await conseiljs.TezosNodeWriter.sendIdentityActivationOperation(tezosNode, keystore, '0a09075426ab2658814c1faf101f53e5209a62f5');
+            console.log(`Injected operation group id ${result.operationGroupID}`)
+        }
+
+        activateAccount();
+    </script>
+</head>
+<body>
+<form>
+    <button onClick="activateAccount(); return false;">Activate Account</button>
+</form>
+</body>
+</html>
+```
 <!-- tabs:end -->
 
-The next step on Tezos is an account revelation.
+The next step on Tezos is an account revelation,it is required for all accounts. This operation records the public key of the account on the chain. Account revelation is a paid operation, it's not possible to reveal a newly created 0-balance account.
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { TezosNodeWriter, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
 
 const tezosNode = '';
 
 async function revealAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: StoreType.Fundraiser
+        storeType: KeyStoreType.Fundraiser
     };
 
-    const result = await TezosNodeWriter.sendKeyRevealOperation(tezosNode, keystore);
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendKeyRevealOperation(tezosNode, signer, keystore);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -273,18 +323,20 @@ revealAccount();
 
 ```javascript
 const conseiljs = require('conseiljs');
+const conseiljssoftsigner = require('conseiljs-softsigner');
 const tezosNode = '';
 
 async function revealAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
+        storeType: conseiljs.KeyStoreType.Fundraiser
     };
 
-    const result = await conseiljs.TezosNodeWriter.sendKeyRevealOperation(tezosNode, keystore);
+    const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await conseiljs.TezosNodeWriter.sendKeyRevealOperation(tezosNode, signer, keystore);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -294,26 +346,28 @@ revealAccount();
 
 #### Transfer value
 
-The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random carthagenet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`.
+The most basic operation on the chain is the transfer of value between two accounts. In this example we have the account we activated above: `tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy` and some random testnet address to test with: `tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc`. Note all amounts are in µtz, as in micro-tez, hence 0.5tz is represented as `500000`. The fee of `1500` was chosen arbitrarily, but some operations have minimum fee requirements.
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { TezosNodeWriter, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
 
 const tezosNode = '';
 
 async function sendTransaction() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: StoreType.Fundraiser
+        storeType: KeyStoreType.Fundraiser
     };
 
-    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500_000, 1500, '');
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -324,18 +378,20 @@ sendTransaction();
 
 ```javascript
 const conseiljs = require('conseiljs');
+const conseiljssoftsigner = require('conseiljs-softsigner');
 const tezosNode = '';
 
 async function sendTransaction() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
+        storeType: conseiljs.KeyStoreType.Fundraiser
     };
 
-    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
+    const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -345,9 +401,9 @@ sendTransaction();
 
 #### Delegate
 
-One of the most exciting features of Tezos is delegation. This is a means for non-baker accounts to participate in the on-chain governance process and receive staking rewards. It is possible to delegate both implicit and originated accounts. For implicit addresses, those starting with tz1, tz2 and tz3, simply call `sendDelegationOperation`. Originated accounts, that is smart contracts, must explicitly support delegate setting, but can be deployed with a delegate already set.
+One of the most exciting features of Tezos is delegation. This is a means for non-"baker" (non-validator) accounts to participate in the on-chain governance process and receive staking rewards. It is possible to delegate both implicit and originated accounts. For implicit addresses, those starting with tz1, tz2 and tz3, simply call `sendDelegationOperation`. Originated accounts, that is smart contracts, must explicitly support delegate assignment, but can also be deployed with a delegate already set.
 
-Note that calling `sendDelegationOperation` will change an existing delegation if one is set. To cancel delegation use `sendUndelegationOperation`.
+Note that calling `sendDelegationOperation` will change an existing delegation if one is set. To cancel delegation use `sendUndelegationOperation`. Setting the delegation address to your own labels your account as a validator and should be avoided unless intentional. Sending a delegation to the same address as already set will result in operation failure.
 
 Another important point is that delegation is applied per account for the full balance of that account. To delegate to multiple bakers from a single address, use `BabylonDelegationHelper`.
 
@@ -355,20 +411,22 @@ Another important point is that delegation is applied per account for the full b
 ##### **Typescript**
 
 ```typescript
-import { TezosNodeWriter, StoreType } from 'conseiljs';
+import { TezosNodeWriter, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
 
 const tezosNode = '';
 
 async function delegateAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: StoreType.Fundraiser
+        storeType: KeyStoreType.Fundraiser
     };
 
-    const result = await TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz1LhS2WFCinpwUTdUb991ocL2D9Uk6FJGJK', 10000);
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendDelegationOperation(tezosNode, signer, keystore, 'tz1VxS7ff4YnZRs8b4mMP4WaMVpoQjuo1rjf', 10000);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -379,18 +437,20 @@ delegateAccount();
 
 ```javascript
 const conseiljs = require('conseiljs');
+const conseiljssoftsigner = require('conseiljs-softsigner');
 const tezosNode = '';
 
 async function delegateAccount() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
+        storeType: conseiljs.KeyStoreType.Fundraiser
     };
 
-    const result = await conseiljs.TezosNodeWriter.sendDelegationOperation(tezosNode, keystore, keystore.publicKeyHash, 'tz1LhS2WFCinpwUTdUb991ocL2D9Uk6FJGJK', 10000);
+    const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await conseiljs.TezosNodeWriter.sendDelegationOperation(tezosNode, signer, keystore, 'tz1VxS7ff4YnZRs8b4mMP4WaMVpoQjuo1rjf', 10000);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -400,7 +460,7 @@ delegateAccount();
 
 ### Smart Contract Interactions
 
-Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/demo/).
+Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/dev/). Smart Chain Arena has [learning materials](https://smartpy.io/dev/help.html) and an excellent [reference for SmartPy](https://smartpy.io/dev/reference.html). The editor also has a set of sample contracts that demonstrate various smart contract techniques. Finally, Cryptonomic has put together a [Smart Contract Development Syllabus](https://medium.com/the-cryptonomic-aperiodical/smart-contract-development-syllabus-f285a8463a4d) based on SmartPy.
 
 #### Deploy a Contract
 
@@ -1824,19 +1884,19 @@ JSON message definitions for operation submission.
 
 JSON message definitions for RPC service responses.
 
+## NPM Target Overview
+
+### `npm run test`
+
+### `npm run coverage`
+
+### `npm run format`
+
+### `npm run package`
+
 ## Contribute
 
 There are many ways to contribute to this project. You can develop applications or dApps with it. You can submit bug reports or feature requests. You can ask questions about it on [r/Tezos](http://reddit.com/r/tezos/) or the [Tezos StackExchange](https://tezos.stackexchange.com). We certainly welcome pull requests as well.
-
-### NPM Target Overview
-
-#### `npm run test`
-
-#### `npm run coverage`
-
-#### `npm run format`
-
-#### `npm run package`
 
 ## Other references
 
