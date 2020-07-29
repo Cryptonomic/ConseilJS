@@ -367,7 +367,7 @@ async function sendTransaction() {
     };
 
     const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
-    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500_000, 1500, '');
+    const result = await TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500_000, 1500);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -391,7 +391,7 @@ async function sendTransaction() {
     };
 
     const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
-    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500, '');
+    const result = await conseiljs.TezosNodeWriter.sendTransactionOperation(tezosNode, signer, keystore, 'tz1RVcUP9nUurgEJMDou8eW3bVDs6qmP5Lnc', 500000, 1500);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -411,7 +411,7 @@ Another important point is that delegation is applied per account for the full b
 ##### **Typescript**
 
 ```typescript
-import { TezosNodeWriter, KeyStoreType } from 'conseiljs';
+import { TezosMessageUtils, TezosNodeWriter, KeyStoreType } from 'conseiljs';
 import { SoftSigner } from 'conseiljs-softsigner';
 
 const tezosNode = '';
@@ -460,31 +460,38 @@ delegateAccount();
 
 ### Smart Contract Interactions
 
-Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. As of version 0.2.7, ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/dev/). Smart Chain Arena has [learning materials](https://smartpy.io/dev/help.html) and an excellent [reference for SmartPy](https://smartpy.io/dev/reference.html). The editor also has a set of sample contracts that demonstrate various smart contract techniques. Finally, Cryptonomic has put together a [Smart Contract Development Syllabus](https://medium.com/the-cryptonomic-aperiodical/smart-contract-development-syllabus-f285a8463a4d) based on SmartPy.
+Tezos smart contracts are natively executed in a stack-based type-safe language called Michelson. ConseilJS is able to deploy a large portion of contracts written in that language. Rather than compose contracts directly in Michelson, we encourage you to look at more developer-friendly options like [SmartPy](http://smartpy.io/dev/). Smart Chain Arena has [learning materials](https://smartpy.io/dev/help.html) and an excellent [reference for SmartPy](https://smartpy.io/dev/reference.html). The editor also has a set of sample contracts that demonstrate various smart contract techniques. Finally, Cryptonomic has put together a [Smart Contract Development Syllabus](https://medium.com/the-cryptonomic-aperiodical/smart-contract-development-syllabus-f285a8463a4d) based on SmartPy.
 
 #### Deploy a Contract
 
-A note of warning, as of Tezos Protocol 4, deployed in the spring of 2019, originated accounts with code (smart contracts) are no longer 'spendable'. What this means is, deploying a contract with an initial balance that does not have functionality internally that enables transfer of this balance, will permanently lock that amount of XTZ.
+A note of warning, as of Tezos Protocol 4, deployed in the Spring of 2019, originated accounts with code (smart contracts) are no longer 'spendable'. What this means is, deploying a contract with an initial balance that does not have functionality internally that enables transfer of this balance, will permanently lock that amount of XTZ.
 
-One of the more existing features of ConseilJS is that it allow for trustless chain interactions, including contract deployment directly from Michelson. For the curious the language parsing and transformation code lives inside the following: [`Michelson.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Michelson.ne), [`Micheline.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Micheline.ne), [`TezosLanguageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosLanguageUtil.ts)), [`TezosMessageCodec`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageCodec.ts), [`TezosMessageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageUtil.ts). To find out more about the Michelson language, visit [the guide](https://michelson.nomadic-labs.com) from Nomadic Labs and the [Tezos platform documentation](https://tezos.gitlab.io/whitedoc/michelson.html).
+One of the more exciting features of ConseilJS is that it allow for trustless chain interactions, including contract deployment directly from Michelson. For the curious the language parsing and transformation code lives inside the following: [`Michelson.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Michelson.ne), [`Micheline.ne`](https://github.com/Cryptonomic/ConseilJS/blob/master/grammar/tezos/Micheline.ne), [`TezosLanguageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosLanguageUtil.ts)), [`TezosMessageCodec`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageCodec.ts), [`TezosMessageUtil`](https://github.com/Cryptonomic/ConseilJS/blob/master/src/chain/tezos/TezosMessageUtil.ts). To find out more about the Michelson language, visit [the guide](https://michelson.nomadic-labs.com) from Nomadic Labs and the [Tezos platform documentation](https://tezos.gitlab.io/whitedoc/michelson.html).
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+import fetch from 'node-fetch';
+import * as log from 'loglevel';
 
-setLogLevel('debug');
+import { registerFetch, registerLogger, TezosMessageUtils, TezosNodeWriter, TezosParameterFormat, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
+
+const logger = log.getLogger('conseiljs');
+logger.setLevel('debug', false);
+registerLogger(logger);
+registerFetch(fetch);
 
 const tezosNode = '';
 
 async function deployContract() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: StoreType.Fundraiser
+        storeType: KeyStoreType.Fundraiser
     };
     const contract = `[
         {
@@ -508,7 +515,8 @@ async function deployContract() {
      ]`;
     const storage = '{"string": "Sample"}';
 
-    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Micheline);
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, signer, keystore, 0, undefined, 100_000, 1000, 100_000, contract, storage, TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -521,15 +529,15 @@ deployContract();
 const conseiljs = require('conseiljs');
 const tezosNode = '';
 
-setLogLevel('debug');
+
 
 async function deployContract() {
     const keystore = {
         publicKey: 'edpkvQtuhdZQmjdjVfaY9Kf4hHfrRJYugaJErkCGvV3ER1S7XWsrrj',
-        privateKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
+        secretKey: 'edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH',
         publicKeyHash: 'tz1QSHaKpTFhgHLbqinyYRjxD5sLcbfbzhxy',
         seed: '',
-        storeType: conseiljs.StoreType.Fundraiser
+        storeType: conseiljs.KeyStoreType.Fundraiser
     };
     const contract = `[
         {
@@ -553,7 +561,8 @@ async function deployContract() {
      ]`;
     const storage = '{"string": "Sample"}';
 
-    const result = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Micheline);
+    const signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const result = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, signer, keystore, 0, undefined, 100000, 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Micheline);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -562,17 +571,26 @@ deployContract();
 ```
 <!-- tabs:end -->
 
-It's possible to deploy a contract with Michelson code on an experimental basis with local forging as of ConseilJS 0.2.7. Another important feature introduced in that release was `awaitOperationConfirmation(...)` which will monitor the chain via Conseil waiting for the specified operation to appear, and then return the result set from Conseil for that operation. This can be used to ensure that the requested transaction has occured, it will also produce an updated account counter. The example below originates a contract and then waits for it to be recorded so the address of the new contract can be extracted.
+Using `awaitOperationConfirmation(...)` ConseilJS can monitor the chain via the Conseil indexer, waiting for the specified operation to appear, and then return the result set from Conseil for that operation. This can be used to ensure that the requested transaction has occurred, it will also produce an updated account counter. The example below originates a contract and then waits for it to be recorded so the address of the new contract can be extracted. This functionality requires an API key from [Nautilus Cloud](https://nautilus.cloud) or your own instance of Conseil.
 
 <!-- tabs:start -->
 ##### **Typescript**
 
 ```typescript
-import { StoreType, TezosNodeWriter, TezosParameterFormat, setLogLevel } from 'conseiljs';
+import fetch from 'node-fetch';
+import * as log from 'loglevel';
 
-setLogLevel('debug');
+import { registerFetch, registerLogger, TezosMessageUtils, TezosNodeWriter, TezosParameterFormat, KeyStoreType } from 'conseiljs';
+import { SoftSigner } from 'conseiljs-softsigner';
+
+const logger = log.getLogger('conseiljs');
+logger.setLevel('debug', false);
+registerLogger(logger);
+registerFetch(fetch);
 
 const tezosNode = '';
+const network = 'carthagenet';
+const conseilServer = { url: '', apiKey: '', network };
 
 async function deployContract() {
     const keystore = {
@@ -591,11 +609,12 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, TezosParameterFormat.Michelson);
+    const signer = await SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'));
+    const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(tezosNode, signer, keystore, 0, undefined, 100_000, 1000, 100_000, contract, storage, TezosParameterFormat.Michelson);
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
+    const conseilResult = await TezosConseilClient.awaitOperationConfirmation(conseilServer, network, groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_contracts}`);
 }
 
@@ -629,11 +648,11 @@ async function deployContract() {
             NIL operation; PAIR}`;
     const storage = '"Sample"';
 
-    const nodeResult = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, keystore, 0, undefined, 100000, '', 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
+    const nodeResult = await conseiljs.TezosNodeWriter.sendContractOriginationOperation(tezosNode, signer, keystore, 0, undefined, 100000, 1000, 100000, contract, storage, conseiljs.TezosParameterFormat.Michelson);
 
     const groupid = nodeResult['operationGroupID'].replace(/\"/g, '').replace(/\n/, ''); // clean up RPC output
     console.log(`Injected operation group id ${groupid}`);
-    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, 'carthagenet', groupid, 5);
+    const conseilResult = await conseiljs.TezosConseilClient.awaitOperationConfirmation(conseilServer, network, groupid, 5);
     console.log(`Originated contract at ${conseilResult[0].originated_accounts}`);
 }
 
@@ -644,7 +663,7 @@ deployContract();
 
 #### Invoke a Contract
 
-Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety, `sendContractPing` that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax.io?e=Tezos%20Mainnet/operations&q=eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiYXNjIn1dLCJsaW1pdCI6NTAwMH0).
+Similarly to contract deployment, contract invocation can happen either with Michelson or Micheline format. There is also a convenience function for safety, `sendContractPing` that allows calling a contract with a 0 amount and no parameters. This was the invocation pattern for the Tezos Foundation [Ledger Nano S giveaway](https://tezos.foundation/news/tezos-foundation-to-give-away-ledger-nano-s-hardware-wallets-to-celebrate-one-year-since-betanet-launch) [registry contract](https://arronax.io/tezos/mainnet/operations/query/eyJmaWVsZHMiOlsidGltZXN0YW1wIiwiYmxvY2tfbGV2ZWwiLCJzb3VyY2UiLCJkZXN0aW5hdGlvbiIsImFtb3VudCIsImtpbmQiLCJmZWUiLCJvcGVyYXRpb25fZ3JvdXBfaGFzaCJdLCJwcmVkaWNhdGVzIjpbeyJmaWVsZCI6ImtpbmQiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJ0cmFuc2FjdGlvbiJdLCJpbnZlcnNlIjpmYWxzZX0seyJmaWVsZCI6InRpbWVzdGFtcCIsIm9wZXJhdGlvbiI6ImFmdGVyIiwic2V0IjpbMTU1OTM2MTYwMDAwMF0sImludmVyc2UiOmZhbHNlfSx7ImZpZWxkIjoiZGVzdGluYXRpb24iLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJLVDFCUnVkRlpFWExZQU5nbVpUa2ExeENETjVuV1RNV1k3U1oiXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJ0aW1lc3RhbXAiLCJvcGVyYXRpb24iOiJiZWZvcmUiLCJzZXQiOlsxNTYzMjQ5NjAwMDAwXSwiaW52ZXJzZSI6ZmFsc2V9LHsiZmllbGQiOiJzdGF0dXMiLCJvcGVyYXRpb24iOiJlcSIsInNldCI6WyJhcHBsaWVkIl0sImludmVyc2UiOmZhbHNlfV0sIm9yZGVyQnkiOlt7ImZpZWxkIjoidGltZXN0YW1wIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0).
 
 <!-- tabs:start -->
 ##### **Typescript**
@@ -666,7 +685,7 @@ async function invokeContract() {
     };
     const contractAddress = 'KT1KA7DqFjShLC4CPtChPX8QtRYECUb99xMY';
 
-    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, keystore, contractAddress, 10000, 100000, '', 1000, 100000, '"Cryptonomicon"', TezosParameterFormat.Michelson);
+    const result = await TezosNodeWriter.sendContractInvocationOperation(tezosNode, signer, keystore, contractAddress, 10_000, 100_000, 1000, 100_000, '"Cryptonomicon"', TezosParameterFormat.Michelson);
     console.log(`Injected operation group id ${result.operationGroupID}`);
 }
 
@@ -807,7 +826,7 @@ pingContract();
 
 #### Extract Entry Points
 
-Michelson contract are single-entry, meaning unlike other smart contract languages it only has one function that can be called externally. The work-around for this limitation is to create a tree of `if` statements inside that method that perform different operations. This results in a somewhat unintuitive invocation pattern. To help with this, ConseilJS provide contract introspection functions that can not only extract the entry points given a contract, but also generate the invocation parameter object for them. This functionality resides in the `TezosContractIntrospector` namespace which has several methods for parsing the interface given a contract address, full contract code or just the `parameter` portion of the contract: `generateEntryPointsFromAddress`, `generateEntryPointsFromCode`, `generateEntryPointsFromParams` respectively. Examples below use a version the proposed Tezos token standard, [FA1.2](https://gitlab.com/tzip/tzip/blob/master/A/FA1.2.md) deployed on alphanet at [KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3](https://arronax.io?e=Tezos%20Alphanet/accounts&m=true&q=eyJmaWVsZHMiOlsiYWNjb3VudF9pZCIsIm1hbmFnZXIiLCJiYWxhbmNlIiwic2NyaXB0Iiwic3RvcmFnZSIsImJsb2NrX2xldmVsIl0sInByZWRpY2F0ZXMiOlt7ImZpZWxkIjoiYWNjb3VudF9pZCIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMVhGWHdXQ0RNTGtnV2poZnFLVXBEdEJZV2YzWmRVZEtDMyJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6ImJsb2NrX2xldmVsIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0).
+Michelson contract are single-entry, meaning unlike other smart contract languages it only has one function that can be called externally. The work-around for this limitation is to create a tree of `if` statements inside that method that perform different operations. This results in a somewhat unintuitive invocation pattern. To help with this, ConseilJS provide contract introspection functions that can not only extract the entry points given a contract, but also generate the invocation parameter object for them. This functionality resides in the `TezosContractIntrospector` namespace which has several methods for parsing the interface given a contract address, full contract code or just the `parameter` portion of the contract: `generateEntryPointsFromAddress`, `generateEntryPointsFromCode`, `generateEntryPointsFromParams` respectively. Examples below use a version the proposed Tezos token standard, [FA1.2](https://gitlab.com/tzip/tzip/blob/master/A/FA1.2.md) deployed on a testnet at [KT1XFXwWCDMLkgWjhfqKUpDtBYWf3ZdUdKC3](https://arronax.io?e=Tezos%20Alphanet/accounts&m=true&q=eyJmaWVsZHMiOlsiYWNjb3VudF9pZCIsIm1hbmFnZXIiLCJiYWxhbmNlIiwic2NyaXB0Iiwic3RvcmFnZSIsImJsb2NrX2xldmVsIl0sInByZWRpY2F0ZXMiOlt7ImZpZWxkIjoiYWNjb3VudF9pZCIsIm9wZXJhdGlvbiI6ImVxIiwic2V0IjpbIktUMVhGWHdXQ0RNTGtnV2poZnFLVXBEdEJZV2YzWmRVZEtDMyJdLCJpbnZlcnNlIjpmYWxzZX1dLCJvcmRlckJ5IjpbeyJmaWVsZCI6ImJsb2NrX2xldmVsIiwiZGlyZWN0aW9uIjoiZGVzYyJ9XSwiYWdncmVnYXRpb24iOltdLCJsaW1pdCI6MTAwMH0).
 
 <!-- tabs:start -->
 ##### **Typescript**
