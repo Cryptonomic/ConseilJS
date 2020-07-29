@@ -653,12 +653,12 @@ export namespace TezosNodeWriter {
     /**
      * Dry run the given operation and return consumed resources. 
      * 
-     * Note: Estimating an operation on an unrevealed account is not supported and will fail. Use
-     *       `estimateOperations` instead.
+     * Note: Estimating an operation on an unrevealed account is not supported and will fail. Remember to prepend
+     * the Reveal operation if required.
      * 
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
-     * @param {TezosP2PMessageTypes.Operation} operation The operation to estimate.
+     * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
      * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
      */
     export async function estimateOperation(
