@@ -1,4 +1,4 @@
-import {ConseilQuery, ConseilOperator, ConseilSortDirection, ConseilFunction, ConseilAggregation, ConseilOutput} from "../types/conseil/QueryTypes"
+import {ConseilQuery, ConseilOperator, ConseilSortDirection, ConseilFunction, ConseilOutput} from "../types/conseil/QueryTypes"
 
 export namespace ConseilQueryBuilder {
     /**

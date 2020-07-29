@@ -4,6 +4,7 @@
 [![npm](https://img.shields.io/npm/dm/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
 [![Build Status](https://travis-ci.org/Cryptonomic/ConseilJS.svg?branch=master)](https://travis-ci.org/Cryptonomic/ConseilJS)
 [![Coverage Status](https://coveralls.io/repos/github/Cryptonomic/ConseilJS/badge.svg?branch=master)](https://coveralls.io/github/Cryptonomic/ConseilJS?branch=master)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Cryptonomic_ConseilJS&metric=alert_status)](https://sonarcloud.io/dashboard?id=Cryptonomic_ConseilJS)
 [![dependencies](https://david-dm.org/Cryptonomic/ConseilJS/status.svg)](https://david-dm.org/Cryptonomic/ConseilJS)
 
 A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
@@ -55,9 +56,22 @@ TBD
 ## Use with Web
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
         integrity="sha384-IufW5flMmPmFPiUm4GlKLocLuEWZlGoCA5ukejQgI66LcXELSsraBP7dux+BE9Ds"
         crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
+        integrity="sha384-V1iaajn0x/SMFcZ9Y/xNQmqQSKyll6Dzt27U6OWiv8NdbHTVaHOGHdQ8g0G68HPd"
+        crossorigin="anonymous"></script>
+    <script>
+        //conseiljssoftsigner.
+    </script>
+</head>
+<body>
+    ...
+</body>
+</html>
 ```
 
 The web version sets fetch and logger internally to `window.fetch` and `console` respectively.
