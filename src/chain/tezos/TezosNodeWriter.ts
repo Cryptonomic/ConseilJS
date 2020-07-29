@@ -653,25 +653,24 @@ export namespace TezosNodeWriter {
     /**
      * Dry run the given operation and return consumed resources. 
      * 
-     * Note: Estimating an operation on an unrevealed account is not supported and will fail.
-     *
-     * TODO: Add support for estimating multiple operations so that reveals can be processed.
+     * Note: Estimating an operation on an unrevealed account is not supported and will fail. Remember to prepend
+     * the Reveal operation if required.
      * 
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
-     * @param {TezosP2PMessageTypes.Operation} operation The operation to estimate.
+     * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
      * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
      */
     export async function estimateOperation(
         server: string,
         chainid: string,
-        operation: TezosP2PMessageTypes.Operation
+        ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number }> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
         const fake_chainid = 'NetXdQprcVkpaWU';
         const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
 
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: [operation], signature: fake_signature } });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: operations, signature: fake_signature } });
         const responseText = await response.text();
 
         parseRPCError(responseText);
