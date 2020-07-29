@@ -664,23 +664,7 @@ export namespace TezosNodeWriter {
     export async function estimateOperation(
         server: string,
         chainid: string,
-        operation: TezosP2PMessageTypes.Operation
-    ): Promise<{ gas: number, storageCost: number }> {
-        return estimateOperations(server, chainid, [operation])
-    }
-
-    /**
-     * Dry run the given operations and return consumed resources. 
-     * 
-     * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on. 
-     * @param {TezosP2PMessageTypes.Operation} operations An array of operations to estimate.
-     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
-     */
-    export async function estimateOperations(
-        server: string,
-        chainid: string,
-        operations: Array<TezosP2PMessageTypes.Operation>
+        ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number }> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
         const fake_chainid = 'NetXdQprcVkpaWU';
