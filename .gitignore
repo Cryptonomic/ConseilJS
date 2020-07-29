@@ -2,7 +2,7 @@
 .nyc_output
 .coveralls.yml
 dist/
-coverage/
+coverage/lcov-report
 node_modules/
 
 **/TestAssets.ts
