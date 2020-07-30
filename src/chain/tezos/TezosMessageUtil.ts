@@ -10,6 +10,8 @@ import { SignerCurve } from "../../types/ExternalInterfaces";
 
 /**
  * A collection of functions to encode and decode various Tezos P2P message components like amounts, addresses, hashes, etc.
+ * 
+ * Magic prefixes taken from: https://gitlab.com/tezos/tezos/blob/master/src/lib_crypto/base58.ml#L343
  */
 export namespace TezosMessageUtils {
     /**
