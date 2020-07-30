@@ -262,7 +262,7 @@ export namespace TezosMessageUtils {
             return "00" + base58check.decode(publicKey).slice(4).toString("hex");
         } else if (publicKey.startsWith("sppk")) { // secp256k1
             return "01" + base58check.decode(publicKey).slice(4).toString("hex");
-        } else if (publicKey.startsWith("p2pk")) { // p256
+        } else if (publicKey.startsWith("p2pk")) { // secp256r1 (p256)
             return "02" + base58check.decode(publicKey).slice(4).toString("hex");
         } else {
             throw new Error('Unrecognized key type');
@@ -270,18 +270,22 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Reads a key without a prefix from binary and decodes it into a Base58-check representation.
+     * Deserialize a key without a prefix from binary and decodes it into a Base58-check representation.
      * 
      * @param {Buffer | Uint8Array} b Bytes containing the key.
-     * @param hint One of 'edsk' (private key), 'edpk' (public key).
+     * @param hint 
      */
     export function readKeyWithHint(b: Buffer | Uint8Array, hint: string): string {
         const key = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
-        if (hint === 'edsk') {
+        if (hint === 'edsk') { // ed25519 secret key
             return base58check.encode(Buffer.from('2bf64e07' + key.toString('hex'), 'hex'));
-        } else if (hint === 'edpk') {
+        } else if (hint === 'edpk') { // ed25519 public key
             return readPublicKey(`00${key.toString('hex')}`);
+        } else if (hint === 'sppk') {// secp256k1 public key
+            return readPublicKey(`01${key.toString('hex')}`);
+        } else if (hint === 'p2pk') {// secp256r1 public key
+            return readPublicKey(`02${key.toString('hex')}`);
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
@@ -294,10 +298,8 @@ export namespace TezosMessageUtils {
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
      */
     export function writeKeyWithHint(key: string, hint: string): Buffer {
-        if (hint === 'edsk' || hint === 'edpk') { // ed25519
+        if (hint === 'edsk' || hint === 'edpk' || hint === 'sppk' || hint === 'p2pk') {
             return base58check.decode(key).slice(4);
-            //} else if (hint === 'sppk') { // secp256k1
-            //} else if (hint === 'p2pk') { // secp256r1
         } else {
             throw new Error(`Unrecognized key hint, '${hint}'`);
         }
