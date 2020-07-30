@@ -58,7 +58,7 @@ Unlike the nodejs sample, it's not possible to configure fetch or logger referen
         crossorigin="anonymous"></script>
     <script>
         const keyStore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromSecretKey('edskRgu8wHxjwayvnmpLDDijzD3VZDoAH7ZLqJWuG4zg7LbxmSWZWhtkSyM5Uby41rGfsBGk4iPKWHSDniFyCRv3j7YFCknyHH');
-        signer = await conseiljssoftsigner.SoftSigner.createSigner(TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'), -1);
+        signer = await conseiljssoftsigner.SoftSigner.createSigner(conseiljs.TezosMessageUtils.writeKeyWithHint(keyStore.secretKey, 'edsk'), -1);
     </script>
 </head>
 <body>
