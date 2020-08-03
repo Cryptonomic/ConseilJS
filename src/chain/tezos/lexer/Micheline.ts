@@ -8,7 +8,6 @@ declare var _: any;
 declare var colon: any;
 declare var quotedValue: any;
 declare var rbrace: any;
-declare var keyword: any;
 declare var comma: any;
 declare var lbracket: any;
 declare var rbracket: any;
@@ -17,10 +16,22 @@ const moo = require("moo");
 const bigInt = require("big-integer");
 
 // taken from https://gitlab.com/nomadic-labs/tezos, lib_protocol/michelson_v1_primitives.ml, prim_encoding enum
-const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DIG"', '"DUG"', '"EMPTY_BIG_MAP"', '"APPLY"', '"chain_id"', '"CHAIN_ID"'];
+export const DefaultMichelsonKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DIG"', '"DUG"', '"EMPTY_BIG_MAP"', '"APPLY"', '"chain_id"', '"CHAIN_ID"'];
+let _languageKeywords = [...DefaultMichelsonKeywords];
+
+export const setKeywordList = list => {
+    _languageKeywords = list;
+}
+
+export const getCodeForKeyword = word => {
+    return _languageKeywords.indexOf(word);
+}
+
+export const getKeywordForCode = code => {
+    return _languageKeywords[code];
+}
 
 const lexer = moo.compile({
-    keyword: MichelineKeywords,
     lbrace: '{',
     rbrace: '}',
     lbracket: '[',
@@ -167,7 +178,7 @@ const primArgAnnToHex = d => {
 }
 
 const encodePrimitive = p => {
-    return ('00' + MichelineKeywords.indexOf(p).toString(16)).slice(-2);
+    return ('00' + getCodeForKeyword(p).toString(16)).slice(-2);
 }
 
 const encodeLength = l => {
@@ -255,7 +266,7 @@ const grammar: Grammar = {
     {"name": "staticObject", "symbols": ["staticBytes"], "postprocess": id},
     {"name": "primBare$ebnf$1", "symbols": []},
     {"name": "primBare$ebnf$1", "symbols": ["primBare$ebnf$1", (lexer.has("_") ? {type: "_"} : _)], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "primBare", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primBare$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primBareToHex},
+    {"name": "primBare", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primBare$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primBareToHex},
     {"name": "primArg$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
     {"name": "primArg$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
@@ -272,7 +283,7 @@ const grammar: Grammar = {
     {"name": "primArg$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArg$ebnf$3$subexpression$2", "symbols": ["any", "primArg$ebnf$3$subexpression$2$ebnf$1", "primArg$ebnf$3$subexpression$2$ebnf$2"]},
     {"name": "primArg$ebnf$3", "symbols": ["primArg$ebnf$3", "primArg$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "primArg", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArg$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArg$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArg$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgToHex},
+    {"name": "primArg", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArg$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArg$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArg$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgToHex},
     {"name": "primAnn$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
     {"name": "primAnn$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
@@ -289,7 +300,7 @@ const grammar: Grammar = {
     {"name": "primAnn$ebnf$3$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primAnn$ebnf$3$subexpression$2", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primAnn$ebnf$3$subexpression$2$ebnf$1", "primAnn$ebnf$3$subexpression$2$ebnf$2"]},
     {"name": "primAnn$ebnf$3", "symbols": ["primAnn$ebnf$3", "primAnn$ebnf$3$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "primAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primAnnToHex},
+    {"name": "primAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primAnnToHex},
     {"name": "primArgAnn$ebnf$1", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
     {"name": "primArgAnn$ebnf$1", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$2", "symbols": [(lexer.has("_") ? {type: "_"} : _)], "postprocess": id},
@@ -320,7 +331,7 @@ const grammar: Grammar = {
     {"name": "primArgAnn$ebnf$5$subexpression$2$ebnf$2", "symbols": [], "postprocess": () => null},
     {"name": "primArgAnn$ebnf$5$subexpression$2", "symbols": [(lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), "primArgAnn$ebnf$5$subexpression$2$ebnf$1", "primArgAnn$ebnf$5$subexpression$2$ebnf$2"]},
     {"name": "primArgAnn$ebnf$5", "symbols": ["primArgAnn$ebnf$5", "primArgAnn$ebnf$5$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "primArgAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArgAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("keyword") ? {type: "keyword"} : keyword), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArgAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primArgAnn$ebnf$4", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$5", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgAnnToHex},
+    {"name": "primArgAnn", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"prim\""}, "primArgAnn$ebnf$1", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("quotedValue") ? {type: "quotedValue"} : quotedValue), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"args\""}, "primArgAnn$ebnf$2", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$3", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("comma") ? {type: "comma"} : comma), (lexer.has("_") ? {type: "_"} : _), {"literal":"\"annots\""}, "primArgAnn$ebnf$4", (lexer.has("colon") ? {type: "colon"} : colon), (lexer.has("_") ? {type: "_"} : _), (lexer.has("lbracket") ? {type: "lbracket"} : lbracket), (lexer.has("_") ? {type: "_"} : _), "primArgAnn$ebnf$5", (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbracket") ? {type: "rbracket"} : rbracket), (lexer.has("_") ? {type: "_"} : _), (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": primArgAnnToHex},
     {"name": "primAny", "symbols": ["primBare"], "postprocess": id},
     {"name": "primAny", "symbols": ["primArg"], "postprocess": id},
     {"name": "primAny", "symbols": ["primAnn"], "postprocess": id},

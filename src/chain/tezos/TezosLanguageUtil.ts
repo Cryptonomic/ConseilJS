@@ -4,9 +4,6 @@ import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
 
-// TODO: share this with the parser somehow
-const MichelineKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DEFAULT_ACCOUNT"', '"tez"'];
-
 /**
  * A collection of functions to encode and decode Michelson and Micheline code
  */
@@ -370,11 +367,11 @@ export namespace TezosLanguageUtil {
      * @returns {string} Michelson/Micheline keyword
      */
     function hexToMichelineKeyword(hex: string, offset: number): string {
-        return MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)];
+        return Micheline.getKeywordForCode(parseInt(hex.substring(offset, offset + 2), 16));
     }
 
     function hexToMichelsonKeyword(hex: string, offset: number): string {
-        return MichelineKeywords[parseInt(hex.substring(offset, offset + 2), 16)].slice(1, -1);
+        return hexToMichelineKeyword(hex, offset).slice(1, -1);
     }
 
     /**
@@ -387,6 +384,17 @@ export namespace TezosLanguageUtil {
     function michelineHexToAnnotations(hex: string): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);
         return { code: stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
+    }
+
+    /**
+     * This function is undocumented, if you're using it, please know what you're doing.
+     */
+    export function overrideKeywordList(list: string[]) {
+        Micheline.setKeywordList(list);
+    }
+
+    export function restoreKeywordList() {
+        Micheline.setKeywordList(Micheline.DefaultMichelsonKeywords);
     }
 
     /**
