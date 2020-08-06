@@ -108,7 +108,7 @@ export namespace TezosMessageUtils {
      * @param {number} offset Offset within the message to start decoding from.
      */
     export function findInt(hex: string, offset: number, signed: boolean = false) {
-        let buffer = "";
+        let buffer = '';
         let i = 0;
         while (offset + i * 2 < hex.length) {
             let start = offset + i * 2;
@@ -117,7 +117,7 @@ export namespace TezosMessageUtils {
             buffer += part;
             i += 1;
 
-            if (parseInt(part, 16) < 127) { break; }
+            if (parseInt(part, 16) < 128) { break; }
         }
 
         return signed ? { value: readSignedInt(buffer), length: i * 2 } : { value: readInt(buffer), length: i * 2 };
@@ -438,7 +438,7 @@ export namespace TezosMessageUtils {
                     if (format === TezosParameterFormat.Micheline) {
                         return `05${TezosLanguageUtil.translateMichelineToHex(value as string)}`;
                     } else if (format === TezosParameterFormat.Michelson) {
-                        const micheline = TezosLanguageUtil.translateMichelsonToMicheline(value as string)
+                        const micheline = TezosLanguageUtil.translateMichelsonToMicheline(value as string);
                         return `05${TezosLanguageUtil.translateMichelineToHex(micheline)}`;
                     } else {
                         throw new Error(`Unsupported format, ${format}, provided`);

@@ -86,7 +86,6 @@ describe('Micheline binary encoding complex tests', () => {
         const result = TezosLanguageUtil.translateMichelineToHex('[ {  "prim":"CAR" }, [  [  {  "prim":"DUP" }, {  "prim":"CAR" }, {  "prim":"DIP", "args":[  [  {  "prim":"CDR" } ] ] } ] ], {  "prim":"NIL", "args":[  {  "prim":"int" } ] } ]');
         expect(result).to.equal('020000001d03160200000012020000000d03210316051f02000000020317053d035b');
     });
-    
 });
 
 describe('Micheline to hex contract tests', async () => {
@@ -113,4 +112,10 @@ describe('Micheline to hex contract tests', async () => {
             expect(parsedHex).to.equal(hexaline.trim());
         });
     }
+});
+
+describe('Set external keyword list', () => {
+    TezosLanguageUtil.overrideKeywordList([]);
+
+    TezosLanguageUtil.restoreKeywordList();
 });

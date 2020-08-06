@@ -143,7 +143,7 @@ export namespace TezosLanguageUtil {
                 offset += length * 2;
                 break;
             }
-            default: { throw new Error(`Unknown Micheline field type '${fieldType}'`); }
+            default: { throw new Error(`Unknown Micheline field type '${fieldType}' at offset ${offset} of '${hex}'`); }
         }
 
         return { code: code, consumed: offset };
@@ -155,133 +155,138 @@ export namespace TezosLanguageUtil {
         let offset = 0;
         let fieldType = hex.substring(offset, offset + 2);
         offset += 2;
-    
-        switch (fieldType) {
-            case '00': { // literal int or nat
-                const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
-                code += ` ${value.value} `;
-                offset += value.length;
-                break;
-            }
-            case '01': { // literal string
-                const stringEnvelope = michelineHexToString(hex.substring(offset));
-                code += ` "${stringEnvelope.code}" `;
-                offset += stringEnvelope.consumed;
-                break;
-            }
-            case '02': { // array
-                const length = parseInt(hex.substring(offset, offset + 8), 16);
-                offset += 8;
-                let buffer: string[] = [];
-                let consumed = 0;
-                while (consumed < length) {
+
+        try {
+            switch (fieldType) {
+                case '00': { // literal int or nat
+                    const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
+                    code += ` ${value.value} `;
+                    offset += value.length;
+                    break;
+                }
+                case '01': { // literal string
+                    const stringEnvelope = michelineHexToString(hex.substring(offset));
+                    code += ` "${stringEnvelope.code}" `;
+                    offset += stringEnvelope.consumed;
+                    break;
+                }
+                case '02': { // array
+                    const length = parseInt(hex.substring(offset, offset + 8), 16);
+                    offset += 8;
+                    let buffer: string[] = [];
+                    let consumed = 0;
+                    while (consumed < length) {
+                        let envelope = hexToMichelson(hex.substring(offset));
+                        buffer.push(envelope.code);
+                        consumed += envelope.consumed / 2; // plain bytes
+                        offset += envelope.consumed; // hex-encoded two-char bytes
+                    }
+                    if (length === 0) {
+                        code += '[]';
+                    } else {
+                        code += `[ ${buffer.join(' ')} ]`;
+                    }
+                    break;
+                }
+                case '03': { // bare primitive
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} )`;
+                    offset += 2;
+                    break;
+                }
+                case '04': { // primitive with a set of annotations
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+        
+                    const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                    code += ` ${annEnvelope.code} )`;
+                    offset += annEnvelope.consumed;
+                    break;
+                }
+                case '05': { // primitive with an argument
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+                    const envelope = hexToMichelson(hex.substring(offset));
+                    code += ` ${envelope.code} )`;
+                    offset += envelope.consumed;
+                    break;
+                }
+                case '06': { // primitive with an argument an a set of annotations
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+        
+                    const args = hexToMichelson(hex.substring(offset));
+                    code += ` ${args.code} `;
+                    offset += args.consumed;
+        
+                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    code += ` ${anns.code} )`;
+                    offset += anns.consumed;
+                    break;
+                }
+                case '07': { // primitive with two arguments
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+        
+                    let buffer: string[] = [];
                     let envelope = hexToMichelson(hex.substring(offset));
                     buffer.push(envelope.code);
-                    consumed += envelope.consumed / 2; // plain bytes
-                    offset += envelope.consumed; // hex-encoded two-char bytes
+                    offset += envelope.consumed;
+                    envelope = hexToMichelson(hex.substring(offset));
+                    buffer.push(envelope.code);
+                    offset += envelope.consumed;
+        
+                    code += ` ${buffer.join(' ')} )`;
+                    break;
                 }
-                if (length === 0) {
-                    code += '[]';
-                } else {
-                    code += `[ ${buffer.join(' ')} ]`;
+                case '08': { // primitive with two arguments and an annotation set
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+        
+                    const arg0 = hexToMichelson(hex.substring(offset));
+                    offset += arg0.consumed;
+                    const arg1 = hexToMichelson(hex.substring(offset));
+                    offset += arg1.consumed;
+                    code += ` ${arg0.code} ${arg1.code} `;
+        
+                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    code += ` ${anns.code} )`;
+                    offset += anns.consumed;
+                    break;
                 }
-                break;
-            }
-            case '03': { // bare primitive
-                code += `( ${hexToMichelsonKeyword(hex, offset)} )`;
-                offset += 2;
-                break;
-            }
-            case '04': { // primitive with a set of annotations
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-    
-                const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
-                code += ` ${annEnvelope.code} )`;
-                offset += annEnvelope.consumed;
-                break;
-            }
-            case '05': { // primitive with an argument
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-                const envelope = hexToMichelson(hex.substring(offset));
-                code += ` ${envelope.code} )`;
-                offset += envelope.consumed;
-                break;
-            }
-            case '06': { // primitive with an argument an a set of annotations
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-    
-                const args = hexToMichelson(hex.substring(offset));
-                code += ` ${args.code} `;
-                offset += args.consumed;
-    
-                const anns = michelineHexToAnnotations(hex.substring(offset));
-                code += ` ${anns.code} )`;
-                offset += anns.consumed;
-                break;
-            }
-            case '07': { // primitive with two arguments
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-    
-                let buffer: string[] = [];
-                let envelope = hexToMichelson(hex.substring(offset));
-                buffer.push(envelope.code);
-                offset += envelope.consumed;
-                envelope = hexToMichelson(hex.substring(offset));
-                buffer.push(envelope.code);
-                offset += envelope.consumed;
-    
-                code += ` ${buffer.join(' ')} )`;
-                break;
-            }
-            case '08': { // primitive with two arguments and an annotation set
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-    
-                const arg0 = hexToMichelson(hex.substring(offset));
-                offset += arg0.consumed;
-                const arg1 = hexToMichelson(hex.substring(offset));
-                offset += arg1.consumed;
-                code += ` ${arg0.code} ${arg1.code} `;
-    
-                const anns = michelineHexToAnnotations(hex.substring(offset));
-                code += ` ${anns.code} )`;
-                offset += anns.consumed;
-                break;
-            }
-            case '09': { // primitive with an argument array and an optional anotation set
-                code += `( ${hexToMichelsonKeyword(hex, offset)} `;
-                offset += 2;
-    
-                let envelope = hexToMichelson('02' + hex.substring(offset)); // fake an array to re-use the parsing code
-                code += `"args": ${envelope.code}`;
-                offset += envelope.consumed - 2; // account for the inserted '02' above
-    
-                if (hex.substring(offset, offset + 8) !== '00000000') {
-                    const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
-                    if (annEnvelope.code.length > 2) { // more than empty quotes
-                        code += ` ${annEnvelope.code} )`;
+                case '09': { // primitive with an argument array and an optional anotation set
+                    code += `( ${hexToMichelsonKeyword(hex, offset)} `;
+                    offset += 2;
+        
+                    let envelope = hexToMichelson('02' + hex.substring(offset)); // fake an array to re-use the parsing code
+                    code += `"args": ${envelope.code}`;
+                    offset += envelope.consumed - 2; // account for the inserted '02' above
+        
+                    if (hex.substring(offset, offset + 8) !== '00000000') {
+                        const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                        if (annEnvelope.code.length > 2) { // more than empty quotes
+                            code += ` ${annEnvelope.code} )`;
+                        }
+                        offset += annEnvelope.consumed;
+                    } else {
+                        code += ' )';
+                        offset += 8;
                     }
-                    offset += annEnvelope.consumed;
-                } else {
-                    code += ' )';
-                    offset += 8;
+                    break;
                 }
-                break;
+                case '0a': { // raw bytes
+                    const length = parseInt(hex.substring(offset, offset + 8), 16);
+                    offset += 8;
+                    code += ` 0x${hex.substring(offset, offset + length * 2)} `;
+                    offset += length * 2;
+                    break;
+                }
+                default: { throw new Error(`Unknown Michelson field type '${fieldType}' at offset ${offset} of '${hex}'`); }
             }
-            case '0a': { // raw bytes
-                const length = parseInt(hex.substring(offset, offset + 8), 16);
-                offset += 8;
-                code += ` 0x${hex.substring(offset, offset + length * 2)} `;
-                offset += length * 2;
-                break;
-            }
-            default: { throw new Error(`Unknown Micheline field type '${fieldType}'`); }
+        } catch (err) {
+            const m = `Nested hex parsing error (${err.message}) after: ${hex}, ${offset}, ${code}`;
+            throw new Error(m);
         }
-    
+
         return { code: code, consumed: offset };
     }
 
