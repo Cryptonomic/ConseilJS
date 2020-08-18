@@ -59,7 +59,7 @@ TBD
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-lodwAAfBAI6vLWVOsAKdhu3BatILs6GOU6F9OtN7cJ33zNDgxgV0zePEZi84ncji"
+        integrity="sha384-fEY0z9o3rje0DMNsk6cJ1znEOYXtTpSJX+QrwkIqrEvPGIYLHPDliaerr7tRJ0HL"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
         integrity="sha384-V1iaajn0x/SMFcZ9Y/xNQmqQSKyll6Dzt27U6OWiv8NdbHTVaHOGHdQ8g0G68HPd"
