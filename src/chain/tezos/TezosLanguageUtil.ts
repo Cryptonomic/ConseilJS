@@ -61,7 +61,7 @@ export namespace TezosLanguageUtil {
                     code += `{ "prim": ${hexToMichelineKeyword(hex, offset)}, `;
                     offset += 2;
 
-                    const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                    const annEnvelope = hexToAnnotations(hex.substring(offset));
                     code += `"annots": [ ${annEnvelope.code} ] }`;
                     offset += annEnvelope.consumed;
                     break;
@@ -82,7 +82,7 @@ export namespace TezosLanguageUtil {
                     code += `"args": [ ${args.code} ], `;
                     offset += args.consumed;
 
-                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    const anns = hexToAnnotations(hex.substring(offset));
                     code += `"annots": [ ${anns.code} ] }`;
                     offset += anns.consumed;
                     break;
@@ -112,7 +112,7 @@ export namespace TezosLanguageUtil {
                     offset += arg1.consumed;
                     code += `"args": [ ${arg0.code}, ${arg1.code} ], `;
 
-                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    const anns = hexToAnnotations(hex.substring(offset));
                     code += `"annots": [ ${anns.code} ] }`;
                     offset += anns.consumed;
                     break;
@@ -126,7 +126,7 @@ export namespace TezosLanguageUtil {
                     offset += envelope.consumed - 2; // account for the inserted '02' above
 
                     if (hex.substring(offset, offset + 8) !== '00000000') {
-                        const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                        const annEnvelope = hexToAnnotations(hex.substring(offset));
                         if (annEnvelope.code.length > 2) { // more than empty quotes
                             code += `, "annots": [ ${annEnvelope.code} ] }`;
                         }
@@ -165,13 +165,13 @@ export namespace TezosLanguageUtil {
             switch (fieldType) {
                 case '00': { // literal int or nat
                     const value = TezosMessageUtils.findInt(hex.substring(offset), 0, true);
-                    code += ` ${value.value} `;
+                    code += `${value.value}`;
                     offset += value.length;
                     break;
                 }
                 case '01': { // literal string
                     const stringEnvelope = michelineHexToString(hex.substring(offset));
-                    code += ` "${stringEnvelope.code}" `;
+                    code += `"${stringEnvelope.code}"`;
                     offset += stringEnvelope.consumed;
                     break;
                 }
@@ -202,7 +202,7 @@ export namespace TezosLanguageUtil {
                     code += `( ${hexToMichelsonKeyword(hex, offset)} `;
                     offset += 2;
         
-                    const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                    const annEnvelope = hexToAnnotations(hex.substring(offset), false);
                     code += ` ${annEnvelope.code} )`;
                     offset += annEnvelope.consumed;
                     break;
@@ -223,7 +223,7 @@ export namespace TezosLanguageUtil {
                     code += ` ${args.code} `;
                     offset += args.consumed;
         
-                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    const anns = hexToAnnotations(hex.substring(offset), false);
                     code += ` ${anns.code} )`;
                     offset += anns.consumed;
                     break;
@@ -253,7 +253,7 @@ export namespace TezosLanguageUtil {
                     offset += arg1.consumed;
                     code += ` ${arg0.code} ${arg1.code} `;
         
-                    const anns = michelineHexToAnnotations(hex.substring(offset));
+                    const anns = hexToAnnotations(hex.substring(offset), false);
                     code += ` ${anns.code} )`;
                     offset += anns.consumed;
                     break;
@@ -267,7 +267,7 @@ export namespace TezosLanguageUtil {
                     offset += envelope.consumed - 2; // account for the inserted '02' above
         
                     if (hex.substring(offset, offset + 8) !== '00000000') {
-                        const annEnvelope = michelineHexToAnnotations(hex.substring(offset));
+                        const annEnvelope = hexToAnnotations(hex.substring(offset), false);
                         if (annEnvelope.code.length > 2) { // more than empty quotes
                             code += ` ${annEnvelope.code} )`;
                         }
@@ -281,7 +281,7 @@ export namespace TezosLanguageUtil {
                 case '0a': { // raw bytes
                     const length = parseInt(hex.substring(offset, offset + 8), 16);
                     offset += 8;
-                    code += ` 0x${hex.substring(offset, offset + length * 2)} `;
+                    code += `0x${hex.substring(offset, offset + length * 2)}`;
                     offset += length * 2;
                     break;
                 }
@@ -389,11 +389,15 @@ export namespace TezosLanguageUtil {
      *
      * @param {string} hex Hex-encoded contract fragment to process
      * @returns {codeEnvelope} Parsed annotations and the number of consumed bytes.
-     * * @see [Michelson Annotations]{@link https://tezos.gitlab.io/whitedoc/michelson.html#annotations}
+     * @see [Michelson Annotations]{@link https://tezos.gitlab.io/whitedoc/michelson.html#annotations}
      */
-    function michelineHexToAnnotations(hex: string): codeEnvelope {
+    function hexToAnnotations(hex: string, quote: boolean = true): codeEnvelope {
         const stringEnvelope = michelineHexToString(hex);
-        return { code: stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', '), consumed: stringEnvelope.consumed };
+
+        return {
+            code: (quote ? stringEnvelope.code.split(' ').map(s => `"${s}"`).join(', ') : stringEnvelope.code),
+            consumed: stringEnvelope.consumed
+        };
     }
 
     /**

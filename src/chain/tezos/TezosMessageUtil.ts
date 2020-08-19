@@ -294,7 +294,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Writes a Base58-check key into hex.
+     * Serializes a Base58-check key into hex.
      * 
      * @param key Key to encode, input is expected to be a base58-check encoded string.
      * @param hint Key type, usually the curve it was generated from, eg: 'edsk'.
@@ -308,7 +308,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Reads a signature value without a prefix from binary and decodes it into a Base58-check representation.
+     * Deserializes a signature value without a prefix from binary and decodes it into a Base58-check representation.
      * 
      * @param {Buffer | Uint8Array} b Bytes containing signature.
      * @param hint Support 'edsig'.
@@ -328,7 +328,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Writes a Base58-check key into hex.
+     * Serializes a Base58-check key into hex.
      * 
      * @param key Key to encode, input is expected to be a base58-check encoded string.
      * @param hint Key type, usually the curve it was generated from, eg: 'edsig'.
@@ -346,7 +346,7 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Reads a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
+     * Deserializes a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
      * 
      * @param {Buffer | Uint8Array} b Bytes to encode
      * @param hint One of: 'op' (operation encoding helper), 'p' (proposal), '' (blank)
