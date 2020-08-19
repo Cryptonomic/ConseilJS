@@ -3,6 +3,7 @@ import * as blakejs from 'blakejs';
 import { KeyStore, Signer } from '../../types/ExternalInterfaces';
 import * as TezosTypes from '../../types/tezos/TezosChainTypes';
 import { TezosConstants } from '../../types/tezos/TezosConstants';
+import { ServiceResponseError } from '../../types/ErrorTypes';
 import * as TezosP2PMessageTypes from '../../types/tezos/TezosP2PMessageTypes';
 import { TezosNodeReader } from './TezosNodeReader';
 import { TezosMessageCodec } from './TezosMessageCodec';
@@ -741,7 +742,7 @@ export namespace TezosNodeWriter {
 
         if (errors.length > 0) {
             log.debug(`errors found in response:\n${response}`);
-            throw new Error(errors); // TODO: use TezosResponseError
+            throw new ServiceResponseError(200, '', '', '', response);
         }
     }
 }

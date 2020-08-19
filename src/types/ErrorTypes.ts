@@ -6,15 +6,15 @@ export class ServiceRequestError extends Error {
     httpStatus: number;
     httpMessage: string;
     serverURL: string;
-    data: string | null;
+    request: string | null;
 
-    constructor(httpStatus: number, httpMessage: string, serverURL: string, data: string | null){
+    constructor(httpStatus: number, httpMessage: string, serverURL: string, request: string | null) {
         super();
 
         this.httpStatus = httpStatus;
         this.httpMessage = httpMessage;
         this.serverURL = serverURL;
-        this.data = data;
+        this.request = request;
     }
 }
 
@@ -25,16 +25,16 @@ export class ServiceResponseError extends Error {
     httpStatus: number;
     httpMessage: string;
     serverURL: string;
-    data: string | null;
+    request: string | null;
     response: any;
 
-    constructor(httpStatus: number, httpMessage: string, serverURL: string, data: string | null, response: any){
+    constructor(httpStatus: number, httpMessage: string, serverURL: string, request: string | null, response: any) {
         super();
 
         this.httpStatus = httpStatus;
         this.httpMessage = httpMessage;
         this.serverURL = serverURL;
-        this.data = data;
+        this.request = request;
         this.response = response;
     }
 }

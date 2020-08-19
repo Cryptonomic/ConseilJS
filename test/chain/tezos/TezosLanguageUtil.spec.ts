@@ -4,8 +4,8 @@ import { TezosLanguageUtil } from '../../../src/chain/tezos/TezosLanguageUtil';
 import * as fs from 'fs';
 import * as path from 'path';
 
-describe("Tezos Micheline fragment decoding", () => {
-    it('Small int', () => {
+describe("Tezos Michelson/Micheline fragment codec", () => {
+    it('Small int: hex -> Micheline', () => {
         let result = TezosLanguageUtil.hexToMicheline('0006');
         expect(result.code).to.equal('{ "int": "6" }');
 
@@ -19,7 +19,21 @@ describe("Tezos Micheline fragment decoding", () => {
         expect(result.code).to.equal('{ "int": "-63" }');
     });
 
-    it('Medium int', () => {
+    it('Small int: hex -> Michelson', () => {
+        let result = TezosLanguageUtil.hexToMichelson('0006');
+        expect(result.code).to.equal('6');
+
+        result = TezosLanguageUtil.hexToMichelson('0046');
+        expect(result.code).to.equal('-6');
+
+        result = TezosLanguageUtil.hexToMichelson('003f');
+        expect(result.code).to.equal('63');
+
+        result = TezosLanguageUtil.hexToMichelson('007f');
+        expect(result.code).to.equal('-63');
+    });
+
+    it('Medium int: hex -> Micheline', () => {
         let result = TezosLanguageUtil.hexToMicheline('00a101');
         expect(result.code).to.equal('{ "int": "97" }');
 
@@ -33,7 +47,21 @@ describe("Tezos Micheline fragment decoding", () => {
         expect(result.code).to.equal('{ "int": "-900" }');
     });
 
-    it('Large int', () => {
+    it('Medium int: hex -> Michelson', () => {
+        let result = TezosLanguageUtil.hexToMichelson('00a101');
+        expect(result.code).to.equal('97');
+
+        result = TezosLanguageUtil.hexToMichelson('00ff01');
+        expect(result.code).to.equal('-127');
+
+        result = TezosLanguageUtil.hexToMichelson('00840e');
+        expect(result.code).to.equal('900');
+
+        result = TezosLanguageUtil.hexToMichelson('00c40e');
+        expect(result.code).to.equal('-900');
+    });
+
+    it('Large int: hex -> Micheline', () => {
         let result = TezosLanguageUtil.hexToMicheline('00ba9af7ea06');
         expect(result.code).to.equal('{ "int": "917431994" }');
 
@@ -53,34 +81,72 @@ describe("Tezos Micheline fragment decoding", () => {
         expect(result.code).to.equal('{ "int": "-610913435200" }');
     });
 
-    it('string', () => {
-        const result = TezosLanguageUtil.hexToMicheline('01000000096d696368656c696e65');
-        expect(result.code).to.equal('{ "string": "micheline" }');
+    it('Large int: hex -> Michelson', () => {
+        let result = TezosLanguageUtil.hexToMichelson('00ba9af7ea06');
+        expect(result.code).to.equal('917431994');
+
+        result = TezosLanguageUtil.hexToMichelson('00fa9af7ea06');
+        expect(result.code).to.equal('-917431994');
+
+        result = TezosLanguageUtil.hexToMichelson('00a1d22c');
+        expect(result.code).to.equal('365729');
+
+        result = TezosLanguageUtil.hexToMichelson('00e1d22c');
+        expect(result.code).to.equal('-365729');
+
+        result = TezosLanguageUtil.hexToMichelson('0080f9b9d4c723');
+        expect(result.code).to.equal('610913435200');
+
+        result = TezosLanguageUtil.hexToMichelson('00c0f9b9d4c723');
+        expect(result.code).to.equal('-610913435200');
     });
 
-    it('empty string', () => {
-        const result = TezosLanguageUtil.hexToMicheline('0100000000');
+    it('string: hex -> Michelson', () => {
+        let result = TezosLanguageUtil.hexToMicheline('01000000096d696368656c696e65');
+        expect(result.code).to.equal('{ "string": "micheline" }');
+
+        result = TezosLanguageUtil.hexToMicheline('0100000000');
         expect(result.code).to.equal('{ "string": "" }');
     });
 
+    it('string: hex -> Michelson', () => {
+        let result = TezosLanguageUtil.hexToMichelson('01000000096d696368656c696e65');
+        expect(result.code).to.equal('"micheline"');
+
+        result = TezosLanguageUtil.hexToMichelson('0100000000');
+        expect(result.code).to.equal('""');
+    });
+
     it('bytes', () => {
-        const result = TezosLanguageUtil.hexToMicheline('0a000000080123456789abcdef');
+        let result = TezosLanguageUtil.hexToMicheline('0a000000080123456789abcdef');
         expect(result.code).to.equal('{ "bytes": "0123456789abcdef" }');
+
+        result = TezosLanguageUtil.hexToMichelson('0a000000080123456789abcdef');
+        expect(result.code).to.equal('0x0123456789abcdef');
     });
 
     it('Mixed literal value array', () => {
-        const result = TezosLanguageUtil.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
+        let result = TezosLanguageUtil.hexToMicheline('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
         expect(result.code).to.equal('[ { "int": "-33" }, { "string": "tezos" }, { "string": "" }, { "string": "cryptonomic" } ]');
+
+        result = TezosLanguageUtil.hexToMichelson('02000000210061010000000574657a6f730100000000010000000b63727970746f6e6f6d6963');
+        expect(result.code).to.equal('[ -33 "tezos" "" "cryptonomic" ]');
     });
 
     it('Bare primitive', () => {
-        const result = TezosLanguageUtil.hexToMicheline('0343');
+        let result = TezosLanguageUtil.hexToMicheline('0343');
         expect(result.code).to.equal('{ "prim": "PUSH" }');
+
+        result = TezosLanguageUtil.hexToMichelson('0343');
+        expect(result.code).to.equal('( PUSH )');
     });
 
     it('Single primitive with a single annotation', () => {
-        const result = TezosLanguageUtil.hexToMicheline('04430000000440636261');
+        let result = TezosLanguageUtil.hexToMicheline('04430000000440636261');
         expect(result.code).to.equal('{ "prim": "PUSH", "annots": [ "@cba" ] }');
+
+        result = TezosLanguageUtil.hexToMichelson('04430000000440636261');
+        expect(result.code).to.equal('( PUSH  @cba )');
     });
 
     it('Single primitive with a single argument', () => {
@@ -259,7 +325,7 @@ function indexOfKey(container: any, key: string): number {
     for (let i = 0; i < container.script.length; i++) {
         if (container.script[i]['prim'] === key) { return i; }
     }
-    
+
     throw new Error(`${key} key was not found`);
 }
 
@@ -299,5 +365,5 @@ describe('Hex to Micheline official contract tests', async () => {
 
             expect(parsedMicheline).to.equal(expectedMicheline);
         });
-    }   
+    }
 });

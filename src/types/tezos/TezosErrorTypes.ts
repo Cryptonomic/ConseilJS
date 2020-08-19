@@ -21,14 +21,12 @@ export class TezosRequestError extends ServiceRequestError {
  * A specialization of ServiceResponseError for Tezos services.
  */
 export class TezosResponseError extends ServiceResponseError {
-    requestBody: string | null;
     kind: TezosResponseErrorKind;
 
     constructor(httpStatus: number, httpMessage: string, serverURL: string, requestBody: string | null, response: any, kind: TezosResponseErrorKind){
-        super(httpStatus, httpMessage, serverURL, null, response);
+        super(httpStatus, httpMessage, serverURL, requestBody, response);
 
         this.kind = kind;
-        this.requestBody = requestBody;
     }
 }
 

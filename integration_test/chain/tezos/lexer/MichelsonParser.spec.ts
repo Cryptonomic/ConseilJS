@@ -3,7 +3,6 @@ import { expect } from 'chai';
 
 import * as Michelson from '../../../../src/chain/tezos/lexer/Michelson';
 import * as nearley from 'nearley';
-import * as request from 'request-promise';
 
 function michelsonToMicheline(code: string): string {
     const processedCode = code.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).join(' ');
