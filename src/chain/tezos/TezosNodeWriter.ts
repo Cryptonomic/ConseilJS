@@ -725,7 +725,9 @@ export namespace TezosNodeWriter {
                     .map(o => 
                         o.map(c => c.metadata.operation_result)
                         .concat(o.flatMap(c => c.metadata.internal_operation_results).filter(c => !!c).map(c => c.result))
-                        .map(r => parseRPCOperationResult(r)).join(', '))
+                        .map(r => parseRPCOperationResult(r))
+                        .filter(i => i.length > 0)
+                        .join(', '))
                     .join(', ');
             }
         } catch (err) {
@@ -755,6 +757,8 @@ export namespace TezosNodeWriter {
     function parseRPCOperationResult(result: any): string {
         if (result.status === 'failed') {
             return `${result.status}: ${result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}`;
+        } else if (result.status === 'applied') {
+            return '';
         } else { // backtracked, skipped
             return result.status;
         }
