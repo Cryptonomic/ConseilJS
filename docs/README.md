@@ -122,7 +122,7 @@ const faucetAccount = {
 }
 
 async function initAccount() {
-    const keyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    const keystore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
     console.log(`secret key: ${keystore.secretKey}`);
 }
@@ -145,7 +145,7 @@ const faucetAccount = {
 }
 
 async function initAccount() {
-    const keyStore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
+    const keystore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
     console.log(`public key: ${keystore.publicKey}`);
     console.log(`secret key: ${keystore.secretKey}`);
 }
