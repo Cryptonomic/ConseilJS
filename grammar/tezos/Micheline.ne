@@ -28,7 +28,7 @@ const lexer = moo.compile({
     colon: ":",
     comma: ",",
     _: /[ \t]+/,
-    quotedValue: /\"[\S\s]*?\"/
+    quotedValue: /"(?:\\["\\]|[^\n"\\])*"/s
 });
 %}
 

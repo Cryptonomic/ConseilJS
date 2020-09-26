@@ -89,7 +89,7 @@ const lexer = moo.compile({
     doubleArgData: ['Pair'],
     elt: "Elt",
     word: /[a-zA-Z_0-9]+/,
-    string: /"(?:\\["\\]|[^\n"\\])*"/
+    string: /"(?:\\["\\]|[^\n"\\])*"/s
 });
 
 
@@ -360,7 +360,7 @@ const lexer = moo.compile({
 
         if (d.length == 1) {
             if (checkKeyword(word)) {
-                return [expandKeyword(word, null)];
+                return expandKeyword(word, null);
             } else {
                 return `{ "prim": "${d[0]}" }`;
             }
