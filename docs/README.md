@@ -52,7 +52,7 @@ Unlike the nodejs sample, it's not possible to configure fetch or logger referen
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-55ElSck0OR93XvRRLY9kqwLv1ueRL2O04duNhZwdPRAO1qFCqYwqASM7NFphWOhv"
+        integrity="sha384-kPKX+a7S2j+lKDOu8UkBJz70XAbsNJykIKFr3YVTTdf7rpg/LU0wPoMBDGTLMCpn"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
         crossorigin="anonymous"></script>
