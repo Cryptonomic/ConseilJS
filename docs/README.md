@@ -52,7 +52,7 @@ Unlike the nodejs sample, it's not possible to configure fetch or logger referen
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-kPKX+a7S2j+lKDOu8UkBJz70XAbsNJykIKFr3YVTTdf7rpg/LU0wPoMBDGTLMCpn"
+        integrity="sha384-DsZ98An5RJlEquKpG7VziukP7Zqae8IlsF9VmTnz41Ga8FvAx6Hvn0hMkpBj3pms"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
         crossorigin="anonymous"></script>
@@ -123,8 +123,8 @@ const faucetAccount = {
 
 async function initAccount() {
     const keyStore = await KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
-    console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.secretKey}`);
+    console.log(`public key: ${keyStore.publicKey}`);
+    console.log(`secret key: ${keyStore.secretKey}`);
 }
 
 initAccount();
@@ -146,8 +146,8 @@ const faucetAccount = {
 
 async function initAccount() {
     const keyStore = await conseiljssoftsigner.KeyStoreUtils.restoreIdentityFromFundraiser(faucetAccount.mnemonic.join(' '), faucetAccount.email, faucetAccount.password, faucetAccount.pkh);
-    console.log(`public key: ${keystore.publicKey}`);
-    console.log(`secret key: ${keystore.secretKey}`);
+    console.log(`public key: ${keyStore.publicKey}`);
+    console.log(`secret key: ${keyStore.secretKey}`);
 }
 
 initAccount();

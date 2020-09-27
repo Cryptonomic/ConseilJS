@@ -63,6 +63,7 @@ const staticStringToHex = d => {
     const prefix = '01';
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
+    text = text.replace(/\\"/g, '"');
     const len = encodeLength(text.length);
 
     text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
