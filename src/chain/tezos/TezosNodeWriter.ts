@@ -50,11 +50,10 @@ export namespace TezosNodeWriter {
      */
     // TODO: move to an appropriate place
     export function forgeOperations(branch: string, operations: TezosP2PMessageTypes.Operation[]): string {
-        log.debug('TezosNodeWriter.forgeOperations:');
-        log.debug(JSON.stringify(operations));
+        log.debug(`TezosNodeWriter.forgeOperations: ${JSON.stringify(operations)}`);
         let encoded = TezosMessageUtils.writeBranch(branch);
         operations.forEach(m => encoded += TezosMessageCodec.encodeOperation(m));
-
+        log.debug(`TezosNodeWriter.forgeOperations: ${encoded}`);
         return encoded;
     }
 
