@@ -708,7 +708,7 @@ export namespace TezosNodeWriter {
      * @param {string} response Text response from a Tezos RPC services
      * @returns Error text or `undefined`
      */
-    function parseRPCError(response: string) {
+    export function parseRPCError(response: string) {
         let errors = '';
 
         try {
@@ -717,15 +717,18 @@ export namespace TezosNodeWriter {
 
             if ('kind' in arr[0]) {
                 // TODO: show counter errors better: e.msg "already used for contract"
-                errors = arr.map(e => `(${e.kind}: ${e.id})`).join('');
+                errors = arr.map(e => `(${e.kind}: ${e.id})`).join(', ');
             } else if (arr.length === 1 && arr[0].contents.length === 1 && arr[0].contents[0].kind === 'activate_account') {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
                 errors = arr.map(r => r.contents)
-                    .map(o => o.map(c => c.metadata.operation_result)
-                        .filter(r => r.status !== 'applied')
-                        .map(r => `${r.status}: ${r.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}\n`))
-                    .join('');
+                    .map(o => 
+                        o.map(c => c.metadata.operation_result)
+                        .concat(o.flatMap(c => c.metadata.internal_operation_results).filter(c => !!c).map(c => c.result))
+                        .map(r => parseRPCOperationResult(r))
+                        .filter(i => i.length > 0)
+                        .join(', '))
+                    .join(', ');
             }
         } catch (err) {
             if (response.startsWith('Failed to parse the request body: ')) {
@@ -742,7 +745,22 @@ export namespace TezosNodeWriter {
 
         if (errors.length > 0) {
             log.debug(`errors found in response:\n${response}`);
-            throw new ServiceResponseError(200, '', '', '', response);
+            let e = new ServiceResponseError(200, '', '', '', response);
+            e.message = errors;
+            throw e;
+        }
+    }
+
+    /**
+     * Processes `operation_result` and `internal_operation_results` objects from the RPC responses into an error string.
+     */
+    function parseRPCOperationResult(result: any): string {
+        if (result.status === 'failed') {
+            return `${result.status}: ${result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}`;
+        } else if (result.status === 'applied') {
+            return '';
+        } else { // backtracked, skipped
+            return result.status;
         }
     }
 }
