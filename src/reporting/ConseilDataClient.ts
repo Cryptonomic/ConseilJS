@@ -26,6 +26,7 @@ export namespace ConseilDataClient {
         return fetch(url, {
             method: 'post',
             headers: { 'apiKey': serverInfo.apiKey, 'Content-Type': 'application/json' },
+            cache: 'no-store',
             body: JSON.stringify(query)
         })
         .then(r => {
