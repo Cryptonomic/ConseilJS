@@ -59,7 +59,7 @@ export namespace WrappedTezosHelper {
      * 
      * Note: This function processes scrips in Michelson format.
      * 
-     * @param tokenScript The address of the token contract.
+     * @param tokenScript The script of the token contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
 
