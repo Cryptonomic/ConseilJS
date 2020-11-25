@@ -20,6 +20,7 @@ export * from './chain/tezos/contracts/tzip12/ChainlinkTokenHelper';
 export * from './chain/tezos/contracts/tzip12/MultiAssetTokenHelper';
 export * from './chain/tezos/contracts/tzip12/SingleAssetTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
+export * from './chain/tezos/contracts/WrappedTezosHelper';
 
 export * from './reporting/tezos/TezosConseilClient';
 export * from './reporting/ConseilDataClient';
