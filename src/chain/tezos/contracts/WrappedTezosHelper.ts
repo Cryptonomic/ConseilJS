@@ -6,7 +6,6 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
-import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
@@ -21,9 +20,9 @@ const SCRIPT_CHECKSUMS = {
     // TODO(keefertaylor): Compute this checksum correctly.
     token: '',
     // TODO(keefertaylor): Compute this checksum correctly.
-    oven: ''
+    oven: '',
 
-    // TODO(keefertaylor): Implement additional checksums for core script here.	
+    // TODO(keefertaylor): Implement additional checksums for core script here.
 }
 
 export interface WrappedTezosStorage {
@@ -68,7 +67,6 @@ export namespace WrappedTezosHelper {
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param tokenContractAddress The address of the token contract.
      * @param ovenContractAddress The address of an oven contract.
-     * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
     export async function verifyDestination(
@@ -77,11 +75,11 @@ export namespace WrappedTezosHelper {
         ovenContractAddress: string,
         coreContractAddress: string
     ): Promise<boolean> {
+        // TODO(keefertaylor): Verify checksums for core contract here.
         const tokenMatched = TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
         const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
-        const coreMatched = TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched && coreMatched
+        return tokenMatched && ovenMatched
     }
 
     /**
@@ -91,16 +89,15 @@ export namespace WrappedTezosHelper {
      * 
      * @param tokenScript The script of the token contract.
      * @param ovenScript The script of an oven contract.
-     * @param coreScript The script of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
 
     export function verifyScript(tokenScript: string, ovenScript, string, coreScript: string): boolean {
+        // TODO(keefertaylor): Verify checksums for core script here.        
         const tokenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
         const ovenMatched = TezosContractUtils.verifyScript(ovenScript, SCRIPT_CHECKSUMS.oven)
-        const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched && coreMatched
+        return tokenMatched && ovenMatched
     }
 
     /**
