@@ -114,39 +114,18 @@ export namespace WrappedTezosHelper {
     }
 
     /**
-     * 
-     * @param server 
-     * @param address 
-     */
-    export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
-        const storageResult = await TezosNodeReader.getContractStorage(server, address);
-
-        console.log(JSON.stringify(storageResult));
-
-        return {
-            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
-            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
-            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
-            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
-            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
-            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
-            swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
-        };
-    }
-
-    /**
      * Get the balance of WXTZ tokens for an address.
      * 
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param mapId The ID of the BigMap which contains balances.
-     * @param address The address to fetch the token balance for.
+     * @param account The account to fetch the token balance for.
+     * @returns The balance of the account.
      */
-    export async function getAccountBalance(server: string, mapid: number, address: string): Promise<number> {
-        const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(address, 'address'), 'hex'));
+    export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
+        const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
-        if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${address}`); }
+        if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
 
         const numberString = JSONPath({ path: '$.int', json: mapResult });
         return Number(numberString);
@@ -165,7 +144,7 @@ export namespace WrappedTezosHelper {
      * @param amount The amount of tokens to send.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @returns A string representing the transaction hash.
+     * @returns A string representing the operation hash.
      */
     export async function transferBalance(
         nodeUrl: string,
@@ -212,7 +191,7 @@ export namespace WrappedTezosHelper {
      * @param amountMutez The amount of XTZ to deposit, specified in mutez.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @returns A string representing the transaction hash.
+     * @returns A string representing the operation hash.
      */
     export async function depositToOven(
         nodeUrl: string,
@@ -259,7 +238,7 @@ export namespace WrappedTezosHelper {
      * @param amountMutez The amount of XTZ to withdraw, specified in mutez.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @returns A string representing the transaction hash.
+     * @returns A string representing the operation hash.
      */
     export async function withdrawFromOven(
         nodeUrl: string,
@@ -324,5 +303,91 @@ export namespace WrappedTezosHelper {
             operationHash,
             ovenAddress
         }
+    }
+
+    /**
+     * Set the baker for an oven.
+     * 
+     * This operation will fail if the sender is not the oven owner.
+     * 
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param fee The fee to use.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @param ovenAddress The address of the oven contract. 
+     * @param bakerAddress The address of the baker for the oven.
+     * @returns A string representing the operation hash.
+     */
+    export async function setOvenBaker(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        fee: number,
+        gasLimit: number,
+        storageLimit: number,
+        ovenAddress: string,
+        bakerAddress: string
+    ): Promise<string> {
+        const parameters = `Some "${bakerAddress}"`
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            ovenAddress,
+            0,
+            fee,
+            storageLimit,
+            gasLimit,
+            'setDelegate',
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /**
+     * Clear the baker for an oven.
+     * 
+     * This operation will fail if the sender is not the oven owner.
+     * 
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param fee The fee to use.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @param ovenAddress The address of the oven contract. 
+     * @returns A string representing the operation hash.
+     */
+    export async function clearOvenBaker(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        fee: number,
+        gasLimit: number,
+        storageLimit: number,
+        ovenAddress: string,
+    ): Promise<string> {
+        const parameters = `None`
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            ovenAddress,
+            0,
+            fee,
+            storageLimit,
+            gasLimit,
+            'setDelegate',
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 }
