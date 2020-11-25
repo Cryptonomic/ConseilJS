@@ -552,48 +552,4 @@ export namespace TezosMessageUtils {
 
         return n.toJSNumber();
     }
-
-    /**
-     * Calculate the address of a contract that was originated.
-     *
-     * @param operationHash The operation group hash.
-     * @param index The index of the origination operation in the operation group.
-     */
-    export function calculateContractAddress(operationHash: string, index: number): string {
-        // Decode and slice two byte prefix off operation hash.
-        const decoded: Uint8Array = base58check.decode(operationHash).slice(2)
-
-        // Merge the decoded buffer with the operation prefix.
-        let decodedAndOperationPrefix: Array<number> = []
-        for (let i = 0; i < decoded.length; i++) {
-            decodedAndOperationPrefix.push(decoded[i])
-        }
-        decodedAndOperationPrefix = decodedAndOperationPrefix.concat([
-            (index & 0xff000000) >> 24,
-            (index & 0x00ff0000) >> 16,
-            (index & 0x0000ff00) >> 8,
-            index & 0x000000ff,
-        ])
-
-        // Hash and encode.
-        const hash = blakejs.blake2b(new Uint8Array(decodedAndOperationPrefix), null, 20)
-        const smartContractAddressPrefix = new Uint8Array([2, 90, 121]) // KT1
-        const prefixedBytes = mergeBytes(smartContractAddressPrefix, hash)
-        return base58check.encode(prefixedBytes)
-    }
-
-    /**
-     * Helper to merge two Uint8Arrays.
-     * 
-     * @param a The first array.
-     * @param b The second array.
-     * @returns A new array that contains b appended to the end of a.
-     */
-    function mergeBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
-        const merged = new Uint8Array(a.length + b.length)
-        merged.set(a)
-        merged.set(b, a.length)
-
-        return merged
-    }
 }
