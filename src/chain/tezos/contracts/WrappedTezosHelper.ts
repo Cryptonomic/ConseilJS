@@ -90,7 +90,6 @@ export namespace WrappedTezosHelper {
      * @param ovenScript The script of an oven contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-
     export function verifyScript(tokenScript: string, ovenScript: string): boolean {
         // TODO(keefertaylor): Verify checksums for core script here.        
         const tokenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
