@@ -22,6 +22,22 @@ const SCRIPT_CHECKSUMS = {
     // TODO(keefertaylor): Implement additional checksums for core and oven contracts here.
 }
 
+export interface WrappedTezosStorage {
+    balanceMap: number;
+    approvalsMap: number;
+    supply: number;
+    administrator: string;
+    paused: boolean;
+    pauseGuardian: string;
+    outcomeMap: number;
+    swapMap: number;
+}
+
+export interface WrappedTezosBalanceRecord { }
+export interface WrappedTezosApprovalRecord { }
+export interface WrappedTezosOutcomeRecord { }
+export interface WrappedTezosSwapRecord { }
+
 /**
  * Interface for the Wrapped XTZ Token and Oven implementation.
  * 
@@ -66,6 +82,28 @@ export namespace WrappedTezosHelper {
     export function verifyScript(tokenScript: string): boolean {
         // TODO(keefertaylor): Verify checksums for core and oven scrips here.
         return TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token);
+    }
+
+    /**
+     * 
+     * @param server 
+     * @param address 
+     */
+    export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        console.log(JSON.stringify(storageResult));
+
+        return {
+            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
+            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
+            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
+            swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
+        };
     }
 
     /**
