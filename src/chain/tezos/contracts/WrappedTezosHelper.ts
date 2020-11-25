@@ -290,6 +290,20 @@ export namespace WrappedTezosHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
+    /**
+     * Open a new oven.
+     *
+     * The oven's owner is assigned to the sender's address.
+     *  
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param fee The fee to use.
+     * @param coreAddress The address of the core contract.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @returns A property bag of data about the operation.
+     */
     export async function openOven(
         nodeUrl: string,
         signer: Signer,
