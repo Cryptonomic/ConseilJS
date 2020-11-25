@@ -9,17 +9,20 @@ import { TezosContractUtils } from './TezosContractUtils';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
-    token: 'd48b45bd77d2300026fe617c5ba7670e'
+    token: 'd48b45bd77d2300026fe617c5ba7670e',
+    oven: '5e3c30607da21a0fc30f7be61afb15c7'
 
-    // TODO(keefertaylor): Implement additional checksums for core and oven contracts here.
+    // TODO(keefertaylor): Implement additional checksums for core contract here.
 }
 
 /** The expected checksum for the Wrapped Tezos scripts. */
 const SCRIPT_CHECKSUMS = {
     // TODO(keefertaylor): Compute this checksum correctly.
-    token: '0e3e137841a959521324b4ce20ca2df7'
+    token: '',
+    // TODO(keefertaylor): Compute this checksum correctly.
+    oven: '',
 
-    // TODO(keefertaylor): Implement additional checksums for core and oven contracts here.
+    // TODO(keefertaylor): Implement additional checksums for core script here.
 }
 
 /**
@@ -47,11 +50,19 @@ export namespace WrappedTezosHelper {
      * 
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param tokenContractAddress The address of the token contract.
+     * @param ovenContractAddress The address of an oven contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    export async function verifyDestination(nodeUrl: string, tokenContractAddress: string): Promise<boolean> {
-        // TODO(keefertaylor): Verify checksums for core and oven contracts here.
-        return TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token);
+    export async function verifyDestination(
+        nodeUrl: string,
+        tokenContractAddress: string,
+        ovenContractAddress: string
+    ): Promise<boolean> {
+        // TODO(keefertaylor): Verify checksums for core contract here.
+        const tokenMatched = TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
+        const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
+
+        return tokenMatched && ovenMatched
     }
 
     /**
@@ -59,13 +70,17 @@ export namespace WrappedTezosHelper {
      * 
      * Note: This function processes scrips in Michelson format.
      * 
-     * @param tokenScript The address of the token contract.
+     * @param tokenScript The script of the token contract.
+     * @param ovenScript The script of an oven contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
 
     export function verifyScript(tokenScript: string): boolean {
-        // TODO(keefertaylor): Verify checksums for core and oven scrips here.
-        return TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token);
+        // TODO(keefertaylor): Verify checksums for core script here.
+        const tokenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
+        const ovenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.oven)
+
+        return tokenMatched && ovenMatched
     }
 
     /**
@@ -127,6 +142,98 @@ export namespace WrappedTezosHelper {
             parameters,
             TezosTypes.TezosParameterFormat.Michelson
         );
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /**
+     * Deposit XTZ into an oven to mint WXTZ.
+     * 
+     * WXTZ will be minted for the owner of the oven, *not* the source address. This allows bakers
+     * to payout delegated ovens.
+     *
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param ovenAddress The address of the oven contract. 
+     * @param fee The fee to use.
+     * @param amountMutez The amount of XTZ to deposit, specified in mutez.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @returns A string representing the transaction hash.
+     */
+    export async function depositToOven(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        ovenAddress: string,
+        fee: number,
+        amountMutez: number,
+        gasLimit: number,
+        storageLimit: number
+    ): Promise<string> {
+        const parameters = 'Unit'
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            ovenAddress,
+            amountMutez,
+            fee,
+            storageLimit,
+            gasLimit,
+            '',
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /**
+     * Withdraw XTZ from an oven by repaying WXTZ.
+     * 
+     * This operation will fail if:
+     * - The sending account is not the oven owner.
+     * - The sending account does not possess the equivalent amount of WXTZ to the withdrawal amount
+     * - The oven has less XTZ in it than is requested to be withdrawn.
+     *
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param ovenAddress The address of the oven contract. 
+     * @param fee The fee to use.
+     * @param amountMutez The amount of XTZ to withdraw, specified in mutez.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @returns A string representing the transaction hash.
+     */
+    export async function withdrawFromOven(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        ovenAddress: string,
+        fee: number,
+        amountMutez: number,
+        gasLimit: number,
+        storageLimit: number
+    ): Promise<string> {
+        const parameters = `${amountMutez}`
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            ovenAddress,
+            0,
+            fee,
+            storageLimit,
+            gasLimit,
+            'withdraw',
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
