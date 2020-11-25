@@ -444,8 +444,6 @@ export namespace TezosNodeWriter {
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline,
         offset: number = 54
     ) {
-        console.log("STOR: " + storageLimit)
-
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
@@ -723,12 +721,12 @@ export namespace TezosNodeWriter {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
                 errors = arr.map(r => r.contents)
-                    .map(o =>
+                    .map(o => 
                         o.map(c => c.metadata.operation_result)
-                            .concat(o.flatMap(c => c.metadata.internal_operation_results).filter(c => !!c).map(c => c.result))
-                            .map(r => parseRPCOperationResult(r))
-                            .filter(i => i.length > 0)
-                            .join(', '))
+                        .concat(o.flatMap(c => c.metadata.internal_operation_results).filter(c => !!c).map(c => c.result))
+                        .map(r => parseRPCOperationResult(r))
+                        .filter(i => i.length > 0)
+                        .join(', '))
                     .join(', ');
             }
         } catch (err) {
