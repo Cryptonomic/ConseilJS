@@ -6,13 +6,15 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
+import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
+import { ConseilServerInfo } from 'types/conseil/QueryTypes';
+import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
     token: 'd48b45bd77d2300026fe617c5ba7670e',
-    oven: '5e3c30607da21a0fc30f7be61afb15c7'
-
-    // TODO(keefertaylor): Implement additional checksums for core contract here.
+    oven: '5e3c30607da21a0fc30f7be61afb15c7',
+    core: '7b9b5b7e7f0283ff6388eb783e23c452'
 }
 
 /** The expected checksum for the Wrapped Tezos scripts. */
@@ -21,8 +23,8 @@ const SCRIPT_CHECKSUMS = {
     token: '',
     // TODO(keefertaylor): Compute this checksum correctly.
     oven: '',
-
-    // TODO(keefertaylor): Implement additional checksums for core script here.
+    // TODO(keefertaylor): Compute this checksum correctly.
+    core: ''
 }
 
 export interface WrappedTezosStorage {
@@ -41,6 +43,14 @@ export interface WrappedTezosApprovalRecord { }
 export interface WrappedTezosOutcomeRecord { }
 export interface WrappedTezosSwapRecord { }
 
+/** 
+ * Types for the Oven Map .
+ * 
+ * Key: The oven's address.
+ * Value: The oven owner's address.
+ */
+export type OvenMapSchema = { key: string, value: string }
+
 /**
  * Interface for the Wrapped XTZ Token and Oven implementation.
  * 
@@ -52,8 +62,9 @@ export interface WrappedTezosSwapRecord { }
  * Canonical Data:
  * - Delphinet:
  *  - Token Contract: KT1JYf7xjCJAqFDfNpuump9woSMaapy1WcMY 
+ *  - Core Contract: KT1S98ELFTo6mdMBqhAVbGgKAVgLbdPP3AX8
  *  - Token Balances Map ID: 14566
- *  - TODO(keefertaylor): Add core / oven contracts here.
+ *  - Oven List Map ID: 14569
  * TODO(keefertaylor): Add additional data for mainnet here.
  *
  * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
@@ -67,18 +78,20 @@ export namespace WrappedTezosHelper {
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param tokenContractAddress The address of the token contract.
      * @param ovenContractAddress The address of an oven contract.
+     * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
     export async function verifyDestination(
         nodeUrl: string,
         tokenContractAddress: string,
-        ovenContractAddress: string
+        ovenContractAddress: string,
+        coreContractAddress: string
     ): Promise<boolean> {
-        // TODO(keefertaylor): Verify checksums for core contract here.
         const tokenMatched = TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
         const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
+        const coreMatched = TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched
+        return tokenMatched && ovenMatched && coreMatched
     }
 
     /**
@@ -88,37 +101,19 @@ export namespace WrappedTezosHelper {
      * 
      * @param tokenScript The script of the token contract.
      * @param ovenScript The script of an oven contract.
+     * @param coreScript The script of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-
-    export function verifyScript(tokenScript: string): boolean {
-        // TODO(keefertaylor): Verify checksums for core script here.
+    export function verifyScript(
+        tokenScript: string,
+        ovenScript: string,
+        coreScript: string
+    ): boolean {
         const tokenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
-        const ovenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.oven)
+        const ovenMatched = TezosContractUtils.verifyScript(ovenScript, SCRIPT_CHECKSUMS.oven)
+        const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched
-    }
-
-    /**
-     * 
-     * @param server 
-     * @param address 
-     */
-    export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
-        const storageResult = await TezosNodeReader.getContractStorage(server, address);
-
-        console.log(JSON.stringify(storageResult));
-
-        return {
-            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
-            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
-            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
-            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
-            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
-            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
-            swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
-        };
+        return tokenMatched && ovenMatched && coreMatched
     }
 
     /**
@@ -274,5 +269,59 @@ export namespace WrappedTezosHelper {
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /**
+     * Retrieve a list of all oven addresses a user owns.
+     * 
+     * @param serverInfo Connection info for Conseil.
+     * @param coreContractAddress The core contract address
+     * @param ovenOwner The oven owner to search for
+     * @param ovenListBigMapId The BigMap ID of the oven list.
+     */
+    export async function listOvens(
+        serverInfo: ConseilServerInfo,
+        coreContractAddress: string,
+        ovenOwner: string,
+        ovenListBigMapId: number
+    ): Promise<Array<string>> {
+        // Fetch map data.
+        const mapData = await TezosConseilClient.getBigMapData(serverInfo, coreContractAddress)
+        if (mapData === undefined) {
+            throw new Error("Could not fetch map data!")
+        }
+
+        // Find the Map that contains the oven list.
+        const { maps } = mapData
+        let ovenListMap: ContractMapDetailsItem | undefined = undefined
+        for (let i = 0; i < maps.length; i++) {
+            if (maps[i].definition.index === ovenListBigMapId) {
+                ovenListMap = maps[i]
+                break
+            }
+        }
+        if (ovenListMap === undefined) {
+            throw new Error("Could not find specified map ID!")
+        }
+
+        // Conseil reports addresses as quoted michelson encoded hex prefixed 
+        // with '0x'. Normalize these to base58check encoded addresses.
+        const { content } = ovenListMap
+        const normalizedOvenList: Array<OvenMapSchema> = content.map((oven: OvenMapSchema) => {
+            return {
+                key: TezosMessageUtils.readAddress(oven.key.replace(/\"/g, '').replace(/\n/, '').replace("0x", "")),
+                value: TezosMessageUtils.readAddress(oven.value.replace(/\"/g, '').replace(/\n/, '').replace("0x", ""))
+            }
+        })
+
+        // Filter oven list for ovens belonging to the owner.
+        const ownedOvens = normalizedOvenList.filter((oven: OvenMapSchema): boolean => {
+            return ovenOwner === oven.value
+        })
+
+        // Map filtered array to only contain oven addresses.
+        return ownedOvens.map((oven: OvenMapSchema) => {
+            return oven.key
+        })
     }
 }

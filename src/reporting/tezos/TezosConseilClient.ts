@@ -221,8 +221,8 @@ export namespace TezosConseilClient {
 
         let currentLevel = initialLevel;
         let operationQuery = ConseilQueryBuilder.blankQuery();
-        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'operation_group_hash', ConseilOperator.EQ, [hash], false);
-        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'timestamp', ConseilOperator.AFTER, [startTime], false);
+        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery, 'operation_group_hash', ConseilOperator.EQ, [hash], false);
+        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery, 'timestamp', ConseilOperator.AFTER, [startTime], false);
         operationQuery = ConseilQueryBuilder.setLimit(operationQuery, 1);
 
         while (initialLevel + duration > currentLevel) {
@@ -293,22 +293,28 @@ export namespace TezosConseilClient {
 
         if (ownerResult.length < 1) { return undefined; }
 
+        console.log("Got an owner result")
+
         const definitionQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 100);
         const definitionResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_maps', definitionQuery);
 
+        console.log("Got def result " + JSON.stringify(definitionResult))
+
         const contentQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.addFields(ConseilQueryBuilder.addPredicate(ConseilQueryBuilder.blankQuery(), 'big_map_id', (ownerResult.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ), ownerResult.map(r => r.big_map_id), false), 'big_map_id', 'key', 'value'), 1000);
         const contentResult = await getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', contentQuery);
+
+        console.log("Got content result " + JSON.stringify(contentResult))
 
         let maps: ContractMapDetailsItem[] = [];
         for (const d of definitionResult) {
             const definition = { index: Number(d['big_map_id']), key: d['key_type'], value: d['value_type'] };
 
             let content: { key: string, value: string }[] = [];
-            for(const c of contentResult.filter(r => r['big_map_id'] === definition.index)) {
-                content.push({ key: JSON.stringify(c['key']), value: JSON.stringify(c['value'])});
+            for (const c of contentResult.filter(r => r['big_map_id'] === definition.index)) {
+                content.push({ key: JSON.stringify(c['key']), value: JSON.stringify(c['value']) });
             }
 
-            maps.push({definition, content});
+            maps.push({ definition, content });
         }
 
         return { contract, maps };
@@ -371,8 +377,8 @@ export namespace TezosConseilClient {
 
                 if (i === 1) {
                     return a && c['level'] === initialLevel
-                            && c['hash'] === initialHash
-                            && c['predecessor'] === blocks[i - 1]['hash'];
+                        && c['hash'] === initialHash
+                        && c['predecessor'] === blocks[i - 1]['hash'];
                 }
 
                 if (i === 0) {
@@ -403,12 +409,12 @@ export namespace TezosConseilClient {
     export function getEntityQueryForId(id: string | number): { entity: string, query: ConseilQuery } {
         let q = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 1);
 
-        if (typeof id  === 'number') {
+        if (typeof id === 'number') {
             const n = Number(id);
             if (n < 0) { throw new Error('Invalid numeric id parameter'); }
 
             return { entity: BLOCKS, query: ConseilQueryBuilder.addPredicate(q, 'level', ConseilOperator.EQ, [id], false) };
-        } else if (typeof id  === 'string') {
+        } else if (typeof id === 'string') {
             const s = String(id);
 
             if (s.startsWith('tz1') || s.startsWith('tz2') || s.startsWith('tz3') || s.startsWith('KT1')) {
