@@ -11,8 +11,9 @@ import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
     token: 'd48b45bd77d2300026fe617c5ba7670e',
-    oven: '5e3c30607da21a0fc30f7be61afb15c7',
-    core: '7b9b5b7e7f0283ff6388eb783e23c452'
+    oven: '5e3c30607da21a0fc30f7be61afb15c7'
+
+    // TODO(keefertaylor): Implement additional checksums for core contract here.
 }
 
 /** The expected checksum for the Wrapped Tezos scripts. */
@@ -20,20 +21,9 @@ const SCRIPT_CHECKSUMS = {
     // TODO(keefertaylor): Compute this checksum correctly.
     token: '',
     // TODO(keefertaylor): Compute this checksum correctly.
-    oven: '',
-    // TODO(keefertaylor): Compute this checksum correctly.
-    core: ''
-}
+    oven: ''
 
-/**
- * Property bag containing the results of opening an oven.
- */
-export type OpenOvenResult = {
-    // The operation hash of the request to open an oven.
-    operationHash: string
-
-    // The address of the new oven contract.
-    ovenAddress: string
+    // TODO(keefertaylor): Implement additional checksums for core script here.	
 }
 
 export interface WrappedTezosStorage {
@@ -267,42 +257,6 @@ export namespace WrappedTezosHelper {
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
-
-    export async function openOven(
-        nodeUrl: string,
-        signer: Signer,
-        keystore: KeyStore,
-        fee: number,
-        coreAddress: string,
-        gasLimit: number,
-        storageLimit: number
-    ): Promise<OpenOvenResult> {
-        const entryPoint = 'runEntrypointLambda'
-        const lambdaName = 'createOven'
-        const bytes = TezosMessageUtils.writePackedData(`Pair None "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
-        const parameters = `Pair "${lambdaName}" 0x${bytes}`
-
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
-            nodeUrl,
-            signer,
-            keystore,
-            coreAddress,
-            0,
-            fee,
-            storageLimit,
-            gasLimit,
-            entryPoint,
-            parameters,
-            TezosTypes.TezosParameterFormat.Michelson
-        )
-
-        const operationHash = TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-        const ovenAddress = TezosMessageUtils.calculateContractAddress(operationHash, 0)
-        return {
-            operationHash,
-            ovenAddress
-        }
     }
 
     /**
