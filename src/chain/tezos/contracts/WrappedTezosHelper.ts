@@ -72,8 +72,7 @@ export namespace WrappedTezosHelper {
     export async function verifyDestination(
         nodeUrl: string,
         tokenContractAddress: string,
-        ovenContractAddress: string,
-        coreContractAddress: string
+        ovenContractAddress: string
     ): Promise<boolean> {
         // TODO(keefertaylor): Verify checksums for core contract here.
         const tokenMatched = TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
@@ -92,7 +91,7 @@ export namespace WrappedTezosHelper {
      * @returns A boolean indicating if the code was the expected sum.
      */
 
-    export function verifyScript(tokenScript: string, ovenScript, string, coreScript: string): boolean {
+    export function verifyScript(tokenScript: string, ovenScript: string): boolean {
         // TODO(keefertaylor): Verify checksums for core script here.        
         const tokenMatched = TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
         const ovenMatched = TezosContractUtils.verifyScript(ovenScript, SCRIPT_CHECKSUMS.oven)
