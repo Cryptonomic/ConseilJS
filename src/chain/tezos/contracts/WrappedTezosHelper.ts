@@ -1,6 +1,4 @@
 import { JSONPath } from 'jsonpath-plus';
-import base58Check from "bs58check";
-import * as blakejs from 'blakejs';
 
 import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
@@ -321,49 +319,10 @@ export namespace WrappedTezosHelper {
         )
 
         const operationHash = TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-        const ovenAddress = calculateContractAddress(operationHash, 0)
+        const ovenAddress = TezosMessageUtils.calculateContractAddress(operationHash, 0)
         return {
             operationHash,
             ovenAddress
         }
-    }
-
-    /**
-     * Calculate the address of a contract that was originated.
-     * 
-     * TODO(anonymoussprocket): This funcition is probably useful elsewhere in ConseilJS. Consider refactoring.
-     *
-     * @param operationHash The operation group hash.
-     * @param index The index of the origination operation in the operation group.
-     */
-    function calculateContractAddress(operationHash: string, index: number): string {
-        // Decode and slice two byte prefix off operation hash.
-        const decoded: Uint8Array = base58Check.decode(operationHash).slice(2)
-
-        // Merge the decoded buffer with the operation prefix.
-        let decodedAndOperationPrefix: Array<number> = []
-        for (let i = 0; i < decoded.length; i++) {
-            decodedAndOperationPrefix.push(decoded[i])
-        }
-        decodedAndOperationPrefix = decodedAndOperationPrefix.concat([
-            (index & 0xff000000) >> 24,
-            (index & 0x00ff0000) >> 16,
-            (index & 0x0000ff00) >> 8,
-            index & 0x000000ff,
-        ])
-
-        // Hash and encode.
-        const hash = blakejs.blake2b(new Uint8Array(decodedAndOperationPrefix), null, 20)
-        const smartContractAddressPrefix = new Uint8Array([2, 90, 121]) // KT1
-        const prefixedBytes = mergeBytes(smartContractAddressPrefix, hash)
-        return base58Check.encode(prefixedBytes)
-    }
-
-    function mergeBytes(a: Uint8Array, b: Uint8Array): Uint8Array {
-        const merged = new Uint8Array(a.length + b.length)
-        merged.set(a)
-        merged.set(b, a.length)
-
-        return merged
     }
 }
