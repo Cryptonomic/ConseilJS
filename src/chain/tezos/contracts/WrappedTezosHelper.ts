@@ -118,7 +118,7 @@ export namespace WrappedTezosHelper {
 
     /**
      *
-     * @param server	
+     * @param server
      * @param address
      */
     export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
