@@ -6,6 +6,9 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
+import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
+import { ConseilServerInfo } from 'types/conseil/QueryTypes';
+import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
@@ -52,6 +55,14 @@ export interface WrappedTezosApprovalRecord { }
 export interface WrappedTezosOutcomeRecord { }
 export interface WrappedTezosSwapRecord { }
 
+/** 
+ * Types for the Oven Map .
+ * 
+ * Key: The oven's address.
+ * Value: The oven owner's address.
+ */
+export type OvenMapSchema = { key: string, value: string }
+
 /**
  * Interface for the Wrapped XTZ Token and Oven implementation.
  * 
@@ -63,8 +74,9 @@ export interface WrappedTezosSwapRecord { }
  * Canonical Data:
  * - Delphinet:
  *  - Token Contract: KT1JYf7xjCJAqFDfNpuump9woSMaapy1WcMY 
+ *  - Core Contract: KT1S98ELFTo6mdMBqhAVbGgKAVgLbdPP3AX8
  *  - Token Balances Map ID: 14566
- *  - TODO(keefertaylor): Add core / oven contracts here.
+ *  - Oven List Map ID: 14569
  * TODO(keefertaylor): Add additional data for mainnet here.
  *
  * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
@@ -295,17 +307,71 @@ export namespace WrappedTezosHelper {
     }
 
     /**
+     * Retrieve a list of all oven addresses a user owns.
+     * 
+     * @param serverInfo Connection info for Conseil.
+     * @param coreContractAddress The core contract address
+     * @param ovenOwner The oven owner to search for
+     * @param ovenListBigMapId The BigMap ID of the oven list.
+     */
+    export async function listOvens(
+        serverInfo: ConseilServerInfo,
+        coreContractAddress: string,
+        ovenOwner: string,
+        ovenListBigMapId: number
+    ): Promise<Array<string>> {
+        // Fetch map data.
+        const mapData = await TezosConseilClient.getBigMapData(serverInfo, coreContractAddress)
+        if (mapData === undefined) {
+            throw new Error("Could not fetch map data!")
+        }
+
+        // Find the Map that contains the oven list.
+        const { maps } = mapData
+        let ovenListMap: ContractMapDetailsItem | undefined = undefined
+        for (let i = 0; i < maps.length; i++) {
+            if (maps[i].definition.index === ovenListBigMapId) {
+                ovenListMap = maps[i]
+                break
+            }
+        }
+        if (ovenListMap === undefined) {
+            throw new Error("Could not find specified map ID!")
+        }
+
+        // Conseil reports addresses as quoted michelson encoded hex prefixed 
+        // with '0x'. Normalize these to base58check encoded addresses.
+        const { content } = ovenListMap
+        const normalizedOvenList: Array<OvenMapSchema> = content.map((oven: OvenMapSchema) => {
+            return {
+                key: TezosMessageUtils.readAddress(oven.key.replace(/\"/g, '').replace(/\n/, '').replace("0x", "")),
+                value: TezosMessageUtils.readAddress(oven.value.replace(/\"/g, '').replace(/\n/, '').replace("0x", ""))
+            }
+        })
+
+        // Filter oven list for ovens belonging to the owner.
+        const ownedOvens = normalizedOvenList.filter((oven: OvenMapSchema): boolean => {
+            return ovenOwner === oven.value
+        })
+
+        // Map filtered array to only contain oven addresses.
+        return ownedOvens.map((oven: OvenMapSchema) => {
+            return oven.key
+        })
+    }
+
+    /**
      * Open a new oven.
      *
      * The oven's owner is assigned to the sender's address.
-     *  
+     *
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param signer A Signer for the sourceAddress.
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
      * @param coreAddress The address of the core contract.
      * @param gasLimit The gas limit to use.
-     * @param storageLimit The storage limit to use. 
+     * @param storageLimit The storage limit to use.
      * @returns A property bag of data about the operation.
      */
     export async function openOven(
