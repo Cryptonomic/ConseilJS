@@ -78,7 +78,7 @@ export namespace WrappedTezosHelper {
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param tokenContractAddress The address of the token contract.
      * @param ovenContractAddress The address of an oven contract.
-     * @param coreContractAddress The address of the core contract. 
+     * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
     export async function verifyDestination(
@@ -116,10 +116,10 @@ export namespace WrappedTezosHelper {
         return tokenMatched && ovenMatched && coreMatched
     }
 
-    /**	
-     * 	
-     * @param server 	
-     * @param address 	
+    /**
+     *
+     * @param server	
+     * @param address
      */
     export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
@@ -294,7 +294,7 @@ export namespace WrappedTezosHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    /**     
+    /**
      * Open a new oven.
      *
      * The oven's owner is assigned to the sender's address.
@@ -345,20 +345,20 @@ export namespace WrappedTezosHelper {
     }
 
     /**
-      * Set the baker for an oven.
-      * 
-      * This operation will fail if the sender is not the oven owner.
-      * 
-      * @param nodeUrl The URL of the Tezos node which serves data.
-      * @param signer A Signer for the sourceAddress.
-      * @param keystore A Keystore for the sourceAddress.
-      * @param fee The fee to use.
-      * @param gasLimit The gas limit to use.
-      * @param storageLimit The storage limit to use. 
-      * @param ovenAddress The address of the oven contract. 
-      * @param bakerAddress The address of the baker for the oven.
-      * @returns A string representing the operation hash.
-      */
+     * Set the baker for an oven.
+     * 
+     * This operation will fail if the sender is not the oven owner.
+     * 
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param fee The fee to use.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
+     * @param ovenAddress The address of the oven contract. 
+     * @param bakerAddress The address of the baker for the oven.
+     * @returns A string representing the operation hash.
+     */
     export async function setOvenBaker(
         nodeUrl: string,
         signer: Signer,
