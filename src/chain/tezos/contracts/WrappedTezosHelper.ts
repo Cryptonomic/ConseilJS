@@ -254,21 +254,71 @@ export namespace WrappedTezosHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    /**
-     * Set the baker for an oven.
-     * 
-     * This operation will fail if the sender is not the oven owner.
-     * 
+    /**     
+     * Open a new oven.
+     *
+     * The oven's owner is assigned to the sender's address.
+     *  
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param signer A Signer for the sourceAddress.
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
+     * @param coreAddress The address of the core contract.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @param ovenAddress The address of the oven contract. 
-     * @param bakerAddress The address of the baker for the oven.
-     * @returns A string representing the operation hash.
+     * @returns A property bag of data about the operation.
      */
+    export async function openOven(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        fee: number,
+        coreAddress: string,
+        gasLimit: number,
+        storageLimit: number
+    ): Promise<OpenOvenResult> {
+        const entryPoint = 'runEntrypointLambda'
+        const lambdaName = 'createOven'
+        const bytes = TezosMessageUtils.writePackedData(`Pair None "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
+        const parameters = `Pair "${lambdaName}" 0x${bytes}`
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            coreAddress,
+            0,
+            fee,
+            storageLimit,
+            gasLimit,
+            entryPoint,
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
+
+        const operationHash = TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        const ovenAddress = TezosMessageUtils.calculateContractAddress(operationHash, 0)
+        return {
+            operationHash,
+            ovenAddress
+        }
+    }
+
+    /**
+      * Set the baker for an oven.
+      * 
+      * This operation will fail if the sender is not the oven owner.
+      * 
+      * @param nodeUrl The URL of the Tezos node which serves data.
+      * @param signer A Signer for the sourceAddress.
+      * @param keystore A Keystore for the sourceAddress.
+      * @param fee The fee to use.
+      * @param gasLimit The gas limit to use.
+      * @param storageLimit The storage limit to use. 
+      * @param ovenAddress The address of the oven contract. 
+      * @param bakerAddress The address of the baker for the oven.
+      * @returns A string representing the operation hash.
+      */
     export async function setOvenBaker(
         nodeUrl: string,
         signer: Signer,
@@ -297,6 +347,7 @@ export namespace WrappedTezosHelper {
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
+
 
     /**
      * Clear the baker for an oven.
