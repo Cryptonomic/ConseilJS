@@ -21,15 +21,15 @@ const SCRIPT_CHECKSUMS = {
     token: '',
     // TODO(keefertaylor): Compute this checksum correctly.
     oven: '',
-    // TODO(keefertaylor): Compute this checksum correctly.	
+    // TODO(keefertaylor): Compute this checksum correctly.
     core: ''
 }
 
-/**	
- * Property bag containing the results of opening an oven.	
+/**
+ * Property bag containing the results of opening an oven.
  */
 export type OpenOvenResult = {
-    // The operation hash of the request to open an oven.	
+    // The operation hash of the request to open an oven.
     operationHash: string
 
     // The address of the new oven contract.
@@ -78,7 +78,7 @@ export namespace WrappedTezosHelper {
      * @param nodeUrl The URL of the Tezos node which serves data.
      * @param tokenContractAddress The address of the token contract.
      * @param ovenContractAddress The address of an oven contract.
-     * @param coreContractAddress The address of the core contract.	     * 
+     * @param coreContractAddress The address of the core contract. 
      * @returns A boolean indicating if the code was the expected sum.
      */
     export async function verifyDestination(
@@ -114,6 +114,28 @@ export namespace WrappedTezosHelper {
         const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
         return tokenMatched && ovenMatched && coreMatched
+    }
+
+    /**	
+     * 	
+     * @param server 	
+     * @param address 	
+     */
+    export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        console.log(JSON.stringify(storageResult));
+
+        return {
+            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
+            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
+            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
+            swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
+        };
     }
 
     /**
