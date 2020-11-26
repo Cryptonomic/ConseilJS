@@ -9,6 +9,7 @@ import { TezosContractUtils } from './TezosContractUtils';
 import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
 import { ConseilServerInfo } from 'types/conseil/QueryTypes';
 import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
+import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
@@ -25,6 +26,17 @@ const SCRIPT_CHECKSUMS = {
     oven: '',
     // TODO(keefertaylor): Compute this checksum correctly.
     core: ''
+}
+
+/**
+ * Property bag containing the results of opening an oven.
+ */
+export type OpenOvenResult = {
+    // The operation hash of the request to open an oven.
+    operationHash: string
+
+    // The address of the new oven contract.
+    ovenAddress: string
 }
 
 export interface WrappedTezosStorage {
@@ -114,6 +126,28 @@ export namespace WrappedTezosHelper {
         const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
         return tokenMatched && ovenMatched && coreMatched
+    }
+
+    /**
+     * 
+     * @param server 
+     * @param address 
+     */
+    export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        console.log(JSON.stringify(storageResult));
+
+        return {
+            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
+            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
+            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
+            swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
+        };
     }
 
     /**
@@ -323,5 +357,55 @@ export namespace WrappedTezosHelper {
         return ownedOvens.map((oven: OvenMapSchema) => {
             return oven.key
         })
+    }
+
+    /**
+     * Open a new oven.
+     *
+     * The oven's owner is assigned to the sender's address.
+     *
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param signer A Signer for the sourceAddress.
+     * @param keystore A Keystore for the sourceAddress.
+     * @param fee The fee to use.
+     * @param coreAddress The address of the core contract.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use.
+     * @returns A property bag of data about the operation.
+     */
+    export async function openOven(
+        nodeUrl: string,
+        signer: Signer,
+        keystore: KeyStore,
+        fee: number,
+        coreAddress: string,
+        gasLimit: number,
+        storageLimit: number
+    ): Promise<OpenOvenResult> {
+        const entryPoint = 'runEntrypointLambda'
+        const lambdaName = 'createOven'
+        const bytes = TezosMessageUtils.writePackedData(`Pair None "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
+        const parameters = `Pair "${lambdaName}" 0x${bytes}`
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            nodeUrl,
+            signer,
+            keystore,
+            coreAddress,
+            0,
+            fee,
+            storageLimit,
+            gasLimit,
+            entryPoint,
+            parameters,
+            TezosTypes.TezosParameterFormat.Michelson
+        )
+
+        const operationHash = TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        const ovenAddress = TezosMessageUtils.calculateContractAddress(operationHash, 0)
+        return {
+            operationHash,
+            ovenAddress
+        }
     }
 }
