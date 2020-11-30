@@ -464,9 +464,9 @@ export namespace WrappedTezosHelper {
      * @param signer A Signer for the sourceAddress.
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
+     * @param ovenAddress The address of the oven contract. 
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @param ovenAddress The address of the oven contract. 
      * @returns A string representing the operation hash.
      */
     export async function clearOvenBaker(
