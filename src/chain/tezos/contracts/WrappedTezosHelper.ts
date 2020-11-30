@@ -394,6 +394,6 @@ namespace WrappedTezosHelperInternal {
     }
 }
 
-/*** Combine namespaces */
+/** Combine namespaces */
 const WrappedTezosHelper = WrappedTezosHelperInternal || StakerDaoTzip7
 export WrappedTezosHelper
