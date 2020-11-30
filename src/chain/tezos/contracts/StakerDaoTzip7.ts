@@ -40,7 +40,7 @@ export interface WrappedTezosSwapRecord { }
  *
  * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
  */
-export namespace StakerDaoTzip7 {
+export const StakerDaoTzip7 = {
   /**
    * Verifies that contract code for Tzip 7 matches the expected code.
    * 
@@ -50,12 +50,12 @@ export namespace StakerDaoTzip7 {
    * @param tokenContractAddress The address of the token contract.
    * @returns A boolean indicating if the code was the expected sum.
    */
-  export async function verifyDestination(
+  verifyDestination: async function (
     nodeUrl: string,
     tokenContractAddress: string
   ): Promise<boolean> {
     return TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
-  }
+  },
 
   /**
    * Verifies that Michelson script for Wrapped Tezos contracts matches the expected code.
@@ -65,17 +65,17 @@ export namespace StakerDaoTzip7 {
    * @param tokenScript The script of the token contract.
    * @returns A boolean indicating if the code was the expected sum.
    */
-  export function verifyScript(
+  verifyScript: function (
     tokenScript: string,
   ): boolean {
     return TezosContractUtils.verifyScript(tokenScript, SCRIPT_CHECKSUMS.token)
-  }
+  },
 
   /**
    * @param server
    * @param address
    */
-  export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
+  getSimpleStorage: async function (server: string, address: string): Promise<WrappedTezosStorage> {
     const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
     console.log(JSON.stringify(storageResult));
@@ -90,7 +90,7 @@ export namespace StakerDaoTzip7 {
       outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
       swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
     };
-  }
+  },
 
   /**
    * Get the balance of tokens for an address.
@@ -100,7 +100,7 @@ export namespace StakerDaoTzip7 {
    * @param account The account to fetch the token balance for.
    * @returns The balance of the account.
    */
-  export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
+  getAccountBalance: async function (server: string, mapid: number, account: string): Promise<number> {
     const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
     const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
@@ -108,7 +108,7 @@ export namespace StakerDaoTzip7 {
 
     const numberString = JSONPath({ path: '$.int', json: mapResult });
     return Number(numberString);
-  }
+  },
 
   /**
    * Transfer some WXTZ between addresses.
@@ -125,7 +125,7 @@ export namespace StakerDaoTzip7 {
    * @param storageLimit The storage limit to use. 
    * @returns A string representing the operation hash.
    */
-  export async function transferBalance(
+  transferBalance: async function (
     nodeUrl: string,
     signer: Signer,
     keystore: KeyStore,

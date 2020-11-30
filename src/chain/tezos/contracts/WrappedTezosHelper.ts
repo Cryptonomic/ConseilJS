@@ -61,7 +61,7 @@ export type OvenMapSchema = { key: string, value: string }
  *
  * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
  */
-namespace WrappedTezosHelperInternal {
+const WrappedTezosHelperInternal = {
     /**
      * Verifies that contract code for Wrapped Tezos matches the expected code.
      * 
@@ -73,18 +73,20 @@ namespace WrappedTezosHelperInternal {
      * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    export async function verifyDestination(
+    // TODO(keefertaylor): Properly handle async here.
+    verifyDestination: async function (
         nodeUrl: string,
         tokenContractAddress: string,
         ovenContractAddress: string,
         coreContractAddress: string
     ): Promise<boolean> {
+        // TODO(keefertaylor): Do not use StakerDaoTzip7 as a mixin.
         const tokenMatched = StakerDaoTzip7.verifyDestination(nodeUrl, tokenContractAddress)
         const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
         const coreMatched = TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
 
         return tokenMatched && ovenMatched && coreMatched
-    }
+    },
 
     /**
      * Verifies that Michelson script for Wrapped Tezos contracts matches the expected code.
@@ -96,17 +98,19 @@ namespace WrappedTezosHelperInternal {
      * @param coreScript The script of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    export function verifyScript(
+    // TODO(keefertaylor): Properly handle async here
+    verifyScript: function (
         tokenScript: string,
         ovenScript: string,
         coreScript: string
     ): boolean {
+        // TODO(keefertaylor): Do not use StakerDaoTzip7 as a mixin.
         const tokenMatched = StakerDaoTzip7.verifyScript(tokenScript)
         const ovenMatched = TezosContractUtils.verifyScript(ovenScript, SCRIPT_CHECKSUMS.oven)
         const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
         return tokenMatched && ovenMatched && coreMatched
-    }
+    },
 
     /**
      * Deposit XTZ into an oven to mint WXTZ.
@@ -124,7 +128,7 @@ namespace WrappedTezosHelperInternal {
      * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
-    export async function depositToOven(
+    depositToOven: async function depositToOven(
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -151,7 +155,7 @@ namespace WrappedTezosHelperInternal {
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
+    },
 
     /**
      * Withdraw XTZ from an oven by repaying WXTZ.
@@ -171,7 +175,7 @@ namespace WrappedTezosHelperInternal {
      * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
-    export async function withdrawFromOven(
+    withdrawFromOven: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -198,7 +202,7 @@ namespace WrappedTezosHelperInternal {
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
+    },
 
     /**
      * Retrieve a list of all oven addresses a user owns.
@@ -208,7 +212,7 @@ namespace WrappedTezosHelperInternal {
      * @param ovenOwner The oven owner to search for
      * @param ovenListBigMapId The BigMap ID of the oven list.
      */
-    export async function listOvens(
+    listOven: async function (
         serverInfo: ConseilServerInfo,
         coreContractAddress: string,
         ovenOwner: string,
@@ -252,7 +256,7 @@ namespace WrappedTezosHelperInternal {
         return ownedOvens.map((oven: OvenMapSchema) => {
             return oven.key
         })
-    }
+    },
 
     /**
      * Open a new oven.
@@ -268,7 +272,7 @@ namespace WrappedTezosHelperInternal {
      * @param storageLimit The storage limit to use.
      * @returns A property bag of data about the operation.
      */
-    export async function openOven(
+    openOven: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -302,7 +306,7 @@ namespace WrappedTezosHelperInternal {
             operationHash,
             ovenAddress
         }
-    }
+    },
 
     /**
      * Set the baker for an oven.
@@ -319,7 +323,7 @@ namespace WrappedTezosHelperInternal {
      * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
-    export async function setOvenBaker(
+    setOvenBaker: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -346,8 +350,7 @@ namespace WrappedTezosHelperInternal {
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
-
+    },
 
     /**
      * Clear the baker for an oven.
@@ -363,7 +366,7 @@ namespace WrappedTezosHelperInternal {
      * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
-    export async function clearOvenBaker(
+    clearOvenBaker: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -393,5 +396,4 @@ namespace WrappedTezosHelperInternal {
 }
 
 /** Combine namespaces */
-const WrappedTezosHelper = WrappedTezosHelperInternal || StakerDaoTzip7
-export WrappedTezosHelper
+export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal
