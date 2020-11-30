@@ -12,14 +12,13 @@ const CONTRACT_CHECKSUMS = {
   token: 'd48b45bd77d2300026fe617c5ba7670e',
 }
 
-/** The expected checksum for the Wrapped Tezos scripts. */
+/** The expected checksum for the StakerDao Tzip 7 script. */
 const SCRIPT_CHECKSUMS = {
   // TODO(keefertaylor): Compute this checksum correctly.
   token: '',
 }
 
-// TODO(keefertaylor): Rename
-export interface WrappedTezosStorage {
+export interface StakerDaoTzip7Storage {
   balanceMap: number;
   approvalsMap: number;
   supply: number;
@@ -30,10 +29,10 @@ export interface WrappedTezosStorage {
   swapMap: number;
 }
 
-export interface WrappedTezosBalanceRecord { }
-export interface WrappedTezosApprovalRecord { }
-export interface WrappedTezosOutcomeRecord { }
-export interface WrappedTezosSwapRecord { }
+export interface StakerDaoTzip7BalanceRecord { }
+export interface StakerDaoTzip7ApprovalRecord { }
+export interface StakerDaoTzip7OutcomeRecord { }
+export interface StakerDaoTzip7SwapRecord { }
 
 /**
  * Interface for a StakerDAO implementation of TZIP-7, AKA FA 1.2.
@@ -42,7 +41,7 @@ export interface WrappedTezosSwapRecord { }
  */
 export const StakerDaoTzip7 = {
   /**
-   * Verifies that contract code for Tzip 7 matches the expected code.
+   * Verifies that contract code for StakerDao's Tzip7 contract matches the expected code.
    * 
    * Note: This function processes contracts in the Micheline format.
    * 
@@ -58,7 +57,7 @@ export const StakerDaoTzip7 = {
   },
 
   /**
-   * Verifies that Michelson script for Wrapped Tezos contracts matches the expected code.
+   * Verifies that Michelson script for StakerDao's Tzip7 contract matches the expected code.
    * 
    * Note: This function processes scrips in Michelson format.
    * 
@@ -75,7 +74,7 @@ export const StakerDaoTzip7 = {
    * @param server
    * @param address
    */
-  getSimpleStorage: async function (server: string, address: string): Promise<WrappedTezosStorage> {
+  getSimpleStorage: async function (server: string, address: string): Promise<StakerDaoTzip7Storage> {
     const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
     console.log(JSON.stringify(storageResult));
