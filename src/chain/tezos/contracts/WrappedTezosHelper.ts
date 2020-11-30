@@ -44,22 +44,9 @@ export type OpenOvenResult = {
 export type OvenMapSchema = { key: string, value: string }
 
 /**
- * Interface for the Wrapped XTZ Token and Oven implementation.
+ * Wrapped Tezos specific functions. 
  * 
- * @see {@link https://forum.tezosagora.org/t/wrapped-tezos/2195|wXTZ on Tezos Agora}
- * 
- * The token represented by these contracts trades with symbol 'WXTZ' and is specified with 10^-6 precision. Put
- * simply, 1 XTZ = 1 WXTZ, and 0.000_001 XTZ = 1 Mutez = 0.000_001 WXTZ.
- * 
- * Canonical Data:
- * - Delphinet:
- *  - Token Contract: KT1JYf7xjCJAqFDfNpuump9woSMaapy1WcMY 
- *  - Core Contract: KT1S98ELFTo6mdMBqhAVbGgKAVgLbdPP3AX8
- *  - Token Balances Map ID: 14566
- *  - Oven List Map ID: 14569
- * TODO(keefertaylor): Add additional data for mainnet here.
- *
- * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
+ * @see {WrappedTezosHelper}
  */
 const WrappedTezosHelperInternal = {
     /**
@@ -395,5 +382,22 @@ const WrappedTezosHelperInternal = {
     }
 }
 
-/** Combine namespaces */
+/**
+ * Interface for the Wrapped XTZ Token and Oven implementation.
+ * 
+ * @see {@link https://forum.tezosagora.org/t/wrapped-tezos/2195|wXTZ on Tezos Agora}
+ * 
+ * The token represented by these contracts trades with symbol 'WXTZ' and is specified with 10^-6 precision. Put
+ * simply, 1 XTZ = 1 WXTZ, and 0.000_001 XTZ = 1 Mutez = 0.000_001 WXTZ.
+ * 
+ * Canonical Data:
+ * - Delphinet:
+ *  - Token Contract: KT1JYf7xjCJAqFDfNpuump9woSMaapy1WcMY 
+ *  - Core Contract: KT1S98ELFTo6mdMBqhAVbGgKAVgLbdPP3AX8
+ *  - Token Balances Map ID: 14566
+ *  - Oven List Map ID: 14569
+ * TODO(keefertaylor): Add additional data for mainnet here.
+ *
+ * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
+ */
 export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal
