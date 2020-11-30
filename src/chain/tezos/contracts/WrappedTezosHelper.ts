@@ -9,6 +9,7 @@ import { ConseilServerInfo } from 'types/conseil/QueryTypes';
 import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 import { StakerDaoTzip7 } from './StakerDaoTzip7';
+import { StakerDAOTokenHelper } from './StakerDAOTokenHelper';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
@@ -63,16 +64,13 @@ const WrappedTezosHelperInternal = {
     // TODO(keefertaylor): Properly handle async here.
     verifyDestination: async function (
         nodeUrl: string,
-        tokenContractAddress: string,
         ovenContractAddress: string,
         coreContractAddress: string
     ): Promise<boolean> {
-        // TODO(keefertaylor): Do not use StakerDaoTzip7 as a mixin.
-        const tokenMatched = StakerDaoTzip7.verifyDestination(nodeUrl, tokenContractAddress)
         const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
         const coreMatched = TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched && coreMatched
+        return ovenMatched && coreMatched
     },
 
     /**
@@ -87,16 +85,13 @@ const WrappedTezosHelperInternal = {
      */
     // TODO(keefertaylor): Properly handle async here
     verifyScript: function (
-        tokenScript: string,
         ovenScript: string,
         coreScript: string
     ): boolean {
-        // TODO(keefertaylor): Do not use StakerDaoTzip7 as a mixin.
-        const tokenMatched = StakerDaoTzip7.verifyScript(tokenScript)
         const ovenMatched = TezosContractUtils.verifyScript(ovenScript, SCRIPT_CHECKSUMS.oven)
         const coreMatched = TezosContractUtils.verifyScript(coreScript, SCRIPT_CHECKSUMS.core)
 
-        return tokenMatched && ovenMatched && coreMatched
+        return ovenMatched && coreMatched
     },
 
     /**
@@ -400,4 +395,51 @@ const WrappedTezosHelperInternal = {
  *
  * @author Keefer Taylor, Staker Services Ltd <keefer@stakerdao.com>
  */
-export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal
+export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal && {
+    /**
+     * Verifies that contract code for Wrapped Tezos matches the expected code.
+     * 
+     * Note: This function processes contracts in the Micheline format.
+     * 
+     * @param nodeUrl The URL of the Tezos node which serves data.
+     * @param tokenContractAddress The address of the token contract.
+     * @param ovenContractAddress The address of an oven contract.
+     * @param coreContractAddress The address of the core contract.
+     * @returns A boolean indicating if the code was the expected sum.
+     */
+    // TODO(keefertaylor): Properly handle async here.
+    verifyDestination: async function verifyDestination(
+        nodeUrl: string,
+        tokenContractAddress: string,
+        ovenContractAddress: string,
+        coreContractAddress: string
+    ): Promise<boolean> {
+        const tokenMatched = StakerDaoTzip7.verifyDestination(nodeUrl, tokenContractAddress)
+        const wrappedTezosInternalMatched = WrappedTezosHelperInternal.verifyDestination(nodeUrl, ovenContractAddress, coreContractAddress)
+
+        return tokenMatched && wrappedTezosInternalMatched
+    },
+
+    /**
+     * Verifies that Michelson script for Wrapped Tezos contracts matches the expected code.
+     * 
+     * Note: This function processes scrips in Michelson format.
+     * 
+     * @param tokenScript The script of the token contract.
+     * @param ovenScript The script of an oven contract.
+     * @param coreScript The script of the core contract.
+     * @returns A boolean indicating if the code was the expected sum.
+     */
+    // TODO(keefertaylor): Properly handle async here.
+    verifyScript: function (
+        tokenScript: string,
+        ovenScript: string,
+        coreScript: string
+    ): boolean {
+        // Confirm that both interfaces report contracts correctly. 
+        const tokenMatched = StakerDaoTzip7.verifyScript(tokenScript)
+        const wrappedTezosInternalMatched = WrappedTezosHelperInternal.verifyScript(ovenScript, coreScript)
+
+        return tokenMatched && wrappedTezosInternalMatched
+    }
+}
