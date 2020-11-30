@@ -61,14 +61,13 @@ const WrappedTezosHelperInternal = {
      * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    // TODO(keefertaylor): Properly handle async here.
     verifyDestination: async function (
         nodeUrl: string,
         ovenContractAddress: string,
         coreContractAddress: string
     ): Promise<boolean> {
-        const ovenMatched = TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
-        const coreMatched = TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
+        const ovenMatched = await TezosContractUtils.verifyDestination(nodeUrl, ovenContractAddress, CONTRACT_CHECKSUMS.oven)
+        const coreMatched = await TezosContractUtils.verifyDestination(nodeUrl, coreContractAddress, CONTRACT_CHECKSUMS.core)
 
         return ovenMatched && coreMatched
     },
@@ -83,7 +82,6 @@ const WrappedTezosHelperInternal = {
      * @param coreScript The script of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    // TODO(keefertaylor): Properly handle async here
     verifyScript: function (
         ovenScript: string,
         coreScript: string
@@ -407,15 +405,14 @@ export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal &
      * @param coreContractAddress The address of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    // TODO(keefertaylor): Properly handle async here.
     verifyDestination: async function verifyDestination(
         nodeUrl: string,
         tokenContractAddress: string,
         ovenContractAddress: string,
         coreContractAddress: string
     ): Promise<boolean> {
-        const tokenMatched = StakerDaoTzip7.verifyDestination(nodeUrl, tokenContractAddress)
-        const wrappedTezosInternalMatched = WrappedTezosHelperInternal.verifyDestination(nodeUrl, ovenContractAddress, coreContractAddress)
+        const tokenMatched = await StakerDaoTzip7.verifyDestination(nodeUrl, tokenContractAddress)
+        const wrappedTezosInternalMatched = await WrappedTezosHelperInternal.verifyDestination(nodeUrl, ovenContractAddress, coreContractAddress)
 
         return tokenMatched && wrappedTezosInternalMatched
     },
@@ -430,7 +427,6 @@ export const WrappedTezosHelper = StakerDaoTzip7 && WrappedTezosHelperInternal &
      * @param coreScript The script of the core contract.
      * @returns A boolean indicating if the code was the expected sum.
      */
-    // TODO(keefertaylor): Properly handle async here.
     verifyScript: function (
         tokenScript: string,
         ovenScript: string,

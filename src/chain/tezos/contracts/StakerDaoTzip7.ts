@@ -54,7 +54,7 @@ export const StakerDaoTzip7 = {
     nodeUrl: string,
     tokenContractAddress: string
   ): Promise<boolean> {
-    return TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
+    return await TezosContractUtils.verifyDestination(nodeUrl, tokenContractAddress, CONTRACT_CHECKSUMS.token)
   },
 
   /**
