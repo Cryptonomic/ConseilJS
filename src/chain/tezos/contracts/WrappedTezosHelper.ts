@@ -192,8 +192,8 @@ export namespace WrappedTezosHelper {
         sourceAddress: string,
         destinationAddress: string,
         amount: number,
-        gasLimit: number,
-        storageLimit: number
+        gasLimit: number = 51_300,
+        storageLimit: number = 70
     ): Promise<string> {
         const parameters = `Pair "${sourceAddress}" (Pair "${destinationAddress}" ${amount})`;
 
@@ -237,8 +237,8 @@ export namespace WrappedTezosHelper {
         ovenAddress: string,
         fee: number,
         amountMutez: number,
-        gasLimit: number,
-        storageLimit: number
+        gasLimit: number = 126_500,
+        storageLimit: number = 10
     ): Promise<string> {
         const parameters = 'Unit'
 
@@ -284,8 +284,8 @@ export namespace WrappedTezosHelper {
         ovenAddress: string,
         fee: number,
         amountMutez: number,
-        gasLimit: number,
-        storageLimit: number
+        gasLimit: number = 121_000,
+        storageLimit: number = 0
     ): Promise<string> {
         const parameters = `${amountMutez}`
 
@@ -380,8 +380,8 @@ export namespace WrappedTezosHelper {
         keystore: KeyStore,
         fee: number,
         coreAddress: string,
-        gasLimit: number,
-        storageLimit: number
+        gasLimit: number = 115_000,
+        storageLimit: number = 1100
     ): Promise<OpenOvenResult> {
         const entryPoint = 'runEntrypointLambda'
         const lambdaName = 'createOven'
@@ -419,10 +419,10 @@ export namespace WrappedTezosHelper {
      * @param signer A Signer for the sourceAddress.
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
-     * @param gasLimit The gas limit to use.
-     * @param storageLimit The storage limit to use. 
      * @param ovenAddress The address of the oven contract. 
      * @param bakerAddress The address of the baker for the oven.
+     * @param gasLimit The gas limit to use.
+     * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
     export async function setOvenBaker(
@@ -430,10 +430,10 @@ export namespace WrappedTezosHelper {
         signer: Signer,
         keystore: KeyStore,
         fee: number,
-        gasLimit: number,
-        storageLimit: number,
         ovenAddress: string,
-        bakerAddress: string
+        bakerAddress: string,
+        gasLimit: number = 19_500,
+        storageLimit: number = 0,
     ): Promise<string> {
         const parameters = `Some "${bakerAddress}"`
 
@@ -464,9 +464,9 @@ export namespace WrappedTezosHelper {
      * @param signer A Signer for the sourceAddress.
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
+     * @param ovenAddress The address of the oven contract. 
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use. 
-     * @param ovenAddress The address of the oven contract. 
      * @returns A string representing the operation hash.
      */
     export async function clearOvenBaker(
@@ -474,9 +474,9 @@ export namespace WrappedTezosHelper {
         signer: Signer,
         keystore: KeyStore,
         fee: number,
-        gasLimit: number,
-        storageLimit: number,
         ovenAddress: string,
+        gasLimit: number = 19_500,
+        storageLimit: number = 0,
     ): Promise<string> {
         const parameters = `None`
 
