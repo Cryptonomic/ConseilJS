@@ -387,8 +387,8 @@ export namespace WrappedTezosHelper {
     ): Promise<OpenOvenResult> {
         const entryPoint = 'runEntrypointLambda'
         const lambdaName = 'createOven'
-        const bakerParam = baker ?? 'None'
-        const bytes = TezosMessageUtils.writePackedData(`Pair "${bakerParam}" "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
+        const bakerParam = baker !== undefined ? `Some "${baker}"` : 'None'
+        const bytes = TezosMessageUtils.writePackedData(`Pair ${bakerParam} "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
         const parameters = `Pair "${lambdaName}" 0x${bytes}`
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
