@@ -7,8 +7,8 @@ import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
 import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
-import { ConseilServerInfo } from 'types/conseil/QueryTypes';
-import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
+import { ConseilServerInfo } from '../../../types/conseil/QueryTypes';
+import { ContractMapDetailsItem } from '../../../types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 
 /** The expected checksum for the Wrapped Tezos contracts. */

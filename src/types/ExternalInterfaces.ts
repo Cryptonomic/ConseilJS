@@ -6,9 +6,9 @@ export enum SignerCurve {
 
 export interface Signer {
     getSignerCurve: () => SignerCurve;
-    signOperation: (bytes: Buffer) => Promise<Buffer>;
-    signText: (message: string) => Promise<string>;
-    signTextHash: (message: string) => Promise<string>;
+    signOperation: (bytes: Buffer, password?: string) => Promise<Buffer>;
+    signText: (message: string, password?: string) => Promise<string>;
+    signTextHash: (message: string, password?: string) => Promise<string>;
 }
 
 export interface KeyStore {
