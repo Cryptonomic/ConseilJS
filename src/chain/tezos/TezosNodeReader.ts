@@ -44,13 +44,13 @@ export namespace TezosNodeReader {
      * @param {stirng} address The smart contract address or implicit account to query.
      */
     export async function getBaker(server: string, address: string): Promise<string | undefined> {
-        const requestUrl = `"/chains/main/blocks/head/context/contracts/${address}/delegate"`
+        const requestUrl = `chains/main/blocks/head/context/contracts/${address}/delegate`
 
         try {
             const delegate = await performGetRequest(server, requestUrl)
             // Delegate is a string, even though `performGetRequest` purports to return an object.
             return (delegate as unknown) as string
-        } catch (error: any) {
+        } catch (error) {
             const tezosRequestError = error as TezosRequestError
 
             // Tezos returns a 404 if delegate is not set.
