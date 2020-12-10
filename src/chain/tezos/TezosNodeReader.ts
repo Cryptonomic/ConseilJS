@@ -41,12 +41,26 @@ export namespace TezosNodeReader {
      * Gets the delegate for a smart contract or an implicit account.
      * 
      * @param {string} server Tezos node to query
-     * @param {string} accountHash The smart contract address or implicit account to query.
-     * @returns The address of the delegate, or undefined if there was no delegate set.
+     * @param {stirng} address The smart contract address or implicit account to query.
      */
-    export async function getDelegate(server: string, accountHash: string): Promise<string | undefined> {
-        const contractData = await getAccountForBlock(server, 'head', accountHash)
-        return (contractData.delegate as unknown) as string
+    export async function getDelegate(server: string, address: string): Promise<string | undefined> {
+        const requestUrl = `chains/main/blocks/head/context/contracts/${address}/delegate`
+
+        try {
+            const delegate = await performGetRequest(server, requestUrl)
+            // Delegate is a string, even though `performGetRequest` purports to return an object.
+            return (delegate as unknown) as string
+        } catch (error) {
+            const tezosRequestError = error as TezosRequestError
+
+            // Tezos returns a 404 if delegate is not set.
+            if (tezosRequestError.httpStatus === 404) {
+                return undefined
+            }
+
+            // Otherwise, re-throw the error.
+            throw tezosRequestError
+        }
     }
 
     /**
