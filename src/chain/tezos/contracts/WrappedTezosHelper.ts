@@ -375,7 +375,7 @@ export namespace WrappedTezosHelper {
      * @param storageLimit The storage limit to use.
      * @returns A property bag of data about the operation.
      */
-    export async function deplyOven(
+    export async function deployOven(
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
