@@ -38,12 +38,12 @@ export namespace TezosNodeReader {
     }
 
     /**
-     * Gets the baker for a smart contract or an implicit account.
+     * Gets the delegate for a smart contract or an implicit account.
      * 
      * @param {string} server Tezos node to query
      * @param {stirng} address The smart contract address or implicit account to query.
      */
-    export async function getBaker(server: string, address: string): Promise<string | undefined> {
+    export async function getDelegate(server: string, address: string): Promise<string | undefined> {
         const requestUrl = `chains/main/blocks/head/context/contracts/${address}/delegate`
 
         try {
