@@ -130,7 +130,7 @@ export namespace TezosNodeReader {
     }
 
     /**
-     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.257tz.
+     * Indicates whether an account is implicit and empty. If true, transaction will burn 0.06425tz.
      *
      * @param {string} server Tezos node to connect to
      * @param {string} accountHash Account address

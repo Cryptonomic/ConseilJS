@@ -5,8 +5,8 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
 import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
-import { ConseilServerInfo } from 'types/conseil/QueryTypes';
-import { ContractMapDetailsItem } from 'types/conseil/ConseilTezosTypes';
+import { ConseilServerInfo } from '../../../types/conseil/QueryTypes';
+import { ContractMapDetailsItem } from '../../../types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 import { StakerDaoTzip7 } from './StakerDaoTzip7';
 import { StakerDAOTokenHelper } from './StakerDAOTokenHelper';
@@ -239,7 +239,7 @@ const WrappedTezosHelperInternal = {
     },
 
     /**
-     * Open a new oven.
+     * Deploy a new oven contract.
      *
      * The oven's owner is assigned to the sender's address.
      *
@@ -248,22 +248,25 @@ const WrappedTezosHelperInternal = {
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
      * @param coreAddress The address of the core contract.
+     * @param baker The inital baker for the Oven. If `undefined` the oven will not have an initial baker. Defaults to `undefined`.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use.
      * @returns A property bag of data about the operation.
      */
-    openOven: async function (
+    export async function deployOven(
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
         fee: number,
         coreAddress: string,
+        baker: string | undefined = undefined,
         gasLimit: number = 115_000,
         storageLimit: number = 1100
     ): Promise<OpenOvenResult> {
         const entryPoint = 'runEntrypointLambda'
         const lambdaName = 'createOven'
-        const bytes = TezosMessageUtils.writePackedData(`Pair None "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
+        const bakerParam = baker !== undefined ? `Some "${baker}"` : 'None'
+        const bytes = TezosMessageUtils.writePackedData(`Pair ${bakerParam} "${keystore.publicKeyHash}"`, 'pair (option key_hash) address', TezosParameterFormat.Michelson)
         const parameters = `Pair "${lambdaName}" 0x${bytes}`
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
