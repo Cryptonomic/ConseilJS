@@ -9,7 +9,6 @@ import { ConseilServerInfo } from '../../../types/conseil/QueryTypes';
 import { ContractMapDetailsItem } from '../../../types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 import { StakerDaoTzip7 } from './StakerDaoTzip7';
-import { StakerDAOTokenHelper } from './StakerDAOTokenHelper';
 
 /** The expected checksum for the Wrapped Tezos contracts. */
 const CONTRACT_CHECKSUMS = {
@@ -108,7 +107,7 @@ const WrappedTezosHelperInternal = {
      * @param storageLimit The storage limit to use. 
      * @returns A string representing the operation hash.
      */
-    depositToOven: async function depositToOven(
+    depositToOven: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
@@ -197,7 +196,7 @@ const WrappedTezosHelperInternal = {
         coreContractAddress: string,
         ovenOwner: string,
         ovenListBigMapId: number
-    ): Promise<Array<string>> {
+    ): Promise<string[]> {
         // Fetch map data.
         const mapData = await TezosConseilClient.getBigMapData(serverInfo, coreContractAddress)
         if (mapData === undefined) {
@@ -235,7 +234,7 @@ const WrappedTezosHelperInternal = {
         // Map filtered array to only contain oven addresses.
         return ownedOvens.map((oven: OvenMapSchema) => {
             return oven.key
-        })
+        });
     },
 
     /**
@@ -248,12 +247,12 @@ const WrappedTezosHelperInternal = {
      * @param keystore A Keystore for the sourceAddress.
      * @param fee The fee to use.
      * @param coreAddress The address of the core contract.
-     * @param baker The inital baker for the Oven. If `undefined` the oven will not have an initial baker. Defaults to `undefined`.
+     * @param baker The initial baker for the Oven. If `undefined` the oven will not have an initial baker. Defaults to `undefined`.
      * @param gasLimit The gas limit to use.
      * @param storageLimit The storage limit to use.
      * @returns A property bag of data about the operation.
      */
-    export async function deployOven(
+    deployOven: async function (
         nodeUrl: string,
         signer: Signer,
         keystore: KeyStore,
