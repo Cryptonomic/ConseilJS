@@ -15,6 +15,9 @@ export interface TezosBlock {
 }
 
 export interface TezosBlockHeader {
+    protocol: string;
+    chaind_id: string;
+    hash: string;
     level: number;
     proto: number;
     predecessor: string;
