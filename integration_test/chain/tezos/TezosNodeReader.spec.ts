@@ -60,4 +60,30 @@ describe('TezosNodeReader integration test suite', () => {
 
         expect(result.header.level).to.be.greaterThan(1);
     });
+
+    it('Gets delegate for a delegated implicit account', async () => {
+        const result = await TezosNodeReader.getDelegate(tezosServer, "tz1PnUd6R31MnjEE8VhfZhZdbGc1hrWQvjnK");
+        expect(result).to.not.be.undefined
+    });
+
+    it('Gets delegate for a delegated smart contract', async () => {
+        const result = await TezosNodeReader.getDelegate(tezosServer, "KT1DRJPyaDTgeXrM2cgQdp5siNF8PP5RLS7T");
+        expect(result).to.not.be.undefined
+    });
+
+    it('Gets delegate for a baker as itself', async () => {
+        const baker = "tz1Na5QB98cDA3BC1SQU4w3iiWGVGktU14LE"
+        const result = await TezosNodeReader.getDelegate(tezosServer, baker);
+        expect(result).to.be.equal(baker)
+    });
+
+    it('Returns undefined for undelegated implicit account', async () => {
+        const result = await TezosNodeReader.getDelegate(tezosServer, "tz1fzHtv2UqtXzFUBHuBPh2xXVv5Pv5MTh5Z");
+        expect(result).to.be.undefined
+    });
+
+    it('Returns undefined for undelegated smart contract', async () => {
+        const result = await TezosNodeReader.getDelegate(tezosServer, "KT1BipUDR93YFCJjVpghzVFS8N45Lkgigfqs");
+        expect(result).to.be.undefined
+    });
 });

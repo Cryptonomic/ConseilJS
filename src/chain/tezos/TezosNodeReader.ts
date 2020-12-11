@@ -38,6 +38,18 @@ export namespace TezosNodeReader {
     }
 
     /**
+     * Gets the delegate for a smart contract or an implicit account.
+     * 
+     * @param {string} server Tezos node to query
+     * @param {string} accountHash The smart contract address or implicit account to query.
+     * @returns The address of the delegate, or undefined if there was no delegate set.
+     */
+    export async function getDelegate(server: string, accountHash: string): Promise<string | undefined> {
+        const contractData = await getAccountForBlock(server, 'head', accountHash)
+        return (contractData.delegate as unknown) as string
+    }
+
+    /**
      * Gets a block for a given hash.
      * 
      * @param {string} server Tezos node to query
@@ -46,7 +58,7 @@ export namespace TezosNodeReader {
      * @returns {Promise<TezosRPCTypes.TezosBlock>} Block
      */
     export function getBlock(server: string, hash: string = 'head', chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${hash}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+        return performGetRequest(server, `chains/${chainid}/blocks/${hash}`).then(json => { return <TezosRPCTypes.TezosBlock>json });
     }
 
     /**
@@ -70,7 +82,7 @@ export namespace TezosNodeReader {
         if (offset <= 0) { return getBlock(server); }
 
         const head = await getBlock(server);
-        return performGetRequest(server, `chains/${chainid}/blocks/${Number(head['header']['level']) - offset}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+        return performGetRequest(server, `chains/${chainid}/blocks/${Number(head['header']['level']) - offset}`).then(json => { return <TezosRPCTypes.TezosBlock>json });
     }
 
     /**
@@ -84,7 +96,7 @@ export namespace TezosNodeReader {
      */
     export function getAccountForBlock(server: string, blockHash: string, accountHash: string, chainid: string = 'main'): Promise<TezosRPCTypes.Contract> {
         return performGetRequest(server, `chains/${chainid}/blocks/${blockHash}/context/contracts/${accountHash}`)
-            .then(json => <TezosRPCTypes.Contract> json);
+            .then(json => <TezosRPCTypes.Contract>json);
     }
 
     /**
@@ -111,7 +123,7 @@ export namespace TezosNodeReader {
      */
     export async function getSpendableBalanceForAccount(server: string, accountHash: string, chainid: string = 'main'): Promise<number> {
         const account = await performGetRequest(server, `chains/${chainid}/blocks/head/context/contracts/${accountHash}`) // TODO: get /balance
-            .then(json => <TezosRPCTypes.Contract> json);
+            .then(json => <TezosRPCTypes.Contract>json);
         return parseInt(account.balance.toString(), 10);
     }
 
