@@ -170,14 +170,16 @@ export namespace TezosNodeWriter {
      */
     export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer, offset: number = 54): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockAtOffset(server, offset);
-        const forgedOperationGroup = forgeOperations(blockHead.hash, operations);
+        const blockHash = blockHead.hash.slice(0, 51); // consider throwing an error instead
+
+        const forgedOperationGroup = forgeOperations(blockHash, operations);
 
         const opSignature = await signer.signOperation(Buffer.from(TezosConstants.OperationGroupWatermark + forgedOperationGroup, 'hex'));
 
         const signedOpGroup = Buffer.concat([Buffer.from(forgedOperationGroup, 'hex'), opSignature]);
         const base58signature = TezosMessageUtils.readSignatureWithHint(opSignature, signer.getSignerCurve());
         const opPair = { bytes: signedOpGroup, signature: base58signature };
-        const appliedOp = await preapplyOperation(server, blockHead.hash, blockHead.protocol, operations, opPair);
+        const appliedOp = await preapplyOperation(server, blockHash, blockHead.protocol, operations, opPair);
         const injectedOperation = await injectOperation(server, opPair);
 
         return { results: appliedOp[0], operationGroupID: injectedOperation }; // TODO
