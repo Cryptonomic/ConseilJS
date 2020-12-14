@@ -70,7 +70,9 @@ export namespace TezosNodeReader {
         if (offset <= 0) { return getBlock(server); }
 
         const head = await getBlock(server);
-        return performGetRequest(server, `chains/${chainid}/blocks/${Number(head['header']['level']) - offset}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+        const level = Math.max(Number(head['header']['level']) - offset, 0);
+
+        return performGetRequest(server, `chains/${chainid}/blocks/${level}`).then(json => { return <TezosRPCTypes.TezosBlock>json });
     }
 
     /**
@@ -96,7 +98,9 @@ export namespace TezosNodeReader {
         if (offset <= 0) { return getBlockHeader(server); }
 
         const header = await getBlockHeader(server);
-        return performGetRequest(server, `chains/${chainid}/blocks/${Number(header.level) - offset}/header`).then(json => { return <TezosRPCTypes.TezosBlockHeader>json });
+        const level = Math.max(Number(header.level) - offset, 0);
+
+        return performGetRequest(server, `chains/${chainid}/blocks/${level}/header`).then(json => { return <TezosRPCTypes.TezosBlockHeader>json });
     }
 
     /**
