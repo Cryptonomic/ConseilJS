@@ -46,7 +46,7 @@ export namespace TezosNodeReader {
      */
     export async function getDelegate(server: string, accountHash: string): Promise<string | undefined> {
         const contractData = await getAccountForBlock(server, 'head', accountHash)
-        return (contractData.delegate as unknown) as string
+        return contractData.delegate;
     }
 
     /**

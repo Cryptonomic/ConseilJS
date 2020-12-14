@@ -122,12 +122,7 @@ export interface TezosBlockOperationContentMetadataOperationResult {
  */
 export interface Contract {
     balance: string;
-    delegate?: ContractDelegate;
+    delegate?: string;
     script?: any;
     counter: string;
-}
-
-export interface ContractDelegate {
-    setable: boolean,
-    value: string
 }
