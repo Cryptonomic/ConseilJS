@@ -70,7 +70,37 @@ export namespace TezosNodeReader {
         if (offset <= 0) { return getBlock(server); }
 
         const head = await getBlock(server);
-        return performGetRequest(server, `chains/${chainid}/blocks/${Number(head['header']['level']) - offset}`).then(json => { return <TezosRPCTypes.TezosBlock> json });
+        const level = Math.max(Number(head['header']['level']) - offset, 0);
+
+        return performGetRequest(server, `chains/${chainid}/blocks/${level}`).then(json => { return <TezosRPCTypes.TezosBlock>json });
+    }
+
+    /**
+     * Gets the block header for a given hash.
+     *
+     * @param {string} server Tezos node to query
+     * @param {string} hash Hash of the given block, defaults to 'head'
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
+     * @returns {Promise<TezosRPCTypes.TezosBlockHeader>} Block header
+     */
+    export function getBlockHeader(server: string, hash: string = 'head', chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlockHeader> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${hash}/header`).then(json => { return <TezosRPCTypes.TezosBlockHeader>json });
+    }
+
+    /**
+     * Returns the block header at a given offset below head.
+     *
+     * @param {string} server Tezos node to query
+     * @param {number} offset Number of blocks below head, must be positive, 0 = head
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
+     */
+    export async function getBlockHeaderAtOffset(server: string, offset: number, chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlockHeader> {
+        if (offset <= 0) { return getBlockHeader(server); }
+
+        const header = await getBlockHeader(server);
+        const level = Math.max(Number(header.level) - offset, 0);
+
+        return performGetRequest(server, `chains/${chainid}/blocks/${level}/header`).then(json => { return <TezosRPCTypes.TezosBlockHeader>json });
     }
 
     /**
@@ -197,10 +227,10 @@ export namespace TezosNodeReader {
      * @returns {Promise<number>} Number of blocks until the operation expires.
      */
     export async function estimateBranchTimeout(server: string, branch: string, chainid: string = 'main'): Promise<number> {
-        const refBlock = getBlock(server, branch, chainid);
-        const headBlock = getBlock(server, 'head', chainid);
+        const refBlockHeader = getBlockHeader(server, branch, chainid);
+        const headBlockHeader = getBlockHeader(server, 'head', chainid);
 
-        var result = await Promise.all([refBlock, headBlock]).then(blocks => Number(blocks[1]['header']['level']) - Number(blocks[0]['header']['level']));
+        var result = await Promise.all([refBlockHeader, headBlockHeader]).then(blocksHeader => Number(blocksHeader[1].level) - Number(blocksHeader[0].level));
 
         return 64 - result; // TODO: named const
     }
