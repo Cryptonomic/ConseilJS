@@ -162,7 +162,7 @@ export namespace WrappedTezosHelper {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
-        if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
+        if (mapResult === undefined) { return 0 }
 
         const numberString = JSONPath({ path: '$.int', json: mapResult });
         return Number(numberString);
@@ -320,6 +320,13 @@ export namespace WrappedTezosHelper {
         ovenOwner: string,
         ovenListBigMapId: number
     ): Promise<Array<string>> {
+        // let contentQuery = ConseilQueryBuilder.setLimit(ConseilQueryBuilder.blankQuery(), 1);
+        // contentQuery = ConseilQueryBuilder.addFields(contentQuery, 'key');
+        // contentQuery = ConseilQueryBuilder.addPredicate(contentQuery, 'value', ConseilOperator.EQ, [`0x${TezosMessageUtils.writeAddress(ovenOwner)}`], false);
+        // contentQuery = ConseilQueryBuilder.addPredicate(contentQuery, 'big_map_id', ConseilOperator.EQ, [ovenListBigMapId], false);
+        // const result = await ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', serverInfo.network, 'big_map_contents', contentQuery);
+
+
         // Fetch map data.
         const mapData = await TezosConseilClient.getBigMapData(serverInfo, coreContractAddress)
         if (mapData === undefined) {
