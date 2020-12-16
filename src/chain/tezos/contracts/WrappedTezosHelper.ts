@@ -162,7 +162,7 @@ export namespace WrappedTezosHelper {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
-        if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
+        if (mapResult === undefined) { return 0 }
 
         const numberString = JSONPath({ path: '$.int', json: mapResult });
         return Number(numberString);
