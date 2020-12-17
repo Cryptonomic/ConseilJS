@@ -16,7 +16,7 @@ export * from "./chain/tezos/TezosNodeReader";
 export * from "./chain/tezos/TezosNodeWriter";
 export * from './chain/tezos/contracts/BabylonDelegationHelper';
 export * from './chain/tezos/contracts/CryptonomicNameServiceHelper';
-export * from './chain/tezos/contracts/DexterTokenHelper';
+export * from './chain/tezos/contracts/DexterPoolHelper';
 export * from './chain/tezos/contracts/MurbardMultisigHelper';
 export * from './chain/tezos/contracts/StakerDAOTokenHelper';
 export * from './chain/tezos/contracts/TCFBakerRegistryHelper';
@@ -25,6 +25,7 @@ export * from './chain/tezos/contracts/tzip12/ChainlinkTokenHelper';
 export * from './chain/tezos/contracts/tzip12/MultiAssetTokenHelper';
 export * from './chain/tezos/contracts/tzip12/SingleAssetTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
+export * from './chain/tezos/contracts/WrappedTezosHelper';
 
 export * from "./reporting/tezos/TezosConseilClient";
 

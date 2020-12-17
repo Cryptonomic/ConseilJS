@@ -1,8 +1,12 @@
-import { ConseilQueryBuilder } from "../ConseilQueryBuilder";
 import { ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection } from "../../types/conseil/QueryTypes"
-import { ConseilDataClient } from "../ConseilDataClient";
 import { OperationKindType } from "../../types/tezos/TezosChainTypes";
 import { ContractMapDetails, ContractMapDetailsItem } from '../../types/conseil/ConseilTezosTypes';
+import LogSelector from '../../utils/LoggerSelector';
+
+import { ConseilDataClient } from "../ConseilDataClient";
+import { ConseilQueryBuilder } from "../ConseilQueryBuilder";
+
+const log = LogSelector.log;
 
 /**
  * Functions for querying the Conseil backend REST API v2 for Tezos chain data.
@@ -207,18 +211,29 @@ export namespace TezosConseilClient {
      */
     export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
+
         const initialLevel = (await getBlockHead(serverInfo, network))['level'];
+        const timeOffset = 180000;
+        const startTime = (new Date).getTime() - timeOffset;
+        const estimatedEndTime = startTime + timeOffset + duration * blocktime * 1000;
+
+        log.debug(`TezosConseilClient.awaitOperationConfirmation looking for ${hash} since ${initialLevel} at ${(new Date(startTime).toUTCString())}, +${duration}`);
+
         let currentLevel = initialLevel;
         let operationQuery = ConseilQueryBuilder.blankQuery();
         operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'operation_group_hash', ConseilOperator.EQ, [hash], false);
-        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'timestamp', ConseilOperator.AFTER, [(new Date).getTime() - 60000], false);
+        operationQuery = ConseilQueryBuilder.addPredicate(operationQuery , 'timestamp', ConseilOperator.AFTER, [startTime], false);
         operationQuery = ConseilQueryBuilder.setLimit(operationQuery, 1);
 
         while (initialLevel + duration > currentLevel) {
             const group = await getOperations(serverInfo, network, operationQuery);
             if (group.length > 0) { return group[0]; }
+
             currentLevel = (await getBlockHead(serverInfo, network))['level'];
+
             if (initialLevel + duration < currentLevel) { break; }
+            if ((new Date).getTime() > estimatedEndTime) { break; }
+
             await new Promise(resolve => setTimeout(resolve, blocktime * 1000));
         }
 
