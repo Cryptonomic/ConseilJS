@@ -1,9 +1,9 @@
 export namespace TezosConstants {
     export const OperationGroupWatermark = '03';
-    export const DefaultTransactionStorageLimit = 496; // 300, carthage?!
+    export const DefaultTransactionStorageLimit = 496; // 300
     export const DefaultTransactionGasLimit = 10600;
     export const DefaultDelegationStorageLimit = 0;
-    export const DefaultDelegationGasLimit = 10000;
+    export const DefaultDelegationGasLimit = 1101;
     export const DefaultAccountOriginationStorageLimit = 496; // 277
     export const DefaultAccountOriginationGasLimit = 10600;
     export const DefaultAccountOriginationFee = 1266;

@@ -9,7 +9,7 @@
 
 A library for building decentralized applications in Typescript and Javascript, currently focused on the [Tezos](http://tezos.com/) platform.
 
-ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Arronax](https://arronax.io), [Mininax](https://mininax.io) and certainly [Galleon](https://cryptonomic.tech/galleon.html). There are [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
+ConseilJS connects to Tezos nodes for live chain data and operations and to [Conseil](https://github.com/Cryptonomic/Conseil) servers for high-performance analytics on blockchain data. Internally, Cryptonomic uses [Nautilus](https://github.com/Cryptonomic/Nautilus) for infrastructure deployments of these services. This is the library at the core of our products, [Periscope](https://periscope.arronax.io), [Harpoon](https://harpoon.arronax.io) and certainly [Galleon](https://cryptonomic.tech/galleon.html). There are [ReasonML bindings](https://github.com/Cryptonomic/ConseilJS-ReasonML-Bindings) as well.
 
 Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus.cloud) which enables quick access to the Tezos platform along with products that make it easier build on it.
 
@@ -17,7 +17,7 @@ Cryptonomic offers an infrastructure service - [Nautilus Cloud](https://nautilus
 
 As of version 5.0.0, ConseilJS has been split into three parts: this library, which is considered to be the core, ConseilJS-softsigner and ConseilJS-ledgersigner. This was done in an effort to make the library more portable across different environments. If neither of these additional modules meet your needs, the `Signer` and `KeyStore` [interfaces](https://github.com/Cryptonomic/ConseilJS/blob/master/ConseilJS-core/src/types/ExternalInterfaces.ts) can be implemented separately. In addition to a `Signer` and a `KeyStore`, `fetch` and `logger` objects are required to be provided, see below.
 
-For more details on how to use these libraries see their respective readme files: [ConseilJS-core](./blob/master/ConseilJS/docs/README.md), [ConseilJS-softsigner](https://github.com/Cryptonomic/ConseilJS-softsigner/blob/master/README.md), [ConseilJS-ledgersigner](https://github.com/Cryptonomic/ConseilJS-ledgersigner/blob/master/README.md).
+For more details on how to use these libraries see their respective readme files: [ConseilJS-core](./blob/master/ConseilJS/docs/README.md), [ConseilJS-softsigner](https://github.com/Cryptonomic/ConseilJS-softsigner/blob/master/README.md), [ConseilJS-ledgersigner](https://github.com/Cryptonomic/ConseilJS-ledgersigner/blob/master/README.md). There is also an [AWS KMS signer](https://www.npmjs.com/package/@tacoinfra/tezos-kms) that is compatible with ConseilJS, maintained by [@tacoinfra](https://github.com/tacoinfra).
 
 ## Use with Nodejs
 
@@ -51,7 +51,7 @@ We have a complete [React application tutorial](https://github.com/Cryptonomic/C
 
 ## Use with React Native
 
-TBD
+Project [honeybadger](https://github.com/Cryptonomic/honeybadger), which is the basis for [Galleon Mobile](https://apps.apple.com/us/app/galleon-mobile-wallet/id1521872814) us built with ConseilJS as well. Due to limitations of react-native we re-implemented some of the necessary functionality into a [separate module](https://github.com/Cryptonomic/honeybadger/tree/trunk/src/softsigner).
 
 ## Use with Web
 
