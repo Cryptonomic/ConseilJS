@@ -2,35 +2,54 @@ import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
 
-// deploy parameters
-export interface DeployPair {
-    admin: string;
-}
-// mint
-export interface MintPair {
-    address: string;
-    amount: number;
-    sym: string;
-    token_id: number;
-}
-// burn
-export interface BurnPair {
-    address: string;
-    amount: number;
-    sym: string;
-    token_id: number;
-}
-// contract interface
-interface FA2Contract {
-    address: string;
-    ledgerMapID: number;
-}
+    // contract interface
+    interface FA2Contract {
+        address: string;
+        ledgerMapID: number;
+    }
+
+    // deploy parameters
+    export interface DeployPair {
+        admin: string;
+        all_tokens: string; // = '0';
+        ledger: string; // = '[]';
+        metadata_string: string; // = 'Unit';
+        operators: string; // = '[]';
+        paused: boolean; // = false;
+        tokens: string; // = '[]';
+    }
+
+    export const EmptyDeployment: DeployPair = {
+        admin: '',
+        all_tokens: '0',
+        ledger: '[]',
+        metadata_string: 'Unit',
+        operators: '[]',
+        paused: false,
+        tokens: '[]'
+    };
+
+    // mint
+    export interface MintPair {
+        address: string;
+        amount: number;
+        sym: string;
+        token_id: number;
+    }
+
+    // burn
+    export interface BurnPair {
+        address: string;
+        amount: number;
+        sym: string;
+        token_id: number;
+    }
+
 export namespace FA2Helper {
-
-
     // need to add interface and micheline func for DeployPair
-    export async function Deploy(signer: Signer, keystore: KeyStore, config): Promise<string> {
+    export async function Deploy(signer: Signer, keystore: KeyStore, deploy: DeployPair, config): Promise<string> {
         // let paramaters: string = DeployPairMicheline(DeployPair);
+
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(
             config.tezosNode,
             signer,
@@ -41,8 +60,8 @@ export namespace FA2Helper {
             config.testTx.storageLimit,
             config.testTx.gasLimit,
             config.contractCode,
-            config.contractInitialStorage,
-            TezosParameterFormat.Michelson);
+            DeployPairMicheline(deploy),
+            TezosParameterFormat.Micheline);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
@@ -82,11 +101,19 @@ export namespace FA2Helper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-
-    function DeployPairMicheline(): string {
-        return ``;
+    function DeployPairMicheline(deploy: DeployPair): string {
+        return `{
+            "prim": "Pair",
+            "args": [
+                { "prim": "Pair", "args": [
+                    { "string": "${deploy.admin}" },
+                    { "prim": "Pair", "args": [ { "int": "${deploy.all_tokens}" }, ${deploy.ledger} ] } ] },
+                { "prim": "Pair", "args": [
+                    { "prim": "Pair", "args": [ { "prim": "${deploy.metadata_string}" }, ${deploy.operators} ] },
+                    { "prim": "Pair", "args": [ { "prim": "${deploy.paused ? "True" : "False"}" }, ${deploy.tokens} ] } ] }
+            ]
+        }`;
     }
-
 
     export function MintPairMicheline(mint: MintPair): string {
         return `{
@@ -97,7 +124,6 @@ export namespace FA2Helper {
             ]
         }`;
     }
-
 
     export function BurnPairMicheline(burn: BurnPair): string {
         return `{
