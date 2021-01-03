@@ -1,14 +1,32 @@
-import {KeyStore, Signer, TezosNodeWriter, TezosParameterFormat} from 'conseiljs';
-import {MintPair, MintPairMicheline, BurnPair, BurnPairMicheline, StoragePair, DeployPair} from './FA2Types';
-// import {config} from './config';
+import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
+import {TezosNodeWriter} from '../../TezosNodeWriter';
+import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
 
+// deploy parameters
+export interface DeployPair {
+    admin: string;
+}
+// mint
+export interface MintPair {
+    address: string;
+    amount: number;
+    sym: string;
+    token_id: number;
+}
+// burn
+export interface BurnPair {
+    address: string;
+    amount: number;
+    sym: string;
+    token_id: number;
+}
+// contract interface
+interface FA2Contract {
+    address: string;
+    ledgerMapID: number;
+}
 export namespace FA2Helper {
 
-    export interface FA2Contract {
-        address: string;
-        ledgerMapID: number;
-        storage: StoragePair;
-    }
 
     // need to add interface and micheline func for DeployPair
     export async function Deploy(signer: Signer, keystore: KeyStore, config): Promise<string> {
@@ -63,8 +81,35 @@ export namespace FA2Helper {
             TezosParameterFormat.Micheline);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
+
+
+    function DeployPairMicheline(): string {
+        return ``;
+    }
+
+
+    export function MintPairMicheline(mint: MintPair): string {
+        return `{
+            "prim": "Pair",
+            "args": [
+                { "prim": "Pair", "args": [ { "string": "${mint.address}" }, { "int": "${mint.amount}" } ] },
+                { "prim": "Pair", "args": [ { "string": "${mint.sym}" }, { "int": "${mint.token_id}" } ] }
+            ]
+        }`;
+    }
+
+
+    export function BurnPairMicheline(burn: BurnPair): string {
+        return `{
+            "prim": "Pair",
+            "args": [ { "string": "${burn.address}" },
+                { "prim": "Pair", "args": [ { "int": "${burn.amount}" }, { "int": "${burn.token_id}" } ] }
+            ]
+        }`;
+    }
 }
 
-function clearRPCOperationGroupHash(hash: string) {
+function clearRPCOperationGroupHash(hash: string): string {
     return hash.replace(/\"/g, '').replace(/\n/, '');
 }
+
