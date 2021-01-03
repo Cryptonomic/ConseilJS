@@ -1,6 +1,6 @@
 import {KeyStore, Signer, TezosNodeWriter, TezosParameterFormat} from 'conseiljs';
 import {MintPair, MintPairMicheline, BurnPair, BurnPairMicheline, StoragePair, DeployPair} from './FA2Types';
-import {config} from './config';
+// import {config} from './config';
 
 export namespace FA2Helper {
 
@@ -11,7 +11,7 @@ export namespace FA2Helper {
     }
 
     // need to add interface and micheline func for DeployPair
-    export async function Deploy(signer: Signer, keystore: KeyStore): Promise<string> {
+    export async function Deploy(signer: Signer, keystore: KeyStore, config): Promise<string> {
         // let paramaters: string = DeployPairMicheline(DeployPair);
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(
             config.tezosNode,
@@ -28,7 +28,7 @@ export namespace FA2Helper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function Mint(signer: Signer, keystore: KeyStore, mints: MintPair[]): Promise<string> {
+    export async function Mint(signer: Signer, keystore: KeyStore, mints: MintPair[], config): Promise<string> {
         const entrypoint = `mint`;
         let parameters: string = `[ ${mints.map(m => MintPairMicheline(m)).join(',')} ]`;
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
@@ -46,7 +46,7 @@ export namespace FA2Helper {
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function Burn(signer: Signer, keystore: KeyStore, burns: BurnPair[]): Promise<string> {
+    export async function Burn(signer: Signer, keystore: KeyStore, burns: BurnPair[], config): Promise<string> {
         const entrypoint = `burn`;
         let parameters: string = `[ ${burns.map(b => BurnPairMicheline(b)).join(',')} ]`;
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
