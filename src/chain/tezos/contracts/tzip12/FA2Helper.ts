@@ -4,6 +4,7 @@ import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
 import {TezosNodeReader} from '../../TezosNodeReader';
+import {TezosMessageUtils} from 'chain/tezos/TezosMessageUtil';
 
     export interface Storage {
         admin: string;
@@ -82,6 +83,16 @@ export namespace FA2Helper {
             operatorMap: JSONPath({path: '$.args[1].args[0].args[1].int', json: storageResult})[0],
             metadataMap: JSONPath({path: '$.args[1].args[1].args[1].int', json: storageResult})[0],
         };
+    }
+
+    export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number>  {
+       const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
+       const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
+
+       if (mapResult === undefined)
+            throw new Error(`Map ${mapid} does not contain a record for ${account}`);
+    const jsonresult = JSONPath({ path: '$.int', json: mapResult });
+    return Number(jsonresult[0]);
     }
 
     export async function Mint(server: string, address: string, signer: Signer, keystore: KeyStore, amount: number, fee: number, mints: MintPair[], freight: number, gas: number): Promise<string> {
