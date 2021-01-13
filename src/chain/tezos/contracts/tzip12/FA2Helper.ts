@@ -1,11 +1,16 @@
+import { JSONPath } from 'jsonpath-plus';
+
 import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
+import {TezosNodeReader} from '../../TezosNodeReader';
 
-    // contract interface
-    interface FA2Contract {
-        address: string;
-        ledgerMapID: number;
+    export interface Storage {
+        admin: string;
+        paused: boolean;
+        balanceMap: number;
+        operatorMap: number;
+        metadataMap: number;
     }
 
     // deploy parameters
@@ -41,7 +46,6 @@ import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
     export interface BurnPair {
         address: string;
         amount: number;
-        sym: string;
         token_id: number;
     }
 
@@ -66,6 +70,18 @@ export namespace FA2Helper {
             storage,
             TezosParameterFormat.Micheline);
         return clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export async function getStorage(server: string, address: string): Promise<Storage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+
+        return {
+            admin: JSONPath({path: '$.args[0].args[0].string', json: storageResult})[0],
+            paused: JSONPath({path: '$.args[1].args[1].args[0].prim', json: storageResult})[0],
+            balanceMap: JSONPath({path: '$.args[0].args[1].args[1].int', json: storageResult})[0],
+            operatorMap: JSONPath({path: '$.args[1].args[0].args[1].int', json: storageResult})[0],
+            metadataMap: JSONPath({path: '$.args[1].args[1].args[1].int', json: storageResult})[0],
+        };
     }
 
     export async function Mint(server: string, address: string, signer: Signer, keystore: KeyStore, amount: number, fee: number, mints: MintPair[], freight: number, gas: number): Promise<string> {
