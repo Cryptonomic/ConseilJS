@@ -4,7 +4,7 @@ import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosParameterFormat} from '../../../../types/tezos/TezosChainTypes';
 import {TezosNodeReader} from '../../TezosNodeReader';
-import {TezosMessageUtils} from 'chain/tezos/TezosMessageUtil';
+import {TezosMessageUtils} from '../../TezosMessageUtil';
 
     export interface Storage {
         admin: string;
