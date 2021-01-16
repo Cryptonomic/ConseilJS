@@ -663,7 +663,7 @@ export namespace TezosNodeWriter {
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number }> {
-        const responseJSON = dryRunOperation(server, chainid, ...operations);
+        const responseJSON = await dryRunOperation(server, chainid, ...operations);
 
         let gas = 0;
         let storageCost = 0;
