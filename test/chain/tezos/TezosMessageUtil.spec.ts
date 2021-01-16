@@ -260,6 +260,17 @@ describe('Tezos P2P message codec helper tests', () => {
         });
     });
 
+    it('test lambda codec', () => {
+        const samples = [{
+            in: `Pair "NetXm8tYqnMWky1" (Pair 1 { DROP; NIL operation; PUSH address "KT1Hg6cTCKopUMojt899L9mNmXX9xyyJds45"; CONTRACT nat; IF_SOME {} { UNIT; FAILWITH }; PUSH mutez 0; PUSH nat 2; TRANSFER_TOKENS; CONS } )`,
+            out: '050707010000000f4e6574586d387459716e4d576b793109070000005e00010320053d036d0743036e01000000244b54314867366354434b6f70554d6f6a743839394c396d4e6d5858397879794a64733435055503620200000010072f0200000004034f032702000000000743036a0000074303620002034d031b00000000'
+        }];
+
+        samples.map(s => {
+            expect(TezosMessageUtils.writePackedData(s.in, 'michelson', TezosParameterFormat.Michelson)).to.equal(s.out);
+        });
+    });
+
     it('test signature codec', () => {
         //readSignatureWithHint
         //writeSignatureWithHint

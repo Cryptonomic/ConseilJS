@@ -418,9 +418,18 @@ const lexer = moo.compile({
 
     /**
      * Given a keyword with two arguments, convert it into JSON.
-     * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+     * Example: "Pair Unit <instruction>" -> "{ prim: Pair, args: [{prim: Unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgKeywordToJson = d => {
+        if (d.length === 7) {
+            /*
+                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array
+            */
+            return `{ "prim": "${d[0]}", "args": [ ${d[2]}, [] ] }`;
+        } else {
+            return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+        }
+    };
     const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
@@ -486,7 +495,7 @@ const lexer = moo.compile({
 
     const tripleArgTypeKeyWordToJson = d => {
         const annot = d[1].map(x => `"${x[1]}"`)
-        return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
+        return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}] }`;
     }
 
     const pushToJson = d => {
@@ -516,7 +525,7 @@ const lexer = moo.compile({
 
     const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
-    const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
+    const subContractToJson = d => `{ "prim": "CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, { "prim": "code" , "args": [ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
         const instructionOne = [d[2]];
@@ -618,7 +627,9 @@ const grammar: Grammar = {
     {"name": "typeData", "symbols": [(lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": d => []},
     {"name": "data", "symbols": [(lexer.has("constantData") ? {type: "constantData"} : constantData)], "postprocess": keywordToJson},
     {"name": "data", "symbols": [(lexer.has("singleArgData") ? {type: "singleArgData"} : singleArgData), "_", "data"], "postprocess": singleArgKeywordToJson},
+    {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", (lexer.has("lbrace") ? {type: "lbrace"} : lbrace), "_", (lexer.has("rbrace") ? {type: "rbrace"} : rbrace)], "postprocess": doubleArgKeywordToJson},
     {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "data"], "postprocess": doubleArgKeywordToJson},
+    {"name": "data", "symbols": [(lexer.has("doubleArgData") ? {type: "doubleArgData"} : doubleArgData), "_", "data", "_", "subInstruction"], "postprocess": doubleArgKeywordToJson},
     {"name": "data", "symbols": ["subData"], "postprocess": id},
     {"name": "data", "symbols": ["subElt"], "postprocess": id},
     {"name": "data", "symbols": [(lexer.has("string") ? {type: "string"} : string)], "postprocess": stringToJson},
