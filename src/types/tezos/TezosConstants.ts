@@ -12,6 +12,7 @@ export namespace TezosConstants {
     export const P005ManagerContractWithdrawalGasLimit = 26283;
     export const P005ManagerContractDepositGasLimit = 15285;
     export const P005ManagerContractWithdrawalStorageLimit = 496; // 300
+    export const OperationFeePadding = 100; // µtz
 
     /**
      * Outbound operation queue timeout in seconds. After this period, TezosOperationQueue will attempt to submit the transactions currently in queue.

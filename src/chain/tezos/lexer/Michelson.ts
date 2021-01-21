@@ -395,7 +395,7 @@ const lexer = moo.compile({
         if (check_dip(word)) {
             return expandDIP(word, d[2])
         } else {
-            return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`;
+            return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
     }
 
@@ -423,7 +423,7 @@ const lexer = moo.compile({
     const doubleArgKeywordToJson = d => {
         if (d.length === 7) {
             /*
-                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array
+                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
             */
             return `{ "prim": "${d[0]}", "args": [ ${d[2]}, [] ] }`;
         } else {
@@ -437,7 +437,7 @@ const lexer = moo.compile({
         if (check_if(word)) {
             return expandIF(word, d[2], d[4])
         } else {
-            return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`;
+            return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
     }
 
