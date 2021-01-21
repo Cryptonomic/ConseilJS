@@ -44,27 +44,28 @@ export namespace TezosMessageUtils {
      * Encodes a signed integer into hex.
      * @param {number} value Number to be obfuscated.
      */
-    export function writeSignedInt(value: number): string {
-        if (value === 0) { return '00'; }
+    export function writeSignedInt(value: number | string): string {
+        if (value === 0 || value === '0') { return '00'; }
 
-        const n = bigInt(value).abs();
+        let n = bigInt(value as string).abs();
         const l = n.bitLength().toJSNumber();
         let arr: number[] = [];
-        let v = n;
+
         for (let i = 0; i < l; i += 7) {
             let byte = bigInt.zero;
 
             if (i === 0) {
-                byte = v.and(0x3f); // first byte makes room for sign flag
-                v = v.shiftRight(6);
+                byte = n.and(0x3f); // first byte makes room for sign flag
+                n = n.shiftRight(6);
             } else {
-                byte = v.and(0x7f); // NOT base128 encoded
-                v = v.shiftRight(7);
+                byte = n.and(0x7f); // NOT base128 encoded
+                n = n.shiftRight(7);
             }
 
             if (value < 0 && i === 0) { byte = byte.or(0x40); } // set sign flag
 
             if (i + 7 < l) { byte = byte.or(0x80); } // set next byte flag
+
             arr.push(byte.toJSNumber());
         }
 
@@ -346,10 +347,10 @@ export namespace TezosMessageUtils {
     }
 
     /**
-     * Deserializes a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wraper for base58check.encode().
+     * Deserializes a binary buffer and decodes it into a Base58-check string subject to a hint. Calling this method with a blank hint makes it a wrapper for base58check.encode().
      * 
      * @param {Buffer | Uint8Array} b Bytes to encode
-     * @param hint One of: 'op' (operation encoding helper), 'p' (proposal), '' (blank)
+     * @param hint One of: 'op' (operation encoding helper), 'p' (proposal), expr (expression), '' (blank)
      */
     export function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string {
         const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;

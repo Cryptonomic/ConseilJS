@@ -258,7 +258,7 @@ export namespace TezosLanguageUtil {
                     offset += anns.consumed;
                     break;
                 }
-                case '09': { // primitive with an argument array and an optional anotation set
+                case '09': { // primitive with an argument array and an optional annotation set
                     code += `( ${hexToMichelsonKeyword(hex, offset)} `;
                     offset += 2;
         

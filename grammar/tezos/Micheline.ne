@@ -1,11 +1,11 @@
 @preprocessor typescript
 
 @{%
-const moo = require("moo");
-const bigInt = require("big-integer");
+import { TezosMessageUtils } from '../TezosMessageUtil';
+import * as moo from 'moo';
 
-// taken from https://gitlab.com/nomadic-labs/tezos, lib_protocol/michelson_v1_primitives.ml, prim_encoding enum
-export const DefaultMichelsonKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DIG"', '"DUG"', '"EMPTY_BIG_MAP"', '"APPLY"', '"chain_id"', '"CHAIN_ID"'];
+// https://gitlab.com/tezos/tezos/-/blob/master/src/proto_008_PtEdoTez/lib_protocol/michelson_v1_primitives.ml#L1088
+export const DefaultMichelsonKeywords = ['"parameter"', '"storage"', '"code"', '"False"', '"Elt"', '"Left"', '"None"', '"Pair"', '"Right"', '"Some"', '"True"', '"Unit"', '"PACK"', '"UNPACK"', '"BLAKE2B"', '"SHA256"', '"SHA512"', '"ABS"', '"ADD"', '"AMOUNT"', '"AND"', '"BALANCE"', '"CAR"', '"CDR"', '"CHECK_SIGNATURE"', '"COMPARE"', '"CONCAT"', '"CONS"', '"CREATE_ACCOUNT"', '"CREATE_CONTRACT"', '"IMPLICIT_ACCOUNT"', '"DIP"', '"DROP"', '"DUP"', '"EDIV"', '"EMPTY_MAP"', '"EMPTY_SET"', '"EQ"', '"EXEC"', '"FAILWITH"', '"GE"', '"GET"', '"GT"', '"HASH_KEY"', '"IF"', '"IF_CONS"', '"IF_LEFT"', '"IF_NONE"', '"INT"', '"LAMBDA"', '"LE"', '"LEFT"', '"LOOP"', '"LSL"', '"LSR"', '"LT"', '"MAP"', '"MEM"', '"MUL"', '"NEG"', '"NEQ"', '"NIL"', '"NONE"', '"NOT"', '"NOW"', '"OR"', '"PAIR"', '"PUSH"', '"RIGHT"', '"SIZE"', '"SOME"', '"SOURCE"', '"SENDER"', '"SELF"', '"STEPS_TO_QUOTA"', '"SUB"', '"SWAP"', '"TRANSFER_TOKENS"', '"SET_DELEGATE"', '"UNIT"', '"UPDATE"', '"XOR"', '"ITER"', '"LOOP_LEFT"', '"ADDRESS"', '"CONTRACT"', '"ISNAT"', '"CAST"', '"RENAME"', '"bool"', '"contract"', '"int"', '"key"', '"key_hash"', '"lambda"', '"list"', '"map"', '"big_map"', '"nat"', '"option"', '"or"', '"pair"', '"set"', '"signature"', '"string"', '"bytes"', '"mutez"', '"timestamp"', '"unit"', '"operation"', '"address"', '"SLICE"', '"DIG"', '"DUG"', '"EMPTY_BIG_MAP"', '"APPLY"', '"chain_id"', '"CHAIN_ID"', '"LEVEL"', '"SELF_ADDRESS"', '"never"', '"NEVER"', '"UNPAIR"', '"VOTING_POWER"', '"TOTAL_VOTING_POWER"', '"KECCAK"', '"SHA3"', '"PAIRING_CHECK"', '"bls12_381_g1"', '"bls12_381_g2"', '"bls12_381_fr"', '"sapling_state"', '"sapling_transaction"', '"SAPLING_EMPTY_STATE"', '"SAPLING_VERIFY_UPDATE"', '"ticket"', '"TICKET"', '"READ_TICKET"', '"SPLIT_TICKET"', '"JOIN_TICKETS"', '"GET_AND_UPDATE"'];
 let _languageKeywords = [...DefaultMichelsonKeywords];
 
 export const setKeywordList = list => {
@@ -34,9 +34,7 @@ const lexer = moo.compile({
 
 @lexer lexer
 
-main -> staticObject {% id %}
-        | primBare {% id %} | primArg {% id %} | primAnn {% id %} | primArgAnn {% id %}
-        | anyArray {% id %}
+main -> staticObject {% id %} | primAny {% id %} | anyArray {% id %}
 
 staticInt -> %lbrace %_ "\"int\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticIntToHex %}
 staticString -> %lbrace %_ "\"string\"" %_:* %colon %_ %quotedValue %_ %rbrace {% staticStringToHex %}
@@ -61,7 +59,7 @@ anyArray ->  %lbracket %rbracket {% function(d) { return '0200000000'; } %}
 const staticIntToHex = d => {
     const prefix = '00';
     const text = d[6].toString();
-    const value = writeSignedInt(parseInt(text.substring(1, text.length - 1))); // strip double quotes
+    const value = TezosMessageUtils.writeSignedInt(text.substring(1, text.length - 1)); // strip double quotes
 
     return prefix + value;
 };
@@ -196,36 +194,4 @@ const encodePrimitive = p => {
 const encodeLength = l => {
     return ('0000000' + l.toString(16)).slice(-8);
 }
-
-const writeSignedInt = value => {
-        if (value === 0) { return '00'; }
-
-        const n = bigInt(value).abs();
-        const l = n.bitLength().toJSNumber();
-        let arr: any = [];
-        let v = n;
-        for (let i = 0; i < l; i += 7) {
-            let byte = bigInt.zero;
-
-            if (i === 0) {
-                byte = v.and(0x3f); // first byte makes room for sign flag
-                v = v.shiftRight(6);
-            } else {
-                byte = v.and(0x7f); // NOT base128 encoded
-                v = v.shiftRight(7);
-            }
-
-            if (value < 0 && i === 0) { byte = byte.or(0x40); } // set sign flag
-
-            if (i + 7 < l) { byte = byte.or(0x80); } // set next byte flag
-            arr.push(byte.toJSNumber());
-        }
-
-        if (l % 7 === 0) {
-            arr[arr.length - 1] = arr[arr.length - 1] | 0x80;
-            arr.push(1);
-        }
-
-        return arr.map(v => ('0' + v.toString(16)).slice(-2)).join('');
-    }
 %}

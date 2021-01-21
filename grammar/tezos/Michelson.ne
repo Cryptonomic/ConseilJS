@@ -110,7 +110,9 @@ typeData ->
 data ->
     %constantData {% keywordToJson %}
   | %singleArgData _ data {% singleArgKeywordToJson %}
+  | %doubleArgData _ data _ %lbrace _ %rbrace {% doubleArgKeywordToJson %}
   | %doubleArgData _ data _ data {% doubleArgKeywordToJson  %}
+  | %doubleArgData _ data _ subInstruction {% doubleArgKeywordToJson  %}
   | subData {% id %}
   | subElt {% id %}
   | %string {% stringToJson %}
@@ -145,7 +147,7 @@ typeElt -> %elt _ typeData _ typeData {% doubleArgKeywordToJson  %}
 
 # Helper pattern for lists of michelson instructions
 subInstruction ->
-    %lbrace _ %rbrace {% d => "" %}
+    %lbrace _ %rbrace {% d => "" %} # see TODO about double-wrapping
   | %lbrace _ instruction _ %rbrace {% d => d[2] %}
   | %lbrace _ (instruction _ %semicolon _):+ instruction _ %rbrace {% instructionSetToJsonNoSemi %} #If last instruction doesn't have semicolon
   | %lbrace _ (instruction _ %semicolon _):+ %rbrace {% instructionSetToJsonSemi %} #If last instruction has semicolon
@@ -494,7 +496,7 @@ semicolons -> [;]:?
         if (check_dip(word)) {
             return expandDIP(word, d[2])
         } else {
-            return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`;
+            return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
     }
 
@@ -517,9 +519,18 @@ semicolons -> [;]:?
 
     /**
      * Given a keyword with two arguments, convert it into JSON.
-     * Example: "Pair unit instruction" -> "{ prim: Pair, args: [{prim: unit}, {prim: instruction}] }"
+     * Example: "Pair Unit <instruction>" -> "{ prim: Pair, args: [{prim: Unit}, {prim: instruction}] }"
      */
-    const doubleArgKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+    const doubleArgKeywordToJson = d => {
+        if (d.length === 7) {
+            /*
+                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
+            */
+            return `{ "prim": "${d[0]}", "args": [ ${d[2]}, [] ] }`;
+        } else {
+            return `{ "prim": "${d[0]}", "args": [ ${d[2]}, ${d[4]} ] }`;
+        }
+    };
     const doubleArgParenKeywordToJson = d => `{ "prim": "${d[0]}", "args": [ ${d[4]}, ${d[8]} ] }`;
 
     const doubleArgInstrKeywordToJson = d => {
@@ -527,7 +538,7 @@ semicolons -> [;]:?
         if (check_if(word)) {
             return expandIF(word, d[2], d[4])
         } else {
-            return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`;
+            return `{ "prim": "${d[0]}", "args": [ [${d[2]}], [${d[4]}] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
     }
 
@@ -585,7 +596,7 @@ semicolons -> [;]:?
 
     const tripleArgTypeKeyWordToJson = d => {
         const annot = d[1].map(x => `"${x[1]}"`)
-        return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}]  }`;
+        return `{ "prim": "${d[0]}", "args": [ ${d[3]}, ${d[5]}, ${d[7]} ], "annots": [${annot}] }`;
     }
 
     const pushToJson = d => {
@@ -615,7 +626,7 @@ semicolons -> [;]:?
 
     const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
-    const subContractToJson = d => `{ "prim":"CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, {"prim": "code" , "args":[ [ ${d[8]} ] ] } ] ] }`;
+    const subContractToJson = d => `{ "prim": "CREATE_CONTRACT", "args": [ [ ${d[4]}, ${d[6]}, { "prim": "code" , "args": [ [ ${d[8]} ] ] } ] ] }`;
 
     const instructionListToJson = d => {
         const instructionOne = [d[2]];

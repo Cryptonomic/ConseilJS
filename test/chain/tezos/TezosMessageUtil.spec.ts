@@ -53,7 +53,7 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal('ff');
     });
 
-    it('test boolean read function', () => {
+    it('test readBoolean function', () => {
         let result = TezosMessageUtils.readBoolean('00');
         expect(result).to.equal(false);
 
@@ -61,7 +61,7 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal(true);
     });
 
-    it('test int read function', () => {
+    it('test readInt function', () => {
         let result = TezosMessageUtils.readInt('05');
         expect(result).to.equal(5);
 
@@ -85,6 +85,11 @@ describe('Tezos P2P message codec helper tests', () => {
 
         result = TezosMessageUtils.readInt('80d683bba318');
         expect(result).to.equal(834152753920);
+    });
+
+    it('test readSignedInt function', () => {
+        let result = TezosMessageUtils.readSignedInt('8b858b81c289bfcefc2a');
+        expect(result).to.equal(198180477354428686667);
     });
 
     it('test writeInt function', () => {
@@ -125,7 +130,10 @@ describe('Tezos P2P message codec helper tests', () => {
 
         result = TezosMessageUtils.writeSignedInt(610913435200);
         expect(result).to.equal('80f9b9d4c723');
-        });
+
+        result = TezosMessageUtils.writeSignedInt('198180477354428686667');
+        expect(result).to.equal('8b858b81c289bfcefc2a');
+    });
 
         it('test findInt function', () => {
         let result = TezosMessageUtils.findInt('d3dade57fae2', 0);
@@ -257,6 +265,17 @@ describe('Tezos P2P message codec helper tests', () => {
 
         samples.map(s => {
             expect(TezosMessageUtils.readPackedData(s.in, 'michelson')).to.equal(s.out);
+        });
+    });
+
+    it('test lambda codec', () => {
+        const samples = [{
+            in: `Pair "NetXm8tYqnMWky1" (Pair 1 { DROP; NIL operation; PUSH address "KT1Hg6cTCKopUMojt899L9mNmXX9xyyJds45"; CONTRACT nat; IF_SOME {} { UNIT; FAILWITH }; PUSH mutez 0; PUSH nat 2; TRANSFER_TOKENS; CONS } )`,
+            out: '050707010000000f4e6574586d387459716e4d576b793109070000005e00010320053d036d0743036e01000000244b54314867366354434b6f70554d6f6a743839394c396d4e6d5858397879794a64733435055503620200000010072f0200000004034f032702000000000743036a0000074303620002034d031b00000000'
+        }];
+
+        samples.map(s => {
+            expect(TezosMessageUtils.writePackedData(s.in, 'michelson', TezosParameterFormat.Michelson)).to.equal(s.out);
         });
     });
 
