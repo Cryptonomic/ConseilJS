@@ -1,84 +1,109 @@
 [
+  { "prim": "storage", "args": [ { "prim": "sapling_state", "args": [ { "int": "8" } ] } ] },
   {
-    "prim": "storage",
+    "prim": "parameter",
     "args": [
       {
-        "prim": "pair",
+        "prim": "list",
         "args": [
-          { "prim": "option", "args": [ { "prim": "ticket", "args": [ { "prim": "int" } ] } ], "annots": [ "%x" ] },
-          { "prim": "option", "args": [ { "prim": "ticket", "args": [ { "prim": "string" } ] } ], "annots": [ "%y" ] }
+          {
+            "prim": "pair",
+            "args": [
+              { "prim": "option", "args": [ { "prim": "key_hash" } ], "annots": [ "%key" ] },
+              { "prim": "sapling_transaction", "args": [ { "int": "8" } ], "annots": [ "%transaction" ] }
+            ]
+          }
         ]
       }
     ]
   },
   {
-    "prim": "parameter",
-    "args": [ { "prim": "or", "args": [ { "prim": "unit", "annots": [ "%auto_call" ] }, { "prim": "ticket", "args": [ { "prim": "int" } ], "annots": [ "%run" ] } ] } ]
-  },
-  {
     "prim": "code",
     "args": [
       [
-        { "prim": "UNPAIR" },
+        { "prim": "DUP" },
+        { "prim": "CDR" },
+        { "prim": "SWAP" },
+        { "prim": "CAR" },
+        { "prim": "DUP" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "SWAP" },
         {
-          "prim": "IF_LEFT",
+          "prim": "ITER",
           "args": [
             [
-              { "prim": "DROP" },
-              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "43" } ] },
-              { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] },
-              { "prim": "TICKET" },
-              { "prim": "NIL", "args": [ { "prim": "operation" } ] },
-              { "prim": "SELF", "annots": [ "%run" ] },
-              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },
               { "prim": "DIG", "args": [ { "int": "3" } ] },
-              { "prim": "TRANSFER_TOKENS" },
-              { "prim": "CONS" }
-            ],
-            [
-              { "prim": "READ_TICKET" },
-              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "42" } ] },
-              { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "abc" } ] },
-              { "prim": "TICKET" },
-              { "prim": "DIG", "args": [ { "int": "3" } ] },
-              { "prim": "SWAP" },
-              { "prim": "SOME" },
-              { "prim": "SWAP" },
-              { "prim": "CAR" },
-              { "prim": "PAIR" },
-              { "prim": "DUG", "args": [ { "int": "2" } ] },
-              { "prim": "GET", "args": [ { "int": "4" } ] },
-              { "prim": "DUP" },
-              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "3" } ] },
-              { "prim": "SWAP" },
-              { "prim": "EDIV" },
-              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "20" } ] }, { "prim": "FAILWITH" } ], [ { "prim": "CAR" } ] ] },
               { "prim": "SWAP" },
               { "prim": "DUP" },
               { "prim": "DUG", "args": [ { "int": "2" } ] },
-              { "prim": "SUB" },
-              { "prim": "ISNAT" },
-              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "20" } ] }, { "prim": "FAILWITH" } ], [] ] },
-              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "3" } ] },
-              { "prim": "DIG", "args": [ { "int": "2" } ] },
-              { "prim": "EDIV" },
-              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "20" } ] }, { "prim": "FAILWITH" } ], [ { "prim": "CAR" } ] ] },
-              { "prim": "PAIR" },
-              { "prim": "SWAP" },
-              { "prim": "SPLIT_TICKET" },
-              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "20" } ] }, { "prim": "FAILWITH" } ], [] ] },
-              { "prim": "UNPAIR" },
-              { "prim": "SWAP" },
-              { "prim": "PAIR" },
-              { "prim": "JOIN_TICKETS" },
-              { "prim": "SWAP" },
               { "prim": "CDR" },
-              { "prim": "SWAP" },
-              { "prim": "PAIR" },
-              { "prim": "NIL", "args": [ { "prim": "operation" } ] }
+              { "prim": "SAPLING_VERIFY_UPDATE" },
+              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "10" } ] }, { "prim": "FAILWITH" } ], [] ] },
+              { "prim": "DUP" },
+              { "prim": "CDR" },
+              { "prim": "DUG", "args": [ { "int": "4" } ] },
+              { "prim": "DUP" },
+              { "prim": "CAR" },
+              { "prim": "DUP" },
+              { "prim": "ABS" },
+              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },
+              { "prim": "MUL" },
+              { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "0" } ] },
+              { "prim": "DIG", "args": [ { "int": "2" } ] },
+              { "prim": "DUP" },
+              { "prim": "DUG", "args": [ { "int": "3" } ] },
+              { "prim": "COMPARE" },
+              { "prim": "GT" },
+              {
+                "prim": "IF",
+                "args": [
+                  [
+                    { "prim": "SWAP" },
+                    { "prim": "DROP" },
+                    { "prim": "SWAP" },
+                    { "prim": "DROP" },
+                    { "prim": "DUG", "args": [ { "int": "2" } ] },
+                    { "prim": "CAR" },
+                    { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "15" } ] }, { "prim": "FAILWITH" } ], [] ] },
+                    { "prim": "IMPLICIT_ACCOUNT" },
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "UNIT" },
+                    { "prim": "TRANSFER_TOKENS" },
+                    { "prim": "CONS" }
+                  ],
+                  [
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "DROP" },
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "CAR" },
+                    {
+                      "prim": "IF_NONE",
+                      "args": [
+                        [ { "prim": "SWAP" }, { "prim": "DROP" } ],
+                        [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "WrongCondition: ~ operation.key.is_some()" } ] }, { "prim": "FAILWITH" } ]
+                      ]
+                    },
+                    { "prim": "AMOUNT" },
+                    { "prim": "COMPARE" },
+                    { "prim": "EQ" },
+                    {
+                      "prim": "IF",
+                      "args": [
+                        [],
+                        [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "WrongCondition: sp.amount == amount_tez.value" } ] }, { "prim": "FAILWITH" } ]
+                      ]
+                    }
+                  ]
+                ]
+              }
             ]
           ]
         },
+        { "prim": "SWAP" },
+        { "prim": "DROP" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "SWAP" },
+        { "prim": "ITER", "args": [ [ { "prim": "CONS" } ] ] },
         { "prim": "PAIR" }
       ]
     ]
