@@ -1,0 +1,105 @@
+parameter (list (pair (option %key key_hash) (sapling_transaction %transaction 8)));
+storage   (sapling_state 8);
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CDR;        # @storage : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @storage
+    CAR;        # @parameter : @storage
+    # == handle ==
+    # for operation in params: ... # @parameter : @storage
+    DUP;        # @parameter : @parameter : @storage
+    NIL operation; # list operation : @parameter : @parameter : @storage
+    SWAP;       # @parameter : list operation : @parameter : @storage
+    ITER
+      {
+        # result = sp.local("result", sp.sapling_verify_update(self.data.ledger, operation.transaction).open_some()) # pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : @storage
+        DIG 3;      # @storage : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        SWAP;       # pair (option %key key_hash) (sapling_transaction %transaction 8) : @storage : list operation : @parameter
+        DUP;        # pair (option %key key_hash) (sapling_transaction %transaction 8) : pair (option %key key_hash) (sapling_transaction %transaction 8) : @storage : list operation : @parameter
+        DUG 2;      # pair (option %key key_hash) (sapling_transaction %transaction 8) : @storage : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        CDR;        # sapling_transaction 8 : @storage : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        SAPLING_VERIFY_UPDATE; # option (pair int (sapling_state 8)) : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        IF_SOME
+          {}
+          {
+            PUSH int 10; # int : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+            FAILWITH;   # FAILED
+          }; # @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        # self.data.ledger = sp.snd(result.value) # @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        DUP;        # @some : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        CDR;        # sapling_state 8 : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter
+        DUG 4;      # @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        # amount = sp.local("amount", sp.fst(result.value)) # @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        DUP;        # @some : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        CAR;        # int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        # amount_tez = sp.local("amount_tez", sp.mutez(abs(amount.value))) # int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        DUP;        # int : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        ABS;        # nat : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        PUSH mutez 1; # mutez : nat : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        MUL;        # mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        # if amount.value > 0: # mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        PUSH int 0; # int : mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        DIG 2;      # int : int : mutez : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        DUP;        # int : int : int : mutez : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        DUG 3;      # int : int : mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        COMPARE;    # int : mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        GT;         # bool : mutez : int : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+        IF
+          {
+            SWAP;       # int : mutez : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            DROP;       # mutez : @some : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            SWAP;       # @some : mutez : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            DROP;       # mutez : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            # sp.transfer(sp.unit, amount_tez.value, sp.implicit_account(operation.key.open_some())) # mutez : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            DUG 2;      # pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : mutez : @parameter : sapling_state 8
+            CAR;        # option key_hash : list operation : mutez : @parameter : sapling_state 8
+            IF_SOME
+              {}
+              {
+                PUSH int 15; # int : list operation : mutez : @parameter : sapling_state 8
+                FAILWITH;   # FAILED
+              }; # @some : list operation : mutez : @parameter : sapling_state 8
+            IMPLICIT_ACCOUNT; # contract unit : list operation : mutez : @parameter : sapling_state 8
+            DIG 2;      # mutez : contract unit : list operation : @parameter : sapling_state 8
+            UNIT;       # unit : mutez : contract unit : list operation : @parameter : sapling_state 8
+            TRANSFER_TOKENS; # operation : list operation : @parameter : sapling_state 8
+            CONS;       # list operation : @parameter : sapling_state 8
+          }
+          {
+            DIG 2;      # @some : mutez : int : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            DROP;       # mutez : int : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            # sp.verify(~ operation.key.is_some()) # mutez : int : pair (option %key key_hash) (sapling_transaction %transaction 8) : list operation : @parameter : sapling_state 8
+            DIG 2;      # pair (option %key key_hash) (sapling_transaction %transaction 8) : mutez : int : list operation : @parameter : sapling_state 8
+            CAR;        # option key_hash : mutez : int : list operation : @parameter : sapling_state 8
+            IF_SOME
+              {
+                PUSH string "WrongCondition: ~ operation.key.is_some()"; # string : @some : mutez : int : list operation : @parameter : sapling_state 8
+                FAILWITH;   # FAILED
+              }
+              {
+                SWAP;       # int : mutez : list operation : @parameter : sapling_state 8
+                DROP;       # mutez : list operation : @parameter : sapling_state 8
+              }; # mutez : list operation : @parameter : sapling_state 8
+            # sp.verify(sp.amount == amount_tez.value) # mutez : list operation : @parameter : sapling_state 8
+            AMOUNT;     # mutez : mutez : list operation : @parameter : sapling_state 8
+            COMPARE;    # int : list operation : @parameter : sapling_state 8
+            EQ;         # bool : list operation : @parameter : sapling_state 8
+            IF
+              {}
+              {
+                PUSH string "WrongCondition: sp.amount == amount_tez.value"; # string : list operation : @parameter : sapling_state 8
+                FAILWITH;   # FAILED
+              }; # list operation : @parameter : sapling_state 8
+          }; # list operation : @parameter : sapling_state 8
+      }; # list operation : @parameter : @storage
+    SWAP;       # @parameter : list operation : @storage
+    DROP;       # list operation : @storage
+    NIL operation; # list operation : list operation : @storage
+    SWAP;       # list operation : list operation : @storage
+    ITER
+      {
+        CONS;       # list operation : @storage
+      }; # list operation : @storage
+    PAIR;       # pair (list operation) @storage
+  };

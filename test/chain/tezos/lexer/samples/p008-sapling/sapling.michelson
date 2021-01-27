@@ -1,0 +1,28 @@
+parameter (pair (sapling_state %s 15) (sapling_transaction %t 15));
+storage   (pair (pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)) (pair (option %y (option (pair int (sapling_state 15)))) (lambda %z int (pair int (sapling_state 8)))));
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CAR;        # @parameter : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @parameter
+    CDR;        # @storage : @parameter
+    # == entry_point_1 ==
+    # self.data.y = sp.some(sp.sapling_verify_update(params.s, params.t)) # @storage : @parameter
+    DUP;        # @storage : @storage : @parameter
+    CAR;        # pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x) : @storage : @parameter
+    SWAP;       # @storage : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x) : @parameter
+    CDR;        # pair (option %y (option (pair int (sapling_state 15)))) (lambda %z int (pair int (sapling_state 8))) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x) : @parameter
+    CDR;        # lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x) : @parameter
+    DIG 2;      # @parameter : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    DUP;        # @parameter : @parameter : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    CAR;        # sapling_state 15 : @parameter : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    SWAP;       # @parameter : sapling_state 15 : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    CDR;        # sapling_transaction 15 : sapling_state 15 : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    SAPLING_VERIFY_UPDATE; # option (pair int (sapling_state 15)) : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    SOME;       # option (option (pair int (sapling_state 15))) : lambda int (pair int (sapling_state 8)) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    PAIR;       # pair (option (option (pair int (sapling_state 15)))) (lambda int (pair int (sapling_state 8))) : pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)
+    SWAP;       # pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x) : pair (option (option (pair int (sapling_state 15)))) (lambda int (pair int (sapling_state 8)))
+    PAIR;       # pair (pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)) (pair (option (option (pair int (sapling_state 15)))) (lambda int (pair int (sapling_state 8))))
+    NIL operation; # list operation : pair (pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)) (pair (option (option (pair int (sapling_state 15)))) (lambda int (pair int (sapling_state 8))))
+    PAIR;       # pair (list operation) (pair (pair (lambda %h (pair (sapling_state %a 12) (sapling_transaction %b 12)) (option (pair int (sapling_state 12)))) (int %x)) (pair (option (option (pair int (sapling_state 15)))) (lambda int (pair int (sapling_state 8)))))
+  };
