@@ -136,8 +136,6 @@ export namespace WrappedTezosHelper {
     export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
-        console.log(JSON.stringify(storageResult));
-
         return {
             balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
             approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
