@@ -20,6 +20,9 @@ const operationTypes: Map<number, string> = new Map([
     [110, 'delegation'] // >=P005
 ]);
 
+/**
+ * Reverse lookup table for operation types
+ */
 const sepyTnoitarepo: Map<string, number> = [...operationTypes.keys()].reduce((m, k) => { const v = operationTypes.get(k) || ''; if (m[v] > k) { return m; }  return { ...m, [v]: k } }, new Map());
 
 export namespace TezosMessageCodec {
