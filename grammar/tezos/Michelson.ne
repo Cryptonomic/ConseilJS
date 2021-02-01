@@ -440,7 +440,7 @@ semicolons -> [;]:?
      * Given a int, convert it to JSON.
      * Example: "3" -> { "int": "3" }
      */
-    const intToJson = d => `{ "int": "${parseInt(d[0])}" }`;
+    const intToJson = d => `{ "int": "${d[0]}" }`;
 
     /**
      * Given a string, convert it to JSON.
