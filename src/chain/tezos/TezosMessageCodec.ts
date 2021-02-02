@@ -604,11 +604,12 @@ export namespace TezosMessageCodec {
         }
 
         if (!!origination.script) {
-            let parts: string[] = [];
+            let parts: object[] = [];
             parts.push(origination.script['code']); // full contract definition containing code, storage and parameters properties
             parts.push(origination.script['storage']); // initial storage
 
             hex += parts
+                .map(TezosLanguageUtil.normalizePrimitiveRecordOrder)
                 .map(p => TezosLanguageUtil.normalizeMichelineWhiteSpace(JSON.stringify(p)))
                 .map(p =>  TezosLanguageUtil.translateMichelineToHex(p))
                 .reduce((m, p) => { return m + ('0000000' + (p.length / 2).toString(16)).slice(-8) + p; }, '');
