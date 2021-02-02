@@ -4,6 +4,8 @@ import * as nearley from 'nearley';
 
 import { TezosMessageUtils } from './TezosMessageUtil';
 
+const primitiveRecordOrder = ["prim", "args", "annots"];
+
 /**
  * A collection of functions to encode and decode Michelson and Micheline code
  */
@@ -428,6 +430,27 @@ export namespace TezosLanguageUtil {
         const parts: string[] = [sections['parameter'], sections['storage'], sections['code']];
 
         return parts.map(p => p.trim().split('\n').map(l => l.replace(/\#[\s\S]+$/, '').trim()).filter(v => v.length > 0).join(' '));
+    }
+
+    /**
+     * This util function is used to ensure the correct order in primitive records before parsing it.
+     *
+     * Micheline parser expects the following JSON order { prim: ..., args: ..., annots: ... }
+     */
+    export function normalizePrimitiveRecordOrder(obj: object)  {
+        if (Array.isArray(obj)) {
+            return obj.map(normalizePrimitiveRecordOrder);
+        }
+
+        if (typeof obj === "object") {
+            return Object.keys(obj)
+                .sort((k1, k2) => primitiveRecordOrder.indexOf(k1) - primitiveRecordOrder.indexOf(k2))
+                .reduce((newObj, key) => ({
+                    ...newObj,
+                    [key]: normalizePrimitiveRecordOrder(obj[key])
+                }), {});
+        }
+        return obj;
     }
 
     /**
