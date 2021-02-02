@@ -303,6 +303,80 @@ describe("Tezos Michelson/Micheline fragment codec", () => {
         let result = TezosLanguageUtil.translateMichelineToHex(params);
         expect(result).to.equal('010000000568656c6c6f');
     });
+
+    it('Normalize Michelson JSON primitive record', () => {
+        let input = {
+            "prim": "parameter",
+            "args": [
+                {
+                    "prim": "list",
+                    "args": [
+                        {
+                            "prim": "pair",
+                            "args": [
+                                {
+                                    "prim": "sapling_transaction",
+                                    "annots": ["%transaction"],
+                                    "args": [
+                                        {
+                                            "int":"8"
+                                        }
+                                    ],
+                                },
+                                {
+                                    "prim": "option",
+                                    "annots": ["%key"],
+                                    "args": [
+                                        {
+                                            "prim":"key_hash"
+                                        }
+                                    ],
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+        let expectedOutput = {
+            "prim": "parameter",
+            "args": [
+                {
+                    "prim": "list",
+                    "args": [
+                        {
+                            "prim": "pair",
+                            "args": [
+                                {
+                                    "prim": "sapling_transaction",
+                                    "args": [
+                                        {
+                                            "int":"8"
+                                        }
+                                    ],
+                                    "annots": ["%transaction"],
+                                },
+                                {
+                                    "prim": "option",
+                                    "args": [
+                                        {
+                                            "prim":"key_hash"
+                                        }
+                                    ],
+                                    "annots": ["%key"],
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        /**
+         * Ensure that { prim: ..., annots: ..., args: ... } is ordered to => { prim: ..., args: ..., annots: ... }
+         */
+        expect(JSON.stringify(TezosLanguageUtil.normalizePrimitiveRecordOrder(input))).equal(JSON.stringify(expectedOutput));
+    });
 });
 
 function preProcessMicheline(code: string): string[] {
