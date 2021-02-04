@@ -1,0 +1,20 @@
+parameter (or (int %A) (never %B));
+storage   int;
+code
+  {
+    CAR;        # @parameter
+    # == entry_point_1 ==
+    # with params.match_cases(...): # @parameter
+    IF_LEFT
+      {
+        # sp.result(arg + 12) # @parameter%A
+        PUSH int 12; # int : @parameter%A
+        ADD;        # int
+      }
+      {
+        NEVER;      # FAILED
+      }; # int
+    # self.data.x = x.value # int
+    NIL operation; # list operation : int
+    PAIR;       # pair (list operation) int
+  };

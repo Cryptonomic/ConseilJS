@@ -1,0 +1,19 @@
+{
+  "prim": "Pair",
+  "args": [
+    { "prim": "Pair", "args": [ [ { "prim": "DUP" }, { "prim": "CAR" }, { "prim": "SWAP" }, { "prim": "CDR" }, { "prim": "SAPLING_VERIFY_UPDATE" } ], { "int": "12" } ] },
+    {
+      "prim": "Pair",
+      "args": [
+        { "prim": "None" },
+        [
+          { "prim": "SAPLING_EMPTY_STATE", "args": [ { "int": "8" } ] },
+          { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "1" } ] },
+          { "prim": "DIG", "args": [ { "int": "2" } ] },
+          { "prim": "ADD" },
+          { "prim": "PAIR" }
+        ]
+      ]
+    }
+  ]
+}

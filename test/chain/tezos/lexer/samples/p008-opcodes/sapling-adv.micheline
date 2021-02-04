@@ -1,5 +1,4 @@
 [
-  { "prim": "storage", "args": [ { "prim": "sapling_state", "args": [ { "int": "8" } ] } ] },
   {
     "prim": "parameter",
     "args": [
@@ -17,6 +16,7 @@
       }
     ]
   },
+  { "prim": "storage", "args": [ { "prim": "sapling_state", "args": [ { "int": "8" } ] } ] },
   {
     "prim": "code",
     "args": [

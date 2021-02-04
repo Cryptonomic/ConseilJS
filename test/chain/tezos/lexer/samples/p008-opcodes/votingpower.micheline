@@ -1,0 +1,34 @@
+[
+  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "nat", "annots": [ "%a" ] }, { "prim": "nat", "annots": [ "%b" ] } ] } ] },
+  { "prim": "parameter", "args": [ { "prim": "key" } ] },
+  {
+    "prim": "code",
+    "args": [
+      [
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "CDR" },
+        { "prim": "CDR" },
+        { "prim": "SWAP" },
+        { "prim": "DUP" },
+        { "prim": "DUG", "args": [ { "int": "2" } ] },
+        { "prim": "HASH_KEY" },
+        { "prim": "VOTING_POWER" },
+        { "prim": "PAIR" },
+        { "prim": "DUP" },
+        { "prim": "DUG", "args": [ { "int": "2" } ] },
+        { "prim": "CAR" },
+        { "prim": "TOTAL_VOTING_POWER" },
+        { "prim": "DIG", "args": [ { "int": "2" } ] },
+        { "prim": "DROP" },
+        { "prim": "DIG", "args": [ { "int": "2" } ] },
+        { "prim": "DROP" },
+        { "prim": "SWAP" },
+        { "prim": "PAIR" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "PAIR" }
+      ]
+    ]
+  }
+]

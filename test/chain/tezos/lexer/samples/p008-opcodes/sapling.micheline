@@ -1,5 +1,17 @@
 [
   {
+    "prim": "parameter",
+    "args": [
+      {
+        "prim": "pair",
+        "args": [
+          { "prim": "sapling_state", "args": [ { "int": "15" } ], "annots": [ "%s" ] },
+          { "prim": "sapling_transaction", "args": [ { "int": "15" } ], "annots": [ "%t" ] }
+        ]
+      }
+    ]
+  },
+  {
     "prim": "storage",
     "args": [
       {
@@ -40,18 +52,6 @@
               }
             ]
           }
-        ]
-      }
-    ]
-  },
-  {
-    "prim": "parameter",
-    "args": [
-      {
-        "prim": "pair",
-        "args": [
-          { "prim": "sapling_state", "args": [ { "int": "15" } ], "annots": [ "%s" ] },
-          { "prim": "sapling_transaction", "args": [ { "int": "15" } ], "annots": [ "%t" ] }
         ]
       }
     ]
