@@ -16,6 +16,7 @@ const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
 const log = LogSelector.log;
+const counterMatcher = new RegExp(/.*Counter [0-9]{1,} already used for contract.*/, 'gm');
 
 let operationQueues = {}
 
@@ -188,7 +189,7 @@ export namespace TezosNodeWriter {
      * @param {Operation[]} operations The operations to create and send
      * @param {Signer} signer Cryptographic signature provider
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
-     * @returns {Promise<OperationResult>}  The ID of the created operation group
+     * @returns {Promise<OperationResult>} The ID of the created operation group
      */
     export async function sendOperation(
         server: string,
@@ -306,14 +307,7 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction]);
-
-        if (optimizeFee) {
-            const estimate = await estimateOperation(server, 'main', ...operations);
-            transaction.fee = estimate.estimatedFee.toString();
-            transaction.gas_limit = estimate.gas.toString();
-            transaction.storage_limit = estimate.storageCost.toString();
-        }
+        const operations = await prepareOperation(server, keyStore, counter, transaction, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -348,14 +342,7 @@ export namespace TezosNodeWriter {
             delegate: delegate
         };
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [delegation]);
-
-        if (optimizeFee) {
-            const estimate = await estimateOperation(server, 'main', ...operations);
-            delegation.fee = estimate.estimatedFee.toString();
-            delegation.gas_limit = estimate.gas.toString();
-            delegation.storage_limit = estimate.storageCost.toString();
-        }
+        const operations = await prepareOperation(server, keyStore, counter, delegation, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -411,7 +398,7 @@ export namespace TezosNodeWriter {
         optimizeFee: boolean = false
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const operation = constructContractOriginationOperation(
+        const origination = constructContractOriginationOperation(
             keyStore,
             amount,
             delegate,
@@ -424,16 +411,7 @@ export namespace TezosNodeWriter {
             counter
         );
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
-
-        if (optimizeFee) {
-            const estimate = await estimateOperationGroup(server, 'main', operations);
-            operation.fee = estimate.estimatedFee.toString();
-            for (let i = 0; i < operations.length; i++) {
-                operation.gas_limit = estimate.operationResources[i].gas.toString();
-                operation.storage_limit = estimate.operationResources[i].storageCost.toString();
-            }
-        }
+        const operations = await prepareOperation(server, keyStore, counter, origination, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -468,10 +446,10 @@ export namespace TezosNodeWriter {
 
         if (codeFormat === TezosTypes.TezosParameterFormat.Michelson) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
-            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
+            log.debug(`TezosNodeWriter.constructContractOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
 
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
-            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
+            log.debug(`TezosNodeWriter.constructContractOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
         } else if (codeFormat === TezosTypes.TezosParameterFormat.Micheline) {
             parsedCode = JSON.parse(code);
             parsedStorage = JSON.parse(storage); // TODO: handle empty storage
@@ -524,14 +502,7 @@ export namespace TezosNodeWriter {
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction]);
-
-        if (optimizeFee) {
-            const estimate = await estimateOperation(server, 'main', transaction);
-            transaction.fee = estimate.estimatedFee.toString();
-            transaction.gas_limit = estimate.gas.toString();
-            transaction.storage_limit = estimate.storageCost.toString();
-        }
+        const operations = await prepareOperation(server, keyStore, counter, transaction, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -798,7 +769,9 @@ export namespace TezosNodeWriter {
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
-        const responseJSON = await dryRunOperation(server, chainid, ...operations);
+        const localOperations = [...operations].map(o => { return { ...o, gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString() } });
+
+        const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
         let gas = 0;
         let storageCost = 0;
@@ -807,7 +780,10 @@ export namespace TezosNodeWriter {
             try {
                 gas += parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
                 storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
-                if (c.kind === 'origination') { storageCost += TezosConstants.EmptyAccountStorageBurn; }
+
+                if (c.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
+                    storageCost += TezosConstants.EmptyAccountStorageBurn;
+                }
             } catch { }
 
             // Process internal operations if they are present.
@@ -818,7 +794,9 @@ export namespace TezosNodeWriter {
                 const result = internalOperation['result'];
                 gas += parseInt(result['consumed_gas']) || 0;
                 storageCost += parseInt(result['paid_storage_size_diff']) || 0;
-                if (result.kind === 'origination') { storageCost += TezosConstants.EmptyAccountStorageBurn; }
+                if (result.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
+                    storageCost += TezosConstants.EmptyAccountStorageBurn;
+                }
             }
         }
 
@@ -858,6 +836,30 @@ export namespace TezosNodeWriter {
     }
 
     /**
+     * Adds a Reveal operation if needed and optimizes fees if asked.
+     * 
+     * @param server 
+     * @param keyStore 
+     * @param counter 
+     * @param operation 
+     * @param optimizeFee 
+     */
+    async function prepareOperation(server: string, keyStore: KeyStore, counter: number, operation: any, optimizeFee: boolean = false) {
+        const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
+
+        if (optimizeFee) {
+            const estimate = await estimateOperationGroup(server, 'main', operationGroup);
+            operationGroup[0].fee = estimate.estimatedFee.toString();
+            for (let i = 0; i < operationGroup.length; i++) {
+                operationGroup[i].gas_limit = estimate.operationResources[i].gas.toString();
+                operationGroup[i].storage_limit = estimate.operationResources[i].storageCost.toString();
+            }
+        }
+
+        return operationGroup;
+    }
+
+    /**
      * This function checks if the server response contains an error. There are multiple formats for errors coming
      * back from the server, this method attempts to normalized them for downstream parsing.
      * 
@@ -873,7 +875,17 @@ export namespace TezosNodeWriter {
 
             if ('kind' in arr[0]) {
                 // TODO: show counter errors better: e.msg "already used for contract"
-                errors = arr.map(e => `(${e.kind}: ${e.id})`).join(', ');
+                errors = arr.map(e => {
+                    if (e.msg) {
+                        if (counterMatcher.test(e.msg)) {
+                            return `(${e.kind}: ${e.id}, counter already used)`;
+                        }
+
+                        return `(${e.kind}: ${e.id}, ${e.msg})`;
+                    }
+
+                    return `(${e.kind}: ${e.id})`;
+                }).join(', ');
             } else if (arr.length === 1 && arr[0].contents.length === 1 && arr[0].contents[0].kind === 'activate_account') {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
