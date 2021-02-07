@@ -740,9 +740,10 @@ export namespace TezosNodeWriter {
             );
         }
 
+        const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
         const gasLimitTotal = operationResources.map(r => r.gas).reduce((a, c) => a + c, 0);
         const storageLimitTotal = operationResources.map(r => r.storageCost).reduce((a, c) => a + c, 0);
-        const forgedOperationGroup = forgeOperations('BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz', operations);
+        const forgedOperationGroup = forgeOperations(validBranch, operations);
         const groupSize = forgedOperationGroup.length / 2 + 64; // operation group bytes + signature bytes
         let estimatedFee = Math.ceil(gasLimitTotal / 10) + TezosConstants.BaseOperationFee + groupSize + TezosConstants.DefaultBakerVig;
         const estimatedStorageBurn = Math.ceil(storageLimitTotal * TezosConstants.StorageRate);
@@ -800,7 +801,8 @@ export namespace TezosNodeWriter {
             }
         }
 
-        const forgedOperationGroup = forgeOperations('BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz', operations);
+        const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
+        const forgedOperationGroup = forgeOperations(validBranch, operations);
         const operationSize = forgedOperationGroup.length / 2 + 64; // operation bytes + signature bytes
         const estimatedFee = Math.ceil(gas / 10) + TezosConstants.BaseOperationFee + operationSize + TezosConstants.DefaultBakerVig;
         const estimatedStorageBurn = Math.ceil(storageCost * TezosConstants.StorageRate);
