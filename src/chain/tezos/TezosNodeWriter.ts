@@ -874,7 +874,6 @@ export namespace TezosNodeWriter {
             const arr = Array.isArray(json) ? json : [json];
 
             if ('kind' in arr[0]) {
-                // TODO: show counter errors better: e.msg "already used for contract"
                 errors = arr.map(e => {
                     if (e.msg) {
                         if (counterMatcher.test(e.msg)) {
@@ -923,12 +922,18 @@ export namespace TezosNodeWriter {
      * Processes `operation_result` and `internal_operation_results` objects from the RPC responses into an error string.
      */
     function parseRPCOperationResult(result: any): string {
-        if (result.status === 'failed') {
-            return `${result.status}: ${result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}`;
-        } else if (result.status === 'applied') {
-            return '';
-        } else { // backtracked, skipped
-            return result.status;
+        if (result.status !== 'applied') { // backtracked, skipped, failed
+            let error = result.status;
+            if (result.errors && result.errors.length > 0) {
+                try {
+                    error += result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ');
+                } catch {
+                    log.error(`failed to parse errors from '${result}'\n, PLEASE report this to the maintainers`);
+                }
+            }
+            return error;
         }
+
+        return ''; // applied
     }
 }
