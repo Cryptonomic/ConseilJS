@@ -1,0 +1,160 @@
+parameter (or (or (pair %add (bls12_381_fr %fr) (pair (bls12_381_g1 %g1) (bls12_381_g2 %g2))) (pair %mul bls12_381_fr bls12_381_fr)) (or (unit %negate) (or (list %pairing_check (pair bls12_381_g1 bls12_381_g2)) (unit %toInt))));
+storage   (pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))));
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CDR;        # @storage : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @storage
+    CAR;        # @parameter : @storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            SWAP;       # @storage : @parameter%add
+            # == add ==
+            # self.data.g1 += params.g1 # @storage : @parameter%add
+            DUP;        # @storage : @storage : @parameter%add
+            CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : @storage : @parameter%add
+            SWAP;       # @storage : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            DUP;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CAR;        # bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            DIG 3;      # @parameter%add : bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            DUP;        # @parameter%add : @parameter%add : bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            DUG 4;      # @parameter%add : bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair (bls12_381_g1 %g1) (bls12_381_g2 %g2) : bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CAR;        # bls12_381_g1 : bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            ADD;        # bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            PAIR;       # pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : @parameter%add
+            PAIR;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : @parameter%add
+            # self.data.g2 += params.g2 # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : @parameter%add
+            DUP;        # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : @parameter%add
+            CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : @parameter%add
+            SWAP;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            DUP;        # pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CAR;        # bls12_381_g1 : pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            DUP;        # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # option bls12_381_fr : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CAR;        # bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            DIG 4;      # @parameter%add : bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            DUP;        # @parameter%add : @parameter%add : bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            DUG 5;      # @parameter%add : bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # pair (bls12_381_g1 %g1) (bls12_381_g2 %g2) : bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            CDR;        # bls12_381_g2 : bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            ADD;        # bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            PAIR;       # pair bls12_381_g2 (option bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # bls12_381_g1 : pair bls12_381_g2 (option bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            PAIR;       # pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%add
+            SWAP;       # pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            PAIR;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : @parameter%add
+            # self.data.fr += params.fr # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : @parameter%add
+            DUP;        # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : @parameter%add
+            CDR;        # pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : @parameter%add
+            SWAP;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            DUP;        # pair (option %checkResult bool) (bls12_381_fr %fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            CAR;        # option bool : pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            SWAP;       # pair (option %checkResult bool) (bls12_381_fr %fr) : option bool : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            CDR;        # bls12_381_fr : option bool : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : @parameter%add
+            DIG 3;      # @parameter%add : bls12_381_fr : option bool : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            CAR;        # bls12_381_fr : bls12_381_fr : option bool : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            ADD;        # bls12_381_fr : option bool : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            SWAP;       # option bool : bls12_381_fr : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            PAIR;       # pair (option bool) bls12_381_fr : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            PAIR;       # pair (pair (option bool) bls12_381_fr) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)))
+          }
+          {
+            SWAP;       # @storage : @parameter%mul
+            # == mul ==
+            # self.data.mulResult = sp.some(sp.fst(params) * sp.snd(params)) # @storage : @parameter%mul
+            DUP;        # @storage : @storage : @parameter%mul
+            CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : @storage : @parameter%mul
+            SWAP;       # @storage : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            CDR;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            DUP;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            CAR;        # bls12_381_g1 : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            SWAP;       # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            CDR;        # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            CAR;        # bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr) : @parameter%mul
+            DIG 3;      # @parameter%mul : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            DUP;        # @parameter%mul : @parameter%mul : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            CDR;        # bls12_381_fr : @parameter%mul : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SWAP;       # @parameter%mul : bls12_381_fr : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            CAR;        # bls12_381_fr : bls12_381_fr : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            MUL;        # bls12_381_fr : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SOME;       # option bls12_381_fr : bls12_381_g2 : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SWAP;       # bls12_381_g2 : option bls12_381_fr : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            PAIR;       # pair bls12_381_g2 (option bls12_381_fr) : bls12_381_g1 : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SWAP;       # bls12_381_g1 : pair bls12_381_g2 (option bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            PAIR;       # pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SWAP;       # pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))
+            PAIR;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)))
+          }; # pair (pair (option bool) bls12_381_fr) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)))
+      }
+      {
+        IF_LEFT
+          {
+            DROP;       # @storage
+            # == negate ==
+            # self.data.g1 = - self.data.g1 # @storage
+            DUP;        # @storage : @storage
+            DUP;        # @storage : @storage : @storage
+            CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : @storage : @storage
+            SWAP;       # @storage : pair (option %checkResult bool) (bls12_381_fr %fr) : @storage
+            CDR;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr) : @storage
+            CDR;        # pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr) : @storage
+            DIG 2;      # @storage : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            CDR;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            CAR;        # bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            NEG;        # bls12_381_g1 : pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            PAIR;       # pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : pair (option %checkResult bool) (bls12_381_fr %fr)
+            SWAP;       # pair (option %checkResult bool) (bls12_381_fr %fr) : pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))
+            PAIR;       # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)))
+          }
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%pairing_check
+                # == pairing_check ==
+                # self.data.checkResult = sp.some(sp.pairing_check(params)) # @storage : @parameter%pairing_check
+                DUP;        # @storage : @storage : @parameter%pairing_check
+                CDR;        # pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : @storage : @parameter%pairing_check
+                SWAP;       # @storage : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : @parameter%pairing_check
+                CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : @parameter%pairing_check
+                CDR;        # bls12_381_fr : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)) : @parameter%pairing_check
+                DIG 2;      # @parameter%pairing_check : bls12_381_fr : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))
+                PAIRING_CHECK; # bool : bls12_381_fr : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))
+                SOME;       # option bool : bls12_381_fr : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))
+                PAIR;       # pair (option bool) bls12_381_fr : pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr))
+                PAIR;       # pair (pair (option bool) bls12_381_fr) (pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)))
+              }
+              {
+                DROP;       # @storage
+                # == toInt ==
+                # sp.verify((sp.to_int(self.data.fr)) == 35115637951021136697019058358166656987035571271296265805438287419849817743725, message = 'Failed to cast field element Fr to Int') # @storage
+                DUP;        # @storage : @storage
+                CAR;        # pair (option %checkResult bool) (bls12_381_fr %fr) : @storage
+                CDR;        # bls12_381_fr : @storage
+                INT;        # int : @storage
+                PUSH int 35115637951021136697019058358166656987035571271296265805438287419849817743725; # int : int : @storage
+                COMPARE;    # int : @storage
+                EQ;         # bool : @storage
+                IF
+                  {}
+                  {
+                    PUSH string "Failed to cast field element Fr to Int"; # string : @storage
+                    FAILWITH;   # FAILED
+                  }; # @storage
+              }; # pair (pair (option bool) bls12_381_fr) (pair (bls12_381_g1 %g1) (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)))
+          }; # pair (pair (option %checkResult bool) (bls12_381_fr %fr)) (pair bls12_381_g1 (pair (bls12_381_g2 %g2) (option %mulResult bls12_381_fr)))
+      }; # pair (pair (option bool) bls12_381_fr) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)))
+    NIL operation; # list operation : pair (pair (option bool) bls12_381_fr) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr)))
+    PAIR;       # pair (list operation) (pair (pair (option bool) bls12_381_fr) (pair bls12_381_g1 (pair bls12_381_g2 (option bls12_381_fr))))
+  };

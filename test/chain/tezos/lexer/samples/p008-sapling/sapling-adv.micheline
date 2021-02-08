@@ -1,0 +1,111 @@
+[
+  { "prim": "storage", "args": [ { "prim": "sapling_state", "args": [ { "int": "8" } ] } ] },
+  {
+    "prim": "parameter",
+    "args": [
+      {
+        "prim": "list",
+        "args": [
+          {
+            "prim": "pair",
+            "args": [
+              { "prim": "option", "args": [ { "prim": "key_hash" } ], "annots": [ "%key" ] },
+              { "prim": "sapling_transaction", "args": [ { "int": "8" } ], "annots": [ "%transaction" ] }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "prim": "code",
+    "args": [
+      [
+        { "prim": "DUP" },
+        { "prim": "CDR" },
+        { "prim": "SWAP" },
+        { "prim": "CAR" },
+        { "prim": "DUP" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "SWAP" },
+        {
+          "prim": "ITER",
+          "args": [
+            [
+              { "prim": "DIG", "args": [ { "int": "3" } ] },
+              { "prim": "SWAP" },
+              { "prim": "DUP" },
+              { "prim": "DUG", "args": [ { "int": "2" } ] },
+              { "prim": "CDR" },
+              { "prim": "SAPLING_VERIFY_UPDATE" },
+              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "10" } ] }, { "prim": "FAILWITH" } ], [] ] },
+              { "prim": "DUP" },
+              { "prim": "CDR" },
+              { "prim": "DUG", "args": [ { "int": "4" } ] },
+              { "prim": "DUP" },
+              { "prim": "CAR" },
+              { "prim": "DUP" },
+              { "prim": "ABS" },
+              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },
+              { "prim": "MUL" },
+              { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "0" } ] },
+              { "prim": "DIG", "args": [ { "int": "2" } ] },
+              { "prim": "DUP" },
+              { "prim": "DUG", "args": [ { "int": "3" } ] },
+              { "prim": "COMPARE" },
+              { "prim": "GT" },
+              {
+                "prim": "IF",
+                "args": [
+                  [
+                    { "prim": "SWAP" },
+                    { "prim": "DROP" },
+                    { "prim": "SWAP" },
+                    { "prim": "DROP" },
+                    { "prim": "DUG", "args": [ { "int": "2" } ] },
+                    { "prim": "CAR" },
+                    { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "15" } ] }, { "prim": "FAILWITH" } ], [] ] },
+                    { "prim": "IMPLICIT_ACCOUNT" },
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "UNIT" },
+                    { "prim": "TRANSFER_TOKENS" },
+                    { "prim": "CONS" }
+                  ],
+                  [
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "DROP" },
+                    { "prim": "DIG", "args": [ { "int": "2" } ] },
+                    { "prim": "CAR" },
+                    {
+                      "prim": "IF_NONE",
+                      "args": [
+                        [ { "prim": "SWAP" }, { "prim": "DROP" } ],
+                        [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "WrongCondition: ~ operation.key.is_some()" } ] }, { "prim": "FAILWITH" } ]
+                      ]
+                    },
+                    { "prim": "AMOUNT" },
+                    { "prim": "COMPARE" },
+                    { "prim": "EQ" },
+                    {
+                      "prim": "IF",
+                      "args": [
+                        [],
+                        [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "WrongCondition: sp.amount == amount_tez.value" } ] }, { "prim": "FAILWITH" } ]
+                      ]
+                    }
+                  ]
+                ]
+              }
+            ]
+          ]
+        },
+        { "prim": "SWAP" },
+        { "prim": "DROP" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "SWAP" },
+        { "prim": "ITER", "args": [ [ { "prim": "CONS" } ] ] },
+        { "prim": "PAIR" }
+      ]
+    ]
+  }
+]

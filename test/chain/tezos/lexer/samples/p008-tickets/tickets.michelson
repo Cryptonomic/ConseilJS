@@ -1,0 +1,98 @@
+parameter (or (unit %auto_call) (ticket %run int));
+storage   (pair (option %x (ticket int)) (option %y (ticket string)));
+code
+  {
+    UNPAIR;     # @parameter : @storage
+    IF_LEFT
+      {
+        DROP;       # @storage
+        # == auto_call ==
+        # ticket_11 = sp.local("ticket_11", sp.ticket(1, 43)) # @storage
+        PUSH nat 43; # nat : @storage
+        PUSH int 1; # int : nat : @storage
+        TICKET;     # ticket int : @storage
+        # sp.transfer(ticket_11.value, sp.tez(0), sp.self_entry_point('run')) # ticket int : @storage
+        NIL operation; # list operation : ticket int : @storage
+        SELF %run;  # contract (ticket int) : list operation : ticket int : @storage
+        PUSH mutez 0; # mutez : contract (ticket int) : list operation : ticket int : @storage
+        DIG 3;      # ticket int : mutez : contract (ticket int) : list operation : @storage
+        TRANSFER_TOKENS; # operation : list operation : @storage
+        CONS;       # list operation : @storage
+      }
+      {
+        # == run ==
+        # match_pair_17_fst, match_pair_17_snd = sp.match_tuple(sp.read_ticket(params), names = [ "match_pair_17_fst", "match_pair_17_snd" ]) # @parameter%run : @storage
+        READ_TICKET; # pair address (pair int nat) : ticket int : @storage
+        # ticket_18 = sp.local("ticket_18", sp.ticket('abc', 42)) # pair address (pair int nat) : ticket int : @storage
+        PUSH nat 42; # nat : pair address (pair int nat) : ticket int : @storage
+        PUSH string "abc"; # string : nat : pair address (pair int nat) : ticket int : @storage
+        TICKET;     # ticket string : pair address (pair int nat) : ticket int : @storage
+        # self.data.y = sp.some(ticket_18.value) # ticket string : pair address (pair int nat) : ticket int : @storage
+        DIG 3;      # @storage : ticket string : pair address (pair int nat) : ticket int
+        SWAP;       # ticket string : @storage : pair address (pair int nat) : ticket int
+        SOME;       # option (ticket string) : @storage : pair address (pair int nat) : ticket int
+        SWAP;       # @storage : option (ticket string) : pair address (pair int nat) : ticket int
+        CAR;        # option (ticket int) : option (ticket string) : pair address (pair int nat) : ticket int
+        PAIR;       # pair (option (ticket int)) (option (ticket string)) : pair address (pair int nat) : ticket int
+        DUG 2;      # pair address (pair int nat) : ticket int : pair (option (ticket int)) (option (ticket string))
+        # compute_19 = sp.local("compute_19", sp.snd(sp.snd(match_pair_17_fst))) # pair address (pair int nat) : ticket int : pair (option (ticket int)) (option (ticket string))
+        GET 4;      # nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        # split_ticket_20 = sp.local("split_ticket_20", sp.split_ticket(match_pair_17_snd, (compute_19.value // 3, sp.as_nat(compute_19.value - (compute_19.value // 3))))) # nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        DUP;        # nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        PUSH nat 3; # nat : nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        SWAP;       # nat : nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        EDIV;       # option (pair nat nat) : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        IF_SOME
+          {
+            CAR;        # nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+          }
+          {
+            PUSH int 20; # int : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+            FAILWITH;   # FAILED
+          }; # nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        SWAP;       # nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        DUP;        # nat : nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        DUG 2;      # nat : nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        SUB;        # int : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        ISNAT;      # option nat : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        IF_SOME
+          {}
+          {
+            PUSH int 20; # int : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+            FAILWITH;   # FAILED
+          }; # @some : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        PUSH nat 3; # nat : @some : nat : ticket int : pair (option (ticket int)) (option (ticket string))
+        DIG 2;      # nat : nat : @some : ticket int : pair (option (ticket int)) (option (ticket string))
+        EDIV;       # option (pair nat nat) : @some : ticket int : pair (option (ticket int)) (option (ticket string))
+        IF_SOME
+          {
+            CAR;        # nat : @some : ticket int : pair (option (ticket int)) (option (ticket string))
+          }
+          {
+            PUSH int 20; # int : @some : ticket int : pair (option (ticket int)) (option (ticket string))
+            FAILWITH;   # FAILED
+          }; # nat : @some : ticket int : pair (option (ticket int)) (option (ticket string))
+        PAIR;       # pair nat @some : ticket int : pair (option (ticket int)) (option (ticket string))
+        SWAP;       # ticket int : pair nat @some : pair (option (ticket int)) (option (ticket string))
+        SPLIT_TICKET; # option (pair (ticket int) (ticket int)) : pair (option (ticket int)) (option (ticket string))
+        # match_pair_21_fst, match_pair_21_snd = sp.match_tuple(split_ticket_20.value.open_some(), names = [ "match_pair_21_fst", "match_pair_21_snd" ]) # option (pair (ticket int) (ticket int)) : pair (option (ticket int)) (option (ticket string))
+        IF_SOME
+          {}
+          {
+            PUSH int 20; # int : pair (option (ticket int)) (option (ticket string))
+            FAILWITH;   # FAILED
+          }; # @some : pair (option (ticket int)) (option (ticket string))
+        UNPAIR;     # ticket int : ticket int : pair (option (ticket int)) (option (ticket string))
+        SWAP;       # ticket int : ticket int : pair (option (ticket int)) (option (ticket string))
+        # join_ticket_22 = sp.local("join_ticket_22", sp.join_tickets((match_pair_21_snd, match_pair_21_fst))) # ticket int : ticket int : pair (option (ticket int)) (option (ticket string))
+        PAIR;       # pair (ticket int) (ticket int) : pair (option (ticket int)) (option (ticket string))
+        JOIN_TICKETS; # option (ticket int) : pair (option (ticket int)) (option (ticket string))
+        SWAP;       # pair (option (ticket int)) (option (ticket string)) : option (ticket int)
+        # self.data.x = join_ticket_22.value # pair (option (ticket int)) (option (ticket string)) : option (ticket int)
+        CDR;        # option (ticket string) : option (ticket int)
+        SWAP;       # option (ticket int) : option (ticket string)
+        PAIR;       # pair (option (ticket int)) (option (ticket string))
+        NIL operation; # list operation : pair (option (ticket int)) (option (ticket string))
+      }; # list operation : @storage
+    PAIR;       # pair (list operation) @storage
+  };

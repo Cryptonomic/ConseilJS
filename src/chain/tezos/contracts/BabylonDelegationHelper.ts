@@ -125,7 +125,7 @@ export namespace BabylonDelegationHelper {
         return TezosNodeWriter.sendContractInvocationOperation(server, signer, keyStore, contract, amount, fee, 0, TezosConstants.P005ManagerContractDepositGasLimit, undefined, undefined);
     }
 
-    export function deployManagerContract(server: string, signer: Signer, keyStore: KeyStore, delegate: string, fee: number, amount: number): Promise<TezosTypes.OperationResult> {
+    export function deployManagerContract(server: string, signer: Signer, keyStore: KeyStore, delegate: string, fee: number, amount: number, optimizeFee = false): Promise<TezosTypes.OperationResult> {
         const code = `[ { "prim": "parameter",
         "args":
           [ { "prim": "or",
@@ -159,6 +159,6 @@ export namespace BabylonDelegationHelper {
                       { "prim": "PAIR" } ] ] } ] ] } ]`;
         const storage = `{ "string": "${keyStore.publicKeyHash}" }`;
 
-        return TezosNodeWriter.sendContractOriginationOperation(server, signer, keyStore, amount, delegate, fee, 600, 20000, code, storage, TezosTypes.TezosParameterFormat.Micheline);
+        return TezosNodeWriter.sendContractOriginationOperation(server, signer, keyStore, amount, delegate, fee, 600, 20000, code, storage, TezosTypes.TezosParameterFormat.Micheline, TezosConstants.HeadBranchOffset, optimizeFee);
     }
 }
