@@ -49,12 +49,12 @@ export namespace StakerDAOTokenHelper {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
         return {
-            mapid: Number(JSONPath({ path: '$.args[1].args[1].args[0].int', json: storageResult })[0]),
-            council: JSONPath({ path: '$.args[0].args[0].args[1]..string', json: storageResult }),
-            stage: Number(JSONPath({ path: '$.args[1].args[0].args[0].int', json: storageResult })[0]),
-            phase: Number(JSONPath({ path: '$.args[1].args[0].args[0].int', json: storageResult })[0]) % 4,
-            supply: Number(JSONPath({ path: '$.args[1].args[0].args[1].int', json: storageResult })[0]),
-            paused: (JSONPath({ path: '$.args[1].args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t')
+            mapid: Number(JSONPath({ path: '$.args[2].int', json: storageResult })[0]),
+            council: JSONPath({ path: '$.args[0].args[0]..string', json: storageResult }),
+            stage: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
+            phase: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]) % 4,
+            supply: Number(JSONPath({ path: '$.args[1].args[1].int', json: storageResult })[0]),
+            paused: (JSONPath({ path: '$.args[3].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t')
             //policy
             //proposals
             //votes
