@@ -79,7 +79,7 @@ const lexer = moo.compile({
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
         /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID',
         // Edo instructions
-        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS', 'SELF_ADDRESS'
+        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS', 'SELF_ADDRESS', 'LEVEL'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
