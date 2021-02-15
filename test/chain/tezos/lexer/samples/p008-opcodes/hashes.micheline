@@ -1,0 +1,28 @@
+[
+  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "bytes", "annots": [ "%keccak" ] }, { "prim": "bytes", "annots": [ "%sha3" ] } ] } ] },
+  { "prim": "parameter", "args": [ { "prim": "bytes" } ] },
+  {
+    "prim": "code",
+    "args": [
+      [
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "CDR" },
+        { "prim": "CDR" },
+        { "prim": "SWAP" },
+        { "prim": "DUP" },
+        { "prim": "DUG", "args": [ { "int": "2" } ] },
+        { "prim": "KECCAK" },
+        { "prim": "PAIR" },
+        { "prim": "SWAP" },
+        { "prim": "SHA3" },
+        { "prim": "SWAP" },
+        { "prim": "CAR" },
+        { "prim": "PAIR" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "PAIR" }
+      ]
+    ]
+  }
+]
