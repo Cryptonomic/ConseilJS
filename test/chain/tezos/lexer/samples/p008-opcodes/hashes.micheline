@@ -1,6 +1,6 @@
 [
-  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "bytes", "annots": [ "%keccak" ] }, { "prim": "bytes", "annots": [ "%sha3" ] } ] } ] },
   { "prim": "parameter", "args": [ { "prim": "bytes" } ] },
+  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "bytes", "annots": [ "%keccak" ] }, { "prim": "bytes", "annots": [ "%sha3" ] } ] } ] },
   {
     "prim": "code",
     "args": [

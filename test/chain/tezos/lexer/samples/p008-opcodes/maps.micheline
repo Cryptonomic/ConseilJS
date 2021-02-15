@@ -1,20 +1,5 @@
 [
   {
-    "prim": "storage",
-    "args": [
-      {
-        "prim": "pair",
-        "args": [
-          { "prim": "pair", "args": [ { "prim": "map", "args": [ { "prim": "int" }, { "prim": "string" } ], "annots": [ "%m" ] }, { "prim": "string", "annots": [ "%x" ] } ] },
-          {
-            "prim": "pair",
-            "args": [ { "prim": "option", "args": [ { "prim": "string" } ], "annots": [ "%y" ] }, { "prim": "option", "args": [ { "prim": "string" } ], "annots": [ "%z" ] } ]
-          }
-        ]
-      }
-    ]
-  },
-  {
     "prim": "parameter",
     "args": [
       {
@@ -57,6 +42,21 @@
                 ]
               }
             ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "prim": "storage",
+    "args": [
+      {
+        "prim": "pair",
+        "args": [
+          { "prim": "pair", "args": [ { "prim": "map", "args": [ { "prim": "int" }, { "prim": "string" } ], "annots": [ "%m" ] }, { "prim": "string", "annots": [ "%x" ] } ] },
+          {
+            "prim": "pair",
+            "args": [ { "prim": "option", "args": [ { "prim": "string" } ], "annots": [ "%y" ] }, { "prim": "option", "args": [ { "prim": "string" } ], "annots": [ "%z" ] } ]
           }
         ]
       }

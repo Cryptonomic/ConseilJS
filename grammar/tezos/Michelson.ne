@@ -33,9 +33,9 @@ const lexer = moo.compile({
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
-    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id'],
-    constantType: ['key', 'unit', 'signature', 'operation', 'address'],
-    singleArgType: ['option', 'list', 'set', 'contract'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id', /* Edo types*/ 'never'],
+    constantType: ['key', 'unit', 'signature', 'operation', 'address', /* Edo types */ 'bls12_381_fr', 'bls12_381_g1', 'bls12_381_g2'],
+    singleArgType: ['option', 'list', 'set', 'contract', 'ticket'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
         'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
@@ -48,7 +48,9 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID',
+        // Edo instructions
+        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -94,6 +96,10 @@ type ->
   | %lparen _ %constantType (_ %annot):+ _ %rparen {% comparableTypeToJson %}
   | %lparen _ %singleArgType (_ %annot):+ _ type %rparen {% singleArgTypeKeywordWithParenToJson %}
   | %lparen _ %doubleArgType (_ %annot):+ _ type _ type %rparen {% doubleArgTypeKeywordWithParenToJson %}
+  | %lparen _ "sapling_state" (_ %annot):+ _ %number %rparen {% saplingToJson %}
+  | %lparen _ "sapling_transaction" (_ %annot):+ _ %number %rparen {% saplingToJson %}
+  | %lparen _ "sapling_state" _ %number %rparen {% saplingToJson %}
+  | %lparen _ "sapling_transaction" _ %number %rparen {% saplingToJson %}
 
 typeData ->
     %singleArgType _ typeData {% singleArgKeywordToJson %}
@@ -440,7 +446,7 @@ semicolons -> [;]:?
      * Given a int, convert it to JSON.
      * Example: "3" -> { "int": "3" }
      */
-    const intToJson = d => `{ "int": "${parseInt(d[0])}" }`;
+    const intToJson = d => `{ "int": "${d[0]}" }`;
 
     /**
      * Given a string, convert it to JSON.
@@ -494,7 +500,7 @@ semicolons -> [;]:?
     const singleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
         if (check_dip(word)) {
-            return expandDIP(word, d[2])
+            return expandDIP(word, d[2]);
         } else {
             return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
@@ -606,6 +612,14 @@ semicolons -> [;]:?
     const pushWithAnnotsToJson = d => {
         const annot = d[1].map(x => `"${x[1]}"`)
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
+    }
+
+    const saplingToJson = d => {
+        if (d.length == 7) { // if there exists an annotation
+            const annot = d[3].map(x => `"${x[1]}"`);
+            return `{ "prim": "${d[2]}", "args": [ { "int": "${d[5]}" } ], "annots": [${annot}] }`;
+        } else
+            return `{ "prim": "${d[2]}", "args": [ { "int": "${d[4]}" } ] }`;
     }
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;

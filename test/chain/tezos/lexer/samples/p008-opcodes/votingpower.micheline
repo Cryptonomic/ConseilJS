@@ -1,6 +1,6 @@
 [
-  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "nat", "annots": [ "%a" ] }, { "prim": "nat", "annots": [ "%b" ] } ] } ] },
   { "prim": "parameter", "args": [ { "prim": "key" } ] },
+  { "prim": "storage", "args": [ { "prim": "pair", "args": [ { "prim": "nat", "annots": [ "%a" ] }, { "prim": "nat", "annots": [ "%b" ] } ] } ] },
   {
     "prim": "code",
     "args": [
