@@ -176,6 +176,17 @@ describe("Tezos P2P message encoder test suite", () => {
         expect(result).to.equal("6d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934e000000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
     });
 
+    it("correctly encode an activation operation", () => {
+        let activation: Activation = {
+            kind: "activate_account",
+            pkh: "tz1erMkoyqZBRvhuFoxHRnn8s7EpgTT63HHD",
+            secret: "912eb565c0194949644c4ef8888ad547aaf28154"
+        };
+
+        let result = TezosMessageCodec.encodeOperation(activation);
+        expect(result).to.equal("6d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934e000000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
+    });
+
     it("correctly encode a contract origination operation", () => {
         let origination: Origination = {
             kind: "origination",
