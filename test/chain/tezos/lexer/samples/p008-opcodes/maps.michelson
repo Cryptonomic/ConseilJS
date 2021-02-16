@@ -1,0 +1,211 @@
+parameter (or (or (or (unit %test_get_and_update) (map %test_map_get int string)) (or (map %test_map_get2 int string) (map %test_map_get_default_values int string))) (or (or (map %test_map_get_missing_value int string) (map %test_map_get_missing_value2 int string)) (or (map %test_map_get_opt int string) (unit %test_update_map))));
+storage   (pair (pair (map %m int string) (string %x)) (pair (option %y string) (option %z string)));
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CDR;        # @storage : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @storage
+    CAR;        # @parameter : @storage
+    IF_LEFT
+      {
+        IF_LEFT
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%test_get_and_update
+                # == test_get_and_update ==
+                # match_pair_46_fst, match_pair_46_snd = sp.match_tuple(sp.get_and_update(self.data.m, 1, sp.some('one')), names = [ "match_pair_46_fst", "match_pair_46_snd" ]) # @storage : @parameter%test_get_and_update
+                DUP;        # @storage : @storage : @parameter%test_get_and_update
+                DUG 2;      # @storage : @parameter%test_get_and_update : @storage
+                CAR;        # pair (map %m int string) (string %x) : @parameter%test_get_and_update : @storage
+                CAR;        # map int string : @parameter%test_get_and_update : @storage
+                PUSH (option string) (Some "one"); # option string : map int string : @parameter%test_get_and_update : @storage
+                PUSH int 1; # int : option string : map int string : @parameter%test_get_and_update : @storage
+                GET_AND_UPDATE; # option string : map int string : @parameter%test_get_and_update : @storage
+                SWAP;       # map int string : option string : @parameter%test_get_and_update : @storage
+                DROP;       # option string : @parameter%test_get_and_update : @storage
+                SWAP;       # @parameter%test_get_and_update : option string : @storage
+                DROP;       # option string : @storage
+                SWAP;       # @storage : option string
+                # self.data.z = match_pair_46_fst # @storage : option string
+                DUP;        # @storage : @storage : option string
+                CAR;        # pair (map %m int string) (string %x) : @storage : option string
+                SWAP;       # @storage : pair (map %m int string) (string %x) : option string
+                CDR;        # pair (option %y string) (option %z string) : pair (map %m int string) (string %x) : option string
+                CAR;        # option string : pair (map %m int string) (string %x) : option string
+                DIG 2;      # option string : option string : pair (map %m int string) (string %x)
+                SWAP;       # option string : option string : pair (map %m int string) (string %x)
+                PAIR;       # pair (option string) (option string) : pair (map %m int string) (string %x)
+                SWAP;       # pair (map %m int string) (string %x) : pair (option string) (option string)
+                PAIR;       # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+              }
+              {
+                SWAP;       # @storage : @parameter%test_map_get
+                # == test_map_get ==
+                # self.data.x = params[12] # @storage : @parameter%test_map_get
+                DUP;        # @storage : @storage : @parameter%test_map_get
+                CDR;        # pair (option %y string) (option %z string) : @storage : @parameter%test_map_get
+                SWAP;       # @storage : pair (option %y string) (option %z string) : @parameter%test_map_get
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string) : @parameter%test_map_get
+                CAR;        # map int string : pair (option %y string) (option %z string) : @parameter%test_map_get
+                DIG 2;      # @parameter%test_map_get : map int string : pair (option %y string) (option %z string)
+                PUSH int 12; # int : @parameter%test_map_get : map int string : pair (option %y string) (option %z string)
+                GET;        # option string : map int string : pair (option %y string) (option %z string)
+                IF_SOME
+                  {
+                    # of_some: Get-item:12 # @some : map int string : pair (option %y string) (option %z string)
+                  }
+                  {
+                    PUSH int 12; # int : map int string : pair (option %y string) (option %z string)
+                    FAILWITH;   # FAILED
+                  }; # @some : map int string : pair (option %y string) (option %z string)
+                SWAP;       # map int string : @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+              }; # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+          }
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%test_map_get2
+                # == test_map_get2 ==
+                # self.data.x = params[12] # @storage : @parameter%test_map_get2
+                DUP;        # @storage : @storage : @parameter%test_map_get2
+                CDR;        # pair (option %y string) (option %z string) : @storage : @parameter%test_map_get2
+                SWAP;       # @storage : pair (option %y string) (option %z string) : @parameter%test_map_get2
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string) : @parameter%test_map_get2
+                CAR;        # map int string : pair (option %y string) (option %z string) : @parameter%test_map_get2
+                DIG 2;      # @parameter%test_map_get2 : map int string : pair (option %y string) (option %z string)
+                PUSH int 12; # int : @parameter%test_map_get2 : map int string : pair (option %y string) (option %z string)
+                GET;        # option string : map int string : pair (option %y string) (option %z string)
+                IF_SOME
+                  {
+                    # of_some: Get-item:17 # @some : map int string : pair (option %y string) (option %z string)
+                  }
+                  {
+                    PUSH int 17; # int : map int string : pair (option %y string) (option %z string)
+                    FAILWITH;   # FAILED
+                  }; # @some : map int string : pair (option %y string) (option %z string)
+                SWAP;       # map int string : @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+              }
+              {
+                SWAP;       # @storage : @parameter%test_map_get_default_values
+                # == test_map_get_default_values ==
+                # self.data.x = params.get(12, default_value = 'abc') # @storage : @parameter%test_map_get_default_values
+                DUP;        # @storage : @storage : @parameter%test_map_get_default_values
+                CDR;        # pair (option %y string) (option %z string) : @storage : @parameter%test_map_get_default_values
+                SWAP;       # @storage : pair (option %y string) (option %z string) : @parameter%test_map_get_default_values
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string) : @parameter%test_map_get_default_values
+                CAR;        # map int string : pair (option %y string) (option %z string) : @parameter%test_map_get_default_values
+                DIG 2;      # @parameter%test_map_get_default_values : map int string : pair (option %y string) (option %z string)
+                PUSH int 12; # int : @parameter%test_map_get_default_values : map int string : pair (option %y string) (option %z string)
+                GET;        # option string : map int string : pair (option %y string) (option %z string)
+                IF_SOME
+                  {
+                    # of_some: Get-item:28 # @some : map int string : pair (option %y string) (option %z string)
+                  }
+                  {
+                    PUSH string "abc"; # string : map int string : pair (option %y string) (option %z string)
+                  }; # @some : map int string : pair (option %y string) (option %z string)
+                SWAP;       # map int string : @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+              }; # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+          }; # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+      }
+      {
+        IF_LEFT
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%test_map_get_missing_value
+                # == test_map_get_missing_value ==
+                # self.data.x = params.get(12, message = 'missing 12') # @storage : @parameter%test_map_get_missing_value
+                DUP;        # @storage : @storage : @parameter%test_map_get_missing_value
+                CDR;        # pair (option %y string) (option %z string) : @storage : @parameter%test_map_get_missing_value
+                SWAP;       # @storage : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value
+                CAR;        # map int string : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value
+                DIG 2;      # @parameter%test_map_get_missing_value : map int string : pair (option %y string) (option %z string)
+                PUSH int 12; # int : @parameter%test_map_get_missing_value : map int string : pair (option %y string) (option %z string)
+                GET;        # option string : map int string : pair (option %y string) (option %z string)
+                IF_SOME
+                  {
+                    # of_some: Get-item:33 # @some : map int string : pair (option %y string) (option %z string)
+                  }
+                  {
+                    PUSH string "missing 12"; # string : map int string : pair (option %y string) (option %z string)
+                    FAILWITH;   # FAILED
+                  }; # @some : map int string : pair (option %y string) (option %z string)
+                SWAP;       # map int string : @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+              }
+              {
+                SWAP;       # @storage : @parameter%test_map_get_missing_value2
+                # == test_map_get_missing_value2 ==
+                # self.data.x = params.get(12, message = 1234) # @storage : @parameter%test_map_get_missing_value2
+                DUP;        # @storage : @storage : @parameter%test_map_get_missing_value2
+                CDR;        # pair (option %y string) (option %z string) : @storage : @parameter%test_map_get_missing_value2
+                SWAP;       # @storage : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value2
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value2
+                CAR;        # map int string : pair (option %y string) (option %z string) : @parameter%test_map_get_missing_value2
+                DIG 2;      # @parameter%test_map_get_missing_value2 : map int string : pair (option %y string) (option %z string)
+                PUSH int 12; # int : @parameter%test_map_get_missing_value2 : map int string : pair (option %y string) (option %z string)
+                GET;        # option string : map int string : pair (option %y string) (option %z string)
+                IF_SOME
+                  {
+                    # of_some: Get-item:38 # @some : map int string : pair (option %y string) (option %z string)
+                  }
+                  {
+                    PUSH int 1234; # int : map int string : pair (option %y string) (option %z string)
+                    FAILWITH;   # FAILED
+                  }; # @some : map int string : pair (option %y string) (option %z string)
+                SWAP;       # map int string : @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) @some : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+              }; # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+          }
+          {
+            IF_LEFT
+              {
+                SWAP;       # @storage : @parameter%test_map_get_opt
+                # == test_map_get_opt ==
+                # self.data.y = params.get_opt(12) # @storage : @parameter%test_map_get_opt
+                DUP;        # @storage : @storage : @parameter%test_map_get_opt
+                CAR;        # pair (map %m int string) (string %x) : @storage : @parameter%test_map_get_opt
+                SWAP;       # @storage : pair (map %m int string) (string %x) : @parameter%test_map_get_opt
+                CDR;        # pair (option %y string) (option %z string) : pair (map %m int string) (string %x) : @parameter%test_map_get_opt
+                CDR;        # option string : pair (map %m int string) (string %x) : @parameter%test_map_get_opt
+                DIG 2;      # @parameter%test_map_get_opt : option string : pair (map %m int string) (string %x)
+                PUSH int 12; # int : @parameter%test_map_get_opt : option string : pair (map %m int string) (string %x)
+                GET;        # option string : option string : pair (map %m int string) (string %x)
+                PAIR;       # pair (option string) (option string) : pair (map %m int string) (string %x)
+                SWAP;       # pair (map %m int string) (string %x) : pair (option string) (option string)
+                PAIR;       # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+              }
+              {
+                DROP;       # @storage
+                # == test_update_map ==
+                # self.data.m[1] = 'one' # @storage
+                DUP;        # @storage : @storage
+                CDR;        # pair (option %y string) (option %z string) : @storage
+                SWAP;       # @storage : pair (option %y string) (option %z string)
+                CAR;        # pair (map %m int string) (string %x) : pair (option %y string) (option %z string)
+                DUP;        # pair (map %m int string) (string %x) : pair (map %m int string) (string %x) : pair (option %y string) (option %z string)
+                CDR;        # string : pair (map %m int string) (string %x) : pair (option %y string) (option %z string)
+                SWAP;       # pair (map %m int string) (string %x) : string : pair (option %y string) (option %z string)
+                CAR;        # map int string : string : pair (option %y string) (option %z string)
+                PUSH (option string) (Some "one"); # option string : map int string : string : pair (option %y string) (option %z string)
+                PUSH int 1; # int : option string : map int string : string : pair (option %y string) (option %z string)
+                UPDATE;     # map int string : string : pair (option %y string) (option %z string)
+                PAIR;       # pair (map int string) string : pair (option %y string) (option %z string)
+                PAIR;       # pair (pair (map int string) string) (pair (option %y string) (option %z string))
+              }; # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+          }; # pair (pair (map int string) @some) (pair (option %y string) (option %z string))
+      }; # pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+    NIL operation; # list operation : pair (pair (map %m int string) (string %x)) (pair (option string) (option string))
+    PAIR;       # pair (list operation) (pair (pair (map %m int string) (string %x)) (pair (option string) (option string)))
+  };

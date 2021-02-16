@@ -1,0 +1,15 @@
+[
+  { "prim": "parameter", "args": [ { "prim": "or", "args": [ { "prim": "int", "annots": [ "%A" ] }, { "prim": "never", "annots": [ "%B" ] } ] } ] },
+  { "prim": "storage", "args": [ { "prim": "int" } ] },
+  {
+    "prim": "code",
+    "args": [
+      [
+        { "prim": "CAR" },
+        { "prim": "IF_LEFT", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "12" } ] }, { "prim": "ADD" } ], [ { "prim": "NEVER" } ] ] },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "PAIR" }
+      ]
+    ]
+  }
+]

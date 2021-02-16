@@ -1,0 +1,116 @@
+[
+  {
+    "prim": "parameter",
+    "args": [
+      {
+        "prim": "pair",
+        "args": [
+          { "prim": "sapling_state", "args": [ { "int": "15" } ], "annots": [ "%s" ] },
+          { "prim": "sapling_transaction", "args": [ { "int": "15" } ], "annots": [ "%t" ] }
+        ]
+      }
+    ]
+  },
+  {
+    "prim": "storage",
+    "args": [
+      {
+        "prim": "pair",
+        "args": [
+          {
+            "prim": "pair",
+            "args": [
+              {
+                "prim": "lambda",
+                "args": [
+                  {
+                    "prim": "pair",
+                    "args": [
+                      { "prim": "sapling_state", "args": [ { "int": "12" } ], "annots": [ "%a" ] },
+                      { "prim": "sapling_transaction", "args": [ { "int": "12" } ], "annots": [ "%b" ] }
+                    ]
+                  },
+                  { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "int" }, { "prim": "sapling_state", "args": [ { "int": "12" } ] } ] } ] }
+                ],
+                "annots": [ "%h" ]
+              },
+              { "prim": "sapling_state", "args": [ { "int": "8" } ], "annots": [ "%state" ] }
+            ]
+          },
+          {
+            "prim": "pair",
+            "args": [
+              { "prim": "int", "annots": [ "%x" ] },
+              {
+                "prim": "pair",
+                "args": [
+                  {
+                    "prim": "option",
+                    "args": [ { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "int" }, { "prim": "sapling_state", "args": [ { "int": "15" } ] } ] } ] } ],
+                    "annots": [ "%y" ]
+                  },
+                  {
+                    "prim": "lambda",
+                    "args": [ { "prim": "int" }, { "prim": "pair", "args": [ { "prim": "int" }, { "prim": "sapling_state", "args": [ { "int": "8" } ] } ] } ],
+                    "annots": [ "%z" ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "prim": "code",
+    "args": [
+      [
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "CDR" },
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "CDR" },
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "CDR" },
+        { "prim": "CDR" },
+        { "prim": "DIG", "args": [ { "int": "3" } ] },
+        { "prim": "DUP" },
+        { "prim": "CAR" },
+        { "prim": "SWAP" },
+        { "prim": "DUP" },
+        { "prim": "DUG", "args": [ { "int": "5" } ] },
+        { "prim": "CDR" },
+        { "prim": "SAPLING_VERIFY_UPDATE" },
+        { "prim": "SOME" },
+        { "prim": "PAIR" },
+        { "prim": "SWAP" },
+        { "prim": "PAIR" },
+        { "prim": "SWAP" },
+        { "prim": "PAIR" },
+        { "prim": "DUP" },
+        { "prim": "DUG", "args": [ { "int": "2" } ] },
+        { "prim": "DUP" },
+        { "prim": "CDR" },
+        { "prim": "SWAP" },
+        { "prim": "CAR" },
+        { "prim": "CAR" },
+        { "prim": "SAPLING_EMPTY_STATE", "args": [ { "int": "8" } ] },
+        { "prim": "DIG", "args": [ { "int": "3" } ] },
+        { "prim": "DROP" },
+        { "prim": "DIG", "args": [ { "int": "3" } ] },
+        { "prim": "DROP" },
+        { "prim": "SWAP" },
+        { "prim": "PAIR" },
+        { "prim": "PAIR" },
+        { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+        { "prim": "PAIR" }
+      ]
+    ]
+  }
+]

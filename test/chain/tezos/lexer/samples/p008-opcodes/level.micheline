@@ -1,0 +1,5 @@
+[
+  { "prim": "parameter", "args": [ { "prim": "unit" } ] },
+  { "prim": "storage", "args": [ { "prim": "nat" } ] },
+  { "prim": "code", "args": [ [ { "prim": "DROP" }, { "prim": "LEVEL" }, { "prim": "NIL", "args": [ { "prim": "operation" } ] }, { "prim": "PAIR" } ] ] }
+]

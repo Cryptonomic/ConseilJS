@@ -62,9 +62,9 @@ const lexer = moo.compile({
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
-    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id'],
-    constantType: ['key', 'unit', 'signature', 'operation', 'address'],
-    singleArgType: ['option', 'list', 'set', 'contract'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id', /* Edo types*/ 'never'],
+    constantType: ['key', 'unit', 'signature', 'operation', 'address', /* Edo types */ 'bls12_381_fr', 'bls12_381_g1', 'bls12_381_g2'],
+    singleArgType: ['option', 'list', 'set', 'contract', 'ticket'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
         'COMPARE', 'CONCAT', 'CONS', 'CONTRACT', /*'CREATE_CONTRACT',*/ 'DIP', /*'DROP',*/ /*'DUP',*/ 'EDIV', /*'EMPTY_MAP',*/
@@ -77,7 +77,9 @@ const lexer = moo.compile({
         'IF_SOME', // TODO: macro
         'IFCMPEQ', 'IFCMPNEQ', 'IFCMPLT', 'IFCMPGT', 'IFCMPLE', 'IFCMPGE', 'CMPEQ', 'CMPNEQ', 'CMPLT', 'CMPGT', 'CMPLE',
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
-        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID'
+        /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID',
+        // Edo instructions
+        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS', 'SELF_ADDRESS', 'LEVEL'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
@@ -393,7 +395,7 @@ const lexer = moo.compile({
     const singleArgInstrKeywordToJson = d => {
         const word = `${d[0].toString()}`
         if (check_dip(word)) {
-            return expandDIP(word, d[2])
+            return expandDIP(word, d[2]);
         } else {
             return `{ "prim": "${d[0]}", "args": [ [ ${d[2]} ] ] }`; /*TODO: [] double-wrapping here is Bad*/
         }
@@ -423,7 +425,7 @@ const lexer = moo.compile({
     const doubleArgKeywordToJson = d => {
         if (d.length === 7) {
             /*
-                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
+                This handles the case where a blank {} for %subInstruction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
             */
             return `{ "prim": "${d[0]}", "args": [ ${d[2]}, [] ] }`;
         } else {
@@ -505,6 +507,14 @@ const lexer = moo.compile({
     const pushWithAnnotsToJson = d => {
         const annot = d[1].map(x => `"${x[1]}"`)
         return `{ "prim": "PUSH", "args": [ ${d[3]}, ${d[5]} ], "annots": [${annot}]  }`;
+    }
+
+    const saplingToJson = d => {
+        if (d.length == 7) { // if there exists an annotation
+            const annot = d[3].map(x => `"${x[1]}"`);
+            return `{ "prim": "${d[2]}", "args": [ { "int": "${d[5]}" } ], "annots": [${annot}] }`;
+        } else
+            return `{ "prim": "${d[2]}", "args": [ { "int": "${d[4]}" } ] }`;
     }
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
@@ -616,6 +626,18 @@ const grammar: Grammar = {
     {"name": "type$ebnf$6$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "type$ebnf$6", "symbols": ["type$ebnf$6", "type$ebnf$6$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
     {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "type$ebnf$6", "_", "type", "_", "type", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": doubleArgTypeKeywordWithParenToJson},
+    {"name": "type$ebnf$7$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "type$ebnf$7", "symbols": ["type$ebnf$7$subexpression$1"]},
+    {"name": "type$ebnf$7$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "type$ebnf$7", "symbols": ["type$ebnf$7", "type$ebnf$7$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", {"literal":"sapling_state"}, "type$ebnf$7", "_", (lexer.has("number") ? {type: "number"} : number), (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": saplingToJson},
+    {"name": "type$ebnf$8$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "type$ebnf$8", "symbols": ["type$ebnf$8$subexpression$1"]},
+    {"name": "type$ebnf$8$subexpression$2", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
+    {"name": "type$ebnf$8", "symbols": ["type$ebnf$8", "type$ebnf$8$subexpression$2"], "postprocess": (d) => d[0].concat([d[1]])},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", {"literal":"sapling_transaction"}, "type$ebnf$8", "_", (lexer.has("number") ? {type: "number"} : number), (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": saplingToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", {"literal":"sapling_state"}, "_", (lexer.has("number") ? {type: "number"} : number), (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": saplingToJson},
+    {"name": "type", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", {"literal":"sapling_transaction"}, "_", (lexer.has("number") ? {type: "number"} : number), (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": saplingToJson},
     {"name": "typeData", "symbols": [(lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData"], "postprocess": singleArgKeywordToJson},
     {"name": "typeData", "symbols": [(lexer.has("lparen") ? {type: "lparen"} : lparen), "_", (lexer.has("singleArgType") ? {type: "singleArgType"} : singleArgType), "_", "typeData", "_", (lexer.has("rparen") ? {type: "rparen"} : rparen)], "postprocess": singleArgKeywordWithParenToJson},
     {"name": "typeData", "symbols": [(lexer.has("doubleArgType") ? {type: "doubleArgType"} : doubleArgType), "_", "typeData", "_", "typeData"], "postprocess": doubleArgKeywordToJson},
