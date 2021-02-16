@@ -23,7 +23,7 @@ describe("TezosContractIntrospector test", () => {
         registerFetch(fetch);
     }));
 
-    it('getAccountForBlock test', mochaAsync(async () => {
+    it('default/string test', mochaAsync(async () => {
         const server = nock(serverConfig.url);
         server
             .filteringRequestBody(body => '*')

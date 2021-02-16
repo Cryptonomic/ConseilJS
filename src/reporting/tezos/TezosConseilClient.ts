@@ -1,4 +1,4 @@
-import { ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection } from "../../types/conseil/QueryTypes"
+import { ConseilQuery, ConseilOperator, ConseilServerInfo, ConseilSortDirection, ConseilFunction } from "../../types/conseil/QueryTypes"
 import { OperationKindType } from "../../types/tezos/TezosChainTypes";
 import { ContractMapDetails, ContractMapDetailsItem } from '../../types/conseil/ConseilTezosTypes';
 import LogSelector from '../../utils/LoggerSelector';
@@ -422,5 +422,20 @@ export namespace TezosConseilClient {
         }
 
         throw new Error('Invalid id parameter');
+    }
+
+    export async function countKeysInMap(serverInfo: ConseilServerInfo, mapIndex: number): Promise<number> {
+        let countQuery = ConseilQueryBuilder.blankQuery();
+        countQuery = ConseilQueryBuilder.addFields(countQuery, 'key');
+        countQuery = ConseilQueryBuilder.addPredicate(countQuery, 'big_map_id', ConseilOperator.EQ, [mapIndex]);
+        countQuery = ConseilQueryBuilder.addAggregationFunction(countQuery, 'key', ConseilFunction.count);
+        countQuery = ConseilQueryBuilder.setLimit(countQuery, 1);
+        const result = await ConseilDataClient.executeEntityQuery(serverInfo, 'tezos', serverInfo.network, 'big_map_contents', countQuery);
+        
+        try {
+            return result[0]['count_key'];
+        } catch {
+            return -1;
+        }
     }
 }

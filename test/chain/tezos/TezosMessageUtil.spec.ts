@@ -53,7 +53,7 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal('ff');
     });
 
-    it('test boolean read function', () => {
+    it('test readBoolean function', () => {
         let result = TezosMessageUtils.readBoolean('00');
         expect(result).to.equal(false);
 
@@ -61,7 +61,7 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal(true);
     });
 
-    it('test int read function', () => {
+    it('test readInt function', () => {
         let result = TezosMessageUtils.readInt('05');
         expect(result).to.equal(5);
 
@@ -85,6 +85,11 @@ describe('Tezos P2P message codec helper tests', () => {
 
         result = TezosMessageUtils.readInt('80d683bba318');
         expect(result).to.equal(834152753920);
+    });
+
+    it('test readSignedInt function', () => {
+        let result = TezosMessageUtils.readSignedInt('8b858b81c289bfcefc2a');
+        expect(result).to.equal(198180477354428686667);
     });
 
     it('test writeInt function', () => {
@@ -125,7 +130,10 @@ describe('Tezos P2P message codec helper tests', () => {
 
         result = TezosMessageUtils.writeSignedInt(610913435200);
         expect(result).to.equal('80f9b9d4c723');
-        });
+
+        result = TezosMessageUtils.writeSignedInt('198180477354428686667');
+        expect(result).to.equal('8b858b81c289bfcefc2a');
+    });
 
         it('test findInt function', () => {
         let result = TezosMessageUtils.findInt('d3dade57fae2', 0);

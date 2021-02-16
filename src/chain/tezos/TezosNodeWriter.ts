@@ -16,6 +16,7 @@ const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
 const log = LogSelector.log;
+const counterMatcher = new RegExp(/.*Counter [0-9]{1,} already used for contract.*/, 'gm');
 
 let operationQueues = {}
 
@@ -108,6 +109,28 @@ export namespace TezosNodeWriter {
     }
 
     /**
+     * Pack a Micheline structure subject to the provided type. Returns a hex string from the server.
+     * 
+     * This method is not a trustless. It is available because the internal Micheline converter is not yet 100% complete.
+     * 
+     * @deprecated
+    */
+    export async function packDataRemotely(server: string, data: string, type: string, gas: number = TezosConstants.OperationGasCap, chainid: string = 'main'): Promise<string> {
+        log.debug('TezosNodeWriter.packDataRemotely:');
+        log.debug(JSON.stringify(data));
+        log.warn('packDataRemotely() is not intrinsically trustless');
+
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/pack_data`, { data, type, gas: `${gas}`});
+        const jsonResponse = await response.json();
+
+        try {
+            return jsonResponse.packed;
+        } catch (e) {
+            throw new Error(`Could not pack ${data} as ${type}; error ${e}`);
+        }
+    }
+
+    /**
      * Applies an operation using the Tezos RPC client.
      *
      * @param {string} server Tezos node to connect to
@@ -166,9 +189,13 @@ export namespace TezosNodeWriter {
      * @param {Operation[]} operations The operations to create and send
      * @param {Signer} signer Cryptographic signature provider
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
-     * @returns {Promise<OperationResult>}  The ID of the created operation group
+     * @returns {Promise<OperationResult>} The ID of the created operation group
      */
-    export async function sendOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer, offset: number = 54): Promise<TezosTypes.OperationResult> {
+    export async function sendOperation(
+        server: string,
+        operations: TezosP2PMessageTypes.Operation[],
+        signer: Signer,
+        offset: number = TezosConstants.HeadBranchOffset): Promise<TezosTypes.OperationResult> {
         const blockHead = await TezosNodeReader.getBlockAtOffset(server, offset);
         const blockHash = blockHead.hash.slice(0, 51); // consider throwing an error instead
 
@@ -231,8 +258,8 @@ export namespace TezosNodeWriter {
                 source: accountHash,
                 fee: '0', // Reveal Fee will be covered by the appended operation
                 counter: counter.toString(),
-                gas_limit: '10600',
-                storage_limit: '0',
+                gas_limit: TezosConstants.DefaultKeyRevealGasLimit.toString(),
+                storage_limit: TezosConstants.DefaultKeyRevealStorageLimit.toString(),
                 public_key: publicKey
             };
 
@@ -258,7 +285,15 @@ export namespace TezosNodeWriter {
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendTransactionOperation(server: string, signer: Signer, keyStore: KeyStore, to: string, amount: number, fee: number, offset: number = 54) {
+    export async function sendTransactionOperation(
+        server: string,
+        signer: Signer,
+        keyStore: KeyStore,
+        to: string,
+        amount: number,
+        fee: number = TezosConstants.DefaultSimpleTransactionFee,
+        offset: number = TezosConstants.HeadBranchOffset,
+        optimizeFee: boolean = false) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction: TezosP2PMessageTypes.Transaction = {
@@ -272,7 +307,7 @@ export namespace TezosNodeWriter {
             kind: 'transaction'
         };
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction])
+        const operations = await prepareOperation(server, keyStore, counter, transaction, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -287,7 +322,14 @@ export namespace TezosNodeWriter {
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendDelegationOperation(server: string, signer: Signer, keyStore: KeyStore, delegate: string | undefined, fee: number = TezosConstants.DefaultDelegationFee, offset: number = 54) {
+    export async function sendDelegationOperation(
+        server: string,
+        signer: Signer,
+        keyStore: KeyStore,
+        delegate: string | undefined,
+        fee: number = TezosConstants.DefaultDelegationFee,
+        offset: number = TezosConstants.HeadBranchOffset,
+        optimizeFee: boolean = false) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const delegation: TezosP2PMessageTypes.Delegation = {
@@ -295,11 +337,12 @@ export namespace TezosNodeWriter {
             source: keyStore.publicKeyHash,
             fee: fee.toString(),
             counter: counter.toString(),
-            storage_limit: TezosConstants.DefaultDelegationStorageLimit + '',
-            gas_limit: TezosConstants.DefaultDelegationGasLimit + '',
+            storage_limit: TezosConstants.DefaultDelegationStorageLimit.toString(),
+            gas_limit: TezosConstants.DefaultDelegationGasLimit.toString(),
             delegate: delegate
-        }
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [delegation]);
+        };
+
+        const operations = await prepareOperation(server, keyStore, counter, delegation, optimizeFee);
 
         return sendOperation(server, operations, signer, offset);
     }
@@ -314,8 +357,14 @@ export namespace TezosNodeWriter {
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendUndelegationOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultDelegationFee, offset: number = 54) {
-        return sendDelegationOperation(server, signer, keyStore, undefined, fee, offset);
+    export async function sendUndelegationOperation(
+        server: string,
+        signer: Signer,
+        keyStore: KeyStore,
+        fee: number = TezosConstants.DefaultDelegationFee,
+        offset: number = TezosConstants.HeadBranchOffset,
+        optimizeFee: boolean = false) {
+        return sendDelegationOperation(server, signer, keyStore, undefined, fee, offset, optimizeFee);
     }
 
     /**
@@ -345,10 +394,11 @@ export namespace TezosNodeWriter {
         code: string,
         storage: string,
         codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline,
-        offset: number = 54
+        offset: number = TezosConstants.HeadBranchOffset,
+        optimizeFee: boolean = false
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
-        const operation = constructContractOriginationOperation(
+        const origination = constructContractOriginationOperation(
             keyStore,
             amount,
             delegate,
@@ -359,9 +409,10 @@ export namespace TezosNodeWriter {
             storage,
             codeFormat,
             counter
-        )
+        );
 
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
+        const operations = await prepareOperation(server, keyStore, counter, origination, optimizeFee);
+
         return sendOperation(server, operations, signer, offset);
     }
 
@@ -372,7 +423,7 @@ export namespace TezosNodeWriter {
      * @param {number} amount Initial funding amount of new account
      * @param {string|undefined} delegate Account ID to delegate to, blank if none
      * @param {number} fee Operation fee
-     * @param {number} storageLimit Storage fee
+     * @param {number} storageLimit Storage burn cap
      * @param {number} gasLimit Gas limit
      * @param {string} code Contract code
      * @param {string} storage Initial storage value
@@ -395,10 +446,10 @@ export namespace TezosNodeWriter {
 
         if (codeFormat === TezosTypes.TezosParameterFormat.Michelson) {
             parsedCode = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(code));
-            log.debug(`TezosNodeWriter.sendOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
+            log.debug(`TezosNodeWriter.constructContractOriginationOperation code translation:\n${code}\n->\n${JSON.stringify(parsedCode)}`);
 
             parsedStorage = JSON.parse(TezosLanguageUtil.translateMichelsonToMicheline(storage));
-            log.debug(`TezosNodeWriter.sendOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
+            log.debug(`TezosNodeWriter.constructContractOriginationOperation storage translation:\n${storage}\n->\n${JSON.stringify(parsedStorage)}`);
         } else if (codeFormat === TezosTypes.TezosParameterFormat.Micheline) {
             parsedCode = JSON.parse(code);
             parsedStorage = JSON.parse(storage); // TODO: handle empty storage
@@ -444,12 +495,15 @@ export namespace TezosNodeWriter {
         entrypoint: string | undefined,
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline,
-        offset: number = 54
+        offset: number = TezosConstants.HeadBranchOffset,
+        optimizeFee: boolean = false
     ) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const transaction = constructContractInvocationOperation(keyStore.publicKeyHash, counter, contract, amount, fee, storageLimit, gasLimit, entrypoint, parameters, parameterFormat);
-        const operations = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [transaction]);
+
+        const operations = await prepareOperation(server, keyStore, counter, transaction, optimizeFee);
+
         return sendOperation(server, operations, signer, offset);
     }
 
@@ -521,7 +575,7 @@ export namespace TezosNodeWriter {
      * @param {number} offset Age of the block to use as branch, set to 0 for head, default is 54 to force operation expiration with 10 blocks.
      * @returns {Promise<OperationResult>} Result of the operation
      */
-    export async function sendKeyRevealOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultKeyRevealFee, offset: number = 54) {
+    export async function sendKeyRevealOperation(server: string, signer: Signer, keyStore: KeyStore, fee: number = TezosConstants.DefaultKeyRevealFee, offset: number = TezosConstants.HeadBranchOffset) {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
 
         const revealOp: TezosP2PMessageTypes.Reveal = {
@@ -580,7 +634,7 @@ export namespace TezosNodeWriter {
         entrypoint: string | undefined,
         parameters: string | undefined,
         parameterFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
-    ): Promise<{ gas: number, storageCost: number }> {
+    ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number  }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
         const transaction = constructContractInvocationOperation(
             keyStore.publicKeyHash,
@@ -595,7 +649,7 @@ export namespace TezosNodeWriter {
             parameterFormat
         );
 
-        return estimateOperation(server, chainid, transaction)
+        return estimateOperation(server, chainid, transaction);
     }
 
     /**
@@ -626,7 +680,7 @@ export namespace TezosNodeWriter {
         code: string,
         storage: string,
         codeFormat: TezosTypes.TezosParameterFormat = TezosTypes.TezosParameterFormat.Micheline
-    ): Promise<{ gas: number, storageCost: number }> {
+    ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number  }> {
         const counter = await TezosNodeReader.getCounterForAccount(server, keyStore.publicKeyHash) + 1;
         const transaction = constructContractOriginationOperation(
             keyStore,
@@ -641,29 +695,84 @@ export namespace TezosNodeWriter {
             counter
         )
 
-        const resources = await estimateOperation(server, chainid, transaction)
-
-        // A fixed storage cost is applied to new contract originations which is not included in the estimation response.
-        const fixedOriginationStorageCost = 257
-        return {
-            gas: resources.gas,
-            storageCost: resources.storageCost + fixedOriginationStorageCost
-        }
+        return estimateOperation(server, chainid, transaction);
     }
+
     /**
-     * Dry run the given operation
+     * Returns an operation group fee and storage burn estimates along with an array of gas and storage limits for the constituent operations.
+     *
+     * Inspired by OperationFeeEstimator.estimateAndApplyFees from @tacoinfra/harbinger-lib.
+     * 
+     * @see https://github.com/tacoinfra/harbinger-lib/blob/c27cdd4643574c245ddca62bf7013964ae684bd5/src/operation-fee-estimator.ts#L30
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param operations An array of operations to process.
+     * @returns {[gas: number, storageCost: number], estimatedFee: number, estimatedStorageBurn: number}
+     */
+    export async function estimateOperationGroup(server: string, chainid: string, operations: Array<TezosP2PMessageTypes.StackableOperation>): Promise<any> {
+        let operationResources: { gas: number, storageCost: number }[] = [];
+
+        for (let i = 0; i < operations.length; i++) { // Estimate each operation.
+            const operation = operations[i];
+
+            // Estimate resources used in the set of prior transactions.
+            // If there were no prior transactions, set resource usage to 0.
+            let priorConsumedResources = { gas: 0, storageCost: 0 };
+            if (i > 0) {
+                const priorTransactions = operations.slice(0, i);
+                priorConsumedResources = await estimateOperation(server, chainid, ...priorTransactions);
+            }
+
+            // Estimate resources for everything up to the current transaction. Newer transactions may depend on previous transactions, thus all transactions must be estimated.
+            const currentTransactions = operations.slice(0, i + 1);
+            const currentConsumedResources = await TezosNodeWriter.estimateOperation(server, chainid, ...currentTransactions);
+
+            // Find the actual transaction cost by calculating the delta between the two transactions resource usages.
+            const gasLimitDelta = currentConsumedResources.gas - priorConsumedResources.gas;
+            const storageLimitDelta = currentConsumedResources.storageCost - priorConsumedResources.storageCost;
+
+            operationResources.push(
+                {
+                    gas: gasLimitDelta + TezosConstants.GasLimitPadding,
+                    storageCost: storageLimitDelta + TezosConstants.StorageLimitPadding
+                }
+            );
+        }
+
+        const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
+        const gasLimitTotal = operationResources.map(r => r.gas).reduce((a, c) => a + c, 0);
+        const storageLimitTotal = operationResources.map(r => r.storageCost).reduce((a, c) => a + c, 0);
+        const forgedOperationGroup = forgeOperations(validBranch, operations);
+        const groupSize = forgedOperationGroup.length / 2 + 64; // operation group bytes + signature bytes
+        let estimatedFee = Math.ceil(gasLimitTotal / 10) + TezosConstants.BaseOperationFee + groupSize + TezosConstants.DefaultBakerVig;
+        const estimatedStorageBurn = Math.ceil(storageLimitTotal * TezosConstants.StorageRate);
+
+        // if the fee nat is smaller than the estimate, add a constant to account for possible operation size difference
+        if (Number(operations[0].fee) < estimatedFee) { estimatedFee += 16; }
+
+        log.debug('group estimate', operationResources, estimatedFee, estimatedStorageBurn);
+
+        return { operationResources, estimatedFee, estimatedStorageBurn };
+    }
+
+    /**
+     * Submits the provided operation list to run_operation RPC and extracts gas and storage costs. Also provide estimated fee and storage burn. This function works by calling dryRunOperation() and it may throw an error if the operation is malformed or invalid.
      * 
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on. 
-     * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
-     * @returns A two-element object gas and storage costs. Throws an error if one was encountered.
+     * @param {TezosP2PMessageTypes.Operation} operations A set of operations to submit.
+     * @returns A four-element object containing
+     * gas, storageCost, estimatedFee and estimatedStorageBurn. These are exact, unpadded numbers, in practice it may be worthwhile to pad gas and storage limits.
      */
     export async function estimateOperation(
         server: string,
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
-    ): Promise<{ gas: number, storageCost: number }> {
-        const responseJSON = await dryRunOperation(server, chainid, ...operations);
+    ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
+        const localOperations = [...operations].map(o => { return { ...o, gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString() } });
+
+        const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
         let gas = 0;
         let storageCost = 0;
@@ -672,25 +781,38 @@ export namespace TezosNodeWriter {
             try {
                 gas += parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
                 storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
+
+                if (c.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
+                    storageCost += TezosConstants.EmptyAccountStorageBurn;
+                }
             } catch { }
 
             // Process internal operations if they are present.
             const internalOperations = c['metadata']['internal_operation_results']
-            if (internalOperations === undefined) {
-                continue
-            }
+            if (internalOperations === undefined) { continue; }
+
             for (const internalOperation of internalOperations) {
-                const result = internalOperation['result']
-                gas += parseInt(result['consumed_gas']) || 0
+                const result = internalOperation['result'];
+                gas += parseInt(result['consumed_gas']) || 0;
                 storageCost += parseInt(result['paid_storage_size_diff']) || 0;
+                if (result.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
+                    storageCost += TezosConstants.EmptyAccountStorageBurn;
+                }
             }
         }
 
-        return { gas, storageCost };
+        const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
+        const forgedOperationGroup = forgeOperations(validBranch, operations);
+        const operationSize = forgedOperationGroup.length / 2 + 64; // operation bytes + signature bytes
+        const estimatedFee = Math.ceil(gas / 10) + TezosConstants.BaseOperationFee + operationSize + TezosConstants.DefaultBakerVig;
+        const estimatedStorageBurn = Math.ceil(storageCost * TezosConstants.StorageRate);
+        log.debug(`TezosNodeWriter.estimateOperation; gas: ${gas}, storage: ${storageCost}, fee estimate: ${estimatedFee}, burn estimate: ${estimatedStorageBurn}`);
+
+        return { gas, storageCost, estimatedFee, estimatedStorageBurn };
     }
 
     /**
-     * Dry run the given operation and return consumed resources.
+     * Dry run the given operation and return consumed resources. RPC response will also be parser for errors and if any are found, an exception will be thrown.
      *
      * Note: Estimating an operation on an unrevealed account is not supported and will fail. Remember to prepend
      * the Reveal operation if required.
@@ -698,13 +820,9 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on.
      * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
-     * @returns {Promise<object>} JSON-encoded response
+     * @returns {Promise<any>} JSON-encoded response
      */
-    export async function dryRunOperation(
-        server: string,
-        chainid: string,
-        ...operations: TezosP2PMessageTypes.Operation[]
-    ): Promise<Response> {
+    export async function dryRunOperation(server: string, chainid: string, ...operations: TezosP2PMessageTypes.Operation[]): Promise<any> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
         const fake_chainid = 'NetXdQprcVkpaWU';
         const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
@@ -717,6 +835,30 @@ export namespace TezosNodeWriter {
         const responseJSON = JSON.parse(responseText);
 
         return responseJSON;
+    }
+
+    /**
+     * Adds a Reveal operation if needed and optimizes fees if asked.
+     * 
+     * @param server 
+     * @param keyStore 
+     * @param counter 
+     * @param operation 
+     * @param optimizeFee 
+     */
+    async function prepareOperation(server: string, keyStore: KeyStore, counter: number, operation: any, optimizeFee: boolean = false) {
+        const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
+
+        if (optimizeFee) {
+            const estimate = await estimateOperationGroup(server, 'main', operationGroup);
+            operationGroup[0].fee = estimate.estimatedFee.toString();
+            for (let i = 0; i < operationGroup.length; i++) {
+                operationGroup[i].gas_limit = estimate.operationResources[i].gas.toString();
+                operationGroup[i].storage_limit = estimate.operationResources[i].storageCost.toString();
+            }
+        }
+
+        return operationGroup;
     }
 
     /**
@@ -734,8 +876,17 @@ export namespace TezosNodeWriter {
             const arr = Array.isArray(json) ? json : [json];
 
             if ('kind' in arr[0]) {
-                // TODO: show counter errors better: e.msg "already used for contract"
-                errors = arr.map(e => `(${e.kind}: ${e.id})`).join(', ');
+                errors = arr.map(e => {
+                    if (e.msg) {
+                        if (counterMatcher.test(e.msg)) {
+                            return `(${e.kind}: ${e.id}, counter already used)`;
+                        }
+
+                        return `(${e.kind}: ${e.id}, ${e.msg})`;
+                    }
+
+                    return `(${e.kind}: ${e.id})`;
+                }).join(', ');
             } else if (arr.length === 1 && arr[0].contents.length === 1 && arr[0].contents[0].kind === 'activate_account') {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
@@ -773,12 +924,18 @@ export namespace TezosNodeWriter {
      * Processes `operation_result` and `internal_operation_results` objects from the RPC responses into an error string.
      */
     function parseRPCOperationResult(result: any): string {
-        if (result.status === 'failed') {
-            return `${result.status}: ${result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ')}`;
-        } else if (result.status === 'applied') {
-            return '';
-        } else { // backtracked, skipped
-            return result.status;
+        if (result.status !== 'applied') { // backtracked, skipped, failed
+            let error = result.status;
+            if (result.errors && result.errors.length > 0) {
+                try {
+                    error += result.errors.map(e => `(${e.kind}: ${e.id})`).join(', ');
+                } catch {
+                    log.error(`failed to parse errors from '${result}'\n, PLEASE report this to the maintainers`);
+                }
+            }
+            return error;
         }
+
+        return ''; // applied
     }
 }

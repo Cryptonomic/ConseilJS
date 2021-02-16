@@ -136,16 +136,14 @@ export namespace WrappedTezosHelper {
     export async function getSimpleStorage(server: string, address: string): Promise<WrappedTezosStorage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
-        console.log(JSON.stringify(storageResult));
-
         return {
-            balanceMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[0].int', json: storageResult })[0]),
-            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[0].args[1].int', json: storageResult })[0]),
-            supply: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
-            administrator: JSONPath({ path: '$.args[1].args[0].args[0].args[0].string', json: storageResult })[0],
-            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            pauseGuardian: JSONPath({ path: '$.args[1].args[0].args[1].args[1].string', json: storageResult })[0],
-            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].int', json: storageResult })[0]),
+            balanceMap: Number(JSONPath({ path: '$.args[1].args[1].int', json: storageResult })[0]),
+            approvalsMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].int', json: storageResult })[0]),
+            supply: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[1].args[0].args[0].string', json: storageResult })[0],
+            paused: (JSONPath({ path: '$.args[2].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            pauseGuardian: JSONPath({ path: '$.args[1].args[2].string', json: storageResult })[0],
+            outcomeMap: Number(JSONPath({ path: '$.args[0].args[0].args[1].int', json: storageResult })[0]),
             swapMap: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0])
         };
     }

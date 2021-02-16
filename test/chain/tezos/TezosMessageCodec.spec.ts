@@ -93,11 +93,29 @@ describe("Tezos P2P message decoder test suite", () => {
         expect(result).to.equal("6c00a8d45bdc966ddaaac83188a1e1c1fde2a3e05e5ca08d06c4e901b15b00904e01f61128c6abd2426d0c49b1fee1fa8c98dcc4ce0a0000");
     });
 
+    it("Dexter 2021Q1 tests", () => {
+        let transaction = {
+            kind: "transaction",
+            amount: "100000000",
+            destination: "KT1XTUGj7Rkgh6vLVDu91h81Xu2WGfyTxpqi",
+            parameters: { entrypoint: "xtzToToken", value: { "prim": "Pair", "args": [ { "string": "tz1RhnGx9hCxbrN8zKEKLbwU1zKLYZTqRs63" }, { "prim": "Pair", "args": [ { "int": "198180477354428686667" }, { "string": "2021-01-21T18:09:14.519Z" } ] } ] } },
+            storage_limit: "0",
+            gas_limit: "11697",
+            counter: "29892",
+            fee: "100000",
+            source: "tz1RUGhq8sQpfGu1W2kf7MixqWX7oxThBFLr"
+        }
+
+
+        let result = TezosMessageCodec.encodeTransaction(transaction);
+        expect(result).to.equal("6c003ff84abc64319bda01968fd5269981d7615a6f75a08d06c4e901b15b0080c2d72f01fae98b912bb3644d56b8409cb98f40c779a9befe00ffff0a78747a546f546f6b656e0000005507070100000024747a3152686e47783968437862724e387a4b454b4c627755317a4b4c595a5471527336330707008b858b81c289bfcefc2a0100000018323032312d30312d32315431383a30393a31342e3531395a");
+    });
+
     it("correctly encode a 'root' contract invocation", () => {
         // TODO
     });
 
-    it("correctly encode a non-standard contract invocation", () => {
+    it('correctly encode a "non-standard" contract invocation', () => {
         // TODO
     });
 
@@ -107,7 +125,6 @@ describe("Tezos P2P message decoder test suite", () => {
 
     it("correctly parse a reveal (Athens)", () => {
         let forgedReveal = "97648f6470b21f904cb8d11eaf097f245eb42f5073fa51404d969cdfd4a4579e07000069ef8fb5d47d8a4321c94576a2316a632be8ce890094fe19904e00004c7b0501f6ea08f472b7e88791d3b8da49d64ac1e2c90f93c27e6531473305c6";
-                                                                                            //6b0034a00f9b7964943b4ab583a8d1f7241a0cb9742c00bac104904e0000e92113585804d494a642fb1aa6f0e6c33e5d54a2fe7f05f54de080f30662d554
         const result = TezosMessageCodec.parseReveal(forgedReveal);
         expect(result.operation.kind).to.equal("reveal");
         expect(result.operation.source).to.equal("tz1VJAdH2HRUZWfohXW59NPYQKFMe1csroaX");
@@ -156,6 +173,17 @@ describe("Tezos P2P message encoder test suite", () => {
         };
 
         let result = TezosMessageCodec.encodeOperation(origination);
+        expect(result).to.equal("6d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934e000000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
+    });
+
+    it("correctly encode an activation operation", () => {
+        let activation: Activation = {
+            kind: "activate_account",
+            pkh: "tz1erMkoyqZBRvhuFoxHRnn8s7EpgTT63HHD",
+            secret: "912eb565c0194949644c4ef8888ad547aaf28154"
+        };
+
+        let result = TezosMessageCodec.encodeOperation(activation);
         expect(result).to.equal("6d0069ef8fb5d47d8a4321c94576a2316a632be8ce89904e09924e914e934e000000003702000000320500035b0501035b0502020000002303160743035b00010312074303690a000000080123456789abcdef0320053d036d034200000002001e");
     });
 
