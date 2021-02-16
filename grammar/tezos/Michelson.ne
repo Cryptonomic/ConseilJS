@@ -530,7 +530,7 @@ semicolons -> [;]:?
     const doubleArgKeywordToJson = d => {
         if (d.length === 7) {
             /*
-                This handles the case where a blank {} for %subInstuction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
+                This handles the case where a blank {} for %subInstruction should be blank, but for %data they should be an empty array, see TODO about double-wrapping
             */
             return `{ "prim": "${d[0]}", "args": [ ${d[2]}, [] ] }`;
         } else {
