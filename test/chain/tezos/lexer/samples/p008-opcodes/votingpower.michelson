@@ -1,0 +1,31 @@
+parameter key;
+storage   (pair (nat %a) (nat %b));
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CAR;        # @parameter : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @parameter
+    CDR;        # @storage : @parameter
+    # == validate ==
+    # self.data.a = sp.voting_power(sp.hash_key(params)) # @storage : @parameter
+    CDR;        # nat : @parameter
+    SWAP;       # @parameter : nat
+    DUP;        # @parameter : @parameter : nat
+    DUG 2;      # @parameter : nat : @parameter
+    HASH_KEY;   # key_hash : nat : @parameter
+    VOTING_POWER; # nat : nat : @parameter
+    PAIR;       # pair nat nat : @parameter
+    # self.data.b = sp.total_voting_power # pair nat nat : @parameter
+    DUP;        # pair nat nat : pair nat nat : @parameter
+    DUG 2;      # pair nat nat : @parameter : pair nat nat
+    CAR;        # nat : @parameter : pair nat nat
+    TOTAL_VOTING_POWER; # nat : nat : @parameter : pair nat nat
+    DIG 2;      # @parameter : nat : nat : pair nat nat
+    DROP;       # nat : nat : pair nat nat
+    DIG 2;      # pair nat nat : nat : nat
+    DROP;       # nat : nat
+    SWAP;       # nat : nat
+    PAIR;       # pair nat nat
+    NIL operation; # list operation : pair nat nat
+    PAIR;       # pair (list operation) (pair nat nat)
+  };

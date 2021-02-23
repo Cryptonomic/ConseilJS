@@ -1,0 +1,25 @@
+parameter bytes;
+storage   (pair (bytes %keccak) (bytes %sha3));
+code
+  {
+    DUP;        # pair @parameter @storage : pair @parameter @storage
+    CAR;        # @parameter : pair @parameter @storage
+    SWAP;       # pair @parameter @storage : @parameter
+    CDR;        # @storage : @parameter
+    # == new_value ==
+    # self.data.keccak = sp.keccak(params) # @storage : @parameter
+    CDR;        # bytes : @parameter
+    SWAP;       # @parameter : bytes
+    DUP;        # @parameter : @parameter : bytes
+    DUG 2;      # @parameter : bytes : @parameter
+    KECCAK;     # bytes : bytes : @parameter
+    PAIR;       # pair bytes bytes : @parameter
+    SWAP;       # @parameter : pair bytes bytes
+    # self.data.sha3 = sp.sha3(params) # @parameter : pair bytes bytes
+    SHA3;       # bytes : pair bytes bytes
+    SWAP;       # pair bytes bytes : bytes
+    CAR;        # bytes : bytes
+    PAIR;       # pair bytes bytes
+    NIL operation; # list operation : pair bytes bytes
+    PAIR;       # pair (list operation) (pair bytes bytes)
+  };

@@ -1,5 +1,9 @@
 [
   {
+    "prim": "parameter",
+    "args": [ { "prim": "or", "args": [ { "prim": "unit", "annots": [ "%auto_call" ] }, { "prim": "ticket", "args": [ { "prim": "int" } ], "annots": [ "%run" ] } ] } ]
+  },
+  {
     "prim": "storage",
     "args": [
       {
@@ -10,10 +14,6 @@
         ]
       }
     ]
-  },
-  {
-    "prim": "parameter",
-    "args": [ { "prim": "or", "args": [ { "prim": "unit", "annots": [ "%auto_call" ] }, { "prim": "ticket", "args": [ { "prim": "int" } ], "annots": [ "%run" ] } ] } ]
   },
   {
     "prim": "code",

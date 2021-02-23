@@ -1,0 +1,11 @@
+parameter unit;
+storage   address;
+code
+  {
+    DROP;       # 
+    # == entry_point_1 ==
+    # self.data.address = sp.self_address # 
+    SELF_ADDRESS; # address
+    NIL operation; # list operation : address
+    PAIR;       # pair (list operation) address
+  };

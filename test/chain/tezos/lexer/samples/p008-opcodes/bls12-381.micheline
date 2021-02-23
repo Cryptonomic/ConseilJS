@@ -1,26 +1,5 @@
 [
   {
-    "prim": "storage",
-    "args": [
-      {
-        "prim": "pair",
-        "args": [
-          { "prim": "pair", "args": [ { "prim": "option", "args": [ { "prim": "bool" } ], "annots": [ "%checkResult" ] }, { "prim": "bls12_381_fr", "annots": [ "%fr" ] } ] },
-          {
-            "prim": "pair",
-            "args": [
-              { "prim": "bls12_381_g1", "annots": [ "%g1" ] },
-              {
-                "prim": "pair",
-                "args": [ { "prim": "bls12_381_g2", "annots": [ "%g2" ] }, { "prim": "option", "args": [ { "prim": "bls12_381_fr" } ], "annots": [ "%mulResult" ] } ]
-              }
-            ]
-          }
-        ]
-      }
-    ]
-  },
-  {
     "prim": "parameter",
     "args": [
       {
@@ -50,6 +29,27 @@
                   { "prim": "list", "args": [ { "prim": "pair", "args": [ { "prim": "bls12_381_g1" }, { "prim": "bls12_381_g2" } ] } ], "annots": [ "%pairing_check" ] },
                   { "prim": "unit", "annots": [ "%toInt" ] }
                 ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "prim": "storage",
+    "args": [
+      {
+        "prim": "pair",
+        "args": [
+          { "prim": "pair", "args": [ { "prim": "option", "args": [ { "prim": "bool" } ], "annots": [ "%checkResult" ] }, { "prim": "bls12_381_fr", "annots": [ "%fr" ] } ] },
+          {
+            "prim": "pair",
+            "args": [
+              { "prim": "bls12_381_g1", "annots": [ "%g1" ] },
+              {
+                "prim": "pair",
+                "args": [ { "prim": "bls12_381_g2", "annots": [ "%g2" ] }, { "prim": "option", "args": [ { "prim": "bls12_381_fr" } ], "annots": [ "%mulResult" ] } ]
               }
             ]
           }
