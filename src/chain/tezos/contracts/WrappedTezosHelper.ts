@@ -8,6 +8,7 @@ import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
 import { TezosConseilClient } from '../../../reporting/tezos/TezosConseilClient'
 import { ConseilServerInfo } from '../../../types/conseil/QueryTypes';
+import { TezosConstants } from '../../../types/tezos/TezosConstants';
 import { ContractMapDetailsItem } from '../../../types/conseil/ConseilTezosTypes';
 import { TezosParameterFormat } from '../../../types/tezos/TezosChainTypes';
 
@@ -206,7 +207,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             'transfer',
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         );
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -251,7 +254,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             '',
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -298,7 +303,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             'withdraw',
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -400,7 +407,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             entryPoint,
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         )
 
         const operationHash = TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -449,7 +458,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             'setDelegate',
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -492,7 +503,9 @@ export namespace WrappedTezosHelper {
             gasLimit,
             'setDelegate',
             parameters,
-            TezosTypes.TezosParameterFormat.Michelson
+            TezosTypes.TezosParameterFormat.Michelson,
+            TezosConstants.HeadBranchOffset,
+            true
         )
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
