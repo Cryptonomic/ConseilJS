@@ -15,7 +15,6 @@ export * from './chain/tezos/contracts/CryptonomicNameServiceHelper';
 export * from './chain/tezos/contracts/DexterPoolHelper';
 export * from './chain/tezos/contracts/KolibriTokenHelper';
 export * from './chain/tezos/contracts/MurbardMultisigHelper';
-export * from './chain/tezos/contracts/StakerDAOTokenHelper';
 export * from './chain/tezos/contracts/TCFBakerRegistryHelper';
 export * from './chain/tezos/contracts/Tzip7ReferenceTokenHelper';
 export * from './chain/tezos/contracts/tzip12/ChainlinkTokenHelper';
