@@ -256,7 +256,7 @@ export namespace TezosNodeWriter {
             const revealOp: TezosP2PMessageTypes.Reveal = {
                 kind: 'reveal',
                 source: accountHash,
-                fee: '0', // Reveal Fee will be covered by the appended operation
+                fee: TezosConstants.DefaultKeyRevealFee.toString(),
                 counter: counter.toString(),
                 gas_limit: TezosConstants.DefaultKeyRevealGasLimit.toString(),
                 storage_limit: TezosConstants.DefaultKeyRevealStorageLimit.toString(),
@@ -740,12 +740,14 @@ export namespace TezosNodeWriter {
             );
         }
 
+        const staticFee = (operations.filter(o => o.kind === 'reveal').length === 1) ? 1270 : 0; // TODO: there's probably a better way to do this
+
         const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
         const gasLimitTotal = operationResources.map(r => r.gas).reduce((a, c) => a + c, 0);
         const storageLimitTotal = operationResources.map(r => r.storageCost).reduce((a, c) => a + c, 0);
         const forgedOperationGroup = forgeOperations(validBranch, operations);
         const groupSize = forgedOperationGroup.length / 2 + 64; // operation group bytes + signature bytes
-        let estimatedFee = Math.ceil(gasLimitTotal / 10) + TezosConstants.BaseOperationFee + groupSize + TezosConstants.DefaultBakerVig;
+        let estimatedFee = staticFee + Math.ceil(gasLimitTotal / 10) + TezosConstants.BaseOperationFee + groupSize + TezosConstants.DefaultBakerVig;
         const estimatedStorageBurn = Math.ceil(storageLimitTotal * TezosConstants.StorageRate);
 
         // if the fee nat is smaller than the estimate, add a constant to account for possible operation size difference
@@ -773,9 +775,10 @@ export namespace TezosNodeWriter {
         const localOperations = [...operations].map(o => { return { ...o, gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString() } });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
-
+console.log('estimate', JSON.stringify(responseJSON))
         let gas = 0;
         let storageCost = 0;
+        let staticFee = 0
         for (let c of responseJSON['contents']) {
             // Process main operation.
             try {
@@ -784,6 +787,8 @@ export namespace TezosNodeWriter {
 
                 if (c.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
                     storageCost += TezosConstants.EmptyAccountStorageBurn;
+                } else if (c.kind === 'reveal') {
+                    staticFee += 1270;
                 }
             } catch { }
 
@@ -804,7 +809,7 @@ export namespace TezosNodeWriter {
         const validBranch = 'BMLxA4tQjiu1PT2x3dMiijgvMTQo8AVxkPBPpdtM8hCfiyiC1jz';
         const forgedOperationGroup = forgeOperations(validBranch, operations);
         const operationSize = forgedOperationGroup.length / 2 + 64; // operation bytes + signature bytes
-        const estimatedFee = Math.ceil(gas / 10) + TezosConstants.BaseOperationFee + operationSize + TezosConstants.DefaultBakerVig;
+        const estimatedFee = staticFee + Math.ceil(gas / 10) + TezosConstants.BaseOperationFee + operationSize + TezosConstants.DefaultBakerVig;
         const estimatedStorageBurn = Math.ceil(storageCost * TezosConstants.StorageRate);
         log.debug(`TezosNodeWriter.estimateOperation; gas: ${gas}, storage: ${storageCost}, fee estimate: ${estimatedFee}, burn estimate: ${estimatedStorageBurn}`);
 
