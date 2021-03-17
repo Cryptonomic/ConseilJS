@@ -775,7 +775,7 @@ export namespace TezosNodeWriter {
         const localOperations = [...operations].map(o => { return { ...o, gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString() } });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
-console.log('estimate', JSON.stringify(responseJSON))
+
         let gas = 0;
         let storageCost = 0;
         let staticFee = 0
