@@ -220,7 +220,7 @@ export namespace TezosNodeReader {
     /**
      * Queries the /mempool/pending_operations RPC and parses it looking for applied operations submitted by the provided account
      * 
-     * @param {string} server Tezos node to connect to 
+     * @param {string} server Tezos node to connect to.
      * @param accountHash 
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      */
@@ -231,5 +231,15 @@ export namespace TezosNodeReader {
         const o = a.map(g => { g.contents = g.contents.filter(s => (s.source === accountHash || s.destination === accountHash)); return g; });
 
         return o;
+    }
+
+    /**
+     * Returns the current chain_id hash, for example, "NetXm8tYqnMWky1". This is not to be confused with the other chain id which is either "test" or "main".
+     * 
+     * @param {string} server Tezos node to connect to.
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
+     */
+    export async function getChainId(server: string, chainid: string = 'main'): Promise<string> {
+        return performGetRequest(server, `chains/${chainid}/chain_id`).then(r => r.toString());
     }
 }
