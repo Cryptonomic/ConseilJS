@@ -800,7 +800,7 @@ export namespace TezosNodeWriter {
                 const result = internalOperation['result'];
                 gas += parseInt(result['consumed_gas']) || 0;
                 storageCost += parseInt(result['paid_storage_size_diff']) || 0;
-                if (result.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
+                if (internalOperation.kind === 'origination') {
                     storageCost += TezosConstants.EmptyAccountStorageBurn;
                 }
             }
