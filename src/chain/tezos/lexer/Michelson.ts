@@ -519,18 +519,6 @@ const lexer = moo.compile({
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
 
-    const dupnToJson = d => {
-        const n = Number(d[2]);
-
-        if (n === 1) {
-            return '{ "prim": "DUP" }';
-        } else if (n === 2) {
-            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
-        } else {
-            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
-        }
-    };
-
     const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
     const dropnToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
@@ -795,7 +783,7 @@ const grammar: Grammar = {
     {"name": "instruction", "symbols": [{"literal":"DIP"}, "_", "instruction$ebnf$9", "_", "subInstruction"], "postprocess": dipnToJson},
     {"name": "instruction$ebnf$10", "symbols": [/[0-9]/]},
     {"name": "instruction$ebnf$10", "symbols": ["instruction$ebnf$10", /[0-9]/], "postprocess": (d) => d[0].concat([d[1]])},
-    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10"], "postprocess": dupnToJson},
+    {"name": "instruction", "symbols": [{"literal":"DUP"}, "_", "instruction$ebnf$10"], "postprocess": dignToJson},
     {"name": "instruction", "symbols": [{"literal":"DUP"}], "postprocess": keywordToJson},
     {"name": "instruction$ebnf$11$subexpression$1", "symbols": ["_", (lexer.has("annot") ? {type: "annot"} : annot)]},
     {"name": "instruction$ebnf$11", "symbols": ["instruction$ebnf$11$subexpression$1"]},
