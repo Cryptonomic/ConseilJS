@@ -72,13 +72,13 @@ export namespace DexterPoolHelper {
 
         return {
             balanceMap: Number(JSONPath({ path: '$.args[0].int', json: storageResult })[0]),
-            administrator: JSONPath({ path: '$.args[1].args[1].args[0].args[0].string', json: storageResult })[0],
-            token: JSONPath({ path: '$.args[1].args[1].args[0].args[1].string', json: storageResult })[0],
-            tokenBalance: Number(JSONPath({ path: '$.args[1].args[1].args[1].args[1].int', json: storageResult })[0]),
-            xtzBalance: Number(JSONPath({ path: '$.args[1].args[1].args[1].args[0].int', json: storageResult })[0]),
-            selfIsUpdatingTokenPool: (JSONPath({ path: '$.args[1].args[0].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            freeze_baker: (JSONPath({ path: '$.args[1].args[0].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            lqt_total: Number(JSONPath({ path: '$.args[1].args[0].args[1].args[1].int', json: storageResult })[0])
+            administrator: JSONPath({ path: '$.args[2].args[0].string', json: storageResult })[0],
+            token: JSONPath({ path: '$.args[2].args[1].string', json: storageResult })[0],
+            tokenBalance: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0]),
+            xtzBalance: Number(JSONPath({ path: '$.args[4].int', json: storageResult })[0]),
+            selfIsUpdatingTokenPool: (JSONPath({ path: '$.args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            freeze_baker: (JSONPath({ path: '$.args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            lqt_total: Number(JSONPath({ path: '$.args[1].args[2].int', json: storageResult })[0])
         };
     }
 
@@ -100,6 +100,34 @@ export namespace DexterPoolHelper {
             return Number(jsonresult[0]);
         } catch {
             return 0;
+        }
+    }
+
+    /**
+     * 
+     * @param server Destination Tezos node.
+     * @param address Pool contract address.
+     * @param account 
+     * @returns Raw values that are not scaled.
+     */
+    export async function getAccountPoolShare(server: string, address: string, account: string): Promise<{token: number, xtz: number}> {
+        try {
+            const storage = await getSimpleStorage(server, address);
+
+            const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
+            const mapResult = await TezosNodeReader.getValueForBigMapKey(server, storage.balanceMap, packedKey);
+
+            if (mapResult === undefined) { throw new Error(`Map ${storage.balanceMap} does not contain a record for ${account}`); }
+
+            const poolBalance = bigInt(JSONPath({ path: '$.args[0].int', json: mapResult })[0]);
+
+            const poolTotal = bigInt(storage.lqt_total);
+            const tokenBalance = bigInt(storage.tokenBalance);
+            const xtzBalance = bigInt(storage.xtzBalance);
+
+            return { token: tokenBalance.multiply(poolBalance).divide(poolTotal).toJSNumber(), xtz: xtzBalance.multiply(poolBalance).divide(poolTotal).toJSNumber() };
+        } catch (error) {
+            return { token: 0, xtz: 0 };
         }
     }
 
