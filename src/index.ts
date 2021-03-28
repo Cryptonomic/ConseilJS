@@ -27,6 +27,7 @@ export * from './chain/tezos/contracts/tzip12/MultiAssetTokenHelper';
 export * from './chain/tezos/contracts/tzip12/SingleAssetTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
 export * from './chain/tezos/contracts/WrappedTezosHelper';
+export * from './chain/tezos/contracts/hoverlabs-timelock/TimelockHelper';
 
 export * from "./reporting/tezos/TezosConseilClient";
 
