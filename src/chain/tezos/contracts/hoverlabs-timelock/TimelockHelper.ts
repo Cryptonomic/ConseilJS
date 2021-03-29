@@ -27,7 +27,6 @@ export namespace TimelockHelper {
         timelockSeconds: number;
     }
 
-
     /*
      * Returns a DeployPair in Michelson format
      * @param deploy
@@ -47,7 +46,6 @@ export namespace TimelockHelper {
         // Tezos requires keys to be sorted alphabetically, according to hoverlabds timelock CLI:
         // https://github.com/Hover-Labs/multisig-timelock/blob/main/cli/src/commands.ts#L212
         let keyList: string = deploy.keys.sort().map(k => `{ "string": "${k}" }`).join(',\n');
-        // let key: string = `{ "string": "edpkv3w95AcgCWQeoYm5szaEqXX71JkZ261s4wjH1NYRtibX879rDv" },`;
         return `{
         "prim": "Pair",
             "args": [
@@ -61,124 +59,6 @@ export namespace TimelockHelper {
                 { "prim": "Pair", "args": [ { "int": "${deploy.threshold}" }, { "prim": "Pair", "args": [ [], { "int": "${deploy.timelockSeconds}" } ] } ] }
             ]
         }`;
-    }
-
-    export type SignatureMap = { [address: string]: string}; // address -> signature map
-    
-    export function SignatureMapMicheline(signatures: SignatureMap): string {
-        return ``;
-    }
-
-    /* Submit entrypoint parameters
-     *
-     * @param chainid The chain id to execute on
-     * @param operationId The current operation id of the contract
-     * @param payload The lambda to execute
-     */
-    export interface SubmitPair {
-        chainid: number;
-        operationId: number;
-        payload: {
-            lambda: string;
-            lambdaType: TezosParameterFormat; // TODO: make sure this is the same as the invocation
-        }
-    }
-
-    /*
-     * Returns a SubmitPair in Micheline format
-     * @param submit
-     */
-    export function SubmitPairMicheline(submit: SubmitPair): string {
-        return ``;
-    }
-
-    /*
-     * Rotate entrypoint parameters
-     *
-     * @param chainid The chain id to execute on
-     * @param operationId The current operation id of the contract
-     * @param payload The new threshold and set of keys
-     */
-    export interface RotatePair {
-        chainid: number;
-        operationId: number;
-        payload: {
-            threshold: number;
-            keys: string[];
-        }
-    }
-
-    /*
-     * Returns a RotatePair in Micheline format
-     * @param rotate
-     */
-    export function RotatePairMicheline(rotate: RotatePair): string {
-        return ``;
-    }
-
-    /*
-     * Cancel entrypoint parameters
-     *
-     * @param chainid The chain id to execute operation
-     * @param operationId The current operation id of the contract
-     * @param timelockId The id of the operation to cancel
-     */
-    export interface CancelPair {
-        chainid: number;
-        operationId: number;
-        timelockId: number;
-    }
-
-    /*
-     * Returns a CancelPair in Micheline format
-     * @param cancel
-     */
-    export function CancelPairMicheline(cancel: CancelPair): string {
-        return ``;
-    }
-
-    /*
-     * Execute entrypoint parameters
-     *
-     * @param operationId The id of the operation to execute
-     */
-    export interface ExecutePair {
-        operationId: number;
-    }
-
-    /*
-     * Returns a ExecutePair in Micheline format
-     * @param execute
-     */
-    export function ExecutePairMicheline(execute: ExecutePair): string {
-        return ``;
-    }
-
-    /*
-     * Return the bytes to sign for key rotation call
-     * @param threshold The new threshold
-     * @param keys The new list of keys
-     * @param operationId The current operation id of the contract
-     */
-    export function keyRotationBytesToSubmit(threshold: number, keys: string[], operationId: number | undefined = undefined): string {
-        // get chainid
-        // get operationId if undefined
-        // create michelson
-        // encode
-        return '';
-    }
-
-    /*
-     * Returns the bytes to sign for operation cancellation call
-     * @params timelockId The id of the operation to cancel
-     * @params operationId The current operation id of the contract
-     */
-    export function cancelBytesToSubmit(timelockId: number, operationId: number | undefined = undefined): string {
-        // get chainid
-        // get operationId if undefined
-        // create michelson
-        // encode
-        return '';
     }
 
     /*
@@ -709,8 +589,210 @@ export namespace TimelockHelper {
             storage,
             TezosParameterFormat.Micheline);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-
     }
+
+    export type SignatureMap = { [address: string]: string}; // address -> signature map
+
+    export function SignatureMapMicheline(signatures: SignatureMap): string {
+        let signaturesMicheline = ``;
+        for (let address in signatures) {
+            signaturesMicheline += `{
+                "prim": "Elt",
+                "args": [
+                  { "string": "${address}" },
+                  { "string": "${signatures[address]}" }
+                ]
+            }, `;
+        }
+        if (signaturesMicheline.length > 0)
+            signaturesMicheline = signaturesMicheline.slice(0, -1); // remove trailing comma
+        return signaturesMicheline;
+    }
+
+    /* Submit entrypoint parameters
+     *
+     * @param chainid The chain id to execute on
+     * @param operationId The current operation id of the contract
+     * @param payload The lambda to execute
+     */
+    export interface SubmitPair {
+        signatures: SignatureMap;
+        chainId: string | undefined;
+        operationId: number | undefined;
+        payload: {
+            lambda: string;
+            lambdaType: TezosParameterFormat; // TODO: make sure this is the same as the invocation
+        }
+    }
+
+    /*
+     * Returns a SubmitPair in Micheline format
+     * @param submit
+     */
+    export function SubmitPairMicheline(submit: SubmitPair): string {
+        const exampleLambda: string = `[
+          { "prim": "DROP" },
+          { "prim": "NIL", "args": [ { "prim": "operation" } ] },
+          { "prim": "PUSH", "args": [ { "prim": "address" }, { "string": "KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF" } ] },
+          { "prim": "CONTRACT", "args": [ { "prim": "nat" } ], "annots": [ "%replace" ] },
+          { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "285" } ] }, { "prim": "FAILWITH" } ], [] ] },
+          { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },
+          { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "1" } ] },
+          { "prim": "TRANSFER_TOKENS" },
+          { "prim": "CONS" }
+        ]`;
+        const signatures = SignatureMapMicheline(submit.signatures);
+        return `{
+            "prim": "Right",
+            "args": [
+              {
+                "prim": "Right",
+                "args": [
+                  {
+                    "prim": "Pair",
+                    "args": [
+                      [ ${signatures} ],
+                      {
+                        "prim": "Pair",
+                        "args": [
+                          { "bytes": "${submit.chainId}" },
+                          {
+                            "prim": "Pair",
+                            "args": [
+                              { "int": "${submit.operationId}" },
+                              ${exampleLambda}
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }`;
+    }
+
+    export async function Submit(server: string, signer: Signer, keystore: KeyStore, address: string, submit: SubmitPair, amount: number, fee: number, gas: number, freight: number): Promise<string> {
+        const entrypoint = `submit`;
+
+        // get chainId of mainnet if not specified
+        if (!submit.chainId)
+            submit.chainId = await TezosNodeReader.getChainId(server);
+
+        // get current operationId if not specified
+        if (!submit.operationId) {
+            const storage = await getStorage(server, address);
+            submit.operationId = storage.operationId;
+        }
+
+        let parameters: string = SubmitPairMicheline(submit);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            server,
+            signer,
+            keystore,
+            address,
+            amount,
+            fee,
+            freight,
+            gas,
+            entrypoint,
+            parameters,
+            TezosParameterFormat.Micheline);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /*
+     * Rotate entrypoint parameters
+     *
+     * @param chainid The chain id to execute on
+     * @param operationId The current operation id of the contract
+     * @param payload The new threshold and set of keys
+     */
+    export interface RotatePair {
+        signatures: SignatureMap;
+        chainId: string | undefined;
+        operationId: number | undefined;
+        payload: {
+            threshold: number;
+            keys: string[];
+        }
+    }
+
+    /*
+     * Returns a RotatePair in Micheline format
+     * @param rotate
+     */
+    export function RotatePairMicheline(rotate: RotatePair): string {
+        return ``;
+    }
+
+    /*
+     * Cancel entrypoint parameters
+     *
+     * @param chainid The chain id to execute operation
+     * @param operationId The current operation id of the contract
+     * @param timelockId The id of the operation to cancel
+     */
+    export interface CancelPair {
+        signatures: SignatureMap;
+        chainId: string | undefined;
+        operationId: number | undefined;
+        timelockId: number;
+    }
+
+    /*
+     * Returns a CancelPair in Micheline format
+     * @param cancel
+     */
+    export function CancelPairMicheline(cancel: CancelPair): string {
+        return ``;
+    }
+
+    /*
+     * Execute entrypoint parameters
+     *
+     * @param operationId The id of the operation to execute
+     */
+    export interface ExecutePair {
+        operationId: number;
+    }
+
+    /*
+     * Returns a ExecutePair in Micheline format
+     * @param execute
+     */
+    export function ExecutePairMicheline(execute: ExecutePair): string {
+        return ``;
+    }
+
+    /*
+     * Return the bytes to sign for key rotation call
+     * @param threshold The new threshold
+     * @param keys The new list of keys
+     * @param operationId The current operation id of the contract
+     */
+    export function keyRotationBytesToSubmit(threshold: number, keys: string[], operationId: number | undefined = undefined): string {
+        // get chainid
+        // get operationId if undefined
+        // create michelson
+        // encode
+        return '';
+    }
+
+    /*
+     * Returns the bytes to sign for operation cancellation call
+     * @params timelockId The id of the operation to cancel
+     * @params operationId The current operation id of the contract
+     */
+    export function cancelBytesToSubmit(timelockId: number, operationId: number | undefined = undefined): string {
+        // get chainid
+        // get operationId if undefined
+        // create michelson
+        // encode
+        return '';
+    }
+
 
     /*
      * Get a Timelock instance by querying a given address
