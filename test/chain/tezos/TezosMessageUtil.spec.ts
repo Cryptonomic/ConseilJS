@@ -135,7 +135,7 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal('8b858b81c289bfcefc2a');
     });
 
-        it('test findInt function', () => {
+    it('test findInt function', () => {
         let result = TezosMessageUtils.findInt('d3dade57fae2', 0);
         expect(result.value).to.equal(184003923);
         expect(result.length).to.equal(8);
@@ -169,6 +169,9 @@ describe('Tezos P2P message codec helper tests', () => {
         expect(result).to.equal('0500f584c5bfc604');
 
         result = TezosMessageUtils.writePackedData('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8', 'address');
+        expect(result).to.equal('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2');
+
+        result = TezosMessageUtils.writePackedData('tz1eEnQhbwf6trb8Q8mPb2RaPkNk2rN7BKi8', 'key_hash');
         expect(result).to.equal('050a000000160000cc04e65d3e38e4e8059041f27a649c76630f95e2');
 
         result = TezosMessageUtils.writePackedData('Tezos Tacos Nachos', 'string');
@@ -278,6 +281,18 @@ describe('Tezos P2P message codec helper tests', () => {
             expect(TezosMessageUtils.writePackedData(s.in, 'michelson', TezosParameterFormat.Michelson)).to.equal(s.out);
         });
     });
+
+    TezosMessageUtils.writePublicKey
+    sppk7ZZkGTcFJPrta2ikEeCziy3DVSxgJPjNs4d6xRHHGABydLkfwHi
+    p2pk65XEYA4x2SgD8G8HqruF8ZP3rB48agaAfUHoGdDtdsYwhnrNPg8
+
+    readKeyWithHint
+    readSignatureWithHint
+    writeSignatureWithHint
+
+    computeOperationHash
+
+    calculateContractAddress
 
     it('test signature codec', () => {
         //readSignatureWithHint
