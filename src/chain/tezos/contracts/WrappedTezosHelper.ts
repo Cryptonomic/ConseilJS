@@ -190,7 +190,7 @@ export namespace WrappedTezosHelper {
         fee: number,
         sourceAddress: string,
         destinationAddress: string,
-        amount: number,
+        amount: number | string,
         gasLimit: number = 51_300,
         storageLimit: number = 70
     ): Promise<string> {

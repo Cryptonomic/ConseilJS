@@ -182,7 +182,7 @@ instruction ->
   | "PUSH" _ type _ %lbrace %rbrace {% pushToJson %}
   | "PUSH" (_ %annot):+ _ type _ data {% pushWithAnnotsToJson %}
   | "DIP" _ [0-9]:+ _ subInstruction {% dipnToJson %}
-  | "DUP" _ [0-9]:+ {% dupnToJson %}
+  | "DUP" _ [0-9]:+ {% dignToJson %}
   | "DUP" {% keywordToJson %}
   | "DUP" (_ %annot):+ _ {% keywordToJson %}
   | "DIG" _ [0-9]:+ {% dignToJson %}
@@ -623,18 +623,6 @@ semicolons -> [;]:?
     }
 
     const dipnToJson = d => (d.length > 4) ? `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" }, [ ${d[4]} ] ] }` : `{ "prim": "${d[0]}", "args": [ ${d[2]} ] }`;
-
-    const dupnToJson = d => {
-        const n = Number(d[2]);
-
-        if (n === 1) {
-            return '{ "prim": "DUP" }';
-        } else if (n === 2) {
-            return '[{ "prim": "DIP", "args": [[ {"prim": "DUP"} ]] }, { "prim": "SWAP" }]';
-        } else {
-            return `[{ "prim": "DIP", "args": [ {"int": "${n - 1}"}, [{ "prim": "DUP" }] ] }, { "prim": "DIG", "args": [ {"int": "${n}"} ] }]`;
-        }
-    };
 
     const dignToJson = d => `{ "prim": "${d[0]}", "args": [ { "int": "${d[2]}" } ] }`;
 
