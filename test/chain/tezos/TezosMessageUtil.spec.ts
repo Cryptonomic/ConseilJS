@@ -282,18 +282,6 @@ describe('Tezos P2P message codec helper tests', () => {
         });
     });
 
-    TezosMessageUtils.writePublicKey
-    sppk7ZZkGTcFJPrta2ikEeCziy3DVSxgJPjNs4d6xRHHGABydLkfwHi
-    p2pk65XEYA4x2SgD8G8HqruF8ZP3rB48agaAfUHoGdDtdsYwhnrNPg8
-
-    readKeyWithHint
-    readSignatureWithHint
-    writeSignatureWithHint
-
-    computeOperationHash
-
-    calculateContractAddress
-
     it('test signature codec', () => {
         //readSignatureWithHint
         //writeSignatureWithHint
