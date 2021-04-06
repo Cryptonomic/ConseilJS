@@ -601,6 +601,8 @@ code
 
     /*
      * Returns a SignatureMap in Michelson format
+     *
+     * @param signatures
      */
     export function SignatureMapMichelson(signatures: SignatureMap): string {
         let signaturesMichelson = `{ `;
@@ -611,7 +613,11 @@ code
         return signaturesMichelson;
     }
 
-
+    /*
+     * Returns a SignatureMap in Micheline format
+     *
+     * @param signatures
+     */
     export function SignatureMapMicheline(signatures: SignatureMap): string {
         let signaturesMicheline = ``;
         for (let address in signatures) {
@@ -644,6 +650,7 @@ code
     /*
      * Returns an ExecutionRequest in Michelson format
      *
+     * @param executionRequest
      */
     export function ExecutionRequestMichelson(executionRequest: ExecutionRequest): string {
         return `(Pair ${executionRequest.chainId} (Pair ${executionRequest.operationId} ${executionRequest.payload} ))`;
@@ -652,6 +659,7 @@ code
     /*
      * Return an ExecutionRequest in Micheline format
      *
+     * @param executionRequest
      */
     export function ExecutionRequestMicheline(executionRequest: ExecutionRequest): string {
         return `{
@@ -670,13 +678,26 @@ code
     }
 
     /*
+     * Returns the bytes to sign for submit call
+     * @params timelockId The id of the operation to cancel
+     * @params operationId The current operation id of the contract
+     */
+    export function executionRequestBytesToSign(executionRequest: ExecutionRequest): string {
+        // get chainid
+        // get operationId if undefined
+        // create michelson
+        // encode
+        return '';
+    }
+
+    /*
      * Returns the signed ExecutionRequest
      *
      * @param signer ConseilJS Signer object
      * @param executionRequest The execution request to sign
      */
     export async function SignExecutionRequest(signer: Signer, executionRequest: ExecutionRequest): Promise<Buffer> {
-        return Buffer.from('');
+        return Buffer.from(''); // TODO
     }
 
     /* Submit entrypoint parameters
@@ -690,7 +711,21 @@ code
     }
 
     /*
+     * Returns a SubmitPair in Michelson format
+     *
+     * @param submit
+     */
+    export function SubmitPairMichelson(submit: SubmitPair): string {
+        const signatures = SignatureMapMichelson(submit.signatures);
+        const executionRequest = ExecutionRequestMichelson(submit.executionRequest)
+        console.log(signatures);
+        console.log(executionRequest);
+        return `(Right (Right (Pair ${signatures} ${executionRequest} )))`;
+    }
+
+    /*
      * Returns a SubmitPair in Micheline format
+     *
      * @param submit
      */
     export function SubmitPairMicheline(submit: SubmitPair): string {
@@ -712,18 +747,6 @@ code
               }
             ]
           }`;
-    }
-
-    /*
-     * Returns a SubmitPair in Michelson format
-     * @param submit
-     */
-    export function SubmitPairMichelson(submit: SubmitPair): string {
-        const signatures = SignatureMapMichelson(submit.signatures);
-        const executionRequest = ExecutionRequestMichelson(submit.executionRequest)
-        console.log(signatures);
-        console.log(executionRequest);
-        return `(Right (Right (Pair ${signatures} ${executionRequest} )))`;
     }
 
     /*
@@ -771,14 +794,13 @@ code
     }
 
     /*
-     * Rotate entrypoint parameters
+     * RotateRequest
      *
      * @param chainid The chain id to execute on
      * @param operationId The current operation id of the contract
      * @param payload The new threshold and set of keys
      */
-    export interface RotatePair {
-        signatures: SignatureMap;
+    export interface RotateRequest {
         chainId: string | undefined;
         operationId: number | undefined;
         payload: {
@@ -786,6 +808,39 @@ code
             keys: string[];
         }
     }
+
+    // TODO: add michelson and micheline
+
+    /*
+     * Return the bytes to sign for key rotation call
+     *
+     * @param threshold The new threshold
+     * @param keys The new list of keys
+     * @param operationId The current operation id of the contract
+     */
+    export function rotateRequestBytesToSign(rotateRequest: RotateRequest): string {
+        // get chainid
+        // get operationId if undefined
+        // create michelson
+        // encode
+        return '';
+    }
+
+    /*
+     * Rotate entrypoint parameters
+     *
+     */
+    export interface RotatePair {
+        signatures: SignatureMap;
+        rotateRequest: RotateRequest;
+    }
+
+    /*
+     * Returns a RotatePair in Michelson format
+     * @param rotate
+     */
+    export function RotatePairMichelson(rotate: RotatePair): string {
+        return ``;
 
     /*
      * Returns a RotatePair in Micheline format
@@ -796,18 +851,48 @@ code
     }
 
     /*
-     * Cancel entrypoint parameters
+     * CancelRequest
      *
      * @param chainid The chain id to execute operation
      * @param operationId The current operation id of the contract
      * @param timelockId The id of the operation to cancel
      */
-    export interface CancelPair {
-        signatures: SignatureMap;
+    export interface CancelRequest {
         chainId: string | undefined;
         operationId: number | undefined;
         timelockId: number;
     }
+
+    // TODO: add michelson and micheline
+
+    /*
+     * Returns the bytes to sign for operation cancellation call
+     * @params timelockId The id of the operation to cancel
+     * @params operationId The current operation id of the contract
+     */
+    export function cancelRequestBytesToSign(timelockId: number, operationId: number | undefined = undefined): string {
+        // get chainid
+        // get operationId if undefined
+        // create michelson
+        // encode
+        return '';
+    }
+
+    /*
+     * Cancel entrypoint parameters
+     *
+     */
+    export interface CancelPair {
+        signatures: SignatureMap;
+        cancelRequest: CancelRequest;
+    }
+
+    /*
+     * Returns a CancelPair in Michelson format
+     * @param cancel
+     */
+    export function CancelPairMichelson(cancel: CancelPair): string {
+        return ``;
 
     /*
      * Returns a CancelPair in Micheline format
@@ -816,6 +901,8 @@ code
     export function CancelPairMicheline(cancel: CancelPair): string {
         return ``;
     }
+
+    // TODO: add entrypoint invocation
 
     /*
      * Execute entrypoint parameters
@@ -827,6 +914,13 @@ code
     }
 
     /*
+     * Returns a ExecutePair in Michelson format
+     * @param execute
+     */
+    export function ExecutePairMichelson(execute: ExecutePair): string {
+        return ``;
+
+    /*
      * Returns a ExecutePair in Micheline format
      * @param execute
      */
@@ -834,33 +928,7 @@ code
         return ``;
     }
 
-    /*
-     * Return the bytes to sign for key rotation call
-     * @param threshold The new threshold
-     * @param keys The new list of keys
-     * @param operationId The current operation id of the contract
-     */
-    export function keyRotationBytesToSubmit(threshold: number, keys: string[], operationId: number | undefined = undefined): string {
-        // get chainid
-        // get operationId if undefined
-        // create michelson
-        // encode
-        return '';
-    }
-
-    /*
-     * Returns the bytes to sign for operation cancellation call
-     * @params timelockId The id of the operation to cancel
-     * @params operationId The current operation id of the contract
-     */
-    export function cancelBytesToSubmit(timelockId: number, operationId: number | undefined = undefined): string {
-        // get chainid
-        // get operationId if undefined
-        // create michelson
-        // encode
-        return '';
-    }
-
+    // TODO: add entrypoint invocation
 
     /*
      * Get a Timelock instance by querying a given address
