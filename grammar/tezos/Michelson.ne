@@ -62,7 +62,7 @@ const lexer = moo.compile({
     doubleArgData: ['Pair'],
     elt: "Elt",
     word: /[a-zA-Z_0-9]+/,
-    string: /"(?:\\["\\]|[^\n"\\])*"/s
+    string: /"(?:[^"\\]|\\.)*"/s
 });
 %}
 
