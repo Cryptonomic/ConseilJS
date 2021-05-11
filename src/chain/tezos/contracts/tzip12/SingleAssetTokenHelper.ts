@@ -7,40 +7,40 @@ import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 import { TezosContractUtils } from '../TezosContractUtils';
 
-interface SingleAssetSimpleStorage {
-    administrator: string;
-    paused: boolean;
-    pendingAdmin: string;
-    balanceMap: number;
-    operatorMap: number;
-    metadataMap: number;
-    supply: number;
-}
-
-interface SingleAssetTokenDefinition {
-    tokenid: number;
-    symbol: string;
-    name: string;
-    scale: number;
-}
-
-interface BalancePair {
-    address: string;
-    balance: number;
-}
-
-interface TransferPair {
-    address: string;
-    tokenid: number;
-    balance: number;
-}
-
 /**
  * Interface for the FA2.0 contract implementation outlined here: https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-12/tzip-12.md.
  * 
  * Compatible with the contract as of July 4, 2020 from https://github.com/tqtezos/smart-contracts/blob/master/single_asset/ligo/out/fa2_single_asset.tz
  */
 export namespace SingleAssetTokenHelper {
+    export interface SingleAssetSimpleStorage {
+        administrator: string;
+        paused: boolean;
+        pendingAdmin: string;
+        balanceMap: number;
+        operatorMap: number;
+        metadataMap: number;
+        supply: number;
+    }
+
+    export interface SingleAssetTokenDefinition {
+        tokenid: number;
+        symbol: string;
+        name: string;
+        scale: number;
+    }
+
+    export interface BalancePair {
+        address: string;
+        balance: number;
+    }
+
+    export interface TransferPair {
+        address: string;
+        tokenid: number;
+        balance: number;
+    }
+
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
      * 

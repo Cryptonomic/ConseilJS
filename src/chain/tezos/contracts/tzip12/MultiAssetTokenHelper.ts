@@ -6,35 +6,35 @@ import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { TezosContractUtils } from '../TezosContractUtils';
 
-interface MultiAssetSimpleStorage {
-    administrator: string;
-    tokens: number;
-    balanceMap: number;
-    operatorMap: number;
-    paused: boolean;
-    metadataMap: number;
-}
-
-interface MultiAssetTokenDefinition {
-    tokenid: number;
-    symbol: string;
-    name: string;
-    scale: number;
-    supply: number;
-}
-
-interface TransferPair {
-    address: string;
-    tokenid: number;
-    balance: number;
-}
-
 /**
  * Interface for the FA2.0 contract implementation outlined here: https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-12/tzip-12.md.
  * 
  * Compatible with the contract as of July 4, 2020 from https://gitlab.com/smondet/fa2-smartpy/-/blob/master/michelson/20200615-162614+0000_e1e6c44_contract.tz
  */
 export namespace MultiAssetTokenHelper {
+    export interface MultiAssetSimpleStorage {
+        administrator: string;
+        tokens: number;
+        balanceMap: number;
+        operatorMap: number;
+        paused: boolean;
+        metadataMap: number;
+    }
+
+    export interface MultiAssetTokenDefinition {
+        tokenid: number;
+        symbol: string;
+        name: string;
+        scale: number;
+        supply: number;
+    }
+
+    export interface TransferPair {
+        address: string;
+        tokenid: number;
+        balance: number;
+    }
+
     /**
      * Gets the contract code at the specified address at the head block and compares it to the known hash of the code. This function processes Micheline format contracts.
      * 
