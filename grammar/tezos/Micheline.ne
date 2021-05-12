@@ -28,7 +28,7 @@ const lexer = moo.compile({
     colon: ":",
     comma: ",",
     _: /[ \t]+/,
-    quotedValue: /"(?:\\["\\]|[^\n"\\])*"/s
+    quotedValue: /"(?:[^"\\]|\\.)*"/s
 });
 %}
 
@@ -72,11 +72,10 @@ const staticStringToHex = d => {
     const prefix = '01';
     let text = d[6].toString();
     text = text.substring(1, text.length - 1); // strip double quotes
-    text = text.replace(/\\"/g, '"');
+    text = text.replace(/\\"/g, '"').replace(/\\n/g, '\n').replace(/\\\\/g, '\\');
     const len = encodeLength(text.length);
 
-    text = text.split('').map(c => c.charCodeAt(0).toString(16)).join('');
-
+    text = text.split('').map(c => c.charCodeAt(0).toString(16).padStart(2, "0")).join('');
     return prefix + len + text;
 };
 
@@ -160,7 +159,7 @@ const primArgToHex = d => {
  * Encodes a primitive with arguments and annotations
  * { "prim": "NIL", "args": [ { "prim": "operation" } ], "annots": [ "@cba" ] } => 063d036d0000000440636261
  * { "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@cba" ] } => 083d036d036d0000000440636261
- * 
+ *
  */
 const primArgAnnToHex = d => {
     let prefix = '06';

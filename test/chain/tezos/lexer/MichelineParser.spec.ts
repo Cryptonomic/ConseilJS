@@ -74,6 +74,13 @@ describe('Micheline binary encoding tests', () => {
         const result = TezosLanguageUtil.translateMichelineToHex('{ "prim": "NIL", "args": [ { "prim": "operation" }, { "prim": "operation" }, { "prim": "operation" } ], "annots": [ "@red", "@green", "@blue" ] }');
         expect(result).to.equal('093d00000006036d036d036d00000011407265642040677265656e2040626c7565');
     });
+
+    it('parse a literal string with escape sequences', () => {
+        // https://tezos.gitlab.io/008/michelson.html#constants
+        // [string] in michelson is a subset of 7-bit ASCII with some usual escape sequences: \n, \\, \"
+        const result = TezosLanguageUtil.translateMichelineToHex('{ "string" : "hello \\n \\\\ \\"world\\"" }');
+        expect(result).to.equal('010000001168656c6c6f200a205c2022776f726c6422');
+    });
 });
 
 describe('Micheline binary encoding complex tests', () => {
