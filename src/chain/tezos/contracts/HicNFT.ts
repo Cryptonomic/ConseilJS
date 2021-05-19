@@ -10,9 +10,29 @@ import {SingleAssetTokenHelper} from './tzip12/SingleAssetTokenHelper';
 
 export namespace HicNFTHelper {
     /*
+     * Type for representing Hic's FA2 contracts' storage.
+     * @param administrator
+     * @param allTokens
+     * @param ledgerMapId
+     * @param metadataMap
+     * @param operatorsMapId
+     * @param paused
+     * @param tokenMetadataMapId
+     */
+    interface HicStorage {
+        administrator: string;
+        allTokens: number;
+        ledgerMapId: number;
+        metadataMapId: number;
+        operatorsMapId: number;
+        paused: boolean;
+        tokenMetadataMapId: number;
+    }
+
+    /*
      * Objkts FA2 contract storage type
      */
-    export type ObjktsStorage = MultiAssetTokenHelper.MultiAssetSimpleStorage;
+    export type ObjktsStorage = HicStorage;
 
     /*
      * Get an instance of a Objkts contract's storage by querying a given address
@@ -21,13 +41,22 @@ export namespace HicNFTHelper {
      */
     export async function getObjktsStorage(server: string): Promise<ObjktsStorage> {
         const objktsAddress = 'KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton';
-        return await MultiAssetTokenHelper.getSimpleStorage(server, objktsAddress);
+        const storageResult = await TezosNodeReader.getContractStorage(server, objktsAddress);
+        return {
+            administrator: JSONPath({path: '$.args[0].args[0].string', json: storageResult })[0],
+            allTokens: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0]),
+            ledgerMapId: Number(JSONPath({ path: '$.args[0].args[2].int', json: storageResult })[0]),
+            metadataMapId: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
+            operatorsMapId: Number(JSONPath({ path: '$.args[1].args[1].int', json: storageResult })[0]),
+            paused: (JSONPath({ path: '$.args[2].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            tokenMetadataMapId: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0])
+        };
     }
 
     /*
      * hDao FA2 contract storage type
      */
-    export type HDaoStorage = MultiAssetTokenHelper.MultiAssetSimpleStorage;
+    export type HDaoStorage = HicStorage;
 
 
     /*
@@ -37,24 +66,22 @@ export namespace HicNFTHelper {
      */
     export async function getHDaoStorage(server: string): Promise<HDaoStorage> {
         const hDaoAddress = 'KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW';
-        return await MultiAssetTokenHelper.getSimpleStorage(server, hDaoAddress);
+        const storageResult = await TezosNodeReader.getContractStorage(server, hDaoAddress);
+        return {
+            administrator: JSONPath({path: '$.args[0].args[0].string', json: storageResult })[0],
+            allTokens: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0]),
+            ledgerMapId: Number(JSONPath({ path: '$.args[0].args[2].int', json: storageResult })[0]),
+            metadataMapId: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
+            operatorsMapId: Number(JSONPath({ path: '$.args[1].args[1].int', json: storageResult })[0]),
+            paused: (JSONPath({ path: '$.args[2].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            tokenMetadataMapId: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0])
+        };
     }
 
     /*
      * hDao transfer entrypoint parameters
      */
     export type hDaoTransferPair = MultiAssetTokenHelper.TransferPair;
-
-    /*
-     * Returns a hDaoTransferPair in Micheline format
-     *
-     * @param sendHDao
-     */
-    export function hDaoTransferMicheline(sendHDao: hDaoTransferPair): string {
-        // TODO: parse parameter micheline
-        return ``;
-    }
-
 
     /*
      * TODO: documentation
@@ -99,22 +126,13 @@ export namespace HicNFTHelper {
         //     parameter,
         //     TezosParameterFormat.Michelson);
         // return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return '';
     }
 
     /*
      * TODO: documentation
      */
     export type objktsTransferPair = MultiAssetTokenHelper.TransferPair;
-
-    /*
-     * Returns a SendHDaoPair in Micheline format
-     *
-     * @param sendHDao
-     */
-    export function ObjktsTransferMicheline(objktsTransfer: objktsTransferPair): string {
-        // TODO: parse parameter micheline
-        return ``;
-    }
 
 
     /*
@@ -160,206 +178,6 @@ export namespace HicNFTHelper {
         //     parameter,
         //     TezosParameterFormat.Michelson);
         // return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+        return '';
     }
-
-    /**
-     *
-     *
-     * @param tokenAddress The address to query transactions for.
-     * @param managerAddress 
-     */
-    export async function getTokenTransactions(conseilServer: ConseilServerInfo, tokenAddress: string, managerAddress: string) {
-        let direct = ConseilQueryBuilder.blankQuery();
-        direct = ConseilQueryBuilder.addFields(
-            direct,
-            'timestamp',
-            'block_level',
-            'source',
-            'destination',
-            'amount',
-            'kind',
-            'fee',
-            'status',
-            'operation_group_hash',
-            'parameters',
-            'parameters_micheline',
-            'parameters_entrypoints'
-        );
-        direct = ConseilQueryBuilder.addPredicate(direct, 'kind', ConseilOperator.EQ, ['transaction'], false);
-        direct = ConseilQueryBuilder.addPredicate(direct, 'status', ConseilOperator.EQ, ['applied'], false);
-        direct = ConseilQueryBuilder.addPredicate(direct, 'destination', ConseilOperator.EQ, [tokenAddress], false);
-        direct = ConseilQueryBuilder.addPredicate(direct, 'source', ConseilOperator.EQ, [managerAddress], false);
-        direct = ConseilQueryBuilder.addOrdering(direct, 'timestamp', ConseilSortDirection.DESC);
-        direct = ConseilQueryBuilder.setLimit(direct, 5_000);
-
-        let indirect = ConseilQueryBuilder.blankQuery();
-        indirect = ConseilQueryBuilder.addFields(
-            indirect,
-            'timestamp',
-            'block_level',
-            'source',
-            'destination',
-            'amount',
-            'kind',
-            'fee',
-            'status',
-            'operation_group_hash',
-            'parameters',
-            'parameters_micheline',
-            'parameters_entrypoints'
-        );
-        indirect = ConseilQueryBuilder.addPredicate(indirect, 'kind', ConseilOperator.EQ, ['transaction'], false);
-        indirect = ConseilQueryBuilder.addPredicate(indirect, 'status', ConseilOperator.EQ, ['applied'], false);
-        indirect = ConseilQueryBuilder.addPredicate(indirect, 'destination', ConseilOperator.EQ, [tokenAddress], false);
-        indirect = ConseilQueryBuilder.addPredicate(indirect, 'parameters', ConseilOperator.LIKE, [managerAddress], false);
-        indirect = ConseilQueryBuilder.addOrdering(indirect, 'timestamp', ConseilSortDirection.DESC);
-        indirect = ConseilQueryBuilder.setLimit(indirect, 5_000);
-
-        return Promise.all([direct, indirect].map((q) => TezosConseilClient.getOperations(conseilServer, conseilServer.network, q)))
-            .then((responses) =>
-                responses.reduce((result, r) => {
-                    r.forEach((rr) => result.push(rr));
-                    return result;
-                })
-            )
-            .then((transactions) => {
-                return transactions.sort((a, b) => a.timestamp - b.timestamp);
-                /**
-                 *
-                 *
-                 * @param tokenAddress The address to query transactions for.
-                 * @param managerAddress 
-                 */
-                export async function getTokenTransactions(conseilServer: ConseilServerInfo, tokenAddress: string, managerAddress: string) {
-                    let direct = ConseilQueryBuilder.blankQuery();
-                    direct = ConseilQueryBuilder.addFields(
-                        direct,
-                        'timestamp',
-                        'block_level',
-                        'source',
-                        'destination',
-                        'amount',
-                        'kind',
-                        'fee',
-                        'status',
-                        'operation_group_hash',
-                        'parameters',
-                        'parameters_micheline',
-                        'parameters_entrypoints'
-                    );
-                    direct = ConseilQueryBuilder.addPredicate(direct, 'kind', ConseilOperator.EQ, ['transaction'], false);
-                    direct = ConseilQueryBuilder.addPredicate(direct, 'status', ConseilOperator.EQ, ['applied'], false);
-                    direct = ConseilQueryBuilder.addPredicate(direct, 'destination', ConseilOperator.EQ, [tokenAddress], false);
-                    direct = ConseilQueryBuilder.addPredicate(direct, 'source', ConseilOperator.EQ, [managerAddress], false);
-                    direct = ConseilQueryBuilder.addOrdering(direct, 'timestamp', ConseilSortDirection.DESC);
-                    direct = ConseilQueryBuilder.setLimit(direct, 5_000);
-
-                    let indirect = ConseilQueryBuilder.blankQuery();
-                    indirect = ConseilQueryBuilder.addFields(
-                        indirect,
-                        'timestamp',
-                        'block_level',
-                        'source',
-                        'destination',
-                        'amount',
-                        'kind',
-                        'fee',
-                        'status',
-                        'operation_group_hash',
-                        'parameters',
-                        'parameters_micheline',
-                        'parameters_entrypoints'
-                    );
-                    indirect = ConseilQueryBuilder.addPredicate(indirect, 'kind', ConseilOperator.EQ, ['transaction'], false);
-                    indirect = ConseilQueryBuilder.addPredicate(indirect, 'status', ConseilOperator.EQ, ['applied'], false);
-                    indirect = ConseilQueryBuilder.addPredicate(indirect, 'destination', ConseilOperator.EQ, [tokenAddress], false);
-                    indirect = ConseilQueryBuilder.addPredicate(indirect, 'parameters', ConseilOperator.LIKE, [managerAddress], false);
-                    indirect = ConseilQueryBuilder.addOrdering(indirect, 'timestamp', ConseilSortDirection.DESC);
-                    indirect = ConseilQueryBuilder.setLimit(indirect, 5_000);
-
-                    return Promise.all([direct, indirect].map((q) => TezosConseilClient.getOperations(conseilServer, conseilServer.network, q)))
-                        .then((responses) =>
-                            responses.reduce((result, r) => {
-                                r.forEach((rr) => result.push(rr));
-                                return result;
-                            })
-                        )
-                        .then((transactions) => {
-                            return transactions.sort((a, b) => a.timestamp - b.timestamp);
-                        });
-                }
-
-                /**
-                 * Queries the last price listed on chain.
-                 *
-                 * @param operations
-                 */
-                function makeLastPriceQuery(operations) {
-
-                }
-
-                /**
-                 *
-                 *
-                 * @param
-                 */
-                export async function getCollection(tokenMapId: number, managerAddress: string, node: Node): Promise<any[]> {
-                }
-
-                /**
-                 *
-                 *
-                 * @param
-                 */
-                export async function getCollectionSize(tokenMapId: number, managerAddress: string, node: Node): Promise<number> {
-                }
-
-                /**
-                 * Returns raw hDAO token balance for the account.
-                 * KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW, ledger map id 515
-                 *
-                 * @param tokenMapId
-                 * @param managerAddress
-                 * @param node
-                 * @returns
-                 */
-                export async function getBalance(tezosUrl: string, mapId: number, address: string): Promise<number> {
-                }
-
-
-                // TODO: token datastructure
-
-                /**
-                 *
-                 *
-                 * @param
-                 */
-                export async function getTokenInfo(node: Node, mapId: number = 515): Promise<{holders: number; totalBalance: number}> {
-                }
-
-                /**
-                 *
-                 *
-                 * @param
-                 */
-                export async function getNFTObjectDetails(tezosUrl: string, objectId: number) {
-
-                }
-
-                /**
-                 *
-                 *
-                 * @param
-                 */
-                function chunkArray(arr: any[], len: number) {
-                    const chunks: any[] = [];
-                    const n = arr.length;
-
-                    let i = 0;
-                    while (i < n) {
-                        chunks.push(arr.slice(i, (i += len)));
-                    }
-
-                    return chunks;
-                }
-            }
+}
