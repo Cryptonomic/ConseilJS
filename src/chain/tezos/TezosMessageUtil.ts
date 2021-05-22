@@ -145,6 +145,19 @@ export namespace TezosMessageUtils {
         return text;
     }
 
+    export function hexToString(hex: string): string {
+        if (hex.length === 0) { return ''; }
+        let text = '';
+        for (let i = 0; i < hex.length; i += 2) {
+            text += String.fromCharCode(parseInt(hex.substring(i, i + 2), 16));
+        }
+
+        return text;
+    }
+
+    export function stringToHex(str: string): string {
+        return str.split('').map(c => c.charCodeAt(0).toString(16)).join('');
+    }
     /**
      * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
      * An address is a public key hash of the account.
