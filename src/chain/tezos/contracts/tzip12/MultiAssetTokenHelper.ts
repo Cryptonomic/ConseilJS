@@ -8,13 +8,13 @@ import { TezosContractUtils } from '../TezosContractUtils';
 
 interface MultiAssetSimpleStorage {
     administrator: string,
-    tokens: Number,
-    ledger: Number,
-    metadata: Number,
+    tokens: number,
+    ledger: number,
+    metadata: number,
     paused: string,
-    operators: Number,
-    tokenMetadata: Number,
-    totalSupply: Number
+    operators: number,
+    tokenMetadata: number,
+    totalSupply: number
 }
 
 interface MultiAssetTokenDefinition {
@@ -207,7 +207,7 @@ export namespace MultiAssetTokenHelper {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
-            if (parameters !== "{") parameters + "; ";
+            if (parameters !== "{") parameters += "; ";
             parameters += `Left (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
         });
         parameters += "}";
@@ -220,7 +220,7 @@ export namespace MultiAssetTokenHelper {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
-            if (parameters !== "{") parameters + "; ";
+            if (parameters !== "{") parameters += "; ";
             parameters += `Right (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
         });
         parameters += "}";

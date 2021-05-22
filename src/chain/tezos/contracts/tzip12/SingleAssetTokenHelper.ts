@@ -9,13 +9,13 @@ import { TezosContractUtils } from '../TezosContractUtils';
 
 interface SingleAssetSimpleStorage {
     administrator: string,
-    tokens: Number,
-    ledger: Number,
-    metadata: Number,
+    tokens: number,
+    ledger: number,
+    metadata: number,
     paused: string,
-    operators: Number,
-    tokenMetadata: Number,
-    totalSupply: Number
+    operators: number,
+    tokenMetadata: number,
+    totalSupply: number
 }
 
 interface SingleAssetTokenDefinition {
@@ -204,7 +204,7 @@ export namespace SingleAssetTokenHelper {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
-            if (parameters !== "{") parameters + "; ";
+            if (parameters !== "{") parameters += "; ";
             parameters += `Left (Pair "${op.owner}" (Pair "${op.operator}" 0))`;
         });
         parameters += "}";
@@ -217,7 +217,7 @@ export namespace SingleAssetTokenHelper {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
-            if (parameters !== "{") parameters + "; ";
+            if (parameters !== "{") parameters += "; ";
             parameters += `Right (Pair "${op.owner}" (Pair "${op.operator}" 0))`;
         });
         parameters += "}";
