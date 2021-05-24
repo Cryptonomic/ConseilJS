@@ -128,7 +128,7 @@ export namespace HicNFTHelper {
     export type HDaoTransferPair = TransferPair;
 
     /*
-     * Helper function for single (i.e. non-batched) hDao transfer
+     * Helper function for single (i.e. non-batched) hDao FA2 transfer
      *
      * @param src
      * @param dest
@@ -174,13 +174,31 @@ export namespace HicNFTHelper {
     }
 
     /*
-     * TODO: documentation
+     * Objkts transaction parameters
      */
-    export type objktsTransferPair = MultiAssetTokenHelper.TransferPair;
-
+    export type ObjktsTransaction = TokenTransaction;
 
     /*
-     * TODO: documentation
+     * Objkts transfer entrypoint parameters
+     */
+    export type ObjktsTransferPair = TransferPair;
+
+    /*
+     * Helper function for single (i.e. non-batched) objkts FA2 transfer
+     *
+     * @param src
+     * @param dest
+     * @param amount
+     */
+    export function MakeSingleObjktsTransfer(src: string, dest: string, token_id: number, amount: number): ObjktsTransferPair {
+        return {
+            source: src,
+            txs: [ { destination: dest, token_id: token_id, amount: amount } ]
+        }
+    }
+
+    /*
+     * Invokes the Transfer entrypoint of the hDao FA2 contract.
      *
      * @param server
      * @param signer
@@ -192,36 +210,22 @@ export namespace HicNFTHelper {
      * @param gas
      * @param freight
      */
-    export async function ObjktsTransfer(server: string, signer: Signer, keystore: KeyStore, address: string, parameter: objktsTransferPair, amount: number, fee: number, gas: number, freight: number): Promise<string> {
-        // TODO: implementation
-        // const entrypoint = `submit`;
+    export async function ObjktsTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
+        const entrypoint = `transfer`;
 
-        // // get chainId of mainnet if not specified
-        // if (!submit.executionRequest.chainId) {
-        //     const chainId: string = await TezosNodeReader.getChainId(server);
-        //     submit.executionRequest.chainId = ``;
-        // }
-
-        // // get current operationId if not specified
-        // if (!submit.executionRequest.operationId) {
-        //     const storage = await getStorage(server, address);
-        //     submit.executionRequest.operationId = storage.operationId;
-        // }
-
-        // let parameter: string = SubmitPairMichelson(submit);
-        // const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
-        //     server,
-        //     signer,
-        //     keystore,
-        //     address,
-        //     amount,
-        //     fee,
-        //     freight,
-        //     gas,
-        //     entrypoint,
-        //     parameter,
-        //     TezosParameterFormat.Michelson);
-        // return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-        return '';
+        let parameter: string = TransferPairMichelson(transfers);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            server,
+            signer,
+            keystore,
+            objktsAddress, // 'KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton'
+            amount,
+            fee,
+            freight,
+            gas,
+            entrypoint,
+            parameter,
+            TezosParameterFormat.Michelson);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 }
