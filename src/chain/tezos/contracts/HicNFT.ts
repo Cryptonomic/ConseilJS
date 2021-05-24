@@ -6,7 +6,8 @@ import {ConseilOperator, ConseilSortDirection, ConseilServerInfo} from '../../..
 import {ConseilQueryBuilder} from '../../../reporting/ConseilQueryBuilder';
 import {TezosConseilClient} from '../../../reporting/tezos/TezosConseilClient';
 import {MultiAssetTokenHelper} from './tzip12/MultiAssetTokenHelper';
-import {SingleAssetTokenHelper} from './tzip12/SingleAssetTokenHelper';
+import {TezosParameterFormat} from '../../../types/tezos/TezosChainTypes';
+import {TezosContractUtils} from './TezosContractUtils';
 
 export namespace HicNFTHelper {
     /*
@@ -29,6 +30,9 @@ export namespace HicNFTHelper {
         tokenMetadataMapId: number;
     }
 
+    export const objktsAddress = 'KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton';
+    export const hDaoAddress = 'KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW';
+
     /*
      * Objkts FA2 contract storage type
      */
@@ -40,7 +44,6 @@ export namespace HicNFTHelper {
      * @param address The deployed Timelock contract address
      */
     export async function getObjktsStorage(server: string): Promise<ObjktsStorage> {
-        const objktsAddress = 'KT1RJ6PbjHpwc3M5rw5s2Nbmefwbuwbdxton';
         const storageResult = await TezosNodeReader.getContractStorage(server, objktsAddress);
         return {
             administrator: JSONPath({path: '$.args[0].args[0].string', json: storageResult })[0],
@@ -65,7 +68,6 @@ export namespace HicNFTHelper {
      * @param address The deployed Timelock contract address
      */
     export async function getHDaoStorage(server: string): Promise<HDaoStorage> {
-        const hDaoAddress = 'KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW';
         const storageResult = await TezosNodeReader.getContractStorage(server, hDaoAddress);
         return {
             administrator: JSONPath({path: '$.args[0].args[0].string', json: storageResult })[0],
@@ -79,12 +81,68 @@ export namespace HicNFTHelper {
     }
 
     /*
-     * hDao transfer entrypoint parameters
+     * FA2 individual token transfer
      */
-    export type hDaoTransferPair = MultiAssetTokenHelper.TransferPair;
+    interface TokenTransaction {
+        destination: string;
+        token_id: number;
+        amount: number;
+    }
 
     /*
-     * TODO: documentation
+     * Returns a TokenTransaction in Michelson format
+     */
+    export function TokenTransactionMichelson(tx: TokenTransaction): string {
+        return `Pair "${tx.destination}" (Pair ${tx.token_id} ${tx.amount})`;
+    }
+
+    /*
+     * FA2 batch transfer invocation parameters
+     */
+    interface TransferPair {
+        source: string;
+        txs: TokenTransaction[]
+    }
+
+    /*
+     * Returns a TransferPair in Michelson format
+     */
+    export function TransferPairMichelson(transfers: TransferPair[]): string {
+        const transferList: string = transfers.map(
+            (transfer) => {
+                const txList: string = transfer.txs.map((tx) => TokenTransactionMichelson(tx)).join("; ");
+                return `Pair "${transfer.source}" { ${txList} }`;
+            }
+        ).join("; ");
+        return `{ ${transferList} }`
+    }
+
+    /*
+     * hDao transaction parameters
+     */
+    export type HDaoTransaction = TokenTransaction;
+
+    /*
+     * hDao transfer entrypoint parameters
+     */
+    export type HDaoTransferPair = TransferPair;
+
+    /*
+     * Helper function for single (i.e. non-batched) hDao transfer
+     *
+     * @param src
+     * @param dest
+     * @param amount
+     */
+    export function MakeSingleHDaoTransfer(src: string, dest: string, amount: number): HDaoTransferPair {
+        return {
+            source: src,
+            txs: [ { destination: dest, token_id: 0, amount: amount } ]
+        }
+    }
+
+    /*
+     * Invokes the Transfer entrypoint of the hDao FA2 contract.
      *
      * @param server
      * @param signer
@@ -96,37 +154,23 @@ export namespace HicNFTHelper {
      * @param gas
      * @param freight
      */
-    export async function HDaoTransfer(server: string, signer: Signer, keystore: KeyStore, address: string, parameter: hDaoTransferPair, amount: number, fee: number, gas: number, freight: number): Promise<string> {
-        // TODO: implementation
-        // const entrypoint = `submit`;
+    export async function HDaoTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
+        const entrypoint = `transfer`;
 
-        // // get chainId of mainnet if not specified
-        // if (!submit.executionRequest.chainId) {
-        //     const chainId: string = await TezosNodeReader.getChainId(server);
-        //     submit.executionRequest.chainId = ``; 
-        // }
-
-        // // get current operationId if not specified
-        // if (!submit.executionRequest.operationId) {
-        //     const storage = await getStorage(server, address);
-        //     submit.executionRequest.operationId = storage.operationId;
-        // }
-
-        // let parameter: string = SubmitPairMichelson(submit);
-        // const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
-        //     server,
-        //     signer,
-        //     keystore,
-        //     address,
-        //     amount,
-        //     fee,
-        //     freight,
-        //     gas,
-        //     entrypoint,
-        //     parameter,
-        //     TezosParameterFormat.Michelson);
-        // return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-        return '';
+        let parameter: string = TransferPairMichelson(transfers);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(
+            server,
+            signer,
+            keystore,
+            hDaoAddress, // 'KT1AFA2mwNUMNd4SsujE1YYp29vd8BZejyKW'
+            amount,
+            fee,
+            freight,
+            gas,
+            entrypoint,
+            parameter,
+            TezosParameterFormat.Michelson);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     /*
