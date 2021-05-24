@@ -145,13 +145,6 @@ export namespace TezosMessageUtils {
         return text;
     }
 
-    export function hexToString(hex: string): string {
-        return Buffer.from(hex, "hex").toString();
-    }
-
-    export function stringToHex(str: string): string {
-        return Buffer.from(str, "utf-8").toString("hex");
-    }
     /**
      * Takes a bounded hex string that is known to contain a Tezos address and decodes it. Supports implicit tz1, tz2, tz3 accounts and originated kt1.
      * An address is a public key hash of the account.
