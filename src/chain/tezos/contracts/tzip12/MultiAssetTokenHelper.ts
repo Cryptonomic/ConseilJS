@@ -7,32 +7,37 @@ import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { TezosContractUtils } from '../TezosContractUtils';
 
 interface MultiAssetSimpleStorage {
-    administrator: string;
-    tokens: number;
-    balanceMap: number;
-    operatorMap: number;
-    paused: boolean;
-    metadataMap: number;
+    administrator: string,
+    tokens: number,
+    ledger: number,
+    metadata: number,
+    paused: string,
+    operators: number,
+    tokenMetadata: number,
+    totalSupply: number
 }
 
 interface MultiAssetTokenDefinition {
     tokenid: number;
-    symbol: string;
-    name: string;
-    scale: number;
-    supply: number;
+    metadata: Record<string, string>;
 }
 
 interface TransferPair {
     address: string;
     tokenid: number;
-    balance: number;
+    amount: number;
+}
+
+interface UpdateOperator {
+    owner: string,
+    operator: string,
+    tokenid: number
 }
 
 /**
  * Interface for the FA2.0 contract implementation outlined here: https://gitlab.com/tzip/tzip/-/tree/master/proposals/tzip-12/tzip-12.md.
  * 
- * Compatible with the contract as of July 4, 2020 from https://gitlab.com/smondet/fa2-smartpy/-/blob/master/michelson/20200615-162614+0000_e1e6c44_contract.tz
+ * Compatible with the contract as of May 24, 2021 from https://smartpy.io/ide?template=FA2.py
  */
 export namespace MultiAssetTokenHelper {
     /**
@@ -62,21 +67,18 @@ export namespace MultiAssetTokenHelper {
      * @param keystore 
      * @param fee 
      * @param administrator 
-     * @param name 
-     * @param symbol 
-     * @param tokenid 
-     * @param scale 
+     * @param metadataUrl 
      * @param pause 
-     * @param supply 
      * @param gas 
      * @param freight 
      */
-    export async function deployContract(server: string, signer: Signer, keystore: KeyStore, fee: number, administrator: string, name: string, symbol: string, tokenid: number, scale: number, pause: boolean = true, supply: number = 0, gas: number = 800_000, freight: number = 20_000): Promise<string> {
-        const contract = `parameter (or (or (or (pair %balance_of (list %requests (pair (address %owner) (nat %token_id))) (contract %callback (list (pair (pair %request (address %owner) (nat %token_id)) (nat %balance))))) (pair %mint (pair (address %address) (nat %amount)) (pair (string %symbol) (nat %token_id)))) (or (address %set_administrator) (bool %set_pause))) (or (or (pair %token_metadata (list %token_ids nat) (lambda %handler (list (pair (nat %token_id) (pair (string %symbol) (pair (string %name) (pair (nat %decimals) (map %extras string string)))))) unit)) (contract %token_metadata_regitry address)) (or (list %transfer (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount)))))) (list %update_operators (or (pair %add_operator (address %owner) (address %operator)) (pair %remove_operator (address %owner) (address %operator))))))) ;
-            storage (pair (pair (address %administrator) (pair (nat %all_tokens) (big_map %ledger (pair address nat) nat))) (pair (pair (unit %version_20200615_tzip_a57dfe86_contract) (big_map %operators (pair (address %owner) (address %operator)) unit)) (pair (bool %paused) (big_map %tokens nat (pair (pair %metadata (nat %token_id) (pair (string %symbol) (pair (string %name) (pair (nat %decimals) (map %extras string string))))) (nat %total_supply)))))) ;
-            code { DUP ; CDR ; SWAP ; CAR ; IF_LEFT { IF_LEFT { IF_LEFT { SWAP ; DUP ; DUG 2 ; { CDR ; CDR ; CAR } ; IF { PUSH string "WrongCondition: ~ self.data.paused" ; FAILWITH } {} ; NIL (pair (pair %request (address %owner) (nat %token_id)) (nat %balance)) ; SWAP ; DUP ; DUG 2 ; CAR ; ITER { SWAP ; DIG 3 ; DUP ; DUG 4 ; { CAR ; CDR ; CDR } ; DIG 2 ; DUP ; DUG 3 ; CDR ; DIG 3 ; DUP ; DUG 4 ; CAR ; PAIR ; GET ; { IF_NONE { PUSH string "Get-item:190" ; FAILWITH } {} } ; DIG 2 ; DUP ; DUG 3 ; CDR ; DIG 3 ; CAR ; PAIR %owner %token_id ; PAIR %request %balance ; CONS } ; NIL operation ; DIG 2 ; DUP ; DUG 3 ; CDR ; PUSH mutez 0 ; DIG 3 ; DUP ; DUG 4 ; NIL (pair (pair %request (address %owner) (nat %token_id)) (nat %balance)) ; SWAP ; ITER { CONS } ; DIG 4 ; DROP ; DIG 4 ; DROP ; TRANSFER_TOKENS ; CONS } { SWAP ; DUP ; DUG 2 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ ; IF {} { PUSH string "WrongCondition: sp.sender == self.data.administrator" ; FAILWITH } ; SWAP ; DUP ; DUG 2 ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; { CDR ; CDR } ; DIG 4 ; DUP ; DUG 5 ; { CAR ; CDR ; CAR } ; DUP ; PUSH nat 1 ; DIG 6 ; DUP ; DUG 7 ; { CDR ; CDR } ; ADD ; DUP ; DUG 2 ; COMPARE ; LE ; IF { DROP } { SWAP ; DROP } ; DIG 5 ; DROP ; PAIR ; SWAP ; PAIR ; PAIR ; SWAP ; SWAP ; DUP ; DUG 2 ; { CAR ; CDR ; CDR } ; SWAP ; DUP ; DUG 2 ; { CDR ; CDR } ; DIG 2 ; DUP ; DUG 3 ; { CAR ; CAR } ; PAIR ; MEM ; IF { SWAP ; DUP ; DUG 2 ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; DIG 6 ; DUP ; DUG 7 ; { CAR ; CAR } ; PAIR ; DUP ; DUG 2 ; GET ; { IF_NONE { PUSH string "set_in_top-any" ; FAILWITH } {} } ; DROP ; DIG 5 ; DUP ; DUG 6 ; { CAR ; CDR } ; DIG 7 ; { CAR ; CDR ; CDR } ; DIG 7 ; DUP ; DUG 8 ; { CDR ; CDR } ; DIG 8 ; DUP ; DUG 9 ; { CAR ; CAR } ; PAIR ; GET ; { IF_NONE { PUSH string "Get-item:190" ; FAILWITH } {} } ; ADD ; SOME ; SWAP ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; PAIR ; SWAP } { SWAP ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DIG 4 ; DUP ; DUG 5 ; { CAR ; CDR } ; SOME ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; DIG 6 ; DUP ; DUG 7 ; { CAR ; CAR } ; PAIR ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; PAIR ; SWAP } ; SWAP ; DUP ; DUG 2 ; { CDR ; CDR ; CDR } ; SWAP ; DUP ; DUG 2 ; { CDR ; CDR } ; MEM ; IF { SWAP ; DUP ; DUG 2 ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; DUP ; DUG 2 ; GET ; { IF_NONE { PUSH string "set_in_top-any" ; FAILWITH } {} } ; CAR ; DIG 6 ; DUP ; DUG 7 ; { CAR ; CDR } ; DIG 8 ; { CDR ; CDR ; CDR } ; DIG 8 ; DUP ; DUG 9 ; { CDR ; CDR } ; GET ; { IF_NONE { PUSH string "Get-item:431" ; FAILWITH } {} } ; CDR ; ADD ; SWAP ; PAIR ; SOME ; SWAP ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; SWAP ; PAIR ; SWAP } { SWAP ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DIG 4 ; DUP ; DUG 5 ; { CAR ; CDR } ; PUSH (pair (string %name) (pair (nat %decimals) (map %extras string string))) (Pair "" (Pair 0 {})) ; DIG 6 ; DUP ; DUG 7 ; { CDR ; CAR } ; PAIR %symbol ; DIG 6 ; DUP ; DUG 7 ; { CDR ; CDR } ; PAIR %token_id ; PAIR %metadata %total_supply ; SOME ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; SWAP ; PAIR ; SWAP } ; DROP ; NIL operation } } { IF_LEFT { SWAP ; DUP ; DUG 2 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ ; IF {} { PUSH string "WrongCondition: sp.sender == self.data.administrator" ; FAILWITH } ; SWAP ; DUP ; CDR ; SWAP ; { CAR ; CDR } ; DIG 2 ; PAIR ; PAIR } { SWAP ; DUP ; DUG 2 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ ; IF {} { PUSH string "WrongCondition: sp.sender == self.data.administrator" ; FAILWITH } ; SWAP ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; { CDR ; CDR } ; DIG 3 ; PAIR ; SWAP ; PAIR ; SWAP ; PAIR } ; NIL operation } } { IF_LEFT { IF_LEFT { SWAP ; DUP ; DUG 2 ; { CDR ; CDR ; CAR } ; IF { PUSH string "WrongCondition: ~ self.data.paused" ; FAILWITH } {} ; NIL (pair (nat %token_id) (pair (string %symbol) (pair (string %name) (pair (nat %decimals) (map %extras string string))))) ; SWAP ; DUP ; DUG 2 ; CAR ; ITER { SWAP ; DIG 3 ; DUP ; DUG 4 ; { CDR ; CDR ; CDR } ; DIG 2 ; GET ; { IF_NONE { PUSH string "Get-item:523" ; FAILWITH } {} } ; CAR ; CONS } ; SWAP ; DUP ; DUG 2 ; CDR ; SWAP ; DUP ; DUG 2 ; NIL (pair (nat %token_id) (pair (string %symbol) (pair (string %name) (pair (nat %decimals) (map %extras string string))))) ; SWAP ; ITER { CONS } ; EXEC ; DROP 3 ; NIL operation } { SWAP ; DUP ; DUG 2 ; { CDR ; CDR ; CAR } ; IF { PUSH string "WrongCondition: ~ self.data.paused" ; FAILWITH } {} ; DUP ; NIL operation ; SWAP ; PUSH mutez 0 ; SELF ; DIG 4 ; DROP ; ADDRESS ; TRANSFER_TOKENS ; CONS } } { IF_LEFT { SWAP ; DUP ; DUG 2 ; { CDR ; CDR ; CAR } ; IF { PUSH string "WrongCondition: ~ self.data.paused" ; FAILWITH } {} ; DUP ; ITER { DIG 2 ; DUP ; DUG 3 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ ; IF { PUSH bool True } { DUP ; CAR ; SENDER ; COMPARE ; EQ } ; IF { PUSH bool True } { DIG 2 ; DUP ; DUG 3 ; { CDR ; CAR ; CDR } ; SENDER ; DIG 2 ; DUP ; DUG 3 ; CAR ; PAIR %owner %operator ; MEM } ; IF {} { PUSH string "WrongCondition: ((sp.sender == self.data.administrator) | (transfer.from_ == sp.sender)) | (self.data.operators.contains(sp.record(operator = sp.sender, owner = transfer.from_)))" ; FAILWITH } ; DUP ; CDR ; ITER { DUP ; { CDR ; CDR } ; PUSH nat 0 ; COMPARE ; LT ; IF {} { PUSH string "TRANSFER_OF_ZERO" ; FAILWITH } ; DUP ; { CDR ; CDR } ; DIG 4 ; DUP ; DUG 5 ; { CAR ; CDR ; CDR } ; DIG 2 ; DUP ; DUG 3 ; { CDR ; CAR } ; DIG 4 ; DUP ; DUG 5 ; CAR ; PAIR ; GET ; { IF_NONE { PUSH string "Get-item:190" ; FAILWITH } {} } ; COMPARE ; GE ; IF {} { PUSH string "WrongCondition: self.data.ledger[(transfer.from_, tx.token_id)].balance >= tx.amount" ; FAILWITH } ; DIG 3 ; DUP ; DUG 4 ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CAR } ; DIG 7 ; DUP ; DUG 8 ; CAR ; PAIR ; DUP ; DUG 2 ; GET ; { IF_NONE { PUSH string "set_in_top-any" ; FAILWITH } {} } ; DROP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; DIG 9 ; { CAR ; CDR ; CDR } ; DIG 7 ; DUP ; DUG 8 ; { CDR ; CAR } ; DIG 9 ; DUP ; DUG 10 ; CAR ; PAIR ; GET ; { IF_NONE { PUSH string "Get-item:190" ; FAILWITH } {} } ; SUB ; ISNAT ; { IF_NONE { PUSH unit Unit ; FAILWITH } {} } ; SOME ; SWAP ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; PAIR ; DUG 3 ; DIG 3 ; DUP ; DUG 4 ; { CAR ; CDR ; CDR } ; SWAP ; DUP ; DUG 2 ; { CDR ; CAR } ; DIG 2 ; DUP ; DUG 3 ; CAR ; PAIR ; MEM ; IF { DIG 3 ; DUP ; DUG 4 ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DUP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CAR } ; DIG 6 ; DUP ; DUG 7 ; CAR ; PAIR ; DUP ; DUG 2 ; GET ; { IF_NONE { PUSH string "set_in_top-any" ; FAILWITH } {} } ; DROP ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CDR } ; DIG 9 ; { CAR ; CDR ; CDR } ; DIG 7 ; DUP ; DUG 8 ; { CDR ; CAR } ; DIG 8 ; DUP ; DUG 9 ; CAR ; PAIR ; GET ; { IF_NONE { PUSH string "Get-item:190" ; FAILWITH } {} } ; ADD ; SOME ; SWAP ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; PAIR ; DUG 3 } { DIG 3 ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; DUP ; CAR ; SWAP ; CDR ; DIG 4 ; DUP ; DUG 5 ; { CDR ; CDR } ; SOME ; DIG 5 ; DUP ; DUG 6 ; { CDR ; CAR } ; DIG 6 ; DUP ; DUG 7 ; CAR ; PAIR ; UPDATE ; SWAP ; PAIR ; SWAP ; PAIR ; PAIR ; DUG 3 } ; DROP } ; DROP } ; DROP } { DUP ; ITER { DUP ; IF_LEFT { DROP ; DUP ; SENDER ; SWAP ; IF_LEFT {} { DROP ; PUSH unit Unit ; FAILWITH } ; CAR ; COMPARE ; EQ ; IF { PUSH bool True } { DIG 2 ; DUP ; DUG 3 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ } ; IF {} { PUSH string "WrongCondition: (update.open_variant('add_operator').owner == sp.sender) | (sp.sender == self.data.administrator)" ; FAILWITH } ; DIG 2 ; DUP ; DUG 3 ; DUP ; CAR ; SWAP ; CDR ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; PUSH (option unit) (Some Unit) ; DIG 5 ; DUP ; DUG 6 ; IF_LEFT {} { DROP ; PUSH unit Unit ; FAILWITH } ; CDR ; DIG 6 ; DUP ; DUG 7 ; IF_LEFT {} { DROP ; PUSH unit Unit ; FAILWITH } ; DIG 9 ; DROP ; CAR ; PAIR %owner %operator ; UPDATE ; SWAP ; PAIR ; PAIR ; SWAP ; PAIR ; DUG 2 } { DROP ; DUP ; SENDER ; SWAP ; IF_LEFT { DROP ; PUSH unit Unit ; FAILWITH } {} ; CAR ; COMPARE ; EQ ; IF { PUSH bool True } { DIG 2 ; DUP ; DUG 3 ; { CAR ; CAR } ; SENDER ; COMPARE ; EQ } ; IF {} { PUSH string "WrongCondition: (update.open_variant('remove_operator').owner == sp.sender) | (sp.sender == self.data.administrator)" ; FAILWITH } ; DIG 2 ; DUP ; DUG 3 ; DUP ; CAR ; SWAP ; CDR ; DUP ; CDR ; SWAP ; CAR ; DUP ; CAR ; SWAP ; CDR ; NONE unit ; DIG 5 ; DUP ; DUG 6 ; IF_LEFT { DROP ; PUSH unit Unit ; FAILWITH } {} ; CDR ; DIG 6 ; DUP ; DUG 7 ; IF_LEFT { DROP ; PUSH unit Unit ; FAILWITH } {} ; DIG 9 ; DROP ; CAR ; PAIR %owner %operator ; UPDATE ; SWAP ; PAIR ; PAIR ; SWAP ; PAIR ; DUG 2 } ; DROP } ; DROP } ; NIL operation } } ; PAIR } ;`;
-        const storage = `( Pair ( Pair "${administrator}" ( Pair 0 { } ) ) ( Pair ( Pair Unit { } ) ( Pair ${pause ? 'True' : 'False'} { Elt ${tokenid} ( Pair ( Pair ${tokenid} ( Pair "${symbol}" ( Pair "${name}" ( Pair ${scale} { } ) ) ) ) ${supply} ) } ) ) )`;
-
+    export async function deployContract(server: string, signer: Signer, keystore: KeyStore, fee: number, administrator: string, metadataUrl: string, pause: boolean = true, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        // code generated from https://smartpy.io/ide?template=FA2.py [May 24, 2021]
+        const contract = `parameter (or (or (pair %balance_of (list %requests (pair (address %owner) (nat %token_id))) (contract %callback (list (pair (pair %request (address %owner) (nat %token_id)) (nat %balance))))) (or (pair %mint (pair (address %address) (nat %amount)) (pair (map %metadata string bytes) (nat %token_id))) (address %set_administrator))) (or (or (pair %set_metadata (string %k) (bytes %v)) (bool %set_pause)) (or (list %transfer (pair (address %from_) (list %txs (pair (address %to_) (pair (nat %token_id) (nat %amount)))))) (list %update_operators (or (pair %add_operator (address %owner) (pair (address %operator) (nat %token_id))) (pair %remove_operator (address %owner) (pair (address %operator) (nat %token_id)))))))); 
+        storage (pair (pair (pair (address %administrator) (nat %all_tokens)) (pair (big_map %ledger (pair address nat) nat) (big_map %metadata string bytes))) (pair (pair (big_map %operators (pair (address %owner) (pair (address %operator) (nat %token_id))) unit) (bool %paused)) (pair (big_map %token_metadata nat (pair (nat %token_id) (map %token_info string bytes))) (big_map %total_supply nat nat)))); 
+        code { CAST (pair (or (or (pair (list (pair address nat)) (contract (list (pair (pair address nat) nat)))) (or (pair (pair address nat) (pair (map string bytes) nat)) address)) (or (or (pair string bytes) bool) (or (list (pair address (list (pair address (pair nat nat))))) (list (or (pair address (pair address nat)) (pair address (pair address nat))))))) (pair (pair (pair address nat) (pair (big_map (pair address nat) nat) (big_map string bytes))) (pair (pair (big_map (pair address (pair address nat)) unit) bool) (pair (big_map nat (pair nat (map string bytes))) (big_map nat nat))))); UNPAIR; IF_LEFT { IF_LEFT { SWAP; DUP; DUG 2; GET 3; CDR; IF { PUSH string "FA2_PAUSED"; FAILWITH; } {}; DUP; CAR; MAP { DUP 3; GET 5; SWAP; DUP; DUG 2; CDR; MEM; IF {} { PUSH string "FA2_TOKEN_UNDEFINED"; FAILWITH; }; DUP 3; CAR; GET 3; SWAP; DUP; CDR; SWAP; DUP; DUG 3; CAR; PAIR; MEM; IF { DUP 3; CAR; GET 3; SWAP; DUP; CDR; SWAP; DUP; DUG 3; CAR; PAIR; GET; IF_SOME { } { PUSH int 430; FAILWITH; }; SWAP; PAIR; } { PUSH nat 0; SWAP; PAIR; }; }; NIL operation; DIG 2; CDR; PUSH mutez 0; DIG 3; TRANSFER_TOKENS; CONS; } { IF_LEFT { SWAP; DUP; DUG 2; CAR; CAR; CAR; SENDER; COMPARE; EQ; IF {} { PUSH string "FA2_NOT_ADMIN"; FAILWITH; }; DUP; GET 4; DUP 3; CAR; CAR; CDR; COMPARE; EQ; IF {} { PUSH string "Token-IDs should be consecutive"; FAILWITH; }; SWAP; DUP; DUG 2; UNPAIR; UNPAIR; CAR; DIG 4; CAR; CAR; CDR; DUP; PUSH nat 1; DUP 7; GET 4; ADD; DUP; DUG 2; COMPARE; LE; IF { DROP; } { SWAP; DROP; }; SWAP; PAIR; PAIR; PAIR; DUP; DUG 2; CAR; GET 3; SWAP; DUP; GET 4; SWAP; DUP; DUG 3; CAR; CAR; PAIR; MEM; IF { SWAP; UNPAIR; UNPAIR; SWAP; UNPAIR; DUP; DIG 5; DUP; GET 4; SWAP; DUP; DUG 7; CAR; CAR; PAIR; DUP; DUG 2; GET; IF_SOME {} { PUSH int 541; FAILWITH; }; DUP 7; CAR; CDR; ADD; SOME; SWAP; UPDATE; PAIR; SWAP; PAIR; PAIR; SWAP; } { SWAP; UNPAIR; UNPAIR; SWAP; UNPAIR; DUP 5; CAR; CDR; SOME; DIG 5; DUP; GET 4; SWAP; DUP; DUG 7; CAR; CAR; PAIR; UPDATE; PAIR; SWAP; PAIR; PAIR; SWAP; }; SWAP; DUP; DUG 2; GET 5; SWAP; DUP; DUG 2; GET 4; MEM; IF { DROP; } { SWAP; DUP; GET 5; DIG 2; DUP; GET 3; SWAP; DUP; DUG 4; GET 4; PAIR; SOME; DUP 4; GET 4; UPDATE; UPDATE 5; DUP; GET 6; DUP 3; CAR; CDR; SOME; DIG 3; GET 4; UPDATE; UPDATE 6; }; } { SWAP; DUP; DUG 2; CAR; CAR; CAR; SENDER; COMPARE; EQ; IF {} { PUSH string "FA2_NOT_ADMIN"; FAILWITH; }; SWAP; UNPAIR; UNPAIR; CDR; DIG 3; PAIR; PAIR; PAIR; }; NIL operation; }; } { IF_LEFT { IF_LEFT { SWAP; DUP; DUG 2; CAR; CAR; CAR; SENDER; COMPARE; EQ; IF {} { PUSH string "FA2_NOT_ADMIN"; FAILWITH; }; SWAP; UNPAIR; UNPAIR; SWAP; UNPAIR; SWAP; DUP 5; CDR; SOME; DIG 5; CAR; UPDATE; SWAP; PAIR; SWAP; PAIR; PAIR; } { SWAP; DUP; DUG 2; CAR; CAR; CAR; SENDER; COMPARE; EQ; IF {} { PUSH string "FA2_NOT_ADMIN"; FAILWITH; }; SWAP; UNPAIR; SWAP; UNPAIR; CAR; DIG 3; SWAP; PAIR; PAIR; SWAP; PAIR; }; } { IF_LEFT { SWAP; DUP; DUG 2; GET 3; CDR; IF { PUSH string "FA2_PAUSED"; FAILWITH; } {}; DUP; ITER { DUP; CDR; ITER { DUP 4; CAR; CAR; CAR; SENDER; COMPARE; EQ; IF { PUSH bool True; } { SENDER; DUP 3; CAR; COMPARE; EQ; }; IF { PUSH bool True; } { DUP 4; GET 3; CAR; SWAP; DUP; DUG 2; GET 3; SENDER; DUP 5; CAR; PAIR 3; MEM; }; IF {} { PUSH string "FA2_NOT_OPERATOR"; FAILWITH; }; DUP 4; GET 5; SWAP; DUP; DUG 2; GET 3; MEM; IF {} { PUSH string "FA2_TOKEN_UNDEFINED"; FAILWITH; }; DUP; GET 4; PUSH nat 0; COMPARE; LT; IF { DUP; GET 4; DUP 5; CAR; GET 3; DUP 3; GET 3; DUP 5; CAR; PAIR; GET; IF_SOME { } { PUSH int 408; FAILWITH; }; COMPARE; GE; IF {} { PUSH string "FA2_INSUFFICIENT_BALANCE"; FAILWITH; }; DUP 4; UNPAIR; UNPAIR; SWAP; UNPAIR; DUP; DUP 6; GET 3; DUP 8; CAR; PAIR; DUP; DUG 2; GET; IF_SOME { DROP; } { PUSH int 412; FAILWITH; }; DUP 6; GET 4; DIG 9; CAR; GET 3; DUP 8; GET 3; DUP 10; CAR; PAIR; GET; IF_SOME { } { PUSH int 412; FAILWITH; }; SUB; ISNAT; IF_SOME {} { PUSH int 412; FAILWITH; }; SOME; SWAP; UPDATE; PAIR; SWAP; PAIR; PAIR; DUP; DUG 4; CAR; GET 3; SWAP; DUP; GET 3; SWAP; DUP; DUG 3; CAR; PAIR; MEM; IF { DIG 3; UNPAIR; UNPAIR; SWAP; UNPAIR; DUP; DIG 5; DUP; GET 3; SWAP; DUP; DUG 7; CAR; PAIR; DUP; DUG 2; GET; IF_SOME {} { PUSH int 415; FAILWITH; }; DIG 6; GET 4; ADD; SOME; SWAP; UPDATE; PAIR; SWAP; PAIR; PAIR; DUG 2; } { DIG 3; UNPAIR; UNPAIR; SWAP; UNPAIR; DUP 5; GET 4; SOME; DIG 5; DUP; GET 3; SWAP; CAR; PAIR; UPDATE; PAIR; SWAP; PAIR; PAIR; DUG 2; }; } { DROP; }; }; DROP; }; DROP; } { DUP; ITER { IF_LEFT { DUP; CAR; SENDER; COMPARE; EQ; IF { PUSH bool True; } { DUP 3; CAR; CAR; CAR; SENDER; COMPARE; EQ; }; IF {} { PUSH string "FA2_NOT_ADMIN_OR_OPERATOR"; FAILWITH; }; DIG 2; UNPAIR; SWAP; UNPAIR; UNPAIR; PUSH (option unit) (Some Unit); DIG 5; DUP; GET 4; SWAP; DUP; GET 3; SWAP; CAR; PAIR 3; UPDATE; PAIR; PAIR; SWAP; PAIR; SWAP; } { DUP; CAR; SENDER; COMPARE; EQ; IF { PUSH bool True; } { DUP 3; CAR; CAR; CAR; SENDER; COMPARE; EQ; }; IF {} { PUSH string "FA2_NOT_ADMIN_OR_OPERATOR"; FAILWITH; }; DIG 2; UNPAIR; SWAP; UNPAIR; UNPAIR; NONE unit; DIG 5; DUP; GET 4; SWAP; DUP; GET 3; SWAP; CAR; PAIR 3; UPDATE; PAIR; PAIR; SWAP; PAIR; SWAP; }; }; DROP; }; }; NIL operation; }; PAIR; };`;
+        const paused = pause ? "True" : "False";
+        const storage = `(Pair (Pair (Pair "${administrator}" 0) (Pair {} {Elt "" 0x${Buffer.from(metadataUrl, "utf-8").toString("hex")}})) (Pair (Pair {} ${paused}) (Pair {} {})))`;
         const nodeResult = await TezosNodeWriter.sendContractOriginationOperation(server, signer, keystore, 0, undefined, fee, freight, gas, contract, storage, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult['operationGroupID']);
     }
@@ -90,12 +92,14 @@ export namespace MultiAssetTokenHelper {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
         return {
-            administrator: JSONPath({ path: '$.args[0].args[0].string', json: storageResult })[0],
-            tokens: Number(JSONPath({ path: '$.args[0].args[1].args[0].int', json: storageResult })[0]),
-            balanceMap: Number(JSONPath({ path: '$.args[0].args[1].args[1].int', json: storageResult })[0]),
-            operatorMap: Number(JSONPath({ path: '$.args[1].args[0].args[1].int', json: storageResult })[0]),
-            paused: (JSONPath({ path: '$.args[1].args[1].args[0].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
-            metadataMap: Number(JSONPath({ path: '$.args[1].args[1].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[0].args[0].args[0].string', json: storageResult })[0],
+            tokens: Number(JSONPath({ path: '$.args[0].args[0].args[1].int', json: storageResult })[0]),
+            ledger: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0]),
+            metadata: Number(JSONPath({ path: '$.args[0].args[2].int', json: storageResult })[0]),
+            paused: (JSONPath({ path: '$.args[1].args[1].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            operators: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
+            tokenMetadata: Number(JSONPath({ path: '$.args[2].int', json: storageResult })[0]),
+            totalSupply: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0]),
         };
     }
 
@@ -110,15 +114,14 @@ export namespace MultiAssetTokenHelper {
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for token ${token}`); }
-
-        return {
-            tokenid: Number(JSONPath({ path: '$.args[0].args[0].int', json: mapResult })[0]),
-            symbol: JSONPath({ path: '$.args[0].args[1].args[0].string', json: mapResult })[0],
-            name: JSONPath({ path: '$.args[0].args[1].args[1].args[0].string', json: mapResult })[0],
-            scale: Number(JSONPath({ path: '$.args[0].args[1].args[1].args[1].args[0].int', json: mapResult })[0]),
-            // extra metadata: $.args[0].args[1].args[1].args[1].args[1]
-            supply: Number(JSONPath({ path: '$.args[1].int', json: mapResult })[0])
-        }
+        const tokenData: MultiAssetTokenDefinition = {
+            tokenid: Number(JSONPath({ path: '$.args[0].int', json: mapResult })[0]),
+            metadata: {}
+        };
+        mapResult["args"][1].forEach(item => {
+            tokenData.metadata[item["args"][0]["string"]] = Buffer.from(item["args"][1]["bytes"], "hex").toString();
+        });
+        return tokenData;
     }
 
     /**
@@ -175,14 +178,18 @@ export namespace MultiAssetTokenHelper {
      * @param signer 
      * @param keystore 
      * @param fee 
-     * @param issue 
      * @param gas 
      * @param freight 
      */
-    export async function mint(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, destination: string, balance: number, symbol: string, tokenid: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function mint(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, destination: string, amount: number, metadata: Record<string, string>, tokenid: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'mint';
-        const parameters = `(Pair (Pair "${destination}" ${balance}) (Pair "${symbol}" ${tokenid}))`;
-
+        const keys = Object.keys(metadata).sort();
+        let metaString = ""
+        for (let key of keys) {
+            if (metaString !== "") metaString += "; "
+            metaString += `Elt "${key}" 0x${Buffer.from(metadata[key], "utf-8").toString("hex")}`
+        }
+        const parameters = `(Pair (Pair "${destination}" ${amount}) (Pair {${metaString}} ${tokenid}))`
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
@@ -190,8 +197,34 @@ export namespace MultiAssetTokenHelper {
 
     export async function transfer(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, source: string, transfers: TransferPair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'transfer';
-        const parameters = `{ Pair "${source}" { ${transfers.map(t => '( Pair "' + t.address + '" ( Pair ' + t.tokenid + ' ' + t.balance+ ' ) )').join(' ; ')} } }`;
+        const parameters = `{ Pair "${source}" { ${transfers.map(t => '( Pair "' + t.address + '" ( Pair ' + t.tokenid + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
 
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export async function addOperators(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'update_operators';
+        let parameters = "{";
+        updateOps.forEach(op => {
+            if (parameters !== "{") parameters += "; ";
+            parameters += `Left (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
+        });
+        parameters += "}";
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export async function removeOperators(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'update_operators';
+        let parameters = "{";
+        updateOps.forEach(op => {
+            if (parameters !== "{") parameters += "; ";
+            parameters += `Right (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
+        });
+        parameters += "}";
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
