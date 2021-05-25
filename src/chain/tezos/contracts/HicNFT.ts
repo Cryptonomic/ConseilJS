@@ -134,7 +134,7 @@ export namespace HicNFTHelper {
      * @param dest
      * @param amount
      */
-    export function MakeSingleHDaoTransfer(src: string, dest: string, amount: number): HDaoTransferPair {
+    export function makeSingleHDaoTransfer(src: string, dest: string, amount: number): HDaoTransferPair {
         return {
             source: src,
             txs: [ { destination: dest, token_id: 0, amount: amount } ]
@@ -154,7 +154,7 @@ export namespace HicNFTHelper {
      * @param gas
      * @param freight
      */
-    export async function HDaoTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
+    export async function hDaoTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
         const entrypoint = `transfer`;
 
         let parameter: string = TransferPairMichelson(transfers);
@@ -190,7 +190,7 @@ export namespace HicNFTHelper {
      * @param dest
      * @param amount
      */
-    export function MakeSingleObjktsTransfer(src: string, dest: string, token_id: number, amount: number): ObjktsTransferPair {
+    export function makeSingleObjktsTransfer(src: string, dest: string, token_id: number, amount: number): ObjktsTransferPair {
         return {
             source: src,
             txs: [ { destination: dest, token_id: token_id, amount: amount } ]
@@ -210,7 +210,7 @@ export namespace HicNFTHelper {
      * @param gas
      * @param freight
      */
-    export async function ObjktsTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
+    export async function objktsTransfer(server: string, signer: Signer, keystore: KeyStore, transfers: HDaoTransferPair[], amount: number, fee: number, gas: number, freight: number): Promise<string> {
         const entrypoint = `transfer`;
 
         let parameter: string = TransferPairMichelson(transfers);
