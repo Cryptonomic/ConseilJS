@@ -85,7 +85,7 @@
     "awesome-typescript-loader": "5.2.1",
     "chai": "4.2.0",
     "chai-as-promised": "7.1.1",
-    "conseiljs-softsigner": "5.0.3",
+    "conseiljs-softsigner": "5.0.4-1",
     "copyfiles": "2.3.0",
     "coveralls": "3.1.0",
     "eslint": "7.18.0",
