@@ -1,4 +1,6 @@
 import { JSONPath } from 'jsonpath-plus';
+
+import { TezosConstants } from '../../../../types/tezos/TezosConstants';
 import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 import { TezosMessageUtils } from '../../TezosMessageUtil';
@@ -99,7 +101,7 @@ export namespace MultiAssetTokenHelper {
             paused: (JSONPath({ path: '$.args[1].args[1].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
             operators: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
             tokenMetadata: Number(JSONPath({ path: '$.args[2].int', json: storageResult })[0]),
-            totalSupply: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0]),
+            totalSupply: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0])
         };
     }
 
@@ -197,9 +199,9 @@ export namespace MultiAssetTokenHelper {
 
     export async function transfer(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, source: string, transfers: TransferPair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'transfer';
-        const parameters = `{ Pair "${source}" { ${transfers.map(t => '( Pair "' + t.address + '" ( Pair ' + t.tokenid + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
+        const parameters = `{ Pair 0x${TezosMessageUtils.writeAddress(source)} { ${transfers.map(t => '( Pair 0x' + TezosMessageUtils.writeAddress(t.address) + ' ( Pair ' + t.tokenid + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }

@@ -6,6 +6,7 @@ import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { KeyStore, Signer } from '../../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 import { TezosContractUtils } from '../TezosContractUtils';
+import { TezosConstants } from '../../../../types/tezos/TezosConstants';
 
 interface SingleAssetSimpleStorage {
     administrator: string,
@@ -194,9 +195,9 @@ export namespace SingleAssetTokenHelper {
 
     export async function transfer(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, source: string, transfers: TransferPair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'transfer';
-        const parameters = `{ Pair "${source}" { ${transfers.map(t => '( Pair "' + t.address + '" ( Pair ' + 0 + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
+        const parameters = `{ Pair 0x${TezosMessageUtils.writeAddress(source)} { ${transfers.map(t => '( Pair 0x' + TezosMessageUtils.writeAddress(t.address) + ' ( Pair ' + 0 + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -227,13 +228,13 @@ export namespace SingleAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
+    export async function getAccountBalance(server: string, mapid: number, account: string, balancePath: string = '$.int'): Promise<number> {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, "address"), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
 
-        const jsonresult = JSONPath({ path: '$.int', json: mapResult });
-        return Number(jsonresult[0]);
+        const balance = Number(JSONPath({ path: balancePath, json: mapResult })[0]);
+        return balance;
     }
 }
