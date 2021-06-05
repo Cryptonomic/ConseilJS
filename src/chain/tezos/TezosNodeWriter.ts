@@ -866,6 +866,21 @@ export namespace TezosNodeWriter {
         return operationGroup;
     }
 
+    export async function prepareOperationGroup(server: string, keyStore: KeyStore, counter: number, operations: TezosP2PMessageTypes.StackableOperation[], optimizeFee: boolean = false) {
+        const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter, operations);
+
+        if (optimizeFee) {
+            const estimate = await estimateOperationGroup(server, 'main', operationGroup);
+            operationGroup[0].fee = estimate.estimatedFee.toString();
+            for (let i = 0; i < operationGroup.length; i++) {
+                operationGroup[i].gas_limit = estimate.operationResources[i].gas.toString();
+                operationGroup[i].storage_limit = estimate.operationResources[i].storageCost.toString();
+            }
+        }
+
+        return operationGroup;
+    }
+
     /**
      * This function checks if the server response contains an error. There are multiple formats for errors coming
      * back from the server, this method attempts to normalized them for downstream parsing.
