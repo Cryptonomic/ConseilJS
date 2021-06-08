@@ -2,14 +2,16 @@ import {TezosNodeReader} from "../TezosNodeReader";
 import {JSONPath} from "jsonpath-plus";
 
 export namespace KalamintHelper {
-    export const kalamintAddress = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
+    export const kalamintAddress: string = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
+
+    export type Auctions = { [ id: number]: string };
 
     export interface KalamintStorage {
         administrator: string;
         allCollections: number;
         allTokens: number;
         auctionsFactory: string;
-        auctions: { [ id: number ]: string };
+        auctions: Auctions;
         biddingFee: number;
         collections: number;
         idMaxIncrement: number;
@@ -33,28 +35,35 @@ export namespace KalamintHelper {
      * @param server The Tezos node to communicate with
      * @param address Contract address, i.e. KalamintHelper.kalamintAddress
      */
-    export async function getStoage(server: string, address: string): Promise<KalamintStorage> {
+    export async function getStorage(server: string, address: string): Promise<KalamintStorage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        const auctionsArray = JSONPath({path: '$.args[0].args[0].args[3]', json: storageResult })[0]; // need to parse this array
+        let auctions: Auctions = {};
+        for (const elt of auctionsArray) {
+            auctions[elt.args[0].int] = elt.args[1].string;
+        }
+
         return {
             administrator: JSONPath({path: '$.args[0].args[0].args[0].args[0].string', json: storageResult })[0],
             allCollections: JSONPath({path: '$.args[0].args[0].args[0].args[1].int', json: storageResult })[0],
-            allTokens: JSONPath({path: '$.args[0].args[0].args[1].args[0].int', json: storageResult })[0],
-            auctionsFactory: string;
-            auctions: { [ id: number ]: string };
-            biddingFee: number;
-            collections: number;
-            idMaxIncrement: number;
-            ipfsRegistry: string;
-            ledger: number;
-            maxEditions: number;
-            maxRoyalty: number;
-            metadata: number;
-            operators: number;
-            paused: boolean;
-            tokenMetadata: number;
-            tokens: number;
-            tradingFee: number;
-            tradingFeeCollector: string;
+            allTokens: JSONPath({path: '$.args[0].args[0].args[1].int', json: storageResult })[0],
+            auctionsFactory: JSONPath({path: '$.args[0].args[0].args[2].string', json: storageResult })[0],
+            auctions: auctions,
+            biddingFee: JSONPath({path: '$.args[0].args[1].args[0].int', json: storageResult })[0],
+            collections: JSONPath({path: '$.args[0].args[1].args[1].int', json: storageResult })[0],
+            idMaxIncrement: JSONPath({path: '$.args[0].args[2].int', json: storageResult })[0],
+            ipfsRegistry: JSONPath({path: '$.args[0].args[3].string', json: storageResult })[0],
+            ledger: JSONPath({path: '$.args[0].args[4].int', json: storageResult })[0],
+            maxEditions: JSONPath({path: '$.args[1].args[0].args[0].int', json: storageResult })[0],
+            maxRoyalty: JSONPath({path: '$.args[1].args[0].args[1].int', json: storageResult })[0],
+            metadata: JSONPath({path: '$.args[1].args[1].int', json: storageResult })[0],
+            operators: JSONPath({path: '$.args[1].args[3].int', json: storageResult })[0],
+            paused: JSON.parse(JSONPath({path: '$.args[2].args[0].prim', json: storageResult })[0].toLowerCase()),
+            tokenMetadata: JSONPath({path: '$.args[2].args[1].int', json: storageResult })[0],
+            tokens: JSONPath({path: '$.args[2].args[2].int', json: storageResult })[0],
+            tradingFee: JSONPath({path: '$.args[3].int', json: storageResult })[0],
+            tradingFeeCollector: JSONPath({path: '$.args[4].int', json: storageResult })[0],
+            x: JSONPath({path: '$.args[5].int', json: storageResult })[0]
         };
     }
 
