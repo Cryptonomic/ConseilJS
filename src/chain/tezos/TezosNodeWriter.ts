@@ -269,9 +269,9 @@ export namespace TezosNodeWriter {
             });
 
             return [revealOp, ...operations];
+        } else {
+            return operations.map((o, i) => { return { ...o, counter: `${counter + i}` } });
         }
-
-        return operations;
     }
 
     /**
