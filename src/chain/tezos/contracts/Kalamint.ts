@@ -131,11 +131,14 @@ export namespace KalamintHelper {
      * Representation of a Kalamint artwork
      *
      * @param tokenId The FA2 token Id of the artwork
+     * @param name Artwork's name
      * @param action The action with which the artwork was obtained (e.g. Buy, Bid, Transfer)
-     * @param collection The ID of the collection to which the artwork belongs
-     * @param collectionIndex The index in the collection (e.g. #1 of 3)
-     * @param price The price for which it was acquired
-     * @param metadataUrl URL for artwork metadata (e.g. IPFS uri, etc.)
+     * @param cost The price for which the artwork was purchased
+     * @param collection The metadata for the collection to which the artwork belongs
+     * @param currentPrice The price for which it is currently on sale for
+     * @param onSale Indicator for if the artwork is currently on sale
+     * @param onAuction Indicator for if an auction is currently active for the artwork
+     * @param artifactIpfsCid IPFS CID for the artwork artifact
      */
     export interface Artwork {
         tokenId: number;
@@ -145,14 +148,17 @@ export namespace KalamintHelper {
         collection: CollectionInfo;
         receivedOn: Date;
         currentPrice: BigNumber;
+        onSale: boolean;
+        onAuction: boolean;
         artifactIpfsCid: string;
     }
 
     /*
      * Retreives the collection of tokens owned by managerAddress.
      *
+     * @param ledger
      * @param tokenMapId
-     * @param managerAddress
+     * @param address
      * @param serverInfo
      */
     export async function getAssets(ledger: number, tokenMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
@@ -167,17 +173,32 @@ export namespace KalamintHelper {
         operationsResult.map((row) => invocations[row.key.replace(/.* ([0-9]{1,})/, '$1')] = row.operation_group_id);
         const invocationChunks = chunkArray(Object.entries(invocations).map(([id, operation]) => id), 30);
 
-        // fetch and save each invocation's data
+        // fetch and save each invocation's metadata
         const invocationMetadataQueries = operationChunks.map((c) => makeInvocationMetadataQuery(c));
         const invocationMetadata = {};
+        // winning bids need to be queried for internal operations
+        const endAuctionOperations: string[] = [];
         await Promise.all(
             invocationMetadataQueries.map(async (q) => {
                 const invocationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'operations', q);
-                invocationsResult.map((row) => {
-                    console.log(row);
-                    invocationMetadata[row.operation_group_hash] = parseInvocationMetadataQuery(row);
+                invocationsResult.map(async (row) => {
+                    const metadata: InvocationMetadata = await parseInvocationMetadataResult(row);
+                    // remember which bids need to be retrieved
+                    if (metadata.price === undefined)
+                        endAuctionOperations.push(row.operation_group_hash);
+                    invocationMetadata[row.operation_group_hash] = metadata;
                 });
         }));
+
+        // get winning bid amounts from internal operations
+        const endAuctionChunks = chunkArray(endAuctionOperations, 30);
+        const endAuctionQueries = endAuctionChunks.map((c) => makeEndAuctionQuery(c));
+        await Promise.all(
+            endAuctionQueries.map(async (q) => {
+                const endAuctionResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'operations', q);
+                endAuctionResult.map((row) => invocationMetadata[row.operation_group_hash].price = parseEndAuctionResult(row));
+            })
+        );
 
         // get token metadata
         const tokenMetadataQueries = invocationChunks.map((c) => makeTokenMetadataQuery(tokenMapId, c));
@@ -186,7 +207,7 @@ export namespace KalamintHelper {
             tokenMetadataQueries.map(async (q) => {
                 const tokenMetadataResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', q);
                 tokenMetadataResult.map((row) => {
-                    collection.push(parseTokenMetadataQuery(row, invocations, invocationMetadata));
+                    collection.push(parseTokenMetadataResult(row, invocations, invocationMetadata));
                 });
         }));
 
@@ -243,7 +264,7 @@ export namespace KalamintHelper {
      */
     interface InvocationMetadata {
         action: string;
-        price: number;
+        price: BigNumber | undefined;
         receivedOn: Date;
     }
 
@@ -252,23 +273,53 @@ export namespace KalamintHelper {
      *
      * @param row
      */
-    function parseInvocationMetadataQuery(row): InvocationMetadata {
-        // TODO: might need to make this async and add a query for resolve auction
+    async function parseInvocationMetadataResult(row): Promise<InvocationMetadata> {
         let action =  row.parameters_entrypoints;
 
         // parse purchase or winning bid price
-        let price = 0;
+        let price: BigNumber | undefined;
         if (action === 'buy') {
-            price = parseInt(row.parameters.toString()));
-        } else if (action === 'resolve_auciton') {
-            price = parseInt(row.parameters.toString().replace(/.*/, '$1'));
-        }
+            price = new BigNumber(parseInt(row.amount));
+        } else if (action === 'resolve_auction') {
+            // need to get winning bid operation
+            price = undefined;
+        } else
+            price = new BigNumber(0);
 
         return {
             action: action,
             price: price,
             receivedOn: new Date(row.timestamp)
         };
+    }
+
+    /*
+     * Craft the query for the winning bid
+     *
+     * @param operations Hashes of the operation groups that include the end_auction invocations
+     */
+    function makeEndAuctionQuery(operations: string[]): ConseilQuery {
+        let endAuctionQuery = ConseilQueryBuilder.blankQuery();
+        endAuctionQuery = ConseilQueryBuilder.addFields(endAuctionQuery, 'amount', 'operation_group_hash');
+        endAuctionQuery = ConseilQueryBuilder.addPredicate(endAuctionQuery, 'internal', ConseilOperator.EQ, ['true'])
+        endAuctionQuery = ConseilQueryBuilder.addPredicate(endAuctionQuery, 'parameters_entrypoints', ConseilOperator.EQ, ['end_auction'])
+        endAuctionQuery = ConseilQueryBuilder.addPredicate(
+            endAuctionQuery,
+            'operation_group_hash',
+            operations.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ,
+            operations
+        );
+        endAuctionQuery = ConseilQueryBuilder.setLimit(endAuctionQuery, operations.length);
+        return endAuctionQuery;
+    }
+
+    /*
+     * Parse the winning bid query results
+     *
+     * @param row
+     */
+    function parseEndAuctionResult(row): BigNumber {
+        return new BigNumber(row.amount);
     }
 
     /*
@@ -295,7 +346,7 @@ export namespace KalamintHelper {
      *
      * @param row
      */
-    function parseTokenMetadataQuery(row, invocations, invocationsMetadata): Artwork {
+    function parseTokenMetadataResult(row, invocations, invocationsMetadata): Artwork {
         let tokenId = parseInt(row.key);
         let invocationOperation = invocations[tokenId];
         let invocationMetadata = invocationsMetadata[invocationOperation];
@@ -312,7 +363,10 @@ export namespace KalamintHelper {
             action: invocationMetadata.action,
             receivedOn: invocationMetadata.receivedOn,
             cost: new BigNumber(invocationMetadata.price),
-            currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* ; [0-9]+ ; ([0-9]*?) .*/, '$1')))
+            currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* } ; [0-9]+ ; ([0-9]*?) .*/, '$1'))),
+            onSale: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b .*/, '$1').toLowerCase().startsWith('t'),
+            currentBid: new BigNumber(0),
+            onAuction: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b ; \b(False|True)\b.*/, '$2').toLowerCase().startsWith('t')
         }
     }
 
