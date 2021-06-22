@@ -1,8 +1,19 @@
+import {KeyStore, Signer} from "../../../types/ExternalInterfaces";
 import {TezosNodeReader} from "../TezosNodeReader";
+import {TezosNodeWriter} from "../TezosNodeWriter";
+import * as TezosTypes from "../../../types/tezos/TezosChainTypes";
+import {TezosContractUtils} from './TezosContractUtils';
+import {ConseilQueryBuilder} from "../../../reporting/ConseilQueryBuilder";
+import {TezosMessageUtils} from "../TezosMessageUtil";
+import {ConseilOperator, ConseilServerInfo, ConseilQuery} from "../../../types/conseil/QueryTypes";
+import {TezosConseilClient} from "../../../reporting/tezos/TezosConseilClient";
 import {JSONPath} from "jsonpath-plus";
+import BigNumber from "bignumber.js";
 
 export namespace KalamintHelper {
     export const kalamintAddress: string = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
+    export const kalamintLedgerMapId: number = 857;
+    export const kalamintTokenMapId: number = 861;
 
     export type Auctions = { [ id: number]: string };
 
@@ -67,28 +78,260 @@ export namespace KalamintHelper {
         };
     }
 
-   // balance_of (owner: list (address), token_id: nat, owner: contract (list (address)), token_id: nat, balance: nat), L L L L
-   // bid (nat), L L L R
-   // buy (nat), L L R L
-   // cancel_auction (nat), L L R R L
-   // delist_token (nat), L L R R R
-   // end_auction (highest_bidder: address, token_id: nat), L R L L
-   // list_token (price: mutez, token_id: nat), L R L R L
-   // mint (category: string, collection_id: nat, collection_name: string, creator_name: string, creator_royalty: nat, editions: nat, ipfs_hash: string, keywords: string, name: string, on_sale: bool, price: mutez, symbol: string, token_id: nat, token_metadata_uri: bytes), L R L R R
-   // register_auction (auction_contract: address, reserve_price: mutez, token_id: nat), L R R L
-   // resolve_auction (nat), L R R R L
-   // set_administrator (address), L R R R R
-   // set_auction_factory (address), R L L L
-   // set_bidding_fee (nat), R L L R
-   // set_contract_metadata_uri (bytes), R L R L
-   // set_ipfs_registry (address), R L R R L
-   // set_max_editions (nat), R L R R R
-   // set_max_royalty (nat), R R L L
-   // set_token_metadata_uri (token_id: nat, uri: bytes), R R L R L
-   // set_trading_fee (nat), R R L R R
-   // set_trading_fee_collector (address), R R R L
-   // transfer (from_: list (address), to_: list (address), token_id: nat, amount: nat), R R R R L
-   // update_operators (owner: list (address), operator: address, token_id: nat), R R R R R L
-   // remove_operator (owner: address, operator: address, token_id: nat), R R R R R R 
+    export interface BidPair {
+        tokenId: number;
+        amount: number;
+    }
+
+    /*
+     * Submit bid to the Kalamint contract
+     *
+     * @param bid Invocation parameters
+     */
+    export async function bid(server: string, address: string, signer: Signer, keystore: KeyStore,  bid: BidPair ,fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'bid';
+        const parameters = `${bid.tokenId}`;
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, bid.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export interface BuyPair {
+        tokenId: number;
+        amount: number;
+    }
+
+    /*
+     * Buy NFT from the Kalamint contract
+     *
+     * @param buy Invocation parameters
+     */
+    export async function buy(server: string, address: string, signer: Signer, keystore: KeyStore, buy: BuyPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'buy';
+        const parameters = `{
+            "int": ${buy.tokenId}
+        }`;
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, buy.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    /*
+     * Collection metadata
+     *
+     * @param
+     */
+    export interface CollectionInfo {
+        collectionName: string;
+        creatorName: string;
+        editionNumber: number;
+        editions: number;
+    }
+
+
+    /*
+     * Representation of a Kalamint artwork
+     *
+     * @param tokenId The FA2 token Id of the artwork
+     * @param action The action with which the artwork was obtained (e.g. Buy, Bid, Transfer)
+     * @param collection The ID of the collection to which the artwork belongs
+     * @param collectionIndex The index in the collection (e.g. #1 of 3)
+     * @param price The price for which it was acquired
+     * @param metadataUrl URL for artwork metadata (e.g. IPFS uri, etc.)
+     */
+    export interface Artwork {
+        tokenId: number;
+        name: string;
+        action: string;
+        cost: BigNumber;
+        collection: CollectionInfo;
+        receivedOn: Date;
+        currentPrice: BigNumber;
+        artifactIpfsCid: string;
+    }
+
+    /*
+     * Retreives the collection of tokens owned by managerAddress.
+     *
+     * @param tokenMapId
+     * @param managerAddress
+     * @param serverInfo
+     */
+    export async function getAssets(ledger: number, tokenMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
+        // get all assets of address from the ledger
+        const operationsQuery = makeOperationsQuery(address, ledger);
+        const operationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', operationsQuery);
+        const operationGroupIds = operationsResult.map((r) => r.operation_group_id);
+        const operationChunks = chunkArray(operationGroupIds, 30);
+
+        // save each tokenId's invocation
+        const invocations = {};
+        operationsResult.map((row) => invocations[row.key.replace(/.* ([0-9]{1,})/, '$1')] = row.operation_group_id);
+        const invocationChunks = chunkArray(Object.entries(invocations).map(([id, operation]) => id), 30);
+
+        // fetch and save each invocation's data
+        const invocationMetadataQueries = operationChunks.map((c) => makeInvocationMetadataQuery(c));
+        const invocationMetadata = {};
+        await Promise.all(
+            invocationMetadataQueries.map(async (q) => {
+                const invocationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'operations', q);
+                invocationsResult.map((row) => {
+                    console.log(row);
+                    invocationMetadata[row.operation_group_hash] = parseInvocationMetadataQuery(row);
+                });
+        }));
+
+        // get token metadata
+        const tokenMetadataQueries = invocationChunks.map((c) => makeTokenMetadataQuery(tokenMapId, c));
+        const collection: Artwork[] = [];
+        await Promise.all(
+            tokenMetadataQueries.map(async (q) => {
+                const tokenMetadataResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', q);
+                tokenMetadataResult.map((row) => {
+                    collection.push(parseTokenMetadataQuery(row, invocations, invocationMetadata));
+                });
+        }));
+
+        // return assets sorted chronlogically
+        return collection.sort((a, b) => b.receivedOn.getTime() - a.receivedOn.getTime());
+    }
+
+    /*
+     * Craft the query for operations from the ledger big map
+     *
+     * @param address The address for which to query data
+     * @param ledger The ledger big map id
+     */
+    function makeOperationsQuery(address: string, ledger: number): ConseilQuery {
+        let operationsQuery = ConseilQueryBuilder.blankQuery();
+        operationsQuery = ConseilQueryBuilder.addFields(operationsQuery, 'key', 'value', 'operation_group_id');
+        operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'big_map_id', ConseilOperator.EQ, [ledger]);
+        operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'key', ConseilOperator.STARTSWITH, [
+            `Pair 0x${TezosMessageUtils.writeAddress(address)}`,
+        ]);
+        operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'value', ConseilOperator.EQ, [0], true);
+        operationsQuery = ConseilQueryBuilder.setLimit(operationsQuery, 10_000);
+        return operationsQuery;
+    }
+
+    /*
+     * Returns a query for the last price.
+     *
+     * @param operations Array of chunks of operations (see `chunkArray()`)
+     */
+    function makeInvocationMetadataQuery(operations: ConseilQuery[]): ConseilQuery {
+        let invocationsQuery = ConseilQueryBuilder.blankQuery();
+        invocationsQuery = ConseilQueryBuilder.addFields(invocationsQuery, 'timestamp', 'amount', 'operation_group_hash', 'parameters_entrypoints', 'parameters');
+        invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'kind', ConseilOperator.EQ, ['transaction']);
+        invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'status', ConseilOperator.EQ, ['applied']);
+        invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'internal', ConseilOperator.EQ, ['false']);
+        invocationsQuery = ConseilQueryBuilder.addPredicate(
+            invocationsQuery,
+            'operation_group_hash',
+            operations.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ,
+            operations
+        );
+        invocationsQuery = ConseilQueryBuilder.setLimit(invocationsQuery, operations.length);
+
+        return invocationsQuery;
+    }
+
+    /*
+     * The parsed results of invocation metadata queries
+     *
+     * @param action The entrypoint invoked
+     * @param price The purchase price or winning bid (0 if minted or transfered)
+     * @param timestamp Invocation timestamp
+     */
+    interface InvocationMetadata {
+        action: string;
+        price: number;
+        receivedOn: Date;
+    }
+
+    /*
+     * Parse the results of the invocation metadata queries
+     *
+     * @param row
+     */
+    function parseInvocationMetadataQuery(row): InvocationMetadata {
+        // TODO: might need to make this async and add a query for resolve auction
+        let action =  row.parameters_entrypoints;
+
+        // parse purchase or winning bid price
+        let price = 0;
+        if (action === 'buy') {
+            price = parseInt(row.parameters.toString()));
+        } else if (action === 'resolve_auciton') {
+            price = parseInt(row.parameters.toString().replace(/.*/, '$1'));
+        }
+
+        return {
+            action: action,
+            price: price,
+            receivedOn: new Date(row.timestamp)
+        };
+    }
+
+    /*
+     * Craft the query for the token metadata
+     *
+     * @param tokenMap The token bigmap id
+     * @param tokenIds The array of token ids to query data for
+     */
+    function makeTokenMetadataQuery(tokenMap: number, tokenIds: number[]): ConseilQuery {
+        let tokensQuery = ConseilQueryBuilder.blankQuery();
+        tokensQuery = ConseilQueryBuilder.addFields(tokensQuery, 'key', 'value', 'operation_group_id');
+        tokensQuery = ConseilQueryBuilder.addPredicate(tokensQuery, 'big_map_id', ConseilOperator.EQ, [tokenMap]);
+        tokensQuery = ConseilQueryBuilder.addPredicate(
+            tokensQuery,
+            'key',
+            tokenIds.length > 1 ? ConseilOperator.IN : ConseilOperator.EQ,
+            tokenIds);
+        tokensQuery = ConseilQueryBuilder.setLimit(tokensQuery, tokenIds.length);
+        return tokensQuery;
+    }
+
+    /*
+     * Parse the results of the token metadata queries
+     *
+     * @param row
+     */
+    function parseTokenMetadataQuery(row, invocations, invocationsMetadata): Artwork {
+        let tokenId = parseInt(row.key);
+        let invocationOperation = invocations[tokenId];
+        let invocationMetadata = invocationsMetadata[invocationOperation];
+        return {
+            tokenId: parseInt(row.key),
+            name: row.value.toString().replace(/.* \"name\" "(.*?)" .*/, '$1'),
+            collection: {
+                collectionName: row.value.toString().replace(/.* "collection_name" "(.*?)" .*/, '$1'),
+                creatorName: row.value.toString().replace(/.* "creator_name" "(.*?)" .*/, '$1'),
+                editions: parseInt(row.value.toString().replace(/.* ([0-9]*?) }/, '$1')),
+                editionNumber: parseInt(row.value.toString().replace(/.* ([0-9]*?) ; [0-9]* }/, '$1'))
+            } as CollectionInfo,
+            artifactIpfsCid: row.value.toString().replace(/.* \"ipfs:\\\/\\\/([a-zA-Z0-9]*?)" .*/, '$1'),
+            action: invocationMetadata.action,
+            receivedOn: invocationMetadata.receivedOn,
+            cost: new BigNumber(invocationMetadata.price),
+            currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* ; [0-9]+ ; ([0-9]*?) .*/, '$1')))
+        }
+    }
+
+    /*
+     * Turn an array of n=k*len elements into an array of k arrays of length len.
+     *
+     * @param arr
+     * @param len
+     */
+    function chunkArray(arr: any[], len: number) {
+        const chunks: any[] = [];
+        const n = arr.length;
+
+        let i = 0;
+        while (i < n) {
+            chunks.push(arr.slice(i, (i += len)));
+        }
+
+        return chunks;
+    }
 }
 
