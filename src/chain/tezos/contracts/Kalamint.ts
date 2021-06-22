@@ -48,7 +48,7 @@ export namespace KalamintHelper {
      */
     export async function getStorage(server: string, address: string): Promise<KalamintStorage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
-        const auctionsArray = JSONPath({path: '$.args[0].args[0].args[3]', json: storageResult })[0]; // need to parse this array
+        const auctionsArray = JSONPath({path: '$.args[0].args[0].args[3]', json: storageResult })[0];
         let auctions: Auctions = {};
         for (const elt of auctionsArray) {
             auctions[elt.args[0].int] = elt.args[1].string;
@@ -126,7 +126,6 @@ export namespace KalamintHelper {
         editions: number;
     }
 
-
     /*
      * Representation of a Kalamint artwork
      *
@@ -161,7 +160,7 @@ export namespace KalamintHelper {
      * @param address
      * @param serverInfo
      */
-    export async function getAssets(ledger: number, tokenMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
+    export async function getArtworks(ledger: number, tokenMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
         // get all assets of address from the ledger
         const operationsQuery = makeOperationsQuery(address, ledger);
         const operationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', operationsQuery);
@@ -296,7 +295,7 @@ export namespace KalamintHelper {
     /*
      * Craft the query for the winning bid
      *
-     * @param operations Hashes of the operation groups that include the end_auction invocations
+     * @param operations Array of chunks of operations (see `chunkArray()`)
      */
     function makeEndAuctionQuery(operations: string[]): ConseilQuery {
         let endAuctionQuery = ConseilQueryBuilder.blankQuery();
@@ -365,7 +364,6 @@ export namespace KalamintHelper {
             cost: new BigNumber(invocationMetadata.price),
             currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* } ; [0-9]+ ; ([0-9]*?) .*/, '$1'))),
             onSale: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b .*/, '$1').toLowerCase().startsWith('t'),
-            currentBid: new BigNumber(0),
             onAuction: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b ; \b(False|True)\b.*/, '$2').toLowerCase().startsWith('t')
         }
     }
