@@ -5,15 +5,18 @@ import * as TezosTypes from "../../../types/tezos/TezosChainTypes";
 import {TezosContractUtils} from './TezosContractUtils';
 import {ConseilQueryBuilder} from "../../../reporting/ConseilQueryBuilder";
 import {TezosMessageUtils} from "../TezosMessageUtil";
-import {ConseilOperator, ConseilServerInfo, ConseilQuery} from "../../../types/conseil/QueryTypes";
+import {ConseilOperator, ConseilServerInfo, ConseilQuery, ConseilSortDirection} from "../../../types/conseil/QueryTypes";
 import {TezosConseilClient} from "../../../reporting/tezos/TezosConseilClient";
 import {JSONPath} from "jsonpath-plus";
 import BigNumber from "bignumber.js";
+import {TransferPair} from "./tzip12/MultiAssetTokenHelper";
 
 export namespace KalamintHelper {
-    export const kalamintAddress: string = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
-    export const kalamintLedgerMapId: number = 857;
-    export const kalamintTokenMapId: number = 861;
+    export const artHouseAddress: string = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
+    export const auctionFactoryAddress: string = "KT1MiSxkVDFDrAMYCZZXdBEkNrf1NWzfnnRR";
+    export const ledgerMapId: number = 857;
+    export const metadataMapId: number = 860;
+    export const tokenMapId: number = 861;
 
     export type Auctions = { [ id: number]: string };
 
@@ -78,6 +81,10 @@ export namespace KalamintHelper {
         };
     }
 
+    export interface MintPair {
+
+    }
+
     export interface BidPair {
         tokenId: number;
         amount: number;
@@ -122,6 +129,7 @@ export namespace KalamintHelper {
     export interface CollectionInfo {
         collectionName: string;
         creatorName: string;
+        creatorAddress: string;
         editionNumber: number;
         editions: number;
     }
@@ -142,14 +150,12 @@ export namespace KalamintHelper {
     export interface Artwork {
         tokenId: number;
         name: string;
-        action: string;
-        cost: BigNumber;
+        acquisition: InvocationMetadata;
         collection: CollectionInfo;
-        receivedOn: Date;
         currentPrice: BigNumber;
         onSale: boolean;
         onAuction: boolean;
-        artifactIpfsCid: string;
+        metadataURI: string;
     }
 
     /*
@@ -182,8 +188,8 @@ export namespace KalamintHelper {
                 const invocationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'operations', q);
                 invocationsResult.map(async (row) => {
                     const metadata: InvocationMetadata = await parseInvocationMetadataResult(row);
-                    // remember which bids need to be retrieved
-                    if (metadata.price === undefined)
+                    // save which bids need to be retrieved
+                    if (metadata.amount === undefined)
                         endAuctionOperations.push(row.operation_group_hash);
                     invocationMetadata[row.operation_group_hash] = metadata;
                 });
@@ -200,18 +206,21 @@ export namespace KalamintHelper {
         );
 
         // get token metadata
-        const tokenMetadataQueries = invocationChunks.map((c) => makeTokenMetadataQuery(tokenMapId, c));
-        const collection: Artwork[] = [];
+        const tokenMetadataQueries = invocationChunks.map((c) => [makeTokenQuery(tokenMapId, c), makeTokenQuery(metadataMapId, c)]);
+        const artworks: Artwork[] = [];
         await Promise.all(
-            tokenMetadataQueries.map(async (q) => {
-                const tokenMetadataResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', q);
-                tokenMetadataResult.map((row) => {
-                    collection.push(parseTokenMetadataResult(row, invocations, invocationMetadata));
+            tokenMetadataQueries.map(async ([tokenQuery, metadataQuery]) => {
+                const tokenResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', tokenQuery);
+                const metadataResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', metadataQuery);
+                // zip the results into artworks
+                tokenResult.map((row, i) => {
+                    const metadataURI: string = parseMetadataResult(metadataResult[i]);
+                    artworks.push(parseTokenResult(row, invocations, invocationMetadata, metadataURI));
                 });
         }));
 
         // return assets sorted chronlogically
-        return collection.sort((a, b) => b.receivedOn.getTime() - a.receivedOn.getTime());
+        return artworks.sort((a, b) => b.acquisition.timestamp.getTime() - a.acquisition.timestamp.getTime());
     }
 
     /*
@@ -239,7 +248,7 @@ export namespace KalamintHelper {
      */
     function makeInvocationMetadataQuery(operations: ConseilQuery[]): ConseilQuery {
         let invocationsQuery = ConseilQueryBuilder.blankQuery();
-        invocationsQuery = ConseilQueryBuilder.addFields(invocationsQuery, 'timestamp', 'amount', 'operation_group_hash', 'parameters_entrypoints', 'parameters');
+        invocationsQuery = ConseilQueryBuilder.addFields(invocationsQuery, 'timestamp', 'amount', 'operation_group_hash', 'parameters_entrypoints');
         invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'kind', ConseilOperator.EQ, ['transaction']);
         invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'status', ConseilOperator.EQ, ['applied']);
         invocationsQuery = ConseilQueryBuilder.addPredicate(invocationsQuery, 'internal', ConseilOperator.EQ, ['false']);
@@ -262,9 +271,9 @@ export namespace KalamintHelper {
      * @param timestamp Invocation timestamp
      */
     interface InvocationMetadata {
-        action: string;
-        price: BigNumber | undefined;
-        receivedOn: Date;
+        entryPoint: string;
+        amount: BigNumber | undefined;
+        timestamp: Date;
     }
 
     /*
@@ -273,22 +282,22 @@ export namespace KalamintHelper {
      * @param row
      */
     async function parseInvocationMetadataResult(row): Promise<InvocationMetadata> {
-        let action =  row.parameters_entrypoints;
+        let entryPoint =  row.parameters_entrypoints;
 
         // parse purchase or winning bid price
         let price: BigNumber | undefined;
-        if (action === 'buy') {
+        if (entryPoint === 'buy') {
             price = new BigNumber(parseInt(row.amount));
-        } else if (action === 'resolve_auction') {
+        } else if (entryPoint === 'resolve_auction') {
             // need to get winning bid operation
             price = undefined;
         } else
             price = new BigNumber(0);
 
         return {
-            action: action,
-            price: price,
-            receivedOn: new Date(row.timestamp)
+            entryPoint: entryPoint,
+            amount: price,
+            timestamp: new Date(row.timestamp)
         };
     }
 
@@ -327,10 +336,10 @@ export namespace KalamintHelper {
      * @param tokenMap The token bigmap id
      * @param tokenIds The array of token ids to query data for
      */
-    function makeTokenMetadataQuery(tokenMap: number, tokenIds: number[]): ConseilQuery {
+    function makeTokenQuery(tokenMapId: number, tokenIds: number[]): ConseilQuery {
         let tokensQuery = ConseilQueryBuilder.blankQuery();
         tokensQuery = ConseilQueryBuilder.addFields(tokensQuery, 'key', 'value', 'operation_group_id');
-        tokensQuery = ConseilQueryBuilder.addPredicate(tokensQuery, 'big_map_id', ConseilOperator.EQ, [tokenMap]);
+        tokensQuery = ConseilQueryBuilder.addPredicate(tokensQuery, 'big_map_id', ConseilOperator.EQ, [tokenMapId]);
         tokensQuery = ConseilQueryBuilder.addPredicate(
             tokensQuery,
             'key',
@@ -341,31 +350,149 @@ export namespace KalamintHelper {
     }
 
     /*
-     * Parse the results of the token metadata queries
+     * Parse the results of the metadata map queries for the IPFS URI
      *
      * @param row
      */
-    function parseTokenMetadataResult(row, invocations, invocationsMetadata): Artwork {
+    function parseMetadataResult(row): string {
+        const metadataURIBytes = row.value.toString().replace(/.*? 0x([a-zA-Z0-9]*).*/, '$1');
+        return "ipfs" + TezosMessageUtils.readString(metadataURIBytes);
+    }
+
+    /*
+     * Parse the results of the token map queries
+     *
+     * @param row
+     */
+    function parseTokenResult(row, invocations, invocationsMetadata, metadataURI: string): Artwork {
         let tokenId = parseInt(row.key);
         let invocationOperation = invocations[tokenId];
         let invocationMetadata = invocationsMetadata[invocationOperation];
         return {
             tokenId: parseInt(row.key),
             name: row.value.toString().replace(/.* \"name\" "(.*?)" .*/, '$1'),
+            acquisition: invocationMetadata,
             collection: {
                 collectionName: row.value.toString().replace(/.* "collection_name" "(.*?)" .*/, '$1'),
                 creatorName: row.value.toString().replace(/.* "creator_name" "(.*?)" .*/, '$1'),
                 editions: parseInt(row.value.toString().replace(/.* ([0-9]*?) }/, '$1')),
                 editionNumber: parseInt(row.value.toString().replace(/.* ([0-9]*?) ; [0-9]* }/, '$1'))
             } as CollectionInfo,
-            artifactIpfsCid: row.value.toString().replace(/.* \"ipfs:\\\/\\\/([a-zA-Z0-9]*?)" .*/, '$1'),
-            action: invocationMetadata.action,
-            receivedOn: invocationMetadata.receivedOn,
-            cost: new BigNumber(invocationMetadata.price),
             currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* } ; [0-9]+ ; ([0-9]*?) .*/, '$1'))),
             onSale: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b .*/, '$1').toLowerCase().startsWith('t'),
-            onAuction: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b ; \b(False|True)\b.*/, '$2').toLowerCase().startsWith('t')
+            onAuction: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b ; \b(False|True)\b.*/, '$2').toLowerCase().startsWith('t'),
+            metadataURI: metadataURI
         }
+    }
+
+    /*
+     * Represents a transaction
+     *
+     * @param
+     */
+    export interface Transaction {
+        source: string;
+        destination: string;
+        invocation: InvocationMetadata;
+        operationGroupHash: string;
+        blockLevel: number;
+        fee: BigNumber;
+    }
+
+    /*
+     * Get the Kalamint transactions for the given address
+     *
+     * @param serverInfo
+     * @param address
+     */
+    export async function getTokenTransactions(kalamintAddress: string, address: string, serverInfo: ConseilServerInfo): Promise<Transaction[]> {
+        // Q: should I get auctionFactoryAddress dynamically, from artHouse's storage?
+        const direct: ConseilQuery = makeDirectTxQuery(address, [artHouseAddress, auctionFactoryAddress]);
+        const indirect: ConseilQuery = makeIndirectTxQuery(address, kalamintAddress);
+
+        let transactions: Transaction[] = [];
+        Promise.all([direct, indirect].map(async (q) => {
+            const transactionsResult = await TezosConseilClient.getOperations(serverInfo, serverInfo.network, q);
+            transactionsResult.map((row) => transactions.push(parseTransactionsQuery(row)));
+        }));
+        return transactions.sort((a, b) => a.invocation.timestamp.getTime() - b.invocation.timestamp.getTime());
+    }
+
+    /*
+     * Craft the query for transactions made by address
+     *
+     * @param
+     * @param
+     */
+    function makeDirectTxQuery(address: string, contracts: string[]): ConseilQuery {
+        let direct = ConseilQueryBuilder.blankQuery();
+        direct = ConseilQueryBuilder.addFields(direct,
+            'timestamp',
+            'block_level',
+            'source',
+            'destination',
+            'amount',
+            'kind',
+            'fee',
+            'status',
+            'operation_group_hash',
+            'parameters_micheline',
+            'parameters_entrypoints');
+        direct = ConseilQueryBuilder.addPredicate(direct, 'kind', ConseilOperator.EQ, ['transaction'], false);
+        direct = ConseilQueryBuilder.addPredicate(direct, 'status', ConseilOperator.EQ, ['applied'], false);
+        direct = ConseilQueryBuilder.addPredicate(direct, 'destination', ConseilOperator.IN, contracts, false);
+        direct = ConseilQueryBuilder.addPredicate(direct, 'source', ConseilOperator.EQ, [address], false);
+        direct = ConseilQueryBuilder.addOrdering(direct, 'timestamp', ConseilSortDirection.DESC);
+        direct = ConseilQueryBuilder.setLimit(direct, 5_000);
+        return direct;
+    }
+
+    /*
+     * Craft the query for transactions made to contractAddress that affect address
+     *
+     */
+    function makeIndirectTxQuery(address: string, contractAddress: string): ConseilQuery {
+        let indirect = ConseilQueryBuilder.blankQuery();
+        indirect = ConseilQueryBuilder.addFields(indirect,
+            'timestamp',
+            'block_level',
+            'source',
+            'destination',
+            'amount',
+            'kind',
+            'fee',
+            'status',
+            'operation_group_hash',
+            'parameters_micheline',
+            'parameters_entrypoints');
+        indirect = ConseilQueryBuilder.addPredicate(indirect, 'kind', ConseilOperator.EQ, ['transaction'], false);
+        indirect = ConseilQueryBuilder.addPredicate(indirect, 'status', ConseilOperator.EQ, ['applied'], false);
+        indirect = ConseilQueryBuilder.addPredicate(indirect, 'destination', ConseilOperator.EQ, [contractAddress], false);
+        indirect = ConseilQueryBuilder.addPredicate(indirect, 'parameters', ConseilOperator.LIKE, [address], false);
+        indirect = ConseilQueryBuilder.addOrdering(indirect, 'timestamp', ConseilSortDirection.DESC);
+        indirect = ConseilQueryBuilder.setLimit(indirect, 5_000);
+        return indirect
+    }
+
+    /*
+     * Parse direct and indirect transaction queries
+     *
+     */
+    function parseTransactionsQuery(row): Transaction {
+        console.log(row);
+        let invocationMetadata: InvocationMetadata = {
+            entryPoint: row.action,
+            amount: row.amount,
+            timestamp: new Date(row.timestamp)
+        };
+        return {
+            source: row.source,
+            destination: row.destination,
+            invocation: invocationMetadata,
+            operationGroupHash: row.operation_group_hash,
+            blockLevel: row.blockLevel,
+            fee: row.fee
+        };
     }
 
     /*
