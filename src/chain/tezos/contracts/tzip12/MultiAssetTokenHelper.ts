@@ -6,7 +6,7 @@ import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { TezosContractUtils } from '../TezosContractUtils';
 
-interface MultiAssetSimpleStorage {
+export interface MultiAssetSimpleStorage {
     administrator: string,
     tokens: number,
     ledger: number,
@@ -14,21 +14,52 @@ interface MultiAssetSimpleStorage {
     paused: string,
     operators: number,
     tokenMetadata: number,
-    totalSupply: number
+    totalSupply?: number
 }
 
-interface MultiAssetTokenDefinition {
+export interface MultiAssetTokenDefinition {
     tokenid: number;
     metadata: Record<string, string>;
 }
 
-interface TransferPair {
-    address: string;
-    tokenid: number;
+/*
+ * FA2 individual token transfer
+ */
+export interface TokenTransfer {
+    destination: string;
+    token_id: number;
     amount: number;
 }
 
-interface UpdateOperator {
+/*
+ * Returns a TokenTransaction in Michelson format
+ */
+export function TokenTransactionMichelson(tx: TokenTransfer): string {
+    return `Pair "${tx.destination}" (Pair ${tx.token_id} ${tx.amount})`;
+}
+
+/*
+ * FA2 batch transfer invocation parameters
+ */
+export interface TransferPair {
+    source: string;
+    txs: TokenTransfer[]
+}
+
+/*
+ * Returns a TransferPair in Michelson format
+ */
+export function TransferPairMichelson(transfers: TransferPair[]): string {
+    const transferList: string = transfers.map(
+        (transfer) => {
+            const txList: string = transfer.txs.map((tx) => TokenTransactionMichelson(tx)).join("; ");
+            return `Pair "${transfer.source}" { ${txList} }`;
+        }
+    ).join("; ");
+    return `{ ${transferList} }`
+}
+
+export interface UpdateOperator {
     owner: string,
     operator: string,
     tokenid: number
@@ -195,9 +226,9 @@ export namespace MultiAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function transfer(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, source: string, transfers: TransferPair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function transfer(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, transfers: TransferPair[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'transfer';
-        const parameters = `{ Pair "${source}" { ${transfers.map(t => '( Pair "' + t.address + '" ( Pair ' + t.tokenid + ' ' + t.amount + ' ) )').join(' ; ')} } }`;
+        const parameters = TransferPairMichelson(transfers);
 
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
