@@ -9,7 +9,9 @@ import {ConseilOperator, ConseilServerInfo, ConseilQuery, ConseilSortDirection} 
 import {TezosConseilClient} from "../../../reporting/tezos/TezosConseilClient";
 import {JSONPath} from "jsonpath-plus";
 import BigNumber from "bignumber.js";
-import {TransferPair} from "./tzip12/MultiAssetTokenHelper";
+import FetchSelector from '../../../utils/FetchSelector';
+
+const fetch = FetchSelector.fetch;
 
 export namespace KalamintHelper {
     export const artHouseAddress: string = "KT1EpGgjQs73QfFJs9z7m1Mxm5MTnpC2tqse";
@@ -148,12 +150,14 @@ export namespace KalamintHelper {
     export interface Artwork {
         tokenId: number;
         name: string;
+        description: string | undefined;
         acquisition: InvocationMetadata;
         collection: CollectionInfo;
         currentPrice: BigNumber;
         onSale: boolean;
         onAuction: boolean;
         metadataURI: string;
+        artifactURI: string;
     }
 
     /*
@@ -164,9 +168,9 @@ export namespace KalamintHelper {
      * @param address
      * @param serverInfo
      */
-    export async function getArtworks(ledger: number, tokenMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
+    export async function getArtworks(ledgerMapId: number, tokenMapId: number, metadataMapId: number, address: string, serverInfo: ConseilServerInfo): Promise<Artwork[]> {
         // get all assets of address from the ledger
-        const operationsQuery = makeOperationsQuery(address, ledger);
+        const operationsQuery = makeOperationsQuery(address, ledgerMapId);
         const operationsResult = await TezosConseilClient.getTezosEntityData(serverInfo, serverInfo.network, 'big_map_contents', operationsQuery);
         const operationGroupIds = operationsResult.map((r) => r.operation_group_id);
         const operationChunks = chunkArray(operationGroupIds, 30);
@@ -354,7 +358,7 @@ export namespace KalamintHelper {
      */
     function parseMetadataResult(row): string {
         const metadataURIBytes = row.value.toString().replace(/.*? 0x([a-zA-Z0-9]*).*/, '$1');
-        return "ipfs" + TezosMessageUtils.readString(metadataURIBytes);
+        return TezosMessageUtils.readString(metadataURIBytes).slice(3); // get rid of leading `://`
     }
 
     /*
@@ -372,6 +376,7 @@ export namespace KalamintHelper {
         return {
             tokenId: parseInt(row.key),
             name: row.value.toString().replace(/.* \"name\" "(.*?)" .*/, '$1'),
+            description: undefined,
             acquisition: invocationMetadata,
             collection: {
                 collectionName: row.value.toString().replace(/.* "collection_name" "(.*?)" .*/, '$1'),
@@ -382,7 +387,8 @@ export namespace KalamintHelper {
             currentPrice: new BigNumber(parseInt(row.value.toString().replace(/.* } ; [0-9]+ ; ([0-9]*?) .*/, '$1'))),
             onSale: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b .*/, '$1').toLowerCase().startsWith('t'),
             onAuction: row.value.toString().replace(/.* "ipfs:.*" ; .*? ; \b(False|True)\b ; \b(False|True)\b.*/, '$2').toLowerCase().startsWith('t'),
-            metadataURI: metadataURI
+            metadataURI: metadataURI,
+            artifactURI: row.value.toString().replace(/.* \"ipfs:\\\/\\\/([a-zA-Z0-9]*?)" .*/, '$1')
         }
     }
 
@@ -490,34 +496,18 @@ export namespace KalamintHelper {
     }
 
     /*
-     * Retrieves an NFT object's metadata.
+     * Populate an Artwork's description and artifact from IPFS
      *
-     * @param server The Teznos node to query
-     * @param objectId The token_id of the NFT to query
+     * @param artwork The Artwork object
      */
-    //export async function getNFTObjectDetails(server: string, metadataURI: string) {
-    //    // get ArtworkMetadata from IPFS
-    //    // get ArtworkArtifactURI from ArtworkMetadata
-    //    // get ArtworkArtifact from ArtworkArtifactURI
-    //    const packedNftId = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(objectId, 'int'), 'hex'));
-    //    const nftInfo = await TezosNodeReader.getValueForBigMapKey(server, 514, packedNftId);
-    //    const ipfsUrlBytes = JSONPath({ path: '$.args[1][0].args[1].bytes', json: nftInfo })[0];
-    //    const ipfsHash = Buffer.from(ipfsUrlBytes, 'hex').toString().slice(7);
+    export async function getArtworkDescription(artwork: Artwork): Promise<Artwork> {
+        const metadata = await fetch(`https://cloudflare-ipfs.com/ipfs/${artwork.metadataURI}`, { cache: 'no-store' });
+        const metadataJSON = await metadata.json();
 
-    //    const nftDetails = await fetch(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`, { cache: 'no-store' });
-    //    const nftDetailJson = await nftDetails.json();
+        artwork.description = metadataJSON.description;
 
-    //    const nftName = nftDetailJson.name;
-    //    const nftDescription = nftDetailJson.description;
-    //    const nftCreators = nftDetailJson.creators
-    //        .map((c) => c.trim())
-    //        .map((c) => `${c.slice(0, 6)}...${c.slice(c.length - 6, c.length)}`)
-    //        .join(', '); // TODO: use names where possible
-    //    const nftArtifact = `https://cloudflare-ipfs.com/ipfs/${nftDetailJson.formats[0].uri.toString().slice(7)}`;
-    //    const nftArtifactType = nftDetailJson.formats[0].mimeType.toString();
-
-    //    return { name: nftName, description: nftDescription, creators: nftCreators, artifactUrl: nftArtifact, artifactType: nftArtifactType };
-    //}
+        return artwork;
+    }
 
     /*
      * Turn an array of n=k*len elements into an array of k arrays of length len.
