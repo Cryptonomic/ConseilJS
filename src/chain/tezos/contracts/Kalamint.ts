@@ -81,10 +81,6 @@ export namespace KalamintHelper {
         };
     }
 
-    export interface MintPair {
-
-    }
-
     export interface BidPair {
         tokenId: number;
         amount: number;
@@ -114,9 +110,7 @@ export namespace KalamintHelper {
      */
     export async function buy(server: string, address: string, signer: Signer, keystore: KeyStore, buy: BuyPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'buy';
-        const parameters = `{
-            "int": ${buy.tokenId}
-        }`;
+        const parameters = `{"int": "${buy.tokenId}"}`;
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, buy.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -124,7 +118,11 @@ export namespace KalamintHelper {
     /*
      * Collection metadata
      *
-     * @param
+     * @param collectionName
+     * @param creatorName
+     * @param creatorAddress
+     * @param editionNumber
+     * @param editions
      */
     export interface CollectionInfo {
         collectionName: string;
@@ -266,8 +264,8 @@ export namespace KalamintHelper {
     /*
      * The parsed results of invocation metadata queries
      *
-     * @param action The entrypoint invoked
-     * @param price The purchase price or winning bid (0 if minted or transfered)
+     * @param entryPoint The entrypoint invoked
+     * @param amount The purchase price or winning bid (0 if minted or transfered)
      * @param timestamp Invocation timestamp
      */
     interface InvocationMetadata {
@@ -333,7 +331,7 @@ export namespace KalamintHelper {
     /*
      * Craft the query for the token metadata
      *
-     * @param tokenMap The token bigmap id
+     * @param tokenMapId The token bigmap id
      * @param tokenIds The array of token ids to query data for
      */
     function makeTokenQuery(tokenMapId: number, tokenIds: number[]): ConseilQuery {
@@ -363,6 +361,9 @@ export namespace KalamintHelper {
      * Parse the results of the token map queries
      *
      * @param row
+     * @param invocations Map from tokenId -> operationGroupId
+     * @param invocationsMetadata Map from operationGroupId -> InvocationMetadata
+     * @param metadataURI IPFS URI for token metadata
      */
     function parseTokenResult(row, invocations, invocationsMetadata, metadataURI: string): Artwork {
         let tokenId = parseInt(row.key);
@@ -405,13 +406,12 @@ export namespace KalamintHelper {
      * @param serverInfo
      * @param address
      */
-    export async function getTokenTransactions(kalamintAddress: string, address: string, serverInfo: ConseilServerInfo): Promise<Transaction[]> {
-        // Q: should I get auctionFactoryAddress dynamically, from artHouse's storage?
+    export async function getTokenTransactions(artHouseAddress: string, auctionFactoryAddress: string, address: string, serverInfo: ConseilServerInfo): Promise<Transaction[]> {
         const direct: ConseilQuery = makeDirectTxQuery(address, [artHouseAddress, auctionFactoryAddress]);
-        const indirect: ConseilQuery = makeIndirectTxQuery(address, kalamintAddress);
+        const indirect: ConseilQuery = makeIndirectTxQuery(address, artHouseAddress);
 
         let transactions: Transaction[] = [];
-        Promise.all([direct, indirect].map(async (q) => {
+        await Promise.all([direct, indirect].map(async (q) => {
             const transactionsResult = await TezosConseilClient.getOperations(serverInfo, serverInfo.network, q);
             transactionsResult.map((row) => transactions.push(parseTransactionsQuery(row)));
         }));
@@ -421,22 +421,18 @@ export namespace KalamintHelper {
     /*
      * Craft the query for transactions made by address
      *
-     * @param
-     * @param
+     * @param address The source address for transaction
+     * @param contracts Array with the relevant contracts (e.g. ArtHouse, AuctionFactory)
      */
     function makeDirectTxQuery(address: string, contracts: string[]): ConseilQuery {
         let direct = ConseilQueryBuilder.blankQuery();
         direct = ConseilQueryBuilder.addFields(direct,
             'timestamp',
-            'block_level',
             'source',
             'destination',
             'amount',
-            'kind',
             'fee',
-            'status',
             'operation_group_hash',
-            'parameters_micheline',
             'parameters_entrypoints');
         direct = ConseilQueryBuilder.addPredicate(direct, 'kind', ConseilOperator.EQ, ['transaction'], false);
         direct = ConseilQueryBuilder.addPredicate(direct, 'status', ConseilOperator.EQ, ['applied'], false);
@@ -450,20 +446,18 @@ export namespace KalamintHelper {
     /*
      * Craft the query for transactions made to contractAddress that affect address
      *
+     * @param address The affected address
+     * @param contractAddress The Kalamint contract address
      */
     function makeIndirectTxQuery(address: string, contractAddress: string): ConseilQuery {
         let indirect = ConseilQueryBuilder.blankQuery();
         indirect = ConseilQueryBuilder.addFields(indirect,
             'timestamp',
-            'block_level',
             'source',
             'destination',
             'amount',
-            'kind',
             'fee',
-            'status',
             'operation_group_hash',
-            'parameters_micheline',
             'parameters_entrypoints');
         indirect = ConseilQueryBuilder.addPredicate(indirect, 'kind', ConseilOperator.EQ, ['transaction'], false);
         indirect = ConseilQueryBuilder.addPredicate(indirect, 'status', ConseilOperator.EQ, ['applied'], false);
@@ -477,12 +471,12 @@ export namespace KalamintHelper {
     /*
      * Parse direct and indirect transaction queries
      *
+     * @param row
      */
     function parseTransactionsQuery(row): Transaction {
-        console.log(row);
         let invocationMetadata: InvocationMetadata = {
-            entryPoint: row.action,
-            amount: row.amount,
+            entryPoint: row.parameters_entrypoints,
+            amount: new BigNumber(row.amount),
             timestamp: new Date(row.timestamp)
         };
         return {
@@ -491,9 +485,39 @@ export namespace KalamintHelper {
             invocation: invocationMetadata,
             operationGroupHash: row.operation_group_hash,
             blockLevel: row.blockLevel,
-            fee: row.fee
+            fee: new BigNumber(row.fee)
         };
     }
+
+    /*
+     * Retrieves an NFT object's metadata.
+     *
+     * @param server The Teznos node to query
+     * @param objectId The token_id of the NFT to query
+     */
+    //export async function getNFTObjectDetails(server: string, metadataURI: string) {
+    //    // get ArtworkMetadata from IPFS
+    //    // get ArtworkArtifactURI from ArtworkMetadata
+    //    // get ArtworkArtifact from ArtworkArtifactURI
+    //    const packedNftId = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(objectId, 'int'), 'hex'));
+    //    const nftInfo = await TezosNodeReader.getValueForBigMapKey(server, 514, packedNftId);
+    //    const ipfsUrlBytes = JSONPath({ path: '$.args[1][0].args[1].bytes', json: nftInfo })[0];
+    //    const ipfsHash = Buffer.from(ipfsUrlBytes, 'hex').toString().slice(7);
+
+    //    const nftDetails = await fetch(`https://cloudflare-ipfs.com/ipfs/${ipfsHash}`, { cache: 'no-store' });
+    //    const nftDetailJson = await nftDetails.json();
+
+    //    const nftName = nftDetailJson.name;
+    //    const nftDescription = nftDetailJson.description;
+    //    const nftCreators = nftDetailJson.creators
+    //        .map((c) => c.trim())
+    //        .map((c) => `${c.slice(0, 6)}...${c.slice(c.length - 6, c.length)}`)
+    //        .join(', '); // TODO: use names where possible
+    //    const nftArtifact = `https://cloudflare-ipfs.com/ipfs/${nftDetailJson.formats[0].uri.toString().slice(7)}`;
+    //    const nftArtifactType = nftDetailJson.formats[0].mimeType.toString();
+
+    //    return { name: nftName, description: nftDescription, creators: nftCreators, artifactUrl: nftArtifact, artifactType: nftArtifactType };
+    //}
 
     /*
      * Turn an array of n=k*len elements into an array of k arrays of length len.
