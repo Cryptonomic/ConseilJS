@@ -139,13 +139,13 @@ export namespace KalamintHelper {
      *
      * @param tokenId The FA2 token Id of the artwork
      * @param name Artwork's name
-     * @param action The action with which the artwork was obtained (e.g. Buy, Bid, Transfer)
-     * @param cost The price for which the artwork was purchased
+     * @param description Artwork's description
      * @param collection The metadata for the collection to which the artwork belongs
      * @param currentPrice The price for which it is currently on sale for
      * @param onSale Indicator for if the artwork is currently on sale
      * @param onAuction Indicator for if an auction is currently active for the artwork
-     * @param artifactIpfsCid IPFS CID for the artwork artifact
+     * @param metadataURI IPFS URI for Artwork's metadata
+     * @param artifactURI IPFS URI for Artwork's artifact
      */
     export interface Artwork {
         tokenId: number;
@@ -163,8 +163,9 @@ export namespace KalamintHelper {
     /*
      * Retreives the collection of tokens owned by managerAddress.
      *
-     * @param ledger
+     * @param ledgerMapId
      * @param tokenMapId
+     * @param metadataMapId
      * @param address
      * @param serverInfo
      */
@@ -229,12 +230,12 @@ export namespace KalamintHelper {
      * Craft the query for operations from the ledger big map
      *
      * @param address The address for which to query data
-     * @param ledger The ledger big map id
+     * @param ledgerMapId The ledger big map id
      */
-    function makeOperationsQuery(address: string, ledger: number): ConseilQuery {
+    function makeOperationsQuery(address: string, ledgerMapId: number): ConseilQuery {
         let operationsQuery = ConseilQueryBuilder.blankQuery();
         operationsQuery = ConseilQueryBuilder.addFields(operationsQuery, 'key', 'value', 'operation_group_id');
-        operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'big_map_id', ConseilOperator.EQ, [ledger]);
+        operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'big_map_id', ConseilOperator.EQ, [ledgerMapId]);
         operationsQuery = ConseilQueryBuilder.addPredicate(operationsQuery, 'key', ConseilOperator.STARTSWITH, [
             `Pair 0x${TezosMessageUtils.writeAddress(address)}`,
         ]);
@@ -395,22 +396,27 @@ export namespace KalamintHelper {
     /*
      * Represents a transaction
      *
-     * @param
+     * @param source
+     * @param destination
+     * @param invocation
+     * @param operationGroupHash
+     * @param fee
      */
     export interface Transaction {
         source: string;
         destination: string;
         invocation: InvocationMetadata;
         operationGroupHash: string;
-        blockLevel: number;
         fee: BigNumber;
     }
 
     /*
      * Get the Kalamint transactions for the given address
      *
-     * @param serverInfo
+     * @param artHouseAddress
+     * @param auctionFactoryAddress
      * @param address
+     * @param serverInfo
      */
     export async function getTokenTransactions(artHouseAddress: string, auctionFactoryAddress: string, address: string, serverInfo: ConseilServerInfo): Promise<Transaction[]> {
         const direct: ConseilQuery = makeDirectTxQuery(address, [artHouseAddress, auctionFactoryAddress]);
@@ -490,7 +496,6 @@ export namespace KalamintHelper {
             destination: row.destination,
             invocation: invocationMetadata,
             operationGroupHash: row.operation_group_hash,
-            blockLevel: row.blockLevel,
             fee: new BigNumber(row.fee)
         };
     }
