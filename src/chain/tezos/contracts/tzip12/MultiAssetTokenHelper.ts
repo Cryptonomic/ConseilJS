@@ -94,11 +94,11 @@ export namespace MultiAssetTokenHelper {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
 
         return {
-            administrator: JSONPath({ path: '$.args[0].args[0].args[0].string', json: storageResult })[0],
-            tokens: Number(JSONPath({ path: '$.args[0].args[0].args[1].int', json: storageResult })[0]),
-            ledger: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0]),
+            administrator: JSONPath({ path: '$.args[0].args[0].string', json: storageResult })[0],
+            tokens: Number(JSONPath({ path: '$.args[0].args[1].int', json: storageResult })[0]),
+            ledger: Number(JSONPath({ path: '$.args[0].args[2].int', json: storageResult })[0]),
             metadata: Number(JSONPath({ path: '$.args[0].args[2].int', json: storageResult })[0]),
-            paused: (JSONPath({ path: '$.args[1].args[1].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
+            paused: (JSONPath({ path: '$.args[2].prim', json: storageResult })[0]).toString().toLowerCase().startsWith('t'),
             operators: Number(JSONPath({ path: '$.args[1].args[0].int', json: storageResult })[0]),
             tokenMetadata: Number(JSONPath({ path: '$.args[2].int', json: storageResult })[0]),
             totalSupply: Number(JSONPath({ path: '$.args[3].int', json: storageResult })[0])
