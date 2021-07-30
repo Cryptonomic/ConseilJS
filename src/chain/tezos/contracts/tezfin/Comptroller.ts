@@ -35,8 +35,6 @@ export namespace Comptroller {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    }
-
     /*
      * Description
      *
@@ -66,6 +64,5 @@ export namespace Comptroller {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
-
-    }
 }
+

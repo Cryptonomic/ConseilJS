@@ -4,6 +4,7 @@ import {TezosNodeReader} from '../../TezosNodeReader';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosContractUtils} from '../TezosContractUtils';
 import { TezFinHelper } from './TezFinHelper';
+import {Transaction} from '../../../../types/tezos/TezosP2PMessageTypes';
 
 export namespace CToken {
     /*
@@ -57,13 +58,23 @@ export namespace CToken {
         return {} as MarketInfo;
     }
 
+    /*
+     * Description
+     *
+     * @param
+     */
+    export function AccrueInterestOperation(counter: number, address: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'accrueInterest';
+        const parameters = 'Unit'
+        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, address, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+    }
 
     /*
      * Description
      *
      * @param
      */
-    export interface ApprovePair {
+    export interface MintPair {
 
     }
 
@@ -72,7 +83,10 @@ export namespace CToken {
      *
      * @param
      */
-    export function ApprovePairToMichelson(approve: ApprovePair): string {
+    export function MintPairMichelson(mint: MintPair): string {
+        // cxtz mint: (Left (Right (Right (Left (Right 777)))))
+        // cfa1.2 mint: (Right (Left (Pair "tz1WxrQuZ4CK1MBUa2GqUWK1yJ4J6EtG1Gwi" 100)))
+        // cfa2 mint: (Left (Right (Right (Left (Right (Left 100))))))
         return "";
     }
 
@@ -81,40 +95,10 @@ export namespace CToken {
      *
      * @param
      */
-    export async function Approve(server: string, address: string, signer: Signer, keystore: KeyStore, approve: ApprovePair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
-        const entryPoint = 'approve';
-        const parameters = ApprovePairToMichelson(approve);
+    export async function Mint(server: string, address: string, signer: Signer, keystore: KeyStore, mint: MintPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'mint';
+        const parameters = MintPairMichelson(mint);
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
-
-    /*
-     * Description
-     *
-     * @param
-     */
-    export interface SupplyPair {
-
-    }
-
-    /*
-     * Description
-     *
-     * @param
-     */
-    export function SupplyPairToMichelson(supply: SupplyPair): string {
-        return "";
-    }
-
-    /*
-     * Description
-     *
-     * @param
-     */
-    export async function Supply(server: string, address: string, signer: Signer, keystore: KeyStore, supply: SupplyPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
-        const entryPoint = 'supply';
-        const parameters = SupplyPairToMichelson(supply);
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, supply.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
@@ -132,7 +116,7 @@ export namespace CToken {
      *
      * @param
      */
-    function RedeemPairToMichelson(redeem: RedeemPair): string {
+    function RedeemPairMichelson(redeem: RedeemPair): string {
         return "";
     }
 
@@ -143,8 +127,8 @@ export namespace CToken {
      */
     export async function Redeem(server: string, address: string, signer: Signer, keystore: KeyStore, redeem: RedeemPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'redeem';
-        const parameters = RedeemPairToMichelson(redeem);
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, redeem.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const parameters = RedeemPairMichelson(redeem);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
@@ -162,7 +146,7 @@ export namespace CToken {
      *
      * @param
      */
-    export function BorrowPairToMichelson(borrow: BorrowPair): string {
+    export function BorrowPairMichelson(borrow: BorrowPair): string {
         return "";
 
     }
@@ -174,8 +158,8 @@ export namespace CToken {
      */
     export async function Borrow(server: string, address: string, signer: Signer, keystore: KeyStore, borrow: BorrowPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'borrow';
-        const parameters = BorrowPairToMichelson(borrow);
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, borrow.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const parameters = BorrowPairMichelson(borrow);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
@@ -193,7 +177,7 @@ export namespace CToken {
      *
      * @param
      */
-    export function RepayBorrowPairToMichelson(repayBorrow: RepayBorrowPair): string {
+    export function RepayBorrowPairMichelson(repayBorrow: RepayBorrowPair): string {
         return "";
     }
 
@@ -204,8 +188,8 @@ export namespace CToken {
      */
     export async function RepayBorrow(server: string, address: string, signer: Signer, keystore: KeyStore, repayBorrow: RepayBorrowPair, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'repayBorrow';
-        const parameters = RepayBorrowPairToMichelson(repayBorrow);
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, repayBorrow.amount, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const parameters = RepayBorrowPairMichelson(repayBorrow);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
