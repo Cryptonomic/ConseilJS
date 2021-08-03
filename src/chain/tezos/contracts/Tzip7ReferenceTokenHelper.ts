@@ -7,6 +7,7 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
+import {Transaction} from '../../../types/tezos/TezosP2PMessageTypes';
 
 /**
  * Interface for the FA1.2 contract implementation from the Morley Project outlined here: https://gitlab.com/tzip/tzip/blob/master/proposals/tzip-7/ManagedLedger.md
@@ -105,7 +106,7 @@ export namespace Tzip7ReferenceTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function ApproveBalanceOperation(amount: number, spender: string, counter: number, address: string, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number) {
+    export function ApproveBalanceOperation(amount: number, spender: string, counter: number, address: string, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number): Transaction {
         const entrypoint = 'approve';
         const parameters = `(Pair "${spender}" ${amount})`;
 

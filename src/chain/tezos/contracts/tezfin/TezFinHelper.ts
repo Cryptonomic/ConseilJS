@@ -107,57 +107,122 @@ export namespace TezFinHelper {
     //  CToken.transfer
 
     /*
+     * Return which token standard the underlying of mint is implemented on.
+     *
+     * @param mint MintParams object
+     */
+    export function TokenStandard(underlying: string): string {
+        // TODO: change token names to tokens supported at launch. underlying will be compared to 'usdtz' || 'ethtz' for example.
+        if (underlying == 'fa12') {
+            return 'fa12';
+        } else if (underlying == 'fa2') {
+            return 'fa2';
+        } else
+            return 'xtz';
+    }
+
+    /*
      * Description
      *
      * @param
      */
     export interface MintParams {
         underlying: string;
-        amount: number;
+        pair: CToken.MintPair;
     }
-
-    /*
-     * Return which token standard the underlying of mint is implemented on.
-     *
-     * @param mint MintParams object
-     */
-    export function TokenStandard(params: MintParams): string {
-        // TODO: change token names to tokens supported at launch. params.underlying will be compared to 'usdtz' || 'ethtz' for example.
-        if (params.underlying == 'fa12') {
-            return 'fa12';
-        } else if (params.underlying == 'fa2') {
-            return 'fa2';
-        } else
-            return 'xtz';
-    }
-
 
     /*
      * Description
      *
      * @param
      */
-    export async function Mint(protocolAddresses: ProtocolAddresses, mint: MintParams, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number, freight: number): Promise<string> {
+    export interface RepayBorrowParams {
+        underlying: string;
+        pair: CToken.RepayBorrowPair;
+    }
+
+    /*
+     * Add the required operations for entrypoints that invoke transferIn. This requires permissions from the underlying asset's contract, depending on the standard. For cXTZ, 
+     *
+     * @param params The parameters for invoking the CToken entrypoint
+     * @param cancelPermission True when removing permissions
+     * @param counter Current accout counter
+     * @param keystore
+     * @param fee
+     * @param gas
+     * @param freight
+     */
+    function permissionOperation(params: MintParams | RepayBorrowParams, cancelPermission: boolean, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction | undefined {
+        const tokenStd: string = TokenStandard(params.underlying);
+        if (tokenStd == 'fa12') { // fa12 approval operation
+            return Tzip7ReferenceTokenHelper.ApproveBalanceOperation(cancelPermission ? 0 : params.pair.amount, protocolAddresses.cTokens[params.underlying], counter, protocolAddresses.underlying[params.underlying], keystore, fee, gas, freight);
+        } else if (tokenStd == 'fa2') { // fa2 add operator
+            return {} as TezosP2PMessageTypes.Transaction;
+        }
+    }
+
+    /*
+     * Description
+     *
+     * @param
+     */
+    export async function Mint(protocolAddresses: ProtocolAddresses, mint: MintParams, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
-        const tokenStd: string = TokenStandard(mint);
-        if (tokenStd == 'fa12') { // fa12 approval operation
-            ops.push(await Tzip7ReferenceTokenHelper.ApproveBalanceOperation(mint.amount, protocolAddresses.cTokens[mint.underlying], counter, protocolAddresses.underlying[mint.underlying], keystore, fee, gas, freight));
-        } else if (tokenStd == 'fa2') { // fa2 add operator
-        }
         // accrue interest operation
-        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[mint.underlying], keystore, fee));
+        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[mint.underlying], keystore, fee, gas, freight));
+        // get permissions from underlying asset
+        let permissionOp = permissionOperation(mint, false, counter, keystore, fee);
+        if (permissionOp != undefined)
+            ops.push(permissionOp);
         // mint operation
-
-        if (tokenStd == 'fa12') { // fa12 unapprove operation
-            ops.push(await Tzip7ReferenceTokenHelper.ApproveBalanceOperation(0, protocolAddresses.cTokens[mint.underlying], counter, protocolAddresses.underlying[mint.underlying], keystore, fee, gas, freight));
-        } else if (tokenStd == 'fa2') { // fa2 remove operator
-        }
+        ops.push(CToken.MintOperation(mint.pair, counter, protocolAddresses.cTokens[mint.underlying], keystore, fee, gas, freight));
+        // remove permissions from underlying asset
+        let removePermissionOp = permissionOperation(mint, true, counter, keystore, fee);
+        if (removePermissionOp != undefined)
+            ops.push(removePermissionOp);
         // prep operation
         const opGroup = await TezosNodeWriter.prepareOperationGroup(server, keystore, counter, ops);
         // send operation
         const operationResult = await TezosNodeWriter.sendOperation(server, opGroup, signer);
         return TezosContractUtils.clearRPCOperationGroupHash(operationResult.operationGroupID);
     }
+
+    /*
+     * Description
+     *
+     * @param
+     */
+    export interface RedeemParams {
+        underlying: string;
+        pair: CToken.RedeemPair;
+    }
+
+    /*
+     * Description
+     *
+     * @param
+     */
+    export interface BorrowParams {
+        underlying: string;
+        pair: CToken.BorrowPair;
+    }
+
+    // TODO: rename this to UpdateComptrollerOperations or something like that
+    /*
+     * Add the required operations for entrypoints that invoke transferOut. This requires updating values in the comptroller by invoking updateAssetPrice and updateAccountLiquidity.
+     *
+     * @param ops List of the rest of the operations in the group
+     * @param params The parameters for invoking the CToken entrypoint
+     * @param counter Current accout counter
+     * @param keystore
+     * @param fee
+     * @param gas
+     * @param freight
+     */
+    function updateComptrollerOperations(ops: TezosP2PMessageTypes.Transaction[], params: RedeemParams | BorrowParams, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction[] {
+        return ops;
+    }
 }
+
