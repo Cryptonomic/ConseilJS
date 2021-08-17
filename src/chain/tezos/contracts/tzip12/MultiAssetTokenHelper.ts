@@ -7,6 +7,7 @@ import { TezosMessageUtils } from '../../TezosMessageUtil';
 import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { TezosContractUtils } from '../TezosContractUtils';
+import {Transaction} from '../../../../types/tezos/TezosP2PMessageTypes';
 
 export interface MultiAssetSimpleStorage {
     administrator: string,
@@ -236,6 +237,17 @@ export namespace MultiAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
+    export function addOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entryPoint = 'update_operators';
+        let parameters = "{";
+        updateOps.forEach(op => {
+            if (parameters !== "{") parameters += "; ";
+            parameters += `Left (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
+        });
+        parameters += "}";
+        return TezosNodeWriter.constructContractInvocationOperation(keystore.publicKeyHash, counter, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+    }
+
     export async function addOperators(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'update_operators';
         let parameters = "{";
@@ -247,6 +259,17 @@ export namespace MultiAssetTokenHelper {
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+    export function removeOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entryPoint = 'update_operators';
+        let parameters = "{";
+        updateOps.forEach(op => {
+            if (parameters !== "{") parameters += "; ";
+            parameters += `Right (Pair "${op.owner}" (Pair "${op.operator}" ${op.tokenid}))`;
+        });
+        parameters += "}";
+        return TezosNodeWriter.constructContractInvocationOperation(keystore.publicKeyHash, counter, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 
     export async function removeOperators(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Promise<string> {

@@ -7,6 +7,24 @@ import { TezFinHelper } from './TezFinHelper';
 import {Transaction} from '../../../../types/tezos/TezosP2PMessageTypes';
 
 export namespace CToken {
+    export enum AssetType {
+        XTZ = "XTZ",
+        FA12 = "FA12",
+        FA2 = "FA2"
+    }
+
+    /*
+     * Represents an underlying asset.
+     *
+     * @param address Contract address. Null for XTZ.
+     * @param tokenId FA2 token id. Null for XTZ, FA12.
+     */
+    export interface UnderlyingAsset {
+        assetType: AssetType;
+        address?: string;
+        tokenId?: number;
+    }
+
     /*
      * Description
      *
@@ -15,7 +33,6 @@ export namespace CToken {
     export interface MarketMetadata {
         name: string;
         tokenSymbol: string;
-        address: string;
         administrator: string;
         price: number;
     }
@@ -37,6 +54,7 @@ export namespace CToken {
      * @param
      */
     export interface MarketInfo {
+        asset: UnderlyingAsset;
         metadata: MarketMetadata;
         liquidity: number;
         supply: MarketStatus;
@@ -75,11 +93,26 @@ export namespace CToken {
     }
 
     /*
+     * Invoke only the accrueInterest entrypoint.
+     *
+     * @param
+     */
+    export async function AccrueInterest(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        const entryPoint = 'accrueInterest';
+        const parameters = 'Unit';
+
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
+    }
+
+
+    /*
      * Mint entrypoint parameters
      *
      * @param amount The amount to cTokens to mint
      */
     export interface MintPair {
+        underlying: string;
         amount: number;
     }
 
@@ -115,6 +148,7 @@ export namespace CToken {
      * @param amount The amount of cTokens to redeem
      */
     export interface RedeemPair {
+        underlying: string;
         amount: number;
     }
 
@@ -132,9 +166,9 @@ export namespace CToken {
      *
      * @param
      */
-    export function RedeemOperation(mint: MintPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
-        const entrypoint = 'mint';
-        const parameters = MintPairMichelson(mint);
+    export function RedeemOperation(redeem: RedeemPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'redeem';
+        const parameters = RedeemPairMichelson(redeem);
         return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 
@@ -145,6 +179,7 @@ export namespace CToken {
      * @param
      */
     export interface BorrowPair {
+        underlying: string;
         amount: number;
     }
 
@@ -163,9 +198,9 @@ export namespace CToken {
      *
      * @param
      */
-    export function BorrowOperation(mint: MintPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
-        const entrypoint = 'mint';
-        const parameters = MintPairMichelson(mint);
+    export function BorrowOperation(borrow: BorrowPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'borrow';
+        const parameters = BorrowPairMichelson(borrow);
         return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 
@@ -175,6 +210,7 @@ export namespace CToken {
      * @param
      */
     export interface RepayBorrowPair {
+        underlying: string;
         amount: number;
     }
 
@@ -192,9 +228,9 @@ export namespace CToken {
      *
      * @param
      */
-    export function RepayBorrowOperation(mint: MintPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
-        const entrypoint = 'mint';
-        const parameters = MintPairMichelson(mint);
+    export function RepayBorrowOperation(repayBorrow: RepayBorrowPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'repayBorrow';
+        const parameters = RepayBorrowPairMichelson(repayBorrow);
         return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 

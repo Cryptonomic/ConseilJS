@@ -30,6 +30,8 @@ export * from './chain/tezos/contracts/tzip12/SingleAssetTokenHelper';
 export * from './chain/tezos/contracts/TzbtcTokenHelper';
 export * from './chain/tezos/contracts/WrappedTezosHelper';
 export * from './chain/tezos/contracts/tezfin/TezFinHelper';
+export * from './chain/tezos/contracts/tezfin/CToken';
+export * from './chain/tezos/contracts/tezfin/Comptroller';
 
 export * from "./reporting/tezos/TezosConseilClient";
 
