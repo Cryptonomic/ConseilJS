@@ -32,6 +32,7 @@ export * from './chain/tezos/contracts/WrappedTezosHelper';
 export * from './chain/tezos/contracts/tezfin/TezFinHelper';
 export * from './chain/tezos/contracts/tezfin/CToken';
 export * from './chain/tezos/contracts/tezfin/Comptroller';
+export * from './chain/tezos/contracts/tezfin/Governance';
 
 export * from "./reporting/tezos/TezosConseilClient";
 

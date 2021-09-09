@@ -37,6 +37,37 @@ export namespace TezFinHelper {
         priceFeed: ''
     }
 
+    /*
+     * Description
+     *
+     * @param
+     */
+    export interface MarketMetadata {
+        asset: CToken.UnderlyingAsset;
+        metadata: CToken.UnderlyingAssetMetadata;
+        liquidity: number;
+        supply: CToken.MarketStatus;
+        borrow: CToken.MarketStatus;
+        dailyInterestPaid: number;
+        reserves: number;
+        reserveFactor: number;
+        collateralFactor: number;
+        cTokensMinted: number;
+        cTokenExchangeRate: number;
+    }
+
+    /*
+     * Get a market's metadata
+     *
+     * @param address The cToken contract address to query
+     */
+    export async function getMarketInfo(market: CToken.UnderlyingAsset): Promise<MarketMetadata> {
+        // TODO: do this for each cToken
+        
+        return {} as MarketMetadata;
+    }
+
+
     // TODO: Price feed oracle
     export interface PriceFeed {
         address: string;
@@ -54,6 +85,7 @@ export namespace TezFinHelper {
      * @param LTV Loan-to-value ratio = borrowBalance / (supplyBalance * collateralFactor)
      */
     export interface LTVStatus {
+        suppliedAssets: MarketMetadata[];
         supplyBalance: number;
         supplyAPY: number;
         collateralBalance: number;
@@ -70,56 +102,9 @@ export namespace TezFinHelper {
      * @param priceFeed Protocol's price feed oracle
      * @param address The address for which to calculate LTV
      */
-    export function getLTVStatus(markets: CToken.MarketInfo[], priceFeed: PriceFeed, address: string): LTVStatus {
+    export function getLTVStatus(markets: MarketMetadata[], priceFeed: PriceFeed, address: string): LTVStatus {
         // TODO: for each market, call getAccountStatus() and sum over all markets using price feed
         return {} as LTVStatus;
-    }
-
-    // TODO: fucntions to get market infos
-
-    // TODO: user flow functions
-    // mint:
-    //  CToken.accrueInterest
-    //  CFA12.approve
-    //  CToken.mint
-    //  CFA12.unapprove
-    // redeem: doTransferOut
-    //  CToken.accrueInterest
-    //  Comptroller.updateAssetPrice
-    //  Comptroller.updateAccountLiquidity
-    //  CToken.redeem
-    // redeemUnderlying:
-    //  same as redeem, but amount is specified in underlying rather than cTokens
-    // borrow: doTransferOut
-    //  CToken.accrueInterest
-    //  Comptroller.updateAssetPrice
-    //  Comptroller.updateAccountLiquidity
-    //  CToken.borrow
-    // repayBorrow: doTransferIn
-    //  CToken.accrueInterest
-    //  CFA12.approve
-    //  CToken.repayBorrow
-    //  CFA12.unapprove
-    // repayBorrowBehalf:
-    //  same as repayBorrow
-    // transfer:
-    //  Comptroller.updateAssetPrice
-    //  Comptroller.updateAccountLiquidity
-    //  CToken.transfer
-
-    /*
-     * Return which token standard the underlying of mint is implemented on.
-     *
-     * @param mint MintParams object
-     */
-    export function TokenStandard(underlying: string): string {
-        // TODO: change token names to tokens supported at launch. underlying will be compared to 'usdtz' || 'ethtz' for example.
-        if (underlying == 'fa12') {
-            return 'fa12';
-        } else if (underlying == 'fa2') {
-            return 'fa2';
-        } else
-            return 'xtz';
     }
 
     /*
@@ -133,14 +118,14 @@ export namespace TezFinHelper {
      * @param gas
      * @param freight
      */
-    function permissionOperation(params: CToken.MintPair | CToken.RepayBorrowPair, cancelPermission: boolean, protocolAddresses: ProtocolAddresses, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction | undefined {
+    export function permissionOperation(params: CToken.MintPair | CToken.RepayBorrowPair, cancelPermission: boolean, protocolAddresses: ProtocolAddresses, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction | undefined {
         const underlying: CToken.UnderlyingAsset = protocolAddresses.underlying[params.underlying];
         switch (underlying.assetType) {
             case CToken.AssetType.FA12:
                 // fa12 approval operation
                 return Tzip7ReferenceTokenHelper.ApproveBalanceOperation(params.amount, protocolAddresses.cTokens[params.underlying], counter, underlying.address!, keystore, fee, gas, freight);
             case CToken.AssetType.FA2:
-                const updateOperator: UpdateOperator = { 
+                const updateOperator: UpdateOperator = {
                     owner: keystore.publicKeyHash,
                     operator: protocolAddresses.cTokens[params.underlying],
                     tokenid: underlying.tokenId!
@@ -165,7 +150,7 @@ export namespace TezFinHelper {
      * @param gas
      * @param freight
      */
-    function comptrollerRelevanceOperations(params: CToken.RedeemPair | CToken.BorrowPair, protocolAddresses: ProtocolAddresses, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction[] {
+    export function comptrollerRelevanceOperations(params: CToken.RedeemPair | CToken.BorrowPair, protocolAddresses: ProtocolAddresses, counter: number, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): TezosP2PMessageTypes.Transaction[] {
         // updateAssetPrice
         const updateAssetPrice: Comptroller.UpdateAssetPricePair = { address: protocolAddresses.cTokens[params.underlying] };
         const updateAssetPriceOp = Comptroller.UpdateAssetPriceOperation(updateAssetPrice, counter, protocolAddresses.comptroller, keystore, fee,  gas, freight);
@@ -235,7 +220,7 @@ export namespace TezFinHelper {
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
         // accrue interest operation
-        // ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[borrow.underlying], keystore, fee, gas, freight));
+        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[borrow.underlying], keystore, fee, gas, freight));
         // comptroller data relevance
         ops = ops.concat(comptrollerRelevanceOperations(borrow, protocolAddresses, counter, keystore, fee));
         // borrow operation

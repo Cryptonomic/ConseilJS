@@ -26,11 +26,14 @@ export namespace CToken {
     }
 
     /*
-     * Description
+     * Represents metadata about a cToken contract.
      *
-     * @param
+     * @param name Name of the underlying asset, e.g. Tezos.
+     * @param tokenSymbol Symbol of the underlying asset, e.g. XTZ.
+     * @param administrator Address of the cToken contract administrator, e.g. the governance contract.
+     * @param price Price according to the protocol's price oracle.
      */
-    export interface MarketMetadata {
+    export interface UnderlyingAssetMetadata {
         name: string;
         tokenSymbol: string;
         administrator: string;
@@ -38,42 +41,37 @@ export namespace CToken {
     }
 
     /*
-     * Description
+     * Represents the status of one side of a cToken's market (either supply or borrow)
      *
-     * @param
+     * @param numParticipants The number of unique addresses in the market
+     * @param amount The total number of tokens in the market (either supplied or borrowed)
+     * @param rate Current interest rate
      */
     export interface MarketStatus {
         numParticipants: number;
         amount: number;
-        apy: number;
+        rate: number;
     }
 
     /*
-     * Description
+     * @description
      *
      * @param
      */
-    export interface MarketInfo {
-        asset: UnderlyingAsset;
-        metadata: MarketMetadata;
-        liquidity: number;
-        supply: MarketStatus;
-        borrow: MarketStatus;
-        dailyInterestPaid: number;
-        reserves: number;
-        reserveFactor: number;
-        collateralFactor: number;
-        cTokensMinted: number;
-        cTokenExchangeRate: number;
+    export interface Storage {
+
     }
 
     /*
-     * Get a market's metadata
+     * @description
      *
-     * @param address The cToken contract address to query
+     * @param
+     * @param
      */
-    export async function getMarketInfo(address: string): Promise<MarketInfo> {
-        return {} as MarketInfo;
+    export async function getStorage(server: string, address: string): Promise<Storage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+        return {
+        };
     }
 
     /*
@@ -112,7 +110,7 @@ export namespace CToken {
      * @param amount The amount to cTokens to mint
      */
     export interface MintPair {
-        underlying: string;
+        underlying: AssetType;
         amount: number;
     }
 
@@ -148,7 +146,7 @@ export namespace CToken {
      * @param amount The amount of cTokens to redeem
      */
     export interface RedeemPair {
-        underlying: string;
+        underlying: AssetType;
         amount: number;
     }
 
@@ -179,7 +177,7 @@ export namespace CToken {
      * @param
      */
     export interface BorrowPair {
-        underlying: string;
+        underlying: AssetType;
         amount: number;
     }
 
@@ -210,7 +208,7 @@ export namespace CToken {
      * @param
      */
     export interface RepayBorrowPair {
-        underlying: string;
+        underlying: AssetType;
         amount: number;
     }
 
