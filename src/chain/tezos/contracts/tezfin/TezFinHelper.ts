@@ -20,6 +20,7 @@ export namespace TezFinHelper {
     */
     export interface ProtocolAddresses {
         cTokens: { [underlying: string]: string};
+        cTokensReverse: { [address: string]: CToken.AssetType};
         underlying: { [tokenName: string]: CToken.UnderlyingAsset };
         comptroller: string;
         interestRateModel: { [underlying: string]: string};
@@ -27,15 +28,7 @@ export namespace TezFinHelper {
         priceFeed: string;
     }
 
-    // TODO: add mainnet addresses
-    export const protocolAddresses: ProtocolAddresses = {
-        cTokens: {},
-        underlying: {},
-        comptroller: '',
-        interestRateModel: {},
-        governance: '',
-        priceFeed: ''
-    }
+    // TODO: add mainnet addresses as a constant
 
     /*
      * Description

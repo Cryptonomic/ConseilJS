@@ -168,7 +168,7 @@ export namespace Comptroller {
      * @param gas
      * @param freight
      */
-    export async function ComptrollerDataRelevance(underlyings: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function DataRelevance(underlyings: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
