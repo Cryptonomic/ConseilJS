@@ -208,14 +208,16 @@ export namespace TezFinHelper {
      *
      * @param
      */
-    export async function Borrow(borrow: CToken.BorrowPair, protocolAddresses: ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function Borrow(borrow: CToken.BorrowPair, comptroller: Comptroller.Storage, protocolAddresses: ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
+        const collaterals = await Comptroller.GetCollaterals(keystore.publicKeyHash, comptroller, protocolAddresses, server);
         // accrue interest operation
-        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[borrow.underlying], keystore, fee, gas, freight));
+        for (const collateral of collaterals)
+            ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[collateral], keystore, fee, gas, freight));
         // comptroller data relevance
-        ops = ops.concat(comptrollerRelevanceOperations(borrow, protocolAddresses, counter, keystore, fee));
+        ops = ops.concat(Comptroller.DataRelevanceOperations(collaterals, protocolAddresses, counter, keystore, fee));
         // borrow operation
         ops.push(CToken.BorrowOperation(borrow, counter, protocolAddresses.cTokens[borrow.underlying], keystore, fee, gas, freight));
         // prep operation
