@@ -5,6 +5,7 @@ import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosContractUtils} from '../TezosContractUtils';
 import { TezFinHelper } from './TezFinHelper';
 import {Transaction} from '../../../../types/tezos/TezosP2PMessageTypes';
+import {JSONPath} from 'jsonpath-plus';
 
 export namespace CToken {
     export enum AssetType {
@@ -59,6 +60,26 @@ export namespace CToken {
      * @param
      */
     export interface Storage {
+        accrualBlockNumber: number;
+        accrualIntPeriodRelevance: number;
+        administrator: string;
+        balancesMapId: number;
+        borrowIndex: number;
+        borrowRateMaxMantissa: number;
+        borrowRatePerBlock: number;
+        comptroller: string;
+        expScale: number;
+        halfExpScale: number;
+        initialExchangeRateMantissa: number;
+        interestRateModel: string;
+        isAccrualInterestValid: boolean;
+        pendingAdministrator: string | undefined;
+        reserveFactorMantissa: number;
+        reserveFactorMaxMantissa: number;
+        supplyRatePerBlock: number;
+        totalBorrows: number;
+        totalReserves: number;
+        totalSupply: number;
 
     }
 
@@ -68,9 +89,29 @@ export namespace CToken {
      * @param
      * @param
      */
-    export async function getStorage(server: string, address: string): Promise<Storage> {
-        const storageResult = await TezosNodeReader.getContractStorage(server, address);
+    export async function getStorage(server: string, cTokenAddress: string): Promise<Storage> {
+        const storageResult = await TezosNodeReader.getContractStorage(server, cTokenAddress);
         return {
+            accrualBlockNumber: JSONPath({path: '$.args[0].args[0].args[0].args[0].args[0].int', json: storageResult })[0],
+            accrualIntPeriodRelevance: JSONPath({path: '$.args[0].args[0].args[0].args[0].args[1].int', json: storageResult })[0],
+            administrator: JSONPath({path: '$.args[0].args[0].args[0].args[2].string', json: storageResult })[0],
+            balancesMapId: JSONPath({path: '$.args[0].args[0].args[0].args[3].int', json: storageResult })[0],
+            borrowIndex: JSONPath({path: '$.args[0].args[0].args[1].args[0].int', json: storageResult })[0],
+            borrowRateMaxMantissa: JSONPath({path: '$.args[0].args[0].args[1].args[1].int', json: storageResult })[0],
+            borrowRatePerBlock: JSONPath({path: '$.args[0].args[0].args[2].int', json: storageResult })[0],
+            comptroller: JSONPath({path: '$.args[0].args[0].args[3].string', json: storageResult })[0],
+            expScale: JSONPath({path: '$.args[0].args[0].args[4].int', json: storageResult })[0],
+            halfExpScale: JSONPath({path: '$.args[0].args[1].args[0].args[0].int', json: storageResult })[0],
+            initialExchangeRateMantissa: JSONPath({path: '$.args[0].args[1].args[0].args[1].int', json: storageResult })[0],
+            interestRateModel: JSONPath({path: '$.args[0].args[1].args[1].string', json: storageResult })[0],
+            isAccrualInterestValid: JSONPath({path: '$.args[0].args[1].args[2].prim', json: storageResult })[0], // fix to boolean
+            pendingAdministrator: JSONPath({path: '$.args[0].args[1].args[3].prim', json: storageResult })[0], // fix optional
+            reserveFactorMantissa: JSONPath({path: '$.args[0].args[2].args[0].int', json: storageResult })[0],
+            reserveFactorMaxMantissa: JSONPath({path: '$.args[0].args[2].args[1].int', json: storageResult })[0],
+            supplyRatePerBlock: JSONPath({path: '$.args[0].args[2].args[2].int', json: storageResult })[0],
+            totalBorrows: JSONPath({path: '$.args[0].args[3].int', json: storageResult })[0],
+            totalReserves: JSONPath({path: '$.args[0].args[4].int', json: storageResult })[0],
+            totalSupply: JSONPath({path: '$.args[0].args[5].int', json: storageResult })[0]
         };
     }
 
@@ -137,7 +178,8 @@ export namespace CToken {
     export function MintOperation(mint: MintPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
         const entrypoint = 'mint';
         const parameters = MintPairMichelson(mint);
-        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const xtzAmount = mint.underlying == AssetType.XTZ ? mint.amount : 0;
+        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, xtzAmount, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 
     /*
@@ -229,7 +271,8 @@ export namespace CToken {
     export function RepayBorrowOperation(repayBorrow: RepayBorrowPair, counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
         const entrypoint = 'repayBorrow';
         const parameters = RepayBorrowPairMichelson(repayBorrow);
-        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const xtzAmount = repayBorrow.underlying == AssetType.XTZ ? repayBorrow.amount : 0;
+        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, xtzAmount, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
     }
 
     /*

@@ -23,6 +23,18 @@ export namespace Comptroller {
      */
     export interface Storage {
         accountAssetsMapId: number;
+        accountLiquidity: number;
+        administrator: string;
+        closeFactorMantissa: number;
+        expScale: number;
+        halfExpScale: number;
+        liquidationIncentiveMantissa: number;
+        liquidityPeriodRelevance: number;
+        markets: TezFinHelper.MarketMetadata;
+        oracleAddress: string;
+        pendingAdministrator: string | undefined;
+        pricePeriodRelevance: number;
+        transferPaused: boolean;
     }
 
     /*
@@ -34,7 +46,19 @@ export namespace Comptroller {
     export async function GetStorage(address: string, server: string): Promise<Storage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
         return {
-            accountAssetsMapId: 46048
+            accountAssetsMapId: JSONPath({path: '$.args[0].args[0].args[0].args[0].args[0].int', json: storageResult })[0],
+            accountLiquidity: JSONPath({path: '$.args[0].args[0].args[0].args[0].args[1].int', json: storageResult })[0],
+            administrator: JSONPath({path: '$.args[0].args[0].args[0].args[2].string', json: storageResult })[0],
+            closeFactorMantissa: JSONPath({path: '$.args[0].args[0].args[1].args[1].int', json: storageResult })[0],
+            expScale: JSONPath({path: '$.args[0].args[0].args[2].int', json: storageResult })[0],
+            halfExpScale: JSONPath({path: '$.args[0].args[0].args[3].int', json: storageResult })[0],
+            liquidationIncentiveMantissa: JSONPath({path: '$.args[0].args[1].args[0].args[0].int', json: storageResult })[0],
+            liquidityPeriodRelevance: JSONPath({path: '$.args[0].args[1].args[0].args[1].int', json: storageResult })[0],
+            markets: {} as TezFinHelper.MarketMetadata, // $.args[0].args[1].args[2]
+            oracleAddress: JSONPath({path: '$.args[0].args[2].args[0].string', json: storageResult })[0],
+            pendingAdministrator: JSONPath({path: '$.args[0].args[2].args[1].prim', json: storageResult })[0],
+            pricePeriodRelevance: JSONPath({path: '$.args[0].args[3].int', json: storageResult })[0],
+            transferPaused: JSONPath({path: '$.args[0].args[4].prim', json: storageResult })[0], // fix boolean
         };
     }
 
