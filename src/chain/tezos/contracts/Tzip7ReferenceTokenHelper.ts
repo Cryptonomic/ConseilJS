@@ -147,17 +147,19 @@ export namespace Tzip7ReferenceTokenHelper {
     }
 
     export async function mint(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 150_000, freight: number = 5_000) {
-        const parameters = `(Right (Right (Right (Left (Pair "${destination}" ${amount})))))`;
+        const entrypoint = 'mint';
+        const parameters = `Pair "${destination}" ${amount}`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
     export async function burn(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, source: string, amount: number, gas: number, freight: number) {
-        const parameters = `(Right (Right (Right (Right (Pair "${source}" ${amount})))))`;
+        const entrypoint = 'burn';
+        const parameters = `Pair "${source}" ${amount}`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
