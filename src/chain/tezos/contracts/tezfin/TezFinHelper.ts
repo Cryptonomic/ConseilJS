@@ -56,7 +56,6 @@ export namespace TezFinHelper {
      */
     export async function getMarketInfo(market: CToken.UnderlyingAsset): Promise<MarketMetadata> {
         // TODO: do this for each cToken
-        
         return {} as MarketMetadata;
     }
 
@@ -145,7 +144,7 @@ export namespace TezFinHelper {
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
         // accrue interest operation
-        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[mint.underlying], keystore, fee, gas, freight));
+        ops = ops.concat(CToken.AccrueInterestOperations([mint.underlying], protocolAddresses, counter, keystore, fee, gas, freight));
         // get permissions from underlying asset
         let permissionOp = permissionOperation(mint, false, protocolAddresses, counter, keystore, fee);
         if (permissionOp != undefined)
@@ -172,10 +171,11 @@ export namespace TezFinHelper {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
-        const collaterals = await Comptroller.GetCollaterals(keystore.publicKeyHash, comptroller, protocolAddresses, server);
+        let collaterals = await Comptroller.GetCollaterals(keystore.publicKeyHash, comptroller, protocolAddresses, server);
         // accrue interest operation
-        for (const collateral of collaterals)
-            ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[collateral], keystore, fee, gas, freight));
+        if (!collaterals.includes(redeem.underlying)) // need to accrueInterest on the redeemed market as well)
+            collaterals.push(redeem.underlying);
+        ops.concat(CToken.AccrueInterestOperations(collaterals, protocolAddresses, counter, keystore, fee, gas, freight));
         // comptroller data relevance
         ops = ops.concat(Comptroller.DataRelevanceOperations(collaterals, protocolAddresses, counter, keystore, fee));
         // redeem operation
@@ -196,10 +196,11 @@ export namespace TezFinHelper {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
-        const collaterals = await Comptroller.GetCollaterals(keystore.publicKeyHash, comptroller, protocolAddresses, server);
+        let collaterals = await Comptroller.GetCollaterals(keystore.publicKeyHash, comptroller, protocolAddresses, server);
         // accrue interest operation
-        for (const collateral of collaterals)
-            ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[collateral], keystore, fee, gas, freight));
+        if (!collaterals.includes(borrow.underlying)) // need to accrueInterest on the borrowed market as well
+            collaterals.push(borrow.underlying);
+        ops.concat(CToken.AccrueInterestOperations(collaterals, protocolAddresses, counter, keystore, fee, gas, freight));
         // comptroller data relevance
         ops = ops.concat(Comptroller.DataRelevanceOperations(collaterals, protocolAddresses, counter, keystore, fee));
         // borrow operation
@@ -221,7 +222,7 @@ export namespace TezFinHelper {
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = [];
         // accrue interest operation
-        ops.push(CToken.AccrueInterestOperation(counter, protocolAddresses.cTokens[repayBorrow.underlying], keystore, fee, gas, freight));
+        ops = ops.concat(CToken.AccrueInterestOperations([repayBorrow.underlying], protocolAddresses, counter, keystore, fee, gas, freight));
         // get permissions from underlying asset
         let permissionOp = permissionOperation(repayBorrow, false, protocolAddresses, counter, keystore, fee);
         if (permissionOp != undefined)

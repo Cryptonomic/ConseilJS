@@ -1,4 +1,5 @@
 import {KeyStore, Signer} from '../../../../types/ExternalInterfaces';
+import * as TezosP2PMessageTypes from '../../../../types/tezos/TezosP2PMessageTypes';
 import * as TezosTypes from '../../../../types/tezos/TezosChainTypes';
 import {TezosNodeReader} from '../../TezosNodeReader';
 import {TezosNodeWriter} from '../../TezosNodeWriter';
@@ -125,10 +126,14 @@ export namespace CToken {
      * @param gas
      * @param freight
      */
-    export function AccrueInterestOperation(counter: number, cTokenAddress: string, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+    export function AccrueInterestOperations(collaterals: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, counter: number, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction[] {
         const entrypoint = 'accrueInterest';
         const parameters = 'Unit'
-        return TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, cTokenAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        let ops: Transaction[] = [];
+        for (const collateral of collaterals) {
+            ops.push(TezosNodeWriter.constructContractInvocationOperation(keyStore.publicKeyHash, counter, protocolAddresses.cTokens[collateral], 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson));
+        }
+        return ops;
     }
 
     /*
@@ -136,13 +141,15 @@ export namespace CToken {
      *
      * @param
      */
-    export async function AccrueInterest(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
-        const entryPoint = 'accrueInterest';
-        const parameters = 'Unit';
-
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, address, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
-        return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
-    }
+    export async function AccrueInterest(markets: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+        // get account counter
+        const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
+        let ops: TezosP2PMessageTypes.Transaction[] = AccrueInterestOperations(markets, protocolAddresses, counter, keystore, fee, gas, freight);
+        const opGroup = await TezosNodeWriter.prepareOperationGroup(server, keystore, counter, ops);
+        // send operation
+        const operationResult = await TezosNodeWriter.sendOperation(server, opGroup, signer);
+        return TezosContractUtils.clearRPCOperationGroupHash(operationResult.operationGroupID);
+   }
 
 
     /*

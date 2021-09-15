@@ -38,10 +38,10 @@ export namespace Comptroller {
     }
 
     /*
-     * @description Get an instance of a Objkts contract's storage by querying a given address
+     * @description
      *
      * @param server The Tezos node to communicate with
-     * @param address Contract address, i.e. HicNFTHelper.objktsAddress or HicNFTHelper.hDaoAddress
+     * @param address
      */
     export async function GetStorage(address: string, server: string): Promise<Storage> {
         const storageResult = await TezosNodeReader.getContractStorage(server, address);
