@@ -150,7 +150,7 @@ export namespace Comptroller {
      * @param
      */
     export function UpdateAccountLiquidityMicheline(updateAccountLiquidity: UpdateAssetPricePair): string {
-        return `{ "bytes": "${TezosMessageUtils.writeAddress(updateAccountLiquidity.address)}" }`
+        return `{ "bytes": "${TezosMessageUtils.writeAddress(updateAccountLiquidity.address)}" }`;
     }
 
     /*
@@ -248,11 +248,22 @@ export namespace Comptroller {
     }
 
     /*
+     * @description
+     *
+     * @param
+     */
+    export function EnterMarketsOperation(enterMarkets: EnterMarketsPair, comptrollerAddress: string, counter: number, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'enterMarkets';
+        const parameters = EnterMarketsPairMicheline(enterMarkets);
+        return TezosNodeWriter.constructContractInvocationOperation(keystore.publicKeyHash, counter, comptrollerAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
+    }
+
+    /*
      * Description
      *
      * @param
      */
-    export async function EnterMarkets(enterMarkets: EnterMarketsPair, server: string, comptrollerAddress: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function EnterMarkets(enterMarkets: EnterMarketsPair, comptrollerAddress: string, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'enterMarkets';
         const parameters = EnterMarketsPairMicheline(enterMarkets);
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, comptrollerAddress, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
@@ -278,11 +289,22 @@ export namespace Comptroller {
     }
 
     /*
+     * @description
+     *
+     * @param
+     */
+    export function ExitMarketOperation(exitMarket: ExitMarketPair, comptrollerAddress: string, counter: number, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction {
+        const entrypoint = 'exitMarket';
+        const parameters = ExitMarketPairMicheline(exitMarket);
+        return TezosNodeWriter.constructContractInvocationOperation(keystore.publicKeyHash, counter, comptrollerAddress, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
+    }
+
+    /*
      * Description
      *
      * @param
      */
-    export async function ExitMarket(exitMarket: ExitMarketPair, server: string, comptrollerAddress: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function ExitMarket(exitMarket: ExitMarketPair, comptrollerAddress: string, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'exitMarket';
         const parameters = ExitMarketPairMicheline(exitMarket);
         const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, comptrollerAddress, 0, fee, freight, gas, entryPoint, parameters, TezosTypes.TezosParameterFormat.Micheline);
