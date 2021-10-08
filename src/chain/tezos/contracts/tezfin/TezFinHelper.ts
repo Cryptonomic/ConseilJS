@@ -12,7 +12,7 @@ export namespace TezFinHelper {
     /*
      * Addresses of the protocol contracts
      *
-     * @param cTokens List of cToken contract addresses, e.g. cTokens["XTZ"] == cXTZ contract address.
+     * @param fTokens List of fToken contract addresses, e.g. fTokens["XTZ"] == cXTZ contract address.
      * @param underlying Map of underlying assets' metadata.
      * @param comptroller Comptroller contract address
      * @param interestRateModel InterestRateModel contract addresses
@@ -45,17 +45,17 @@ export namespace TezFinHelper {
         reserves: number;
         reserveFactor: number;
         collateralFactor: number;
-        cTokensMinted: number;
-        cTokenExchangeRate: number;
+        fTokensMinted: number;
+        fTokenExchangeRate: number;
     }
 
     /*
      * Get a market's metadata
      *
-     * @param address The cToken contract address to query
+     * @param address The fToken contract address to query
      */
     export async function getMarketInfo(asset: FToken.UnderlyingAsset): Promise<MarketMetadata> {
-        // TODO: do this for each cToken
+        // TODO: do this for each fToken
         return {} as MarketMetadata;
     }
 
@@ -174,7 +174,7 @@ export namespace TezFinHelper {
     /*
      * Get an account's LTV across given markets
      *
-     * @param markets Array of cTokens over which to calculate LTV
+     * @param markets Array of fTokens over which to calculate LTV
      * @param priceFeed Protocol's price feed oracle
      * @param address The address for which to calculate LTV
      */
@@ -214,16 +214,16 @@ export namespace TezFinHelper {
                 };
                 return cancelPermission ?
                     // fa2 remove operator
-                    MultiAssetTokenHelper.removeOperatorsOperation(underlying.address!, counter, keystore, fee, [updateOperator]) :
+                    MultiAssetTokenHelper.RemoveOperatorsOperation(underlying.address!, counter, keystore, fee, [updateOperator]) :
                     // fa2 add operator
-                    MultiAssetTokenHelper.addOperatorsOperation(underlying.address!, counter, keystore, fee, [updateOperator]);
+                    MultiAssetTokenHelper.AddOperatorsOperation(underlying.address!, counter, keystore, fee, [updateOperator]);
             case FToken.AssetType.XTZ:
                 return undefined;
         }
     }
 
     /*
-     * Construct and invoke the operation group for minting cTokens.
+     * Construct and invoke the operation group for minting fTokens.
      *
      * @param
      */
@@ -251,7 +251,7 @@ export namespace TezFinHelper {
     }
 
     /*
-     * Construct and invoke the operation group for redeeming cTokens for the underlying asset.
+     * Construct and invoke the operation group for redeeming fTokens for the underlying asset.
      *
      * @param
      */
@@ -301,7 +301,7 @@ export namespace TezFinHelper {
     }
 
     /*
-     * Construct and invoke the operation group for repaying borrowed cTokens.
+     * Construct and invoke the operation group for repaying borrowed fTokens.
      *
      * @param
      */

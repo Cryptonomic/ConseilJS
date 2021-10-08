@@ -7,7 +7,7 @@ import {TezosNodeWriter} from '../../TezosNodeWriter';
 import {TezosContractUtils} from '../TezosContractUtils';
 import {Transaction} from '../../../../types/tezos/TezosP2PMessageTypes';
 import {TezosMessageUtils} from '../../TezosMessageUtil';
-import {CToken} from './CToken';
+import {FToken} from './FToken';
 import FetchSelector from '../../../../utils/FetchSelector'
 import LogSelector from '../../../../utils/LoggerSelector';
 import {TezFinHelper} from './TezFinHelper';
@@ -69,15 +69,15 @@ export namespace Comptroller {
      * @param mapId
      * @param address
      */
-    export async function GetCollaterals(address: string, comptroller: Storage, protocolAddresses: TezFinHelper.ProtocolAddresses, server: string): Promise<CToken.AssetType[]> {
+    export async function GetCollaterals(address: string, comptroller: Storage, protocolAddresses: TezFinHelper.ProtocolAddresses, server: string): Promise<FToken.AssetType[]> {
         const packedAccountKey = TezosMessageUtils.encodeBigMapKey(
             Buffer.from(TezosMessageUtils.writePackedData(`0x${TezosMessageUtils.writeAddress(address)}`, '', TezosTypes.TezosParameterFormat.Michelson), 'hex')
         );
 
         try {
             const assetsResult = await TezosNodeReader.getValueForBigMapKey(server, comptroller.accountAssetsMapId, packedAccountKey);
-            const cTokenAddresses: CToken.AssetType[] = assetsResult.map((json) => json['string']);
-            return cTokenAddresses.map((cTokenAddress) => protocolAddresses.cTokensReverse[cTokenAddress]);
+            const fTokenAddresses: FToken.AssetType[] = assetsResult.map((json) => json['string']);
+            return fTokenAddresses.map((fTokenAddress) => protocolAddresses.fTokensReverse[fTokenAddress]);
         } catch (err) {
             log.error(`${address} has no collateralized assets`);
             return [];
@@ -88,7 +88,7 @@ export namespace Comptroller {
     /*
      * Description
      *
-     * @param address Address of the CToken to update
+     * @param address Address of the FToken to update
      */
     export interface UpdateAssetPricePair {
         address: string;
@@ -188,18 +188,18 @@ export namespace Comptroller {
     /*
      * Add the required operations for entrypoints that invoke transferOut. This requires updating the comptroller contract's accounting.
      *
-     * @param params The parameters for invoking the CToken entrypoint
+     * @param params The parameters for invoking the FToken entrypoint
      * @param counter Current account counter
      * @param keystore
      * @param fee
      * @param gas
      * @param freight
      */
-    export function DataRelevanceOperations(collaterals: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, counter: number, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction[] {
+    export function DataRelevanceOperations(collaterals: FToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, counter: number, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction[] {
         let ops: TezosP2PMessageTypes.Transaction[] = [];
         // updateAssetPrice for every collateralized market
         for (const collateral of collaterals) {
-            const updateAssetPrice: Comptroller.UpdateAssetPricePair = { address: protocolAddresses.cTokens[collateral] };
+            const updateAssetPrice: Comptroller.UpdateAssetPricePair = { address: protocolAddresses.fTokens[collateral] };
             const updateAssetPriceOp = Comptroller.UpdateAssetPriceOperation(updateAssetPrice, counter, protocolAddresses.comptroller, keystore, fee,  gas, freight);
             ops.push(updateAssetPriceOp);
         }
@@ -212,14 +212,14 @@ export namespace Comptroller {
     /*
      * Add the required operations for entrypoints that invoke transferOut. This requires updating the comptroller contract's accounting.
      *
-     * @param params The parameters for invoking the CToken entrypoint
+     * @param params The parameters for invoking the FToken entrypoint
      * @param counter Current account counter
      * @param keystore
      * @param fee
      * @param gas
      * @param freight
      */
-    export async function DataRelevance(collaterals: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function DataRelevance(collaterals: FToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Promise<string> {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = DataRelevanceOperations(collaterals, protocolAddresses,counter, keystore, fee, gas, freight);
@@ -232,10 +232,10 @@ export namespace Comptroller {
     /*
      * Description
      *
-     * @param cTokens List of cToken contract addresses to use as collateral.
+     * @param fTokens List of fToken contract addresses to use as collateral.
      */
     export interface EnterMarketsPair {
-        cTokens: string[];
+        fTokens: string[];
     }
 
     /*
@@ -244,7 +244,7 @@ export namespace Comptroller {
      * @param
      */
     export function EnterMarketsPairMicheline(enterMarkets: EnterMarketsPair): string {
-        return `[ ${enterMarkets.cTokens.map(market => `{ "bytes": "${TezosMessageUtils.writeAddress(market)}" }`).join(',')} ]`;
+        return `[ ${enterMarkets.fTokens.map(market => `{ "bytes": "${TezosMessageUtils.writeAddress(market)}" }`).join(',')} ]`;
     }
 
     /*

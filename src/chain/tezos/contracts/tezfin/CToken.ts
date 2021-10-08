@@ -126,7 +126,7 @@ export namespace CToken {
      * @param gas
      * @param freight
      */
-    export function AccrueInterestOperations(collaterals: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, counter: number, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction[] {
+    export function AccrueInterestOperations(collaterals: AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, counter: number, keyStore: KeyStore, fee: number,  gas: number = 800_000, freight: number = 20_000): Transaction[] {
         const entrypoint = 'accrueInterest';
         const parameters = 'Unit'
         let ops: Transaction[] = [];
@@ -141,7 +141,7 @@ export namespace CToken {
      *
      * @param
      */
-    export async function AccrueInterest(markets: CToken.AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
+    export async function AccrueInterest(markets: AssetType[], protocolAddresses: TezFinHelper.ProtocolAddresses, server: string, signer: Signer, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         // get account counter
         const counter = await TezosNodeReader.getCounterForAccount(server, keystore.publicKeyHash);
         let ops: TezosP2PMessageTypes.Transaction[] = AccrueInterestOperations(markets, protocolAddresses, counter, keystore, fee, gas, freight);

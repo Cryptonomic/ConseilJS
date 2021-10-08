@@ -237,7 +237,7 @@ export namespace MultiAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export function addOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
+    export function AddOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
@@ -261,7 +261,7 @@ export namespace MultiAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export function removeOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
+    export function RemoveOperatorsOperation(address: string, counter: number, keystore: KeyStore, fee: number, updateOps: UpdateOperator[], gas: number = 800_000, freight: number = 20_000): Transaction {
         const entryPoint = 'update_operators';
         let parameters = "{";
         updateOps.forEach(op => {
