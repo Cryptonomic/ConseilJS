@@ -38,7 +38,7 @@ export namespace TezosNodeWriter {
 
         log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
 
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+        return fetch(url, { method: 'post', body: payloadStr, headers: { 'Content-Type': 'application/json' } });
     }
 
     /**
@@ -726,7 +726,7 @@ export namespace TezosNodeWriter {
 
             // Estimate resources for everything up to the current transaction. Newer transactions may depend on previous transactions, thus all transactions must be estimated.
             const currentTransactions = operations.slice(0, i + 1);
-            const currentConsumedResources = await TezosNodeWriter.estimateOperation(server, chainid, ...currentTransactions);
+            const currentConsumedResources = await estimateOperation(server, chainid, ...currentTransactions);
 
             // Find the actual transaction cost by calculating the delta between the two transactions resource usages.
             const gasLimitDelta = currentConsumedResources.gas - priorConsumedResources.gas;
@@ -772,7 +772,8 @@ export namespace TezosNodeWriter {
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
-        const localOperations = [...operations].map(o => { return { ...o, gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString() } });
+        const naiveOperationGasCap = Math.floor(TezosConstants.BlockGasCap / operations.length).toString();
+        const localOperations = [...operations].map(o => { return { ...o, gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString() } });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
