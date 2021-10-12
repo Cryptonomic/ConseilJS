@@ -773,7 +773,7 @@ export namespace TezosNodeWriter {
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
         const naiveOperationGasCap = Math.floor(TezosConstants.BlockGasCap / operations.length).toString();
-        const localOperations = [...operations].map(o => { return { ...o, gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString() } });
+        const localOperations = [...operations].map(o => { return { gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString(), ...o } });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
