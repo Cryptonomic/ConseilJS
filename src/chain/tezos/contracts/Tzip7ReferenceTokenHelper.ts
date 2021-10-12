@@ -7,6 +7,7 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
+import { Transaction } from '../../../types/tezos/TezosP2PMessageTypes';
 
 /**
  * Interface for the FA1.2 contract implementation from the Morley Project outlined here: https://gitlab.com/tzip/tzip/blob/master/proposals/tzip-7/ManagedLedger.md

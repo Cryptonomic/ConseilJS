@@ -7,6 +7,7 @@ import { TezosMessageUtils } from '../../TezosMessageUtil';
 import { TezosNodeReader } from '../../TezosNodeReader';
 import { TezosNodeWriter } from '../../TezosNodeWriter';
 import { TezosContractUtils } from '../TezosContractUtils';
+import { Transaction } from '../../../../types/tezos/TezosP2PMessageTypes';
 
 export interface MultiAssetSimpleStorage {
     administrator: string,
