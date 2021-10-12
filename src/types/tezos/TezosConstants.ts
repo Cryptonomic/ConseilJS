@@ -45,22 +45,32 @@ export namespace TezosConstants {
 
     export const BaseOperationFee = 100;
 
+    export const P009BlockGasCap = 10_400_000;
+    export const P010BlockGasCap = 5_200_000;
     export const P007OperationGasCap = 1_040_000;
     export const OperationGasCap = P007OperationGasCap;
+    export const BlockGasCap = P010BlockGasCap;
 
-    export const OperationStorageCap = 60_000;
+    export const P010OperationStorageCap = 60_000;
+    export const P011OperationStorageCap = 32_768;
+    export const OperationStorageCap = P011OperationStorageCap;
 
     export const EmptyAccountStorageBurn = 257;
 
-    export const DefaultBakerVig = 100;
+    export const DefaultBakerVig = 200;
 
-    export const GasLimitPadding = 100;
-    export const StorageLimitPadding = 20;
+    export const GasLimitPadding = 1000;
+    export const StorageLimitPadding = 25;
 
     /**
      * 
      */
     export const HeadBranchOffset = 54;
+
+    /**
+     * 
+     */
+     export const MaxBranchOffset = 64;
 
     /**
      * Outbound operation queue timeout in seconds. After this period, TezosOperationQueue will attempt to submit the transactions currently in queue.
