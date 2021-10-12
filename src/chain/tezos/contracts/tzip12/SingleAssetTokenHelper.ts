@@ -176,8 +176,12 @@ export namespace SingleAssetTokenHelper {
      * @param signer 
      * @param keystore 
      * @param fee 
+     * @param destination 
+     * @param amount 
+     * @param metadata 
      * @param gas 
      * @param freight 
+     * @returns 
      */
     export async function mint(server: string, address: string, signer: Signer, keystore: KeyStore, fee: number, destination: string, amount: number, metadata: Record<string, string>, gas: number = 800_000, freight: number = 20_000): Promise<string> {
         const entryPoint = 'mint';
