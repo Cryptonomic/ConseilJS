@@ -2,6 +2,7 @@ import { JSONPath } from 'jsonpath-plus';
 
 import * as TezosRPCTypes from '../../types/tezos/TezosRPCResponseTypes'
 import { TezosRequestError } from '../../types/tezos/TezosErrorTypes';
+import { TezosConstants } from '../../types/tezos/TezosConstants';
 import FetchSelector from '../../utils/FetchSelector'
 import LogSelector from '../../utils/LoggerSelector';
 
@@ -183,7 +184,7 @@ export namespace TezosNodeReader {
      * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main.
      */
     export function getValueForBigMapKey(server: string, index: number, key: string, block: string = 'head', chainid: string = 'main'): Promise<any> {
-        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`).catch(err => undefined);
+        return performGetRequest(server, `chains/${chainid}/blocks/${block}/context/big_maps/${index}/${key}`)
     }
 
     /**
@@ -214,7 +215,7 @@ export namespace TezosNodeReader {
 
         var result = await Promise.all([refBlock, headBlock]).then(blocks => Number(blocks[1]['header']['level']) - Number(blocks[0]['header']['level']));
 
-        return 64 - result; // TODO: named const
+        return TezosConstants.MaxBranchOffset - result;
     }
 
     /**
