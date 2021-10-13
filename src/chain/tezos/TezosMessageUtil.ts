@@ -361,6 +361,8 @@ export namespace TezosMessageUtils {
             return base58check.encode(Buffer.from('02aa' + buffer.toString('hex'), 'hex'));
         } else if (hint === 'expr') {
             return base58check.encode(Buffer.from('0d2c401b' + buffer.toString('hex'), 'hex'));
+        } else if (hint === 'chain_id') {
+            return base58check.encode(Buffer.from('575200' + buffer.toString('hex'), 'hex'));
         } else if (hint === '') {
             return base58check.encode(buffer);
         } else {
@@ -372,9 +374,18 @@ export namespace TezosMessageUtils {
      * Writes an arbitrary Base58-check string into hex.
      * 
      * @param b String to convert.
+     * @param hint Hint to use while encoding, blank will encode the string directly, 'chain_id' will encode a chainid type.
      */
-    export function writeBufferWithHint(b: string): Buffer {
-        return base58check.decode(b);
+     export function writeBufferWithHint(b: string, hint: string = ''): Buffer {
+        if (hint === '') {
+            return base58check.decode(b);
+        }
+
+        if (hint === 'chain_id') {
+            return base58check.decode(b).slice("Net".length);
+        }
+
+        throw new Error(`Unsupported hint, '${hint}'`);
     }
 
     /**
