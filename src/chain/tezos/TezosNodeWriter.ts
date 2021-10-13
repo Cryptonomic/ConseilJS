@@ -714,8 +714,6 @@ export namespace TezosNodeWriter {
         let operationResources: { gas: number, storageCost: number }[] = [];
 
         for (let i = 0; i < operations.length; i++) { // Estimate each operation.
-            const operation = operations[i];
-
             // Estimate resources used in the set of prior transactions.
             // If there were no prior transactions, set resource usage to 0.
             let priorConsumedResources = { gas: 0, storageCost: 0 };
@@ -772,8 +770,8 @@ export namespace TezosNodeWriter {
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
-        const naiveOperationGasCap = Math.floor(TezosConstants.BlockGasCap / operations.length).toString();
-        const localOperations = [...operations].map(o => { return { gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString(), ...o } });
+        const naiveOperationGasCap = Math.min(Math.floor(TezosConstants.BlockGasCap / operations.length), TezosConstants.OperationGasCap).toString();
+        const localOperations = [...operations].map(o => { return {...o, gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString()} });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
