@@ -6,6 +6,7 @@ LogSelector.setLogger(console);
 
 export * from './chain/tezos/TezosContractIntrospector';
 export * from './chain/tezos/TezosLanguageUtil';
+export * from './chain/tezos/TezosMessageCodec';
 export * from './chain/tezos/TezosMessageUtil';
 export * from './chain/tezos/TezosNodeReader';
 export * from './chain/tezos/TezosNodeWriter';
