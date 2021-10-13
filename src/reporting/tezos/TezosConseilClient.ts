@@ -3,6 +3,7 @@ import { OperationKindType } from "../../types/tezos/TezosChainTypes";
 import { ContractMapDetails, ContractMapDetailsItem } from '../../types/conseil/ConseilTezosTypes';
 import LogSelector from '../../utils/LoggerSelector';
 
+import { TezosConstants } from "../../types/tezos/TezosConstants";
 import { ConseilDataClient } from "../ConseilDataClient";
 import { ConseilQueryBuilder } from "../ConseilQueryBuilder";
 
@@ -209,7 +210,7 @@ export namespace TezosConseilClient {
      *
      * @returns Operation record
      */
-    export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number, blocktime: number = 60): Promise<any> {
+     export async function awaitOperationConfirmation(serverInfo: ConseilServerInfo, network: string, hash: string, duration: number = 10, blocktime: number = TezosConstants.DefaultBlockTime): Promise<any> {
         if (duration <= 0) { throw new Error('Invalid duration'); }
 
         const initialLevel = (await getBlockHead(serverInfo, network))['level'];

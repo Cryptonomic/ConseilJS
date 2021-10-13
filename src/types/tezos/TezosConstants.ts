@@ -77,8 +77,7 @@ export namespace TezosConstants {
      */
     export const DefaultBatchDelay = 25;
 
-    /**
-     * Mainnet block time in seconds.
-     */
-    export const DefaultBlockTime = 60;
+    export const P009BlockTime = 60;
+    export const P010BlockTime = 30;
+    export const DefaultBlockTime = P010BlockTime;
 }
