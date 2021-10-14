@@ -38,7 +38,7 @@ export namespace TezosNodeWriter {
 
         log.debug(`TezosNodeWriter.performPostRequest sending ${payloadStr}\n->\n${url}`);
 
-        return fetch(url, { method: 'post', body: payloadStr, headers: { 'content-type': 'application/json' } });
+        return fetch(url, { method: 'post', body: payloadStr, headers: { 'Content-Type': 'application/json' } });
     }
 
     /**
@@ -269,9 +269,9 @@ export namespace TezosNodeWriter {
             });
 
             return [revealOp, ...operations];
+        } else {
+            return operations.map((o, i) => { return { ...o, counter: `${counter + i}` } });
         }
-
-        return operations;
     }
 
     /**
@@ -714,8 +714,6 @@ export namespace TezosNodeWriter {
         let operationResources: { gas: number, storageCost: number }[] = [];
 
         for (let i = 0; i < operations.length; i++) { // Estimate each operation.
-            const operation = operations[i];
-
             // Estimate resources used in the set of prior transactions.
             // If there were no prior transactions, set resource usage to 0.
             let priorConsumedResources = { gas: 0, storageCost: 0 };
@@ -726,7 +724,7 @@ export namespace TezosNodeWriter {
 
             // Estimate resources for everything up to the current transaction. Newer transactions may depend on previous transactions, thus all transactions must be estimated.
             const currentTransactions = operations.slice(0, i + 1);
-            const currentConsumedResources = await TezosNodeWriter.estimateOperation(server, chainid, ...currentTransactions);
+            const currentConsumedResources = await estimateOperation(server, chainid, ...currentTransactions);
 
             // Find the actual transaction cost by calculating the delta between the two transactions resource usages.
             const gasLimitDelta = currentConsumedResources.gas - priorConsumedResources.gas;
@@ -772,7 +770,8 @@ export namespace TezosNodeWriter {
         chainid: string,
         ...operations: TezosP2PMessageTypes.Operation[]
     ): Promise<{ gas: number, storageCost: number, estimatedFee: number, estimatedStorageBurn: number }> {
-        const localOperations = [...operations].map(o => { return { gas_limit: TezosConstants.OperationGasCap.toString(), storage_limit: TezosConstants.OperationStorageCap.toString(), ...o } });
+        const naiveOperationGasCap = Math.min(Math.floor(TezosConstants.BlockGasCap / operations.length), TezosConstants.OperationGasCap).toString();
+        const localOperations = [...operations].map(o => { return {...o, gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString()} });
 
         const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
 
@@ -853,6 +852,21 @@ export namespace TezosNodeWriter {
      */
     async function prepareOperation(server: string, keyStore: KeyStore, counter: number, operation: any, optimizeFee: boolean = false) {
         const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
+
+        if (optimizeFee) {
+            const estimate = await estimateOperationGroup(server, 'main', operationGroup);
+            operationGroup[0].fee = estimate.estimatedFee.toString();
+            for (let i = 0; i < operationGroup.length; i++) {
+                operationGroup[i].gas_limit = estimate.operationResources[i].gas.toString();
+                operationGroup[i].storage_limit = estimate.operationResources[i].storageCost.toString();
+            }
+        }
+
+        return operationGroup;
+    }
+
+    export async function prepareOperationGroup(server: string, keyStore: KeyStore, counter: number, operations: TezosP2PMessageTypes.StackableOperation[], optimizeFee: boolean = false) {
+        const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter, operations);
 
         if (optimizeFee) {
             const estimate = await estimateOperationGroup(server, 'main', operationGroup);

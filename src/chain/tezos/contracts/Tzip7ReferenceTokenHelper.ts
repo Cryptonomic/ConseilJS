@@ -7,6 +7,7 @@ import { TezosMessageUtils } from '../TezosMessageUtil';
 import { TezosNodeReader } from '../TezosNodeReader';
 import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
+import { Transaction } from '../../../types/tezos/TezosP2PMessageTypes';
 
 /**
  * Interface for the FA1.2 contract implementation from the Morley Project outlined here: https://gitlab.com/tzip/tzip/blob/master/proposals/tzip-7/ManagedLedger.md
@@ -46,13 +47,13 @@ export namespace Tzip7ReferenceTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult['operationGroupID']);
     }
 
-    export async function getAccountBalance(server: string, mapid: number, account: string): Promise<number> {
+    export async function getAccountBalance(server: string, mapid: number, account: string, balancePath: string = '$.args[0].int'): Promise<number> {
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(account, 'address'), 'hex'));
         const mapResult = await TezosNodeReader.getValueForBigMapKey(server, mapid, packedKey);
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}`); }
 
-        const jsonresult = JSONPath({ path: '$.args[0].int', json: mapResult });
+        const jsonresult = JSONPath({ path: balancePath, json: mapResult });
         return Number(jsonresult[0]);
     }
 
@@ -98,9 +99,9 @@ export namespace Tzip7ReferenceTokenHelper {
     }
 
     export async function transferBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number, freight: number) {
-        const parameters = `(Left (Left (Left (Pair "${source}" (Pair "${destination}" ${amount})))))`;
+        const parameters = `(Pair "${source}" (Pair "${destination}" ${amount}))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transfer', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -114,9 +115,9 @@ export namespace Tzip7ReferenceTokenHelper {
     }
 
     export async function approveBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number, freight: number) {
-        const parameters = `(Left (Left (Right (Pair "${destination}" ${amount}))))`;
+        const parameters = `(Pair "${destination}" ${amount})`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'approve', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }

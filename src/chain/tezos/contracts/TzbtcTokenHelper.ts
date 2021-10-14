@@ -1,5 +1,6 @@
 import { JSONPath } from 'jsonpath-plus';
 
+import { TezosConstants } from '../../../types/tezos/TezosConstants';
 import { KeyStore, Signer } from '../../../types/ExternalInterfaces';
 import * as TezosTypes from '../../../types/tezos/TezosChainTypes';
 import { TezosLanguageUtil } from '../TezosLanguageUtil';
@@ -9,7 +10,7 @@ import { TezosNodeWriter } from '../TezosNodeWriter';
 import { TezosContractUtils } from './TezosContractUtils';
 
 /**
- *
+ * Wrapper for the tzBTC contract deployed on Tezos mainnet as KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn with bigmap 31.
  */
 export namespace TzbtcTokenHelper {
     /**
@@ -67,7 +68,7 @@ export namespace TzbtcTokenHelper {
      * @param server 
      * @param mapid 
      */
-    export async function getTokenMetadata(server: string, mapid: number): Promise<any> {
+    export async function getTokenMetadata(server: string, mapid: number = 31): Promise<any> {
         return await queryMap(server, mapid, '"tokenMetadata"');
     }
 
@@ -83,11 +84,23 @@ export namespace TzbtcTokenHelper {
         };
     }
 
+    export async function getTokenSupply(server: string, mapid: number = 31): Promise<number> {
+        const r = await queryMap(server, mapid, '"totalSupply"');
+
+        return Number(JSONPath({ path: '$.int', json: r })[0]);
+    }
+
+    export async function getPaused(server: string, mapid: number = 31): Promise<boolean> {
+        const r = await queryMap(server, mapid, '"paused"');
+
+        return (JSONPath({ path: '$.prim', json: r })[0]).toLowerCase().startsWith('t');
+    }
+
     export async function transferBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, source: string, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         //const parameters = `(Right (Right (Right (Right (Left (Right (Right (Left (Pair "${source}" (Pair "${destination}" ${amount}))))))))))`;
         const parameters = `(Pair "${source}" (Pair "${destination}" ${amount}))`;
 
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transfer', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, 'transfer', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
@@ -95,7 +108,7 @@ export namespace TzbtcTokenHelper {
     export async function approveBalance(server: string, signer: Signer, keystore: KeyStore, contract: string, fee: number, destination: string, amount: number, gas: number = 250_000, freight: number = 1_000) {
         const parameters = `(Right (Right (Right (Right (Left (Right (Right (Right (Pair "${destination}" ${amount})))))))))`;
         //approve
-        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson);
+        const nodeResult = await TezosNodeWriter.sendContractInvocationOperation(server, signer, keystore, contract, 0, fee, freight, gas, '', parameters, TezosTypes.TezosParameterFormat.Michelson, TezosConstants.HeadBranchOffset, true);
 
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }

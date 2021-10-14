@@ -11,6 +11,7 @@ export function registerFetch(fetch) {
 
 export * from './chain/tezos/TezosContractIntrospector';
 export * from './chain/tezos/TezosLanguageUtil';
+export * from './chain/tezos/TezosMessageCodec';
 export * from './chain/tezos/TezosMessageUtil';
 export * from "./chain/tezos/TezosNodeReader";
 export * from "./chain/tezos/TezosNodeWriter";
@@ -18,6 +19,8 @@ export * from './chain/tezos/contracts/TezosContractUtils';
 export * from './chain/tezos/contracts/BabylonDelegationHelper';
 export * from './chain/tezos/contracts/CryptonomicNameServiceHelper';
 export * from './chain/tezos/contracts/DexterPoolHelper';
+export * from './chain/tezos/contracts/HicNFT';
+export * from './chain/tezos/contracts/Kalamint';
 export * from './chain/tezos/contracts/KolibriTokenHelper';
 export * from './chain/tezos/contracts/MurbardMultisigHelper';
 export * from './chain/tezos/contracts/TCFBakerRegistryHelper';

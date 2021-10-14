@@ -59,7 +59,7 @@ Project [honeybadger](https://github.com/Cryptonomic/honeybadger), which is the 
 <html>
 <head>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs/dist-web/conseiljs.min.js"
-        integrity="sha384-bUmP+mbBKqeLslTLtJkngVuA+nVFgEmFy1dkKraoJEHOUGvVRK/cIfhwnFWRM2Lv"
+        integrity="sha384-00+mCQozoha9AxOWtEN+VW/3vMpSBrANeDsYMEioopddFtFoidSiR3X+B+87l1mP"
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/gh/cryptonomic/conseiljs-softsigner/dist-web/conseiljs-softsigner.min.js"
         integrity="sha384-V1iaajn0x/SMFcZ9Y/xNQmqQSKyll6Dzt27U6OWiv8NdbHTVaHOGHdQ8g0G68HPd"
