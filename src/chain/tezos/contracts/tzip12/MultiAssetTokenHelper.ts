@@ -285,7 +285,7 @@ export namespace MultiAssetTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export async function getAccountBalance(server: string, mapid: number, account: string, tokenid: number): Promise<number> {
+    export async function getAccountBalance(server: string, mapid: number, account: string, tokenid: number, balancePath: string = '$.int'): Promise<number> {
         const accountHex = `0x${TezosMessageUtils.writeAddress(account)}`;
         const packedKey = TezosMessageUtils.encodeBigMapKey(Buffer.from(TezosMessageUtils.writePackedData(`(Pair ${accountHex} ${tokenid})`, '', TezosTypes.TezosParameterFormat.Michelson), 'hex'));
 
@@ -293,7 +293,7 @@ export namespace MultiAssetTokenHelper {
 
         if (mapResult === undefined) { throw new Error(`Map ${mapid} does not contain a record for ${account}/${tokenid}`); }
 
-        const jsonresult = JSONPath({ path: '$.int', json: mapResult });
+        const jsonresult = JSONPath({ path: balancePath, json: mapResult });
         return Number(jsonresult[0]);
     }
 }
