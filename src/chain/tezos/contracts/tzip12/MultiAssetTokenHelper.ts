@@ -30,7 +30,7 @@ export interface MultiAssetTokenDefinition {
  */
 export interface TokenTransfer {
     destination: string;
-    token_id: number;
+    token_id: number | string;
     amount: number;
 }
 
