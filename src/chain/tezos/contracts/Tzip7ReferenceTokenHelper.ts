@@ -106,11 +106,11 @@ export namespace Tzip7ReferenceTokenHelper {
         return TezosContractUtils.clearRPCOperationGroupHash(nodeResult.operationGroupID);
     }
 
-    export function ApproveBalanceOperation(amount: number, spender: string, counter: number, address: string, keystore: KeyStore, fee: number, gas: number = 800_000, freight: number): Transaction {
+    export function ApproveBalanceOperation(amount: number, spender: string, counter: number, address: string, pkh: string, fee: number, gas: number = 800_000, freight: number): Transaction {
         const entrypoint = 'approve';
         const parameters = `(Pair "${spender}" ${amount})`;
 
-        return TezosNodeWriter.constructContractInvocationOperation(keystore.publicKeyHash, counter, address, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
+        return TezosNodeWriter.constructContractInvocationOperation(pkh, counter, address, 0, fee, freight, gas, entrypoint, parameters, TezosTypes.TezosParameterFormat.Michelson);
 
     }
 
