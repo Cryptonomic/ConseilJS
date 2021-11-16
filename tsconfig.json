@@ -10,7 +10,8 @@
     "noImplicitAny": false,
     "baseUrl": "src",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "useUnknownInCatchVariables": false,
   },
   "exclude": [
     "node_modules"
