@@ -1,6 +1,6 @@
 {
   "name": "conseiljs",
-  "version": "5.0.9-4",
+  "version": "5.0.9-5",
   "description": "Client-side library for Tezos dApp development.",
   "browser": "dist/index-web.js",
   "main": "dist/index.js",
