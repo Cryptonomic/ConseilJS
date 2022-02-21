@@ -87,6 +87,17 @@ export namespace TezosNodeReader {
     }
 
     /**
+     * Returns a block at a given offset below head. 
+     * 
+     * @param {string} server Tezos node to query
+     * @param {number} level Block level to get
+     * @param {string} chainid Chain id, expected to be 'main' or 'test', defaults to main
+     */
+     export async function getBlockAtLevel(server: string, level: number | string, chainid: string = 'main'): Promise<TezosRPCTypes.TezosBlock> {
+        return performGetRequest(server, `chains/${chainid}/blocks/${level}`).then(json => { return <TezosRPCTypes.TezosBlock>json });
+    }
+
+    /**
      * Fetches a specific account for a given block.
      * 
      * @param {string} server Tezos node to query
@@ -242,5 +253,42 @@ export namespace TezosNodeReader {
      */
     export async function getChainId(server: string, chainid: string = 'main'): Promise<string> {
         return performGetRequest(server, `chains/${chainid}/chain_id`).then(r => r.toString());
+    }
+
+    /**
+     * 
+     * @param tezosNode 
+     * @param block 
+     * @param operationHash 
+     * @param limit 
+     * @returns 
+     */
+    export async function awaitOperationConfirmation(tezosNode: string, block: number, operationHash: string, limit: number = 10): Promise<any> {
+        let lastSeenBlock = block;
+        if (lastSeenBlock < 0) {
+            const head = await TezosNodeReader.getBlockHead(tezosNode);
+            lastSeenBlock = head.header.level;
+        }
+
+        const transactionOperationIndex = 3;
+        const activationOperationIndex = 2;
+        while (lastSeenBlock < block + limit) {
+            try {
+                const blockData = await TezosNodeReader.getBlock(tezosNode, `${lastSeenBlock + 1}`);
+                lastSeenBlock = blockData.header.level;
+                const relevantOperation = blockData.operations[transactionOperationIndex]
+                                            .concat(blockData.operations[activationOperationIndex])
+                                            .filter(o => o.hash === operationHash);
+                if (relevantOperation.length === 1) {
+                    return relevantOperation[0];
+                } else {
+                    await new Promise(resolve => setTimeout(resolve, TezosConstants.DefaultBlockTime));
+                }
+            } catch (e) {
+                await new Promise(resolve => setTimeout(resolve, 10_000));
+            }
+        }
+    
+        throw new Error(`Did not observe operation ${operationHash} between ${block} and ${lastSeenBlock}`)
     }
 }
