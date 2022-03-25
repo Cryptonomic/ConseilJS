@@ -80,4 +80,6 @@ export namespace TezosConstants {
     export const P009BlockTime = 60;
     export const P010BlockTime = 30;
     export const DefaultBlockTime = P010BlockTime;
+
+    export const GenesisBlockTime = new Date(2018, 5, 30, 12, 7, 32);
 }
