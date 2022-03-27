@@ -68,10 +68,10 @@
   },
   "dependencies": {
     "big-integer": "1.6.51",
-    "bignumber.js": "9.0.1",
+    "bignumber.js": "9.0.2",
     "blakejs": "1.1.0",
     "bs58check": "2.1.2",
-    "jsonpath-plus": "5.1.0",
+    "jsonpath-plus": "6.0.1",
     "moo": "0.5.0",
     "nearley": "2.19.1"
   },
@@ -91,10 +91,10 @@
     "coveralls": "3.1.0",
     "eslint": "7.18.0",
     "glob": "7.2.0",
-    "loglevel": "1.7.1",
+    "loglevel": "1.8.0",
     "mocha": "9.2.1",
     "nock": "13.1.3",
-    "node-fetch": "3.2.0",
+    "node-fetch": "2.6.7",
     "nyc": "15.1.0",
     "terser-webpack-plugin": "3.0.8",
     "ts-node": "10.5.0",
@@ -104,8 +104,8 @@
     "webpack-cli": "3.3.12"
   },
   "engines": {
-    "node": ">=12.22.8",
-    "npm": ">=6.14.6"
+    "node": ">=14.18.2",
+    "npm": ">=6.14.15"
   },
   "eslintConfig": {
     "parser": "@typescript-eslint/parser",
