@@ -419,7 +419,7 @@ export namespace TezosConseilClient {
             } else if (s.startsWith('o')) {
                 q = ConseilQueryBuilder.setLimit(q, 1000);
                 q = ConseilQueryBuilder.addPredicate(q, 'operation_group_hash', ConseilOperator.EQ, [id], false);
-                q = ConseilQueryBuilder.addOrdering(q, 'nonce', ConseilSortDirection.DESC);
+                q = ConseilQueryBuilder.addOrdering(q, 'operation_order', ConseilSortDirection.DESC);
                 return { entity: OPERATIONS, query: q};
             }
         }

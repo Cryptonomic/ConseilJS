@@ -773,7 +773,7 @@ export namespace TezosNodeWriter {
         const naiveOperationGasCap = Math.min(Math.floor(TezosConstants.BlockGasCap / operations.length), TezosConstants.OperationGasCap).toString();
         const localOperations = [...operations].map(o => { return {...o, gas_limit: naiveOperationGasCap, storage_limit: TezosConstants.OperationStorageCap.toString()} });
 
-        const responseJSON = await dryRunOperation(server, chainid, ...localOperations);
+        const responseJSON = await dryRunOperation(server, chainid, localOperations);
 
         let gas = 0;
         let storageCost = 0;
@@ -822,16 +822,16 @@ export namespace TezosNodeWriter {
      * the Reveal operation if required.
 
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on.
+     * @param {string} chainid The chain ID to apply the operation on, should be "main" or "test", not to be confused with chain_id.
      * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
+     * @param {string} chain_id The chain id hash, not to be confused with chainid. Default is mainnet chain_id, NetXdQprcVkpaWU.
      * @returns {Promise<any>} JSON-encoded response
      */
-    export async function dryRunOperation(server: string, chainid: string, ...operations: TezosP2PMessageTypes.Operation[]): Promise<any> {
+    export async function dryRunOperation(server: string, chainid: string, operations: TezosP2PMessageTypes.Operation[], chain_id: string = 'NetXdQprcVkpaWU'): Promise<any> {
         const fake_signature = 'edsigu6xFLH2NpJ1VcYshpjW99Yc1TAL1m2XBqJyXrxcZQgBMo8sszw2zm626yjpA3pWMhjpsahLrWdmvX9cqhd4ZEUchuBuFYy';
-        const fake_chainid = 'NetXdQprcVkpaWU';
         const fake_branch = 'BL94i2ShahPx3BoNs6tJdXDdGeoJ9ukwujUA2P8WJwULYNdimmq';
 
-        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id: fake_chainid, operation: { branch: fake_branch, contents: operations, signature: fake_signature } });
+        const response = await performPostRequest(server, `chains/${chainid}/blocks/head/helpers/scripts/run_operation`, { chain_id, operation: { branch: fake_branch, contents: operations, signature: fake_signature } });
         const responseText = await response.text();
 
         parseRPCError(responseText);

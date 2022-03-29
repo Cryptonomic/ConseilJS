@@ -352,7 +352,7 @@ export namespace TezosMessageUtils {
      * @param {Buffer | Uint8Array} b Bytes to encode
      * @param hint One of: 'op' (operation encoding helper), 'p' (proposal), expr (expression), '' (blank)
      */
-    export function readBufferWithHint(b: Buffer | Uint8Array, hint: string): string {
+    export function readBufferWithHint(b: Buffer | Uint8Array, hint: string = ''): string {
         const buffer = !(b instanceof Buffer) ? Buffer.from(b) : b;
 
         if (hint === 'op') {

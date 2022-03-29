@@ -62,8 +62,8 @@ const lexer = moo.compile({
     parameter: [ 'parameter' , 'Parameter'],
     storage: ['Storage', 'storage'],
     code: ['Code', 'code'],
-    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id', /* Edo types*/ 'never'],
-    constantType: ['key', 'unit', 'signature', 'operation', 'address', /* Edo types */ 'bls12_381_fr', 'bls12_381_g1', 'bls12_381_g2'],
+    comparableType: ['int', 'nat', 'string', 'bytes', 'mutez', 'bool', 'key_hash', 'timestamp', 'chain_id', /* Edo types*/ 'never'], /*constant, view*/
+    constantType: ['key', 'unit', 'signature', 'operation', 'address', /* Edo types */ 'bls12_381_fr', 'bls12_381_g1', 'bls12_381_g2', 'chest', 'chest_key'],
     singleArgType: ['option', 'list', 'set', 'contract', 'ticket'],
     doubleArgType: ['pair', 'or', 'lambda', 'map', 'big_map'],
     baseInstruction: ['ABS', 'ADD', 'ADDRESS', 'AMOUNT', 'AND', 'BALANCE', 'BLAKE2B', 'CAR', 'CAST', 'CDR', 'CHECK_SIGNATURE',
@@ -79,7 +79,7 @@ const lexer = moo.compile({
         'CMPGE', 'IFEQ', 'NEQ', 'IFLT', 'IFGT', 'IFLE', 'IFGE', // TODO: should be separate
         /*'DIG',*/ /*'DUG',*/ 'EMPTY_BIG_MAP', 'APPLY', 'CHAIN_ID',
         // Edo instructions
-        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS', 'SELF_ADDRESS', 'LEVEL'
+        'KECCAK', 'SHA3', 'PAIRING_CHECK', 'SAPLING_EMPTY_STATE', 'SAPLING_VERIFY_UPDATE', 'GET_AND_UPDATE', 'NEVER', 'VOTING_POWER', 'TOTAL_VOTING_POWER', 'TICKET', 'READ_TICKET', 'SPLIT_TICKET', 'JOIN_TICKETS', 'SELF_ADDRESS', 'LEVEL', 'OPEN_CHEST', 'VIEW', 'SUB_MUTEZ'
         ],
     macroCADR: macroCADRconst,
     macroDIP: macroDIPconst,
