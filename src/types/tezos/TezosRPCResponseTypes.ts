@@ -40,7 +40,7 @@ export interface TezosBlockMetadata {
     level: TezosBlockMetadataLevel;
     voting_period_kind: string;
     nonce_hash: string | null;
-    consumed_gas: string;
+    consumed_milligas: string;
     deactivated: any[];
     balance_updates: TezosBlockMetadataBalanceUpdate[];
 }
@@ -114,7 +114,7 @@ export interface TezosBlockOperationContentMetadataBalanceUpdate {
 export interface TezosBlockOperationContentMetadataOperationResult {
     status: string
     balance_updates: TezosBlockOperationContentMetadataBalanceUpdate[];
-    consumed_gas: string;
+    consumed_milligas: string;
 }
 
 /**

@@ -26,7 +26,7 @@ let operationQueues = {}
 export namespace TezosNodeWriter {
     /**
      * Send a POST request to a Tezos node.
-     * 
+     *
      * @param {string} server Which Tezos node to go against
      * @param {string} command RPC route to invoke
      * @param {object} payload Payload to submit
@@ -110,9 +110,9 @@ export namespace TezosNodeWriter {
 
     /**
      * Pack a Micheline structure subject to the provided type. Returns a hex string from the server.
-     * 
+     *
      * This method is not a trustless. It is available because the internal Micheline converter is not yet 100% complete.
-     * 
+     *
      * @deprecated
     */
     export async function packDataRemotely(server: string, data: string, type: string, gas: number = TezosConstants.OperationGasCap, chainid: string = 'main'): Promise<string> {
@@ -184,7 +184,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Master function for creating and sending all supported types of operations.
-     * 
+     *
      * @param {string} server Tezos node to connect to
      * @param {Operation[]} operations The operations to create and send
      * @param {Signer} signer Cryptographic signature provider
@@ -213,10 +213,10 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * 
-     * @param server 
-     * @param operations 
-     * @param keyStore 
+     *
+     * @param server
+     * @param operations
+     * @param keyStore
      * @param {number} batchDelay Number of seconds to wait before sending transactions off.
      */
     export function queueOperation(server: string, operations: TezosP2PMessageTypes.Operation[], signer: Signer, keyStore: KeyStore, batchDelay: number = 25): void {
@@ -276,7 +276,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Creates and sends a transaction operation.
-     * 
+     *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {String} to Destination public key hash
@@ -314,7 +314,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Creates and sends a delegation operation.
-     * 
+     *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} delegate Account address to delegate to, alternatively, '' or undefined if removing delegation
@@ -349,7 +349,7 @@ export namespace TezosNodeWriter {
 
     /**
      * Internally calls sendDelegationOperation with a blank delegate.
-     * 
+     *
      * @param {string} server Tezos node to connect to
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} delegator Account address to delegate from
@@ -417,8 +417,8 @@ export namespace TezosNodeWriter {
     }
 
     /**
-     * Construct a contract origination operation. 
-     * 
+     * Construct a contract origination operation.
+     *
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
      * @param {string|undefined} delegate Account ID to delegate to, blank if none
@@ -610,7 +610,7 @@ export namespace TezosNodeWriter {
      * Operation dry-run to get consumed gas and storage numbers
      *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {string} chainid The chain ID to apply the operation on.
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {string} contract Contract address
      * @param {number} amount Amount to transfer along with the invocation
@@ -656,7 +656,7 @@ export namespace TezosNodeWriter {
      * Origination dry-run to get consumed gas and storage numbers
      *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {string} chainid The chain ID to apply the operation on.
      * @param {KeyStore} keyStore Key pair along with public key hash
      * @param {number} amount Initial funding amount of new account
      * @param {string|undefined} delegate Account ID to delegate to, blank if none
@@ -702,11 +702,11 @@ export namespace TezosNodeWriter {
      * Returns an operation group fee and storage burn estimates along with an array of gas and storage limits for the constituent operations.
      *
      * Inspired by OperationFeeEstimator.estimateAndApplyFees from @tacoinfra/harbinger-lib.
-     * 
+     *
      * @see https://github.com/tacoinfra/harbinger-lib/blob/c27cdd4643574c245ddca62bf7013964ae684bd5/src/operation-fee-estimator.ts#L30
      *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {string} chainid The chain ID to apply the operation on.
      * @param operations An array of operations to process.
      * @returns {[gas: number, storageCost: number], estimatedFee: number, estimatedStorageBurn: number}
      */
@@ -758,9 +758,9 @@ export namespace TezosNodeWriter {
 
     /**
      * Submits the provided operation list to run_operation RPC and extracts gas and storage costs. Also provide estimated fee and storage burn. This function works by calling dryRunOperation() and it may throw an error if the operation is malformed or invalid.
-     * 
+     *
      * @param {string} server Tezos node to connect to
-     * @param {string} chainid The chain ID to apply the operation on. 
+     * @param {string} chainid The chain ID to apply the operation on.
      * @param {TezosP2PMessageTypes.Operation} operations A set of operations to submit.
      * @returns A four-element object containing
      * gas, storageCost, estimatedFee and estimatedStorageBurn. These are exact, unpadded numbers, in practice it may be worthwhile to pad gas and storage limits.
@@ -781,7 +781,7 @@ export namespace TezosNodeWriter {
         for (let c of responseJSON['contents']) {
             // Process main operation.
             try {
-                gas += parseInt(c['metadata']['operation_result']['consumed_gas']) || 0;
+                gas += Math.ceil(parseInt(c['metadata']['operation_result']['consumed_milligas']) / 1000) || 0;
                 storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
 
                 if (c.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
@@ -797,7 +797,7 @@ export namespace TezosNodeWriter {
 
             for (const internalOperation of internalOperations) {
                 const result = internalOperation['result'];
-                gas += parseInt(result['consumed_gas']) || 0;
+                gas += Math.ceil(parseInt(result['consumed_milligas']) / 1000) || 0;
                 storageCost += parseInt(result['paid_storage_size_diff']) || 0;
                 if (internalOperation.kind === 'origination') {
                     storageCost += TezosConstants.EmptyAccountStorageBurn;
@@ -843,12 +843,12 @@ export namespace TezosNodeWriter {
 
     /**
      * Adds a Reveal operation if needed and optimizes fees if asked.
-     * 
-     * @param server 
-     * @param keyStore 
-     * @param counter 
-     * @param operation 
-     * @param optimizeFee 
+     *
+     * @param server
+     * @param keyStore
+     * @param counter
+     * @param operation
+     * @param optimizeFee
      */
     async function prepareOperation(server: string, keyStore: KeyStore, counter: number, operation: any, optimizeFee: boolean = false) {
         const operationGroup = await appendRevealOperation(server, keyStore.publicKey, keyStore.publicKeyHash, counter - 1, [operation]);
@@ -883,7 +883,7 @@ export namespace TezosNodeWriter {
     /**
      * This function checks if the server response contains an error. There are multiple formats for errors coming
      * back from the server, this method attempts to normalized them for downstream parsing.
-     * 
+     *
      * @param {string} response Text response from a Tezos RPC services
      * @returns Error text or `undefined`
      */
@@ -910,7 +910,7 @@ export namespace TezosNodeWriter {
                 // in CARTHAGE and prior protocols activation failures are caught in the first branch
             } else {
                 errors = arr.map(r => r.contents)
-                    .map(o => 
+                    .map(o =>
                         o.map(c => c.metadata.operation_result)
                         .concat(o.flatMap(c => c.metadata.internal_operation_results).filter(c => !!c).map(c => c.result))
                         .map(r => parseRPCOperationResult(r))
