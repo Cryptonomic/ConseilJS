@@ -781,7 +781,7 @@ export namespace TezosNodeWriter {
         for (let c of responseJSON['contents']) {
             // Process main operation.
             try {
-                gas += (parseInt(c['metadata']['operation_result']['consumed_milligas']) / 1000) || 0;
+                gas += Math.ceil(parseInt(c['metadata']['operation_result']['consumed_milligas']) / 1000) || 0;
                 storageCost += parseInt(c['metadata']['operation_result']['paid_storage_size_diff']) || 0;
 
                 if (c.kind === 'origination' || c['metadata']['operation_result']['allocated_destination_contract']) {
@@ -797,7 +797,7 @@ export namespace TezosNodeWriter {
 
             for (const internalOperation of internalOperations) {
                 const result = internalOperation['result'];
-                gas += (parseInt(result['consumed_milligas']) / 1000) || 0;
+                gas += Math.ceil(parseInt(result['consumed_milligas']) / 1000) || 0;
                 storageCost += parseInt(result['paid_storage_size_diff']) || 0;
                 if (internalOperation.kind === 'origination') {
                     storageCost += TezosConstants.EmptyAccountStorageBurn;
