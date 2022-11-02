@@ -964,6 +964,7 @@ export namespace TezosNodeWriter {
      * @param {string} server Tezos node to connect to
      * @param {string} chainid The chain ID to apply the operation on, should be "main" or "test", not to be confused with chain_id.
      * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
+     * @param {string} contract_address The address of the view's contract.
      * @param {string} view_name The view to run
      * @param {string} view_input The input to provide to the view
      * @param {string} chain_id The chain id hash, not to be confused with chainid. Default is mainnet chain_id, NetXdQprcVkpaWU.
@@ -972,6 +973,7 @@ export namespace TezosNodeWriter {
     export async function runView(
         server: string,
         chainid: string,
+        contract_address: string,
         view_name: string,
         view_input: any,
         chain_id: string = 'NetXdQprcVkpaWU',
@@ -980,7 +982,7 @@ export namespace TezosNodeWriter {
             server,
             `chains/${chainid}/blocks/head/helpers/scripts/run_script_view`,
             {
-                        "contract": "KT1LxPGwkrvj8gG8k8CkpyKQaWyQAsnLfHLg",
+                        "contract": contract_address,
                         "view": view_name,
                         "input": view_input,
                         "chain_id": chain_id,
