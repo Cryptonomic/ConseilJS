@@ -957,4 +957,42 @@ export namespace TezosNodeWriter {
 
         return ''; // applied
     }
+
+    /**
+     * Get the result of a smart contract view using the Tezos node's `run_script_view` RPC.
+     *
+     * @param {string} server Tezos node to connect to
+     * @param {string} chainid The chain ID to apply the operation on, should be "main" or "test", not to be confused with chain_id.
+     * @param {TezosP2PMessageTypes.Operation} operations A set of operations to update.
+     * @param {string} view_name The view to run
+     * @param {string} view_input The input to provide to the view
+     * @param {string} chain_id The chain id hash, not to be confused with chainid. Default is mainnet chain_id, NetXdQprcVkpaWU.
+     * @returns {Promise<any>} JSON-encoded response
+     */
+    export async function runView(
+        server: string,
+        chainid: string,
+        view_name: string,
+        view_input: string,
+        chain_id: string = 'NetXdQprcVkpaWU',
+    ): Promise<any> {
+        const response = await performPostRequest(
+            server,
+            `chains/${chainid}/blocks/head/helpers/scripts/run_script_view`,
+            {
+                        "contract": "KT1LxPGwkrvj8gG8k8CkpyKQaWyQAsnLfHLg",
+                        "view": view_name,
+                        "input": view_input,
+                        "chain_id": chain_id,
+                        "unparsing_mode": "Readable"
+            }
+        );
+        const responseText = await response.text();
+
+        parseRPCError(responseText);
+
+        const responseJSON = JSON.parse(responseText);
+
+        return responseJSON;
+    }
 }
