@@ -973,7 +973,7 @@ export namespace TezosNodeWriter {
         server: string,
         chainid: string,
         view_name: string,
-        view_input: string,
+        view_input: any,
         chain_id: string = 'NetXdQprcVkpaWU',
     ): Promise<any> {
         const response = await performPostRequest(
