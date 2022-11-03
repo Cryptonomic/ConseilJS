@@ -15,7 +15,6 @@ import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
-import {block} from "../../../test/reporting/tezos/TezosConseilClient.responses";
 const log = LogSelector.log;
 const counterMatcher = new RegExp(/.*Counter [0-9]{1,} already used for contract.*/, 'gm');
 
