@@ -15,6 +15,7 @@ import FetchSelector from '../../utils/FetchSelector'
 const fetch = FetchSelector.fetch;
 
 import LogSelector from '../../utils/LoggerSelector';
+import {block} from "../../../test/reporting/tezos/TezosConseilClient.responses";
 const log = LogSelector.log;
 const counterMatcher = new RegExp(/.*Counter [0-9]{1,} already used for contract.*/, 'gm');
 
@@ -968,6 +969,7 @@ export namespace TezosNodeWriter {
      * @param {string} view_name The view to run
      * @param {string} view_input The input to provide to the view
      * @param {string} chain_id The chain id hash, not to be confused with chainid. Default is mainnet chain_id, NetXdQprcVkpaWU.
+     * @param {string} block_level The block level at which to run the specified view
      * @returns {Promise<any>} JSON-encoded response
      */
     export async function runView(
@@ -976,6 +978,7 @@ export namespace TezosNodeWriter {
         contract_address: string,
         view_name: string,
         view_input: any,
+        block_level: string,
         chain_id: string = 'NetXdQprcVkpaWU',
     ): Promise<any> {
         const response = await performPostRequest(
@@ -986,7 +989,8 @@ export namespace TezosNodeWriter {
                         "view": view_name,
                         "input": view_input,
                         "chain_id": chain_id,
-                        "unparsing_mode": "Readable"
+                        "unparsing_mode": "Readable",
+                        "level": block_level
             }
         );
         const responseText = await response.text();
