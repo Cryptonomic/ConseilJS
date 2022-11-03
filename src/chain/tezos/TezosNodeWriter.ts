@@ -993,11 +993,7 @@ export namespace TezosNodeWriter {
             }
         );
         const responseText = await response.text();
-
-        parseRPCError(responseText);
-
         const responseJSON = JSON.parse(responseText);
-
         return responseJSON;
     }
 }
