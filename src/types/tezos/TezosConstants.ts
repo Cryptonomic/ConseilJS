@@ -47,9 +47,10 @@ export namespace TezosConstants {
 
     export const P009BlockGasCap = 10_400_000;
     export const P010BlockGasCap = 5_200_000;
+    export const P016BlockGasCap = 2_600_000;
     export const P007OperationGasCap = 1_040_000;
     export const OperationGasCap = P007OperationGasCap;
-    export const BlockGasCap = P010BlockGasCap;
+    export const BlockGasCap = P016BlockGasCap;
 
     export const P010OperationStorageCap = 60_000;
     export const P011OperationStorageCap = 32_768;
