@@ -1,3 +1,5 @@
+Note: As of January 2023, ConseilJS is maintained on a best effort basis for Tezos: https://discourse.cryptonomic.tech/t/psa-conseil-conseiljs-will-now-be-maintained-on-a-best-effort-basis-for-tezos/235/2
+
 # ConseilJS-core
 
 [![npm version](https://img.shields.io/npm/v/conseiljs.svg)](https://www.npmjs.com/package/conseiljs)
