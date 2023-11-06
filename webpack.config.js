@@ -1,7 +1,6 @@
 const TerserPlugin = require('terser-webpack-plugin');
 const path = require('path');
 const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
-const { CheckerPlugin } = require('awesome-typescript-loader');
 
 const webConfig = {
     mode: 'production',
@@ -11,7 +10,8 @@ const webConfig = {
         path: path.resolve(__dirname, './dist-web'),
         filename: 'conseiljs.min.js',
         library: 'conseiljs',
-        libraryTarget: 'umd'
+        libraryTarget: 'umd',
+        hashFunction: "sha256"
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
@@ -23,13 +23,16 @@ const webConfig = {
     },
     module: {
         rules: [
-            { test: /\.tsx?$/, loader: 'awesome-typescript-loader' }
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            }
         ]
     },
     node: {
-        
+
     },
-    plugins: [new CheckerPlugin()],
     optimization: {
         minimizer: [new TerserPlugin()]
     }
