@@ -252,7 +252,7 @@ export namespace TezosNodeWriter {
         const isKeyRevealed = await TezosNodeReader.isManagerKeyRevealedForAccount(server, accountHash);
         const counter = accountOperationIndex + 1;
 
-        if (!isKeyRevealed) {
+        if (!isKeyRevealed && operations.filter(o => o.kind === 'reveal').length === 0) {
             const revealOp: TezosP2PMessageTypes.Reveal = {
                 kind: 'reveal',
                 source: accountHash,
