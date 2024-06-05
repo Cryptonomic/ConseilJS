@@ -31,8 +31,8 @@ export namespace TezosNodeReader {
                 }
                 return response;
             })
-            .then(response => {
-                const json: any = response.json();
+            .then(async response => {
+                const json: any = await response.json();
                 log.debug(`TezosNodeReader.performGetRequest response: ${json} for ${command} on ${server}`);
                 return json;
             });
