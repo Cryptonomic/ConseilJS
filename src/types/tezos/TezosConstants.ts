@@ -48,9 +48,10 @@ export namespace TezosConstants {
     export const P009BlockGasCap = 10_400_000;
     export const P010BlockGasCap = 5_200_000;
     export const P016BlockGasCap = 2_600_000;
+    export const P019BlockGasCap = 1_733_333;
     export const P007OperationGasCap = 1_040_000;
     export const OperationGasCap = P007OperationGasCap;
-    export const BlockGasCap = P016BlockGasCap;
+    export const BlockGasCap = P019BlockGasCap;
 
     export const P010OperationStorageCap = 60_000;
     export const P011OperationStorageCap = 32_768;
@@ -80,7 +81,8 @@ export namespace TezosConstants {
 
     export const P009BlockTime = 60;
     export const P010BlockTime = 30;
-    export const DefaultBlockTime = P010BlockTime;
+    export const P019BlockTime = 10;
+    export const DefaultBlockTime = P019BlockTime;
 
     export const GenesisBlockTime = new Date(2018, 5, 30, 12, 7, 32);
 }
